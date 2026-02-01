@@ -163,11 +163,7 @@ const TOOLS: Record<string, ToolConfig> = {
 			if ("conversionRate" in output) {
 				const rate = output.conversionRate as number;
 				const safeRate = rate == null || Number.isNaN(rate) ? 0 : rate;
-				return (
-					<p>
-						{(safeRate * 100).toFixed(1)}% conversion
-					</p>
-				);
+				return <p>{(safeRate * 100).toFixed(1)}% conversion</p>;
 			}
 			return <p>Analysis complete</p>;
 		},
@@ -225,11 +221,7 @@ const TOOLS: Record<string, ToolConfig> = {
 			if ("overall_conversion_rate" in output) {
 				const rate = output.overall_conversion_rate as number;
 				const safeRate = rate == null || Number.isNaN(rate) ? 0 : rate;
-				return (
-					<p>
-						{safeRate.toFixed(1)}% conversion
-					</p>
-				);
+				return <p>{safeRate.toFixed(1)}% conversion</p>;
 			}
 			return <p>Analysis complete</p>;
 		},

@@ -257,14 +257,23 @@ export const websitesRouter = {
 				tables: ["websites"],
 				queryFn: async () => {
 					if (input.organizationId) {
-						const { success } = await websitesApi.hasPermission({
-							headers: context.headers,
-							body: {
-								organizationId: input.organizationId,
-								permissions: { website: ["read"] },
-							},
-						});
-						if (!success) {
+						try {
+							const { success } = await websitesApi.hasPermission({
+								headers: context.headers,
+								body: {
+									organizationId: input.organizationId,
+									permissions: { website: ["read"] },
+								},
+							});
+							if (!success) {
+								throw new ORPCError("FORBIDDEN", {
+									message: "Missing organization permissions.",
+								});
+							}
+						} catch (error) {
+							if (error instanceof ORPCError) {
+								throw error;
+							}
 							throw new ORPCError("FORBIDDEN", {
 								message: "Missing organization permissions.",
 							});
@@ -328,14 +337,23 @@ export const websitesRouter = {
 			>;
 
 			if (input.organizationId) {
-				const { success } = await websitesApi.hasPermission({
-					headers: context.headers,
-					body: {
-						organizationId: input.organizationId,
-						permissions: { website: ["read"] },
-					},
-				});
-				if (!success) {
+				try {
+					const { success } = await websitesApi.hasPermission({
+						headers: context.headers,
+						body: {
+							organizationId: input.organizationId,
+							permissions: { website: ["read"] },
+						},
+					});
+					if (!success) {
+						throw new ORPCError("FORBIDDEN", {
+							message: "Missing organization permissions.",
+						});
+					}
+				} catch (error) {
+					if (error instanceof ORPCError) {
+						throw error;
+					}
 					throw new ORPCError("FORBIDDEN", {
 						message: "Missing organization permissions.",
 					});
@@ -420,14 +438,23 @@ export const websitesRouter = {
 				});
 			}
 
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.organizationId,
-					permissions: { website: ["create"] },
-				},
-			});
-			if (!success) {
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.organizationId,
+						permissions: { website: ["create"] },
+					},
+				});
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "Missing workspace permissions.",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message: "Missing workspace permissions.",
 				});
@@ -611,14 +638,23 @@ export const websitesRouter = {
 				});
 			}
 
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.organizationId,
-					permissions: { website: ["create"] },
-				},
-			});
-			if (!success) {
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.organizationId,
+						permissions: { website: ["create"] },
+					},
+				});
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "Missing workspace permissions.",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message: "Missing workspace permissions.",
 				});
@@ -652,14 +688,24 @@ export const websitesRouter = {
 		.handler(async ({ context, input }) => {
 			await authorizeWebsiteAccess(context, input.websiteId, "transfer");
 
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.targetOrganizationId,
-					permissions: { website: ["create"] },
-				},
-			});
-			if (!success) {
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.targetOrganizationId,
+						permissions: { website: ["create"] },
+					},
+				});
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message:
+							"Missing permissions to transfer website to target organization.",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message:
 						"Missing permissions to transfer website to target organization.",

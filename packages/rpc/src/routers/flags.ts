@@ -51,14 +51,25 @@ const authorizeScope = async (
 			headersObj[key] = value;
 		});
 		const perm = permission === "read" ? "read" : "create";
-		const { success } = await websitesApi.hasPermission({
-			headers: headersObj,
-			body: {
-				organizationId,
-				permissions: { website: [perm] },
-			},
-		});
-		if (!success) {
+		try {
+			const { success } = await websitesApi.hasPermission({
+				headers: headersObj,
+				body: {
+					organizationId,
+					permissions: { website: [perm] },
+				},
+			});
+			if (!success) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "Missing organization permissions.",
+				});
+			}
+		} catch (error) {
+			// If it's already an ORPCError, re-throw it
+			if (error instanceof ORPCError) {
+				throw error;
+			}
+			// Otherwise, treat permission check failures as FORBIDDEN
 			throw new ORPCError("FORBIDDEN", {
 				message: "Missing organization permissions.",
 			});
@@ -232,7 +243,7 @@ function sanitizeFlagForDemo<T extends FlagWithTargetGroups>(flag: T): T {
 		...flag,
 		rules: Array.isArray(flag.rules) && flag.rules.length > 0 ? [] : flag.rules,
 		targetGroups: flag.targetGroups?.map(
-			(group: { rules?: unknown;[key: string]: unknown }) => ({
+			(group: { rules?: unknown; [key: string]: unknown }) => ({
 				...group,
 				rules:
 					Array.isArray(group.rules) && group.rules.length > 0
@@ -666,16 +677,8 @@ export const flagsRouter = {
 			if (flag.websiteId) {
 				await authorizeWebsiteAccess(context, flag.websiteId, "update");
 			} else if (flag.organizationId) {
-				await authorizeScope(
-					context,
-					undefined,
-					flag.organizationId,
-					"update"
-				);
-			} else if (
-				flag.userId &&
-				flag.userId !== context.user.id
-			) {
+				await authorizeScope(context, undefined, flag.organizationId, "update");
+			} else if (flag.userId && flag.userId !== context.user.id) {
 				throw new ORPCError("FORBIDDEN", {
 					message: "Not authorized to update this flag",
 				});
@@ -834,16 +837,8 @@ export const flagsRouter = {
 			if (flag.websiteId) {
 				await authorizeWebsiteAccess(context, flag.websiteId, "delete");
 			} else if (flag.organizationId) {
-				await authorizeScope(
-					context,
-					undefined,
-					flag.organizationId,
-					"delete"
-				);
-			} else if (
-				flag.userId &&
-				flag.userId !== context.user.id
-			) {
+				await authorizeScope(context, undefined, flag.organizationId, "delete");
+			} else if (flag.userId && flag.userId !== context.user.id) {
 				throw new ORPCError("FORBIDDEN", {
 					message: "Not authorized to delete this flag",
 				});

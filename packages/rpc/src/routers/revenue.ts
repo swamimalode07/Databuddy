@@ -1,5 +1,6 @@
 import { websitesApi } from "@databuddy/auth";
 import { and, db, eq, isNull, revenueConfig, websites } from "@databuddy/db";
+import { logger } from "@databuddy/shared/logger";
 import { createId } from "@databuddy/shared/utils/ids";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
@@ -41,14 +42,22 @@ async function hasManagePermission(
 	headers: Headers,
 	organizationId: string
 ): Promise<boolean> {
-	const { success } = await websitesApi.hasPermission({
-		headers,
-		body: {
-			organizationId,
-			permissions: { website: ["configure"] },
-		},
-	});
-	return success;
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers,
+			body: {
+				organizationId,
+				permissions: { website: ["configure"] },
+			},
+		});
+		return success;
+	} catch (error) {
+		logger.error(
+			{ error, organizationId },
+			"Error checking revenue manage permissions"
+		);
+		return false;
+	}
 }
 
 export const revenueRouter = {
@@ -68,13 +77,13 @@ export const revenueRouter = {
 			const config = await context.db.query.revenueConfig.findFirst({
 				where: input.websiteId
 					? and(
-						eq(revenueConfig.ownerId, ownerId),
-						eq(revenueConfig.websiteId, input.websiteId)
-					)
+							eq(revenueConfig.ownerId, ownerId),
+							eq(revenueConfig.websiteId, input.websiteId)
+						)
 					: and(
-						eq(revenueConfig.ownerId, ownerId),
-						isNull(revenueConfig.websiteId)
-					),
+							eq(revenueConfig.ownerId, ownerId),
+							isNull(revenueConfig.websiteId)
+						),
 			});
 
 			if (!config) {
@@ -112,13 +121,13 @@ export const revenueRouter = {
 			const existing = await context.db.query.revenueConfig.findFirst({
 				where: input.websiteId
 					? and(
-						eq(revenueConfig.ownerId, ownerId),
-						eq(revenueConfig.websiteId, input.websiteId)
-					)
+							eq(revenueConfig.ownerId, ownerId),
+							eq(revenueConfig.websiteId, input.websiteId)
+						)
 					: and(
-						eq(revenueConfig.ownerId, ownerId),
-						isNull(revenueConfig.websiteId)
-					),
+							eq(revenueConfig.ownerId, ownerId),
+							isNull(revenueConfig.websiteId)
+						),
 			});
 
 			if (existing) {
@@ -180,13 +189,13 @@ export const revenueRouter = {
 			const existing = await context.db.query.revenueConfig.findFirst({
 				where: input.websiteId
 					? and(
-						eq(revenueConfig.ownerId, ownerId),
-						eq(revenueConfig.websiteId, input.websiteId)
-					)
+							eq(revenueConfig.ownerId, ownerId),
+							eq(revenueConfig.websiteId, input.websiteId)
+						)
 					: and(
-						eq(revenueConfig.ownerId, ownerId),
-						isNull(revenueConfig.websiteId)
-					),
+							eq(revenueConfig.ownerId, ownerId),
+							isNull(revenueConfig.websiteId)
+						),
 			});
 
 			if (!existing) {
@@ -215,13 +224,13 @@ export const revenueRouter = {
 			const existing = await context.db.query.revenueConfig.findFirst({
 				where: input.websiteId
 					? and(
-						eq(revenueConfig.ownerId, ownerId),
-						eq(revenueConfig.websiteId, input.websiteId)
-					)
+							eq(revenueConfig.ownerId, ownerId),
+							eq(revenueConfig.websiteId, input.websiteId)
+						)
 					: and(
-						eq(revenueConfig.ownerId, ownerId),
-						isNull(revenueConfig.websiteId)
-					),
+							eq(revenueConfig.ownerId, ownerId),
+							isNull(revenueConfig.websiteId)
+						),
 			});
 
 			if (!existing) {

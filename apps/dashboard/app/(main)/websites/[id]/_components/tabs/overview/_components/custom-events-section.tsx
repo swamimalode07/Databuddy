@@ -38,7 +38,8 @@ const createDomainIndicator = () => (
 );
 
 const createPercentageBadge = (percentage: number) => {
-	const safePercentage = percentage == null || Number.isNaN(percentage) ? 0 : percentage;
+	const safePercentage =
+		percentage == null || Number.isNaN(percentage) ? 0 : percentage;
 	return (
 		<div className="inline-flex items-center rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
 			{safePercentage.toFixed(1)}%

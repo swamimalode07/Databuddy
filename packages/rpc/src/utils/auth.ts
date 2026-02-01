@@ -52,7 +52,18 @@ export async function authorizeWebsiteAccess(
 	websiteId: string,
 	permission: Permission
 ) {
-	const website = await getWebsiteById(websiteId);
+	let website: Awaited<ReturnType<typeof getWebsiteById>>;
+	try {
+		website = await getWebsiteById(websiteId);
+	} catch (error) {
+		logger.error(
+			{ error, websiteId },
+			"Error fetching website for authorization"
+		);
+		throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			message: "Failed to verify website access",
+		});
+	}
 
 	if (!website) {
 		throw new ORPCError("NOT_FOUND", {
@@ -77,14 +88,27 @@ export async function authorizeWebsiteAccess(
 		});
 	}
 
-	const { success } = await websitesApi.hasPermission({
-		headers: ctx.headers,
-		body: {
-			organizationId: website.organizationId,
-			permissions: { website: [permission] },
-		},
-	});
-	if (!success) {
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers: ctx.headers,
+			body: {
+				organizationId: website.organizationId,
+				permissions: { website: [permission] },
+			},
+		});
+		if (!success) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "You do not have permission to perform this action",
+			});
+		}
+	} catch (error) {
+		if (error instanceof ORPCError) {
+			throw error;
+		}
+		logger.error(
+			{ error, websiteId, organizationId: website.organizationId, permission },
+			"Error checking website permissions"
+		);
 		throw new ORPCError("FORBIDDEN", {
 			message: "You do not have permission to perform this action",
 		});
@@ -149,15 +173,28 @@ export async function authorizeUptimeScheduleAccess(
 		});
 	}
 
-	const { success } = await websitesApi.hasPermission({
-		headers: ctx.headers,
-		body: {
-			organizationId: schedule.organizationId,
-			permissions: { website: ["update"] },
-		},
-	});
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers: ctx.headers,
+			body: {
+				organizationId: schedule.organizationId,
+				permissions: { website: ["update"] },
+			},
+		});
 
-	if (!success) {
+		if (!success) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "You do not have permission to access this monitor",
+			});
+		}
+	} catch (error) {
+		if (error instanceof ORPCError) {
+			throw error;
+		}
+		logger.error(
+			{ error, organizationId: schedule.organizationId },
+			"Error checking uptime schedule permissions"
+		);
 		throw new ORPCError("FORBIDDEN", {
 			message: "You do not have permission to access this monitor",
 		});

@@ -42,7 +42,11 @@ export const DEFAULT_DATE_RANGE = {
 	granularity: "daily" as const,
 };
 
-export function EventsPageProvider({ children }: { children: React.ReactNode }) {
+export function EventsPageProvider({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	const { activeOrganization, isLoading: isLoadingOrg } =
 		useOrganizationsContext();
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight();
@@ -109,14 +113,18 @@ export function EventsPageProvider({ children }: { children: React.ReactNode }) 
 	);
 
 	return (
-		<EventsPageContext.Provider value={value}>{children}</EventsPageContext.Provider>
+		<EventsPageContext.Provider value={value}>
+			{children}
+		</EventsPageContext.Provider>
 	);
 }
 
 export function useEventsPageContext() {
 	const context = useContext(EventsPageContext);
 	if (!context) {
-		throw new Error("useEventsPageContext must be used within EventsPageProvider");
+		throw new Error(
+			"useEventsPageContext must be used within EventsPageProvider"
+		);
 	}
 	return context;
 }

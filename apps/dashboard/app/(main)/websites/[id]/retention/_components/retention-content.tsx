@@ -87,7 +87,9 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 		const totalUniqueUsers = totalNewUsers + totalReturningUsers;
 
 		const overallRetentionRate =
-			totalUniqueUsers > 0 && !Number.isNaN(totalReturningUsers) && !Number.isNaN(totalUniqueUsers)
+			totalUniqueUsers > 0 &&
+			!Number.isNaN(totalReturningUsers) &&
+			!Number.isNaN(totalUniqueUsers)
 				? (totalReturningUsers / totalUniqueUsers) * 100
 				: 0;
 
@@ -100,16 +102,22 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 			0
 		);
 		const avgWeek1Retention =
-			totalCohortUsers > 0 && !Number.isNaN(weightedWeek1) && !Number.isNaN(totalCohortUsers)
+			totalCohortUsers > 0 &&
+			!Number.isNaN(weightedWeek1) &&
+			!Number.isNaN(totalCohortUsers)
 				? weightedWeek1 / totalCohortUsers
 				: 0;
 
 		return {
-			avgRetentionRate: Number.isNaN(overallRetentionRate) ? 0 : overallRetentionRate,
+			avgRetentionRate: Number.isNaN(overallRetentionRate)
+				? 0
+				: overallRetentionRate,
 			totalUsers: totalUniqueUsers,
 			totalNewUsers,
 			totalReturningUsers,
-			avgWeek1Retention: Number.isNaN(avgWeek1Retention) ? 0 : avgWeek1Retention,
+			avgWeek1Retention: Number.isNaN(avgWeek1Retention)
+				? 0
+				: avgWeek1Retention,
 		};
 	}, [rates, cohorts]);
 

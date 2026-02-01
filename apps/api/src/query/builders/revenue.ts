@@ -7,7 +7,7 @@ import type { Filter, SimpleQueryConfig, TimeUnit } from "../types";
  * Attribution uses a multi-level fallback approach:
  * 1. session_id match (most accurate, when available)
  * 2. anonymous_id match (fallback for transactions with tracked users)
- * 3. Time-based "last touch" attribution (fallback: attribute to the last 
+ * 3. Time-based "last touch" attribution (fallback: attribute to the last
  *    pageview that occurred before/on the purchase date)
  *
  * Transactions without any matches are labeled "Unattributed"

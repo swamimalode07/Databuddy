@@ -104,14 +104,23 @@ export const organizationsRouter = {
 	updateAvatarSeed: protectedProcedure
 		.input(updateAvatarSeedSchema)
 		.handler(async ({ input, context }) => {
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.organizationId,
-					permissions: { organization: ["update"] },
-				},
-			});
-			if (!success) {
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.organizationId,
+						permissions: { organization: ["update"] },
+					},
+				});
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "You do not have permission to update this organization.",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message: "You do not have permission to update this organization.",
 				});
@@ -141,14 +150,24 @@ export const organizationsRouter = {
 	getPendingInvitations: protectedProcedure
 		.input(getPendingInvitationsSchema)
 		.handler(async ({ input, context }) => {
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.organizationId,
-					permissions: { organization: ["read"] },
-				},
-			});
-			if (!success) {
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.organizationId,
+						permissions: { organization: ["read"] },
+					},
+				});
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message:
+							"You do not have permission to view invitations for this organization.",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message:
 						"You do not have permission to view invitations for this organization.",
@@ -301,12 +320,23 @@ export const organizationsRouter = {
 
 			if (input?.websiteId) {
 				await authorizeWebsiteAccess(context, input.websiteId, "read");
-				const websiteOwner = await getBillingOwnerFromWebsite(input.websiteId);
-				customerId = websiteOwner.customerId;
-				isOrganization = websiteOwner.isOrganization;
-				canUserUpgrade = false;
-			}
-			else if (context.user) {
+				try {
+					const websiteOwner = await getBillingOwnerFromWebsite(
+						input.websiteId
+					);
+					customerId = websiteOwner.customerId;
+					isOrganization = websiteOwner.isOrganization;
+					canUserUpgrade = false;
+				} catch (error) {
+					logger.error(
+						{ error, websiteId: input.websiteId },
+						"Error fetching billing owner from website"
+					);
+					throw new ORPCError("INTERNAL_SERVER_ERROR", {
+						message: "Failed to retrieve billing information",
+					});
+				}
+			} else if (context.user) {
 				activeOrgId = (
 					context.session as { activeOrganizationId?: string | null }
 				)?.activeOrganizationId;
@@ -321,14 +351,14 @@ export const organizationsRouter = {
 
 			const debugInfo = isDev
 				? {
-					_debug: {
-						userId: context.user?.id ?? null,
-						activeOrganizationId: activeOrgId ?? null,
-						customerId,
-						websiteId: input?.websiteId ?? null,
-						sessionId: context.session?.id ?? null,
-					},
-				}
+						_debug: {
+							userId: context.user?.id ?? null,
+							activeOrganizationId: activeOrgId ?? null,
+							customerId,
+							websiteId: input?.websiteId ?? null,
+							sessionId: context.session?.id ?? null,
+						},
+					}
 				: {};
 
 			// No customer ID means we can't look up billing

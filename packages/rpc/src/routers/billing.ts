@@ -148,15 +148,26 @@ const checkOrganizationPermission = async (
 	headers: Headers,
 	organizationId: string
 ): Promise<void> => {
-	const { success } = await websitesApi.hasPermission({
-		headers,
-		body: {
-			organizationId,
-			permissions: { website: ["read"] },
-		},
-	});
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers,
+			body: {
+				organizationId,
+				permissions: { website: ["read"] },
+			},
+		});
 
-	if (!success) {
+		if (!success) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Missing organization permissions.",
+			});
+		}
+	} catch (error) {
+		// If it's already an ORPCError, re-throw it
+		if (error instanceof ORPCError) {
+			throw error;
+		}
+		// Otherwise, treat permission check failures as FORBIDDEN
 		throw new ORPCError("FORBIDDEN", {
 			message: "Missing organization permissions.",
 		});

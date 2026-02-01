@@ -410,14 +410,23 @@ export const insightsRouter = {
 					}>;
 
 					if (input.organizationId) {
-						const { success } = await websitesApi.hasPermission({
-							headers: context.headers,
-							body: {
-								organizationId: input.organizationId,
-								permissions: { website: ["read"] },
-							},
-						});
-						if (!success) {
+						try {
+							const { success } = await websitesApi.hasPermission({
+								headers: context.headers,
+								body: {
+									organizationId: input.organizationId,
+									permissions: { website: ["read"] },
+								},
+							});
+							if (!success) {
+								throw new ORPCError("FORBIDDEN", {
+									message: "Missing workspace permissions.",
+								});
+							}
+						} catch (error) {
+							if (error instanceof ORPCError) {
+								throw error;
+							}
 							throw new ORPCError("FORBIDDEN", {
 								message: "Missing workspace permissions.",
 							});

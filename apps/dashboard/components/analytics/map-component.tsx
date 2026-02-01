@@ -415,7 +415,13 @@ export function MapComponent({
 						<span className="font-semibold text-foreground">
 							{tooltipContent.count.toLocaleString()}
 						</span>{" "}
-						visitors ({(tooltipContent.percentage == null || Number.isNaN(tooltipContent.percentage) ? 0 : tooltipContent.percentage).toFixed(1)}%)
+						visitors (
+						{(tooltipContent.percentage == null ||
+						Number.isNaN(tooltipContent.percentage)
+							? 0
+							: tooltipContent.percentage
+						).toFixed(1)}
+						%)
 					</div>
 				</div>
 			)}

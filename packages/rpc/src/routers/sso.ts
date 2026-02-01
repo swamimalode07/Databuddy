@@ -8,15 +8,24 @@ export const ssoRouter = {
 	list: protectedProcedure
 		.input(z.object({ organizationId: z.string() }))
 		.handler(async ({ context, input }) => {
-			const { success } = await websitesApi.hasPermission({
-				headers: context.headers,
-				body: {
-					organizationId: input.organizationId,
-					permissions: { organization: ["read"] },
-				},
-			});
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: input.organizationId,
+						permissions: { organization: ["read"] },
+					},
+				});
 
-			if (!success) {
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "You do not have permission to access this organization",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message: "You do not have permission to access this organization",
 				});
@@ -47,29 +56,38 @@ export const ssoRouter = {
 				where: eq(ssoProvider.providerId, input.providerId),
 			});
 
-		if (!provider) {
-			return null;
-		}
+			if (!provider) {
+				return null;
+			}
 
-		if (!provider.organizationId) {
-			throw new ORPCError("FORBIDDEN", {
-				message: "SSO provider must belong to an organization",
-			});
-		}
+			if (!provider.organizationId) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "SSO provider must belong to an organization",
+				});
+			}
 
-		const { success } = await websitesApi.hasPermission({
-			headers: context.headers,
-			body: {
-				organizationId: provider.organizationId,
-				permissions: { organization: ["read"] },
-			},
-		});
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: provider.organizationId,
+						permissions: { organization: ["read"] },
+					},
+				});
 
-		if (!success) {
-			throw new ORPCError("FORBIDDEN", {
-				message: "You do not have permission to access this SSO provider",
-			});
-		}
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "You do not have permission to access this SSO provider",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
+				throw new ORPCError("FORBIDDEN", {
+					message: "You do not have permission to access this SSO provider",
+				});
+			}
 
 			return {
 				id: provider.id,
@@ -90,27 +108,36 @@ export const ssoRouter = {
 				where: eq(ssoProvider.providerId, input.providerId),
 			});
 
-		if (!provider) {
-			throw new ORPCError("NOT_FOUND", {
-				message: "SSO provider not found",
-			});
-		}
+			if (!provider) {
+				throw new ORPCError("NOT_FOUND", {
+					message: "SSO provider not found",
+				});
+			}
 
-		if (!provider.organizationId) {
-			throw new ORPCError("FORBIDDEN", {
-				message: "SSO provider must belong to an organization",
-			});
-		}
+			if (!provider.organizationId) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "SSO provider must belong to an organization",
+				});
+			}
 
-		const { success } = await websitesApi.hasPermission({
-			headers: context.headers,
-			body: {
-				organizationId: provider.organizationId,
-				permissions: { organization: ["update"] },
-			},
-		});
+			try {
+				const { success } = await websitesApi.hasPermission({
+					headers: context.headers,
+					body: {
+						organizationId: provider.organizationId,
+						permissions: { organization: ["update"] },
+					},
+				});
 
-			if (!success) {
+				if (!success) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "You do not have permission to delete this SSO provider",
+					});
+				}
+			} catch (error) {
+				if (error instanceof ORPCError) {
+					throw error;
+				}
 				throw new ORPCError("FORBIDDEN", {
 					message: "You do not have permission to delete this SSO provider",
 				});

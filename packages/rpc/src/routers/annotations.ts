@@ -32,14 +32,18 @@ async function hasWebsiteUpdatePermission(
 	if (!website.organizationId) {
 		return false;
 	}
-	const { success } = await websitesApi.hasPermission({
-		headers: context.headers,
-		body: {
-			organizationId: website.organizationId,
-			permissions: { website: ["update"] },
-		},
-	});
-	return success;
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers: context.headers,
+			body: {
+				organizationId: website.organizationId,
+				permissions: { website: ["update"] },
+			},
+		});
+		return success;
+	} catch {
+		return false;
+	}
 }
 
 const chartContextSchema = z.object({

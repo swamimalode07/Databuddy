@@ -47,15 +47,26 @@ async function verifyOrganizationAccess(
 	ctx: Context & { user: NonNullable<Context["user"]> },
 	organizationId: string
 ) {
-	const { success } = await websitesApi.hasPermission({
-		headers: ctx.headers,
-		body: {
-			organizationId,
-			permissions: { website: ["configure"] },
-		},
-	});
+	try {
+		const { success } = await websitesApi.hasPermission({
+			headers: ctx.headers,
+			body: {
+				organizationId,
+				permissions: { website: ["configure"] },
+			},
+		});
 
-	if (!success) {
+		if (!success) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Missing organization permissions",
+			});
+		}
+	} catch (error) {
+		// If it's already an ORPCError, re-throw it
+		if (error instanceof ORPCError) {
+			throw error;
+		}
+		// Otherwise, treat permission check failures as FORBIDDEN
 		throw new ORPCError("FORBIDDEN", {
 			message: "Missing organization permissions",
 		});
@@ -139,9 +150,9 @@ export const apikeysRouter = {
 					input.organizationId
 						? eq(apikey.organizationId, input.organizationId)
 						: and(
-							eq(apikey.userId, context.user.id),
-							isNull(apikey.organizationId)
-						)
+								eq(apikey.userId, context.user.id),
+								isNull(apikey.organizationId)
+							)
 				)
 				.orderBy(desc(apikey.createdAt));
 			return rows.map((r) => mapKey(r));

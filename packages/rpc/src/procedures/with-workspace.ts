@@ -304,7 +304,18 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 	}
 
 	// Check workspace membership and permissions
-	const role = await getOrganizationRole(context.user.id, organizationId);
+	let role: string | null;
+	try {
+		role = await getOrganizationRole(context.user.id, organizationId);
+	} catch (error) {
+		logger.error(
+			{ error, userId: context.user.id, organizationId },
+			"Error checking organization role"
+		);
+		throw new ORPCError("FORBIDDEN", {
+			message: "You are not a member of this organization",
+		});
+	}
 
 	if (!role) {
 		throw new ORPCError("FORBIDDEN", {
@@ -391,7 +402,18 @@ export async function withWebsite(
 	} = config;
 
 	// Fetch website first
-	const website = await getWebsiteById(websiteId);
+	let website: Awaited<ReturnType<typeof getWebsiteById>>;
+	try {
+		website = await getWebsiteById(websiteId);
+	} catch (error) {
+		logger.error(
+			{ error, websiteId },
+			"Error fetching website for authorization"
+		);
+		throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			message: "Failed to verify website access",
+		});
+	}
 
 	if (!website) {
 		throw new ORPCError("NOT_FOUND", {
@@ -438,10 +460,22 @@ export async function withWebsite(
 		});
 	}
 
-	const role = await getOrganizationRole(
-		context.user.id,
-		website.organizationId
-	);
+	let role: string | null;
+	try {
+		role = await getOrganizationRole(context.user.id, website.organizationId);
+	} catch (error) {
+		logger.error(
+			{
+				error,
+				userId: context.user.id,
+				organizationId: website.organizationId,
+			},
+			"Error checking organization role"
+		);
+		throw new ORPCError("FORBIDDEN", {
+			message: "You are not a member of this workspace",
+		});
+	}
 
 	if (!role) {
 		throw new ORPCError("FORBIDDEN", {

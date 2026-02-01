@@ -171,7 +171,11 @@ export function SummaryStats({
 								/>
 								{trendDirection === "up" && "+"}
 								{trendDirection === "down" && "-"}
-								{(averageTrend == null || Number.isNaN(averageTrend) ? 0 : averageTrend).toFixed(0)}%
+								{(averageTrend == null || Number.isNaN(averageTrend)
+									? 0
+									: averageTrend
+								).toFixed(0)}
+								%
 							</span>
 						)}
 					</div>
