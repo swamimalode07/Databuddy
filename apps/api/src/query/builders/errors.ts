@@ -126,12 +126,12 @@ export const ErrorsBuilders: Record<string, SimpleQueryConfig> = {
 	errors_by_page: {
 		table: Analytics.error_spans,
 		fields: [
-			"path as name",
+			"CASE WHEN trimRight(path(path), '/') = '' THEN '/' ELSE trimRight(path(path), '/') END as name",
 			"COUNT(*) as errors",
 			"uniq(anonymous_id) as users",
 		],
 		where: ["message != ''", "path != ''"],
-		groupBy: ["path"],
+		groupBy: ["CASE WHEN trimRight(path(path), '/') = '' THEN '/' ELSE trimRight(path(path), '/') END"],
 		orderBy: "errors DESC",
 		limit: 20,
 		timeField: "timestamp",
