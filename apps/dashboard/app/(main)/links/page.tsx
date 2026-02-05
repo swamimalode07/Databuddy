@@ -39,7 +39,7 @@ export default function LinksPage() {
 
 	const handleFilteredLinksChange = useCallback((newFilteredLinks: Link[]) => {
 		setFilteredLinks(newFilteredLinks);
-	}, []);
+	}, [setFilteredLinks]);
 
 	const handleShowQr = useCallback((link: Link) => {
 		setQrLink(link);
