@@ -20,7 +20,6 @@ import { AgentChatProvider } from "./agent-chat-context";
 import { AgentInput } from "./agent-input";
 import { AgentMessages } from "./agent-messages";
 import { ChatHistory } from "./chat-history";
-import { usePersistChat } from "./hooks/use-persist-chat";
 import { NewChatButton } from "./new-chat-button";
 
 interface AgentPageContentProps {
@@ -60,15 +59,13 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 }
 
 function AgentPageContentInner({
-	chatId,
-	websiteId,
+	websiteId: _websiteId,
 }: {
 	chatId: string;
 	websiteId: string;
 }) {
 	const setInputValue = useSetAtom(agentInputAtom);
 	const { messages } = useChat();
-	usePersistChat(chatId, websiteId);
 
 	const hasMessages = messages.length > 0;
 

@@ -2,7 +2,9 @@
 
 import { PaperPlaneRightIcon } from "@phosphor-icons/react/dist/ssr/PaperPlaneRight";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
+import type { UIMessage } from "ai";
 import { useAtom } from "jotai";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@/contexts/chat-context";
@@ -12,15 +14,35 @@ import { agentInputAtom } from "./agent-atoms";
 import { useAgentChatId, useSetAgentChatId } from "./agent-chat-context";
 import { AgentCommandMenu } from "./agent-command-menu";
 import { useAgentCommands } from "./hooks/use-agent-commands";
+import { useChatList } from "./hooks/use-chat-db";
+
+function getChatTitle(messages: UIMessage[], currentInput: string): string {
+	const firstUserMsg = messages.find((m) => m.role === "user");
+	if (firstUserMsg) {
+		const text = firstUserMsg.parts
+			.filter(
+				(p): p is Extract<UIMessage["parts"][number], { type: "text" }> =>
+					p.type === "text"
+			)
+			.map((p) => p.text)
+			.join(" ")
+			.trim();
+		return text.slice(0, 100) || "New conversation";
+	}
+	return currentInput.slice(0, 100) || "New conversation";
+}
 
 export function AgentInput() {
-	const { sendMessage, stop, status } = useChat();
+	const { sendMessage, stop, status, messages } = useChat();
 	const isLoading = status === "streaming" || status === "submitted";
 	const [input, setInput] = useAtom(agentInputAtom);
 	const agentCommands = useAgentCommands();
 	const currentChatId = useAgentChatId();
 	const setChatId = useSetAgentChatId();
 	const { formRef, onKeyDown } = useEnterSubmit();
+	const params = useParams();
+	const websiteId = params.id as string;
+	const { saveChat } = useChatList(websiteId);
 
 	const handleSubmit = (e?: React.FormEvent) => {
 		e?.preventDefault();
@@ -31,10 +53,13 @@ export function AgentInput() {
 			setChatId(currentChatId);
 		}
 
-		sendMessage({
-			text: input.trim(),
-		});
+		const text = input.trim();
 
+		// Save chat to IndexedDB for history / restore
+		const title = getChatTitle(messages, text);
+		saveChat({ id: currentChatId, websiteId, title });
+
+		sendMessage({ text });
 		setInput("");
 	};
 
