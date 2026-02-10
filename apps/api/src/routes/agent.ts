@@ -2,15 +2,52 @@ import { auth, websitesApi } from "@databuddy/auth";
 import {
 	convertToModelMessages,
 	generateId,
+	pruneMessages,
+	safeValidateUIMessages,
 	smoothStream,
-	streamText,
+	ToolLoopAgent,
 	type UIMessage,
 } from "ai";
 import { Elysia, t } from "elysia";
-import { type AgentType, createAgentConfig } from "../ai/agents";
+import type { AgentConfig, AgentType } from "../ai/agents";
+import { createAgentConfig } from "../ai/agents";
 import { saveMessages } from "../ai/config/memory";
 import { captureError, record, setAttributes } from "../lib/tracing";
 import { validateWebsite } from "../lib/website-utils";
+
+function jsonError(status: number, code: string, message: string): Response {
+	return new Response(JSON.stringify({ success: false, error: message, code }), {
+		status,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
+function getErrorMessage(error: unknown, fallback = "Unknown error"): string {
+	if (error instanceof Error) {
+		return error.message;
+	}
+	return fallback;
+}
+
+function getErrorName(error: unknown, fallback = "UnknownError"): string {
+	if (error instanceof Error) {
+		return error.name;
+	}
+	return fallback;
+}
+
+function getLastMessagePreview(
+	messages: Array<{ parts?: Array<{ type?: string; text?: string }> }>
+): string {
+	const last = messages.at(-1);
+	if (!last?.parts) {
+		return "";
+	}
+	return last.parts
+		.filter((p) => p.type === "text")
+		.map((p) => p.text ?? "")
+		.join("");
+}
 
 /**
  * Schema uses t.Any() for message parts because UIMessage parts
@@ -34,58 +71,16 @@ const AgentRequestSchema = t.Object({
 });
 
 /**
- * Build a UIMessage from the streamText onFinish callback data.
- * Reconstructs tool invocations, reasoning, and text parts
- * using the flat UIMessage part structure from AI SDK v6.
+ * Create a ToolLoopAgent from AgentConfig.
  */
-function buildAssistantUIMessage(event: {
-	text: string;
-	steps: ReadonlyArray<{
-		text: string;
-		reasoning: ReadonlyArray<{ type: string; text: string }>;
-		staticToolResults: ReadonlyArray<{
-			toolCallId: string;
-			toolName: string;
-			input: unknown;
-			output: unknown;
-		}>;
-	}>;
-}): UIMessage {
-	const parts: UIMessage["parts"] = [];
-
-	for (const step of event.steps) {
-		for (const reasoning of step.reasoning) {
-			parts.push({
-				type: "reasoning" as const,
-				text: reasoning.text,
-				providerMetadata: undefined,
-			});
-		}
-
-		for (const toolResult of step.staticToolResults) {
-			parts.push({
-				type: `tool-${toolResult.toolName}`,
-				toolCallId: toolResult.toolCallId,
-				state: "output-available" as const,
-				input: toolResult.input,
-				output: toolResult.output,
-			} as UIMessage["parts"][number]);
-		}
-
-		if (step.text) {
-			parts.push({ type: "text" as const, text: step.text });
-		}
-	}
-
-	if (parts.length === 0 && event.text) {
-		parts.push({ type: "text" as const, text: event.text });
-	}
-
-	return {
-		id: generateId(),
-		role: "assistant",
-		parts,
-	};
+function createToolLoopAgent(config: AgentConfig): InstanceType<typeof ToolLoopAgent> {
+	return new ToolLoopAgent({
+		model: config.model,
+		instructions: config.system,
+		tools: config.tools,
+		stopWhen: config.stopWhen,
+		temperature: config.temperature,
+	});
 }
 
 const MODEL_TO_AGENT: Record<string, AgentType> = {
@@ -117,114 +112,108 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 				setAttributes({
 					agent_website_id: body.websiteId,
-					agent_user_id: user?.id ?? "unknown",
+						agent_user_id: user?.id ?? "unknown",
 					agent_chat_id: chatId,
 				});
 
 				try {
 					const websiteValidation = await validateWebsite(body.websiteId);
 					if (!(websiteValidation.success && websiteValidation.website)) {
-						return new Response(
-							JSON.stringify({
-								success: false,
-								error: websiteValidation.error ?? "Website not found",
-								code: "WEBSITE_NOT_FOUND",
-							}),
-							{
-								status: 404,
-								headers: { "Content-Type": "application/json" },
-							}
+						return jsonError(
+							404,
+							"WEBSITE_NOT_FOUND",
+							websiteValidation.error ?? "Website not found"
 						);
 					}
 
 					const { website } = websiteValidation;
 
-					let authorized = website.isPublic;
-					if (!authorized && website.organizationId) {
-						const { success } = await websitesApi.hasPermission({
-							headers: request.headers,
-							body: { permissions: { website: ["read"] } },
-						});
-						authorized = success;
-					}
+					const hasPermission =
+						website.isPublic ||
+						(website.organizationId &&
+							(await websitesApi.hasPermission({
+								headers: request.headers,
+								body: { permissions: { website: ["read"] } },
+							})).success);
 
-					if (!authorized) {
-						return new Response(
-							JSON.stringify({
-								success: false,
-								error: "Access denied to this website",
-								code: "ACCESS_DENIED",
-							}),
-							{
-								status: 403,
-								headers: { "Content-Type": "application/json" },
-							}
-						);
+					if (!hasPermission) {
+						return jsonError(403, "ACCESS_DENIED", "Access denied to this website");
 					}
 
 					if (!user?.id) {
-						return new Response(
-							JSON.stringify({
-								success: false,
-								error: "User ID required",
-								code: "AUTH_REQUIRED",
-							}),
-							{
-								status: 401,
-								headers: { "Content-Type": "application/json" },
-							}
-						);
+						return jsonError(401, "AUTH_REQUIRED", "User ID required");
 					}
+					const userId = user.id;
 
-					const agentType: AgentType =
-						MODEL_TO_AGENT[body.model ?? "agent"] ?? "reflection";
-
-					const lastMessage = body.messages.at(-1);
+					const model = body.model ?? "agent";
+					const agentType: AgentType = MODEL_TO_AGENT[model] ?? "reflection";
+					const timezone = body.timezone ?? "UTC";
+					const domain = website.domain ?? "unknown";
 
 					console.log("[Agent] Creating agent", {
 						type: agentType,
-						model: body.model,
+						model,
 						websiteId: body.websiteId,
 						messageCount: body.messages.length,
-						lastMessage:
-							lastMessage?.parts
-								?.filter((p: Record<string, unknown>) => p.type === "text")
-								.map((p: Record<string, unknown>) => p.text)
-								.join("") ?? "",
+						lastMessage: getLastMessagePreview(body.messages),
 					});
 
 					const config = createAgentConfig(agentType, {
-						userId: user.id,
+						userId,
 						websiteId: body.websiteId,
-						websiteDomain: website.domain ?? "unknown",
-						timezone: body.timezone ?? "UTC",
+						websiteDomain: domain,
+						timezone,
 						requestHeaders: request.headers,
 					});
 
-					const uiMessages = body.messages as UIMessage[];
-					const modelMessages = await convertToModelMessages(uiMessages, {
-						tools: config.tools,
+					const validation = await safeValidateUIMessages({
+						messages: body.messages as UIMessage[],
+						tools: config.tools as Parameters<
+							typeof safeValidateUIMessages
+						>[0]["tools"],
 					});
 
-					const result = streamText({
-						model: config.model,
-						system: config.system,
+					if (!validation.success) {
+						return jsonError(
+							400,
+							"INVALID_MESSAGES",
+							getErrorMessage(validation.error, "Invalid message format")
+						);
+					}
+
+					let modelMessages = await convertToModelMessages(
+						validation.data,
+						{
+							tools: config.tools,
+							ignoreIncompleteToolCalls: true,
+						}
+					);
+
+					modelMessages = pruneMessages({
 						messages: modelMessages,
-						tools: config.tools,
-						stopWhen: config.stopWhen,
-						temperature: config.temperature,
+						reasoning: "before-last-message",
+						toolCalls: "before-last-2-messages",
+						emptyMessages: "remove",
+					});
+
+					const agent = createToolLoopAgent(config);
+
+					const result = await agent.stream({
+						messages: modelMessages,
 						experimental_transform: smoothStream({ chunking: "word" }),
-						onFinish: async (event) => {
+						options: undefined,
+					});
+
+					return result.toUIMessageStreamResponse({
+						originalMessages: validation.data,
+						onFinish: async ({ messages }) => {
 							try {
-								const assistantMessage = buildAssistantUIMessage(event);
-								await saveMessages(chatId, [...uiMessages, assistantMessage]);
+								await saveMessages(chatId, messages);
 							} catch (saveError) {
 								console.error("[Agent] Failed to save messages:", saveError);
 							}
 						},
 					});
-
-					return result.toUIMessageStreamResponse();
 				} catch (error) {
 					captureError(error, {
 						agent_error: true,
@@ -232,19 +221,9 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						agent_chat_id: chatId,
 						agent_website_id: body.websiteId,
 						agent_user_id: user?.id ?? "unknown",
-						error_type: error instanceof Error ? error.name : "UnknownError",
+						error_type: getErrorName(error),
 					});
-					return new Response(
-						JSON.stringify({
-							success: false,
-							error: error instanceof Error ? error.message : "Unknown error",
-							code: "INTERNAL_ERROR",
-						}),
-						{
-							status: 500,
-							headers: { "Content-Type": "application/json" },
-						}
-					);
+					return jsonError(500, "INTERNAL_ERROR", getErrorMessage(error));
 				}
 			});
 		},
