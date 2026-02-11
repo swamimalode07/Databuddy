@@ -881,6 +881,7 @@ export const links = pgTable(
 		ogVideoUrl: text("og_video_url"),
 		iosUrl: text("ios_url"),
 		androidUrl: text("android_url"),
+		externalId: text("external_id"),
 		deletedAt: timestamp("deleted_at", { withTimezone: true }),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()
@@ -897,6 +898,10 @@ export const links = pgTable(
 		index("links_created_by_idx").using(
 			"btree",
 			table.createdBy.asc().nullsLast().op("text_ops")
+		),
+		index("links_external_id_idx").using(
+			"btree",
+			table.externalId.asc().nullsLast().op("text_ops")
 		),
 		uniqueIndex("links_slug_unique").using(
 			"btree",

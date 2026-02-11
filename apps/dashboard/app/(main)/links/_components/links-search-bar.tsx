@@ -52,7 +52,8 @@ export function LinksSearchBar({
 				(link) =>
 					link.name.toLowerCase().includes(query) ||
 					link.slug.toLowerCase().includes(query) ||
-					link.targetUrl.toLowerCase().includes(query)
+					link.targetUrl.toLowerCase().includes(query) ||
+					(link.externalId?.toLowerCase().includes(query) ?? false)
 			);
 		}
 
@@ -119,7 +120,7 @@ export function LinksSearchBar({
 					className="h-8 pr-8 pl-9"
 					disabled={disabled}
 					onChange={(e) => setSearchQuery(e.target.value)}
-					placeholder="Search links…"
+					placeholder="Search by name, slug, URL, or external ID…"
 					showFocusIndicator={false}
 					value={searchQuery}
 				/>

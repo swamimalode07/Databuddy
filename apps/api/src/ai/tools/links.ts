@@ -14,6 +14,7 @@ interface LinkData {
 	name: string;
 	targetUrl: string;
 	organizationId: string;
+	externalId: string | null;
 	createdAt: string;
 	updatedAt: string;
 	expiresAt: string | null;
@@ -45,9 +46,12 @@ function formatLinkForDisplay(link: LinkData, baseUrl?: string): string {
 		? `Expires: ${dayjs(link.expiresAt).format("MMM D, YYYY")}`
 		: "No expiration";
 
+	const externalInfo = link.externalId
+		? ` | External ID: ${link.externalId}`
+		: "";
 	return `- **${link.name}** (${shortUrl})
   Target: ${link.targetUrl}
-  ${expiresInfo}${link.clickCount !== undefined ? ` | Clicks: ${link.clickCount}` : ""}`;
+  ${expiresInfo}${link.clickCount !== undefined ? ` | Clicks: ${link.clickCount}` : ""}${externalInfo}`;
 }
 
 export function createLinksTools() {
@@ -77,6 +81,7 @@ export function createLinksTools() {
 						name: link.name,
 						slug: link.slug,
 						targetUrl: link.targetUrl,
+						externalId: link.externalId,
 						expiresAt: link.expiresAt,
 						createdAt: link.createdAt,
 						ogTitle: link.ogTitle,
@@ -184,6 +189,13 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 				.url()
 				.optional()
 				.describe("Custom Open Graph image URL for social sharing"),
+			externalId: z
+				.string()
+				.max(255)
+				.optional()
+				.describe(
+					"Third-party ID for querying (e.g. company, campaign, or partner ID)"
+				),
 			confirmed: z
 				.boolean()
 				.describe(
@@ -201,6 +213,7 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 				ogTitle,
 				ogDescription,
 				ogImageUrl,
+				externalId,
 				confirmed,
 			},
 			options
@@ -222,6 +235,7 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 							ogTitle: ogTitle ?? "None",
 							ogDescription: ogDescription ?? "None",
 							ogImageUrl: ogImageUrl ?? "None",
+							externalId: externalId ?? "None",
 						},
 						confirmationRequired: true,
 						instruction:
@@ -244,6 +258,7 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 						ogTitle: ogTitle ?? null,
 						ogDescription: ogDescription ?? null,
 						ogImageUrl: ogImageUrl ?? null,
+						externalId: externalId ?? null,
 					},
 					context
 				)) as LinkData;
@@ -308,6 +323,14 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 				.nullable()
 				.optional()
 				.describe("New OG image URL"),
+			externalId: z
+				.string()
+				.max(255)
+				.nullable()
+				.optional()
+				.describe(
+					"Third-party ID for querying (e.g. company, campaign, or partner ID). Pass null to clear."
+				),
 			confirmed: z
 				.boolean()
 				.describe(
@@ -349,6 +372,14 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 					if (oldExpires !== newExpires) {
 						changes.push(`Expires: ${oldExpires} → ${newExpires}`);
 					}
+				}
+				if (
+					updates.externalId !== undefined &&
+					updates.externalId !== currentLink.externalId
+				) {
+					changes.push(
+						`External ID: ${currentLink.externalId ?? "None"} → ${updates.externalId ?? "None"}`
+					);
 				}
 
 				if (!confirmed) {
@@ -452,13 +483,15 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 
 	const searchLinksTool = tool({
 		description:
-			"Search for links by name, slug, or target URL. Useful for finding specific links.",
+			"Search for links by name, slug, target URL, or external ID. Useful for finding specific links.",
 		inputSchema: z.object({
 			websiteId: z.string().describe("The website ID"),
 			query: z
 				.string()
 				.min(1)
-				.describe("Search query (matches name, slug, or target URL)"),
+				.describe(
+					"Search query (matches name, slug, target URL, or external ID)"
+				),
 		}),
 		execute: async ({ websiteId, query }, options) => {
 			const context = getAppContext(options);
@@ -477,7 +510,9 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 					(link) =>
 						link.name.toLowerCase().includes(queryLower) ||
 						link.slug.toLowerCase().includes(queryLower) ||
-						link.targetUrl.toLowerCase().includes(queryLower)
+						link.targetUrl.toLowerCase().includes(queryLower) ||
+						(link.externalId &&
+							link.externalId.toLowerCase().includes(queryLower))
 				);
 
 				return {
@@ -486,6 +521,7 @@ ${link.ogDescription ? `- OG Description: ${link.ogDescription}` : ""}`,
 						name: link.name,
 						slug: link.slug,
 						targetUrl: link.targetUrl,
+						externalId: link.externalId,
 					})),
 					count: matches.length,
 					summary:

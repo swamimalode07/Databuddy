@@ -29,6 +29,7 @@ const generateSlug = customAlphabet(
 
 const listLinksSchema = workspaceInputSchema.extend({
 	organizationId: z.string(),
+	externalId: z.string().optional(),
 });
 
 const getLinkSchema = workspaceInputSchema.extend({
@@ -58,6 +59,7 @@ const createLinkSchema = z.object({
 	ogVideoUrl: z.url().nullable().optional(),
 	iosUrl: z.url().nullable().optional(),
 	androidUrl: z.url().nullable().optional(),
+	externalId: z.string().max(255).nullable().optional(),
 });
 
 const updateLinkSchema = z.object({
@@ -73,6 +75,7 @@ const updateLinkSchema = z.object({
 	ogVideoUrl: z.url().nullable().optional(),
 	iosUrl: z.url().nullable().optional(),
 	androidUrl: z.url().nullable().optional(),
+	externalId: z.string().max(255).nullable().optional(),
 });
 
 const deleteLinkSchema = z.object({
@@ -94,6 +97,7 @@ const linkOutputSchema = z.object({
 	ogVideoUrl: z.string().nullable(),
 	iosUrl: z.string().nullable(),
 	androidUrl: z.string().nullable(),
+	externalId: z.string().nullable(),
 	deletedAt: z.date().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
@@ -156,10 +160,15 @@ export const linksRouter = {
 				permission: "read",
 			});
 
+			const conditions = [eq(links.organizationId, input.organizationId)];
+			if (input.externalId) {
+				conditions.push(eq(links.externalId, input.externalId));
+			}
+
 			return context.db
 				.select()
 				.from(links)
-				.where(eq(links.organizationId, input.organizationId))
+				.where(and(...conditions))
 				.orderBy(desc(links.createdAt));
 		}),
 
@@ -267,6 +276,7 @@ export const linksRouter = {
 				ogVideoUrl: input.ogVideoUrl ?? null,
 				iosUrl: input.iosUrl ?? null,
 				androidUrl: input.androidUrl ?? null,
+				externalId: input.externalId ?? null,
 			};
 
 			const slugsToTry = input.slug

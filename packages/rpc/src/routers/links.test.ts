@@ -22,6 +22,7 @@ const createLinkSchema = z.object({
 	ogTitle: z.string().max(200).nullable().optional(),
 	ogDescription: z.string().max(500).nullable().optional(),
 	ogImageUrl: z.url().nullable().optional(),
+	externalId: z.string().max(255).nullable().optional(),
 });
 
 const updateLinkSchema = z.object({
@@ -42,10 +43,12 @@ const updateLinkSchema = z.object({
 	ogTitle: z.string().max(200).nullable().optional(),
 	ogDescription: z.string().max(500).nullable().optional(),
 	ogImageUrl: z.url().nullable().optional(),
+	externalId: z.string().max(255).nullable().optional(),
 });
 
 const listLinksSchema = z.object({
 	organizationId: z.string(),
+	externalId: z.string().optional(),
 });
 
 const getLinkSchema = z.object({
@@ -101,6 +104,17 @@ describe("createLinkSchema validation", () => {
 			ogTitle: "Custom Title",
 			ogDescription: "Custom description for social sharing",
 			ogImageUrl: "https://example.com/image.png",
+			externalId: "company-123",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts externalId for third-party reference", () => {
+		const result = createLinkSchema.safeParse({
+			organizationId: "org-123",
+			name: "Invite Link",
+			targetUrl: "https://example.com/signup",
+			externalId: "company_acme",
 		});
 		expect(result.success).toBe(true);
 	});
@@ -280,6 +294,14 @@ describe("listLinksSchema validation", () => {
 	it("accepts valid organization id", () => {
 		const result = listLinksSchema.safeParse({
 			organizationId: "org-123",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts optional externalId filter", () => {
+		const result = listLinksSchema.safeParse({
+			organizationId: "org-123",
+			externalId: "company_acme",
 		});
 		expect(result.success).toBe(true);
 	});

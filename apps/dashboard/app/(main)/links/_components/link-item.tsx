@@ -217,6 +217,15 @@ function LinkRow({ link, onEdit, onDelete, onShowQr }: LinkRowProps) {
 					<p className="truncate font-medium text-foreground text-sm">
 						{link.name}
 					</p>
+					{link.externalId && (
+						<Badge
+							className="shrink-0 font-normal"
+							title="External ID (queryable)"
+							variant="outline"
+						>
+							{link.externalId}
+						</Badge>
+					)}
 					<LinkFeatures link={link} />
 				</div>
 				<div className="mt-1 flex items-center gap-2">

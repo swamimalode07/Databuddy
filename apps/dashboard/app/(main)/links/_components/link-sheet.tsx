@@ -187,6 +187,7 @@ const formSchema = z.object({
 		.refine((val) => !val || domainRegex.test(val.split("/").at(0) ?? ""), {
 			message: "Enter a valid URL",
 		}),
+	externalId: z.string().max(255).optional().or(z.literal("")),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -247,6 +248,7 @@ export function LinkSheet({
 			expiredRedirectUrl: "",
 			iosUrl: "",
 			androidUrl: "",
+			externalId: "",
 		},
 	});
 
@@ -298,6 +300,7 @@ export function LinkSheet({
 					expiredRedirectUrl: stripProtocol(linkData.expiredRedirectUrl),
 					iosUrl: stripProtocol(linkData.iosUrl),
 					androidUrl: stripProtocol(linkData.androidUrl),
+					externalId: linkData.externalId ?? "",
 				});
 			} else {
 				form.reset({
@@ -308,6 +311,7 @@ export function LinkSheet({
 					expiredRedirectUrl: "",
 					iosUrl: "",
 					androidUrl: "",
+					externalId: "",
 				});
 				setUtmParams(DEFAULT_UTM_PARAMS);
 				setOgData(DEFAULT_OG_DATA);
@@ -430,6 +434,8 @@ export function LinkSheet({
 			androidUrl = `https://${androidUrl}`;
 		}
 
+		const externalId = formData.externalId?.trim() || undefined;
+
 		try {
 			if (link?.id) {
 				const result = await updateLinkMutation.mutateAsync({
@@ -445,6 +451,7 @@ export function LinkSheet({
 					ogVideoUrl,
 					iosUrl,
 					androidUrl,
+					externalId: externalId ?? null,
 				});
 				if (onSave) {
 					onSave(result);
@@ -464,6 +471,7 @@ export function LinkSheet({
 					ogVideoUrl,
 					iosUrl,
 					androidUrl,
+					externalId: externalId ?? null,
 				});
 				if (onSave) {
 					onSave(result);
@@ -606,6 +614,31 @@ export function LinkSheet({
 						)}
 					/>
 				</div>
+
+				<FormField
+					control={form.control}
+					name="externalId"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>
+								External ID
+								<span className="ml-1 text-muted-foreground">(optional)</span>
+							</FormLabel>
+							<FormControl>
+								<Input
+									placeholder="company-123"
+									{...field}
+									value={field.value ?? ""}
+								/>
+							</FormControl>
+							<FormDescription>
+								Third-party identifier for querying (e.g. company, campaign, or
+								partner ID). Use to filter invite links or attribute traffic.
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
 				{!(isEditMode || slugValue) && (
 					<p className="text-muted-foreground text-xs">

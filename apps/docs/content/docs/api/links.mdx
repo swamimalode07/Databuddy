@@ -7,6 +7,33 @@ import { Callout, CodeBlock } from "@/components/docs";
 
 Query click analytics for your shortened links using the same query API, with `link_id` instead of `website_id`.
 
+## External ID
+
+Links support an optional **external ID** — a third-party identifier (e.g. company ID, campaign ID, partner ID) you can use to:
+
+- **Filter invites** — Companies can tag invite links with their ID and list all links for that company
+- **Attribute traffic** — Query which external entity drove clicks
+- **Integrate** — Sync with your CRM, partner dashboard, or internal systems
+
+Set `externalId` when creating or updating a link. Use `externalId` in the list endpoint to filter:
+
+<CodeBlock 
+  language="json"
+  code={`// Create link with external ID
+{
+  "organizationId": "org_123",
+  "name": "Creator invite",
+  "targetUrl": "https://app.example.com/signup",
+  "externalId": "company_acme"
+}
+
+// List links filtered by external ID
+{
+  "organizationId": "org_123",
+  "externalId": "company_acme"
+}`}
+/>
+
 ## Query Link Analytics
 
 <CodeBlock 
