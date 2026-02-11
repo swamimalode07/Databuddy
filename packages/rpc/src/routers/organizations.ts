@@ -104,7 +104,8 @@ const orgOutputSchema = z.record(z.string(), z.unknown());
 export const organizationsRouter = {
 	updateAvatarSeed: protectedProcedure
 		.route({
-			description: "Updates organization avatar seed. Requires org update permission.",
+			description:
+				"Updates organization avatar seed. Requires org update permission.",
 			method: "POST",
 			path: "/organizations/updateAvatarSeed",
 			summary: "Update avatar seed",
@@ -214,32 +215,32 @@ export const organizationsRouter = {
 		})
 		.output(z.array(orgOutputSchema))
 		.handler(async ({ context }) => {
-		const pendingInvitations = await db
-			.select({
-				id: invitation.id,
-				email: invitation.email,
-				role: invitation.role,
-				status: invitation.status,
-				expiresAt: invitation.expiresAt,
-				createdAt: invitation.createdAt,
-				organizationId: invitation.organizationId,
-				organizationName: organization.name,
-				organizationLogo: organization.logo,
-				inviterId: invitation.inviterId,
-			})
-			.from(invitation)
-			.innerJoin(organization, eq(invitation.organizationId, organization.id))
-			.where(
-				and(
-					eq(invitation.email, context.user.email),
-					eq(invitation.status, "pending"),
-					gt(invitation.expiresAt, new Date())
+			const pendingInvitations = await db
+				.select({
+					id: invitation.id,
+					email: invitation.email,
+					role: invitation.role,
+					status: invitation.status,
+					expiresAt: invitation.expiresAt,
+					createdAt: invitation.createdAt,
+					organizationId: invitation.organizationId,
+					organizationName: organization.name,
+					organizationLogo: organization.logo,
+					inviterId: invitation.inviterId,
+				})
+				.from(invitation)
+				.innerJoin(organization, eq(invitation.organizationId, organization.id))
+				.where(
+					and(
+						eq(invitation.email, context.user.email),
+						eq(invitation.status, "pending"),
+						gt(invitation.expiresAt, new Date())
+					)
 				)
-			)
-			.orderBy(desc(invitation.createdAt));
+				.orderBy(desc(invitation.createdAt));
 
-		return pendingInvitations;
-	}),
+			return pendingInvitations;
+		}),
 
 	getUsage: protectedProcedure
 		.route({
@@ -251,53 +252,53 @@ export const organizationsRouter = {
 		})
 		.output(z.record(z.string(), z.unknown()))
 		.handler(async ({ context }) => {
-		const activeOrgId = (
-			context.session as { activeOrganizationId?: string | null }
-		)?.activeOrganizationId;
-		const { customerId, isOrganization, canUserUpgrade } =
-			await getBillingOwnerId(context.user.id, activeOrgId);
+			const activeOrgId = (
+				context.session as { activeOrganizationId?: string | null }
+			)?.activeOrganizationId;
+			const { customerId, isOrganization, canUserUpgrade } =
+				await getBillingOwnerId(context.user.id, activeOrgId);
 
-		try {
-			const checkResult = await autumn.check({
-				customer_id: customerId,
-				feature_id: "events",
-			});
+			try {
+				const checkResult = await autumn.check({
+					customer_id: customerId,
+					feature_id: "events",
+				});
 
-			const data = checkResult.data;
+				const data = checkResult.data;
 
-			if (!data) {
+				if (!data) {
+					throw new ORPCError("INTERNAL_SERVER_ERROR", {
+						message: "Failed to retrieve usage data",
+					});
+				}
+				const used = data.usage ?? 0;
+				const usageLimit = data.usage_limit ?? 0;
+				const unlimited = data.unlimited ?? false;
+				const balance = data.balance ?? 0;
+				const includedUsage = data.included_usage ?? 0;
+				const overageAllowed = data.overage_allowed ?? false;
+
+				const remaining = unlimited ? null : Math.max(0, usageLimit - used);
+
+				return {
+					used,
+					limit: unlimited ? null : usageLimit,
+					unlimited,
+					balance,
+					remaining,
+					includedUsage,
+					overageAllowed,
+					isOrganizationUsage: isOrganization,
+					canUserUpgrade,
+				};
+			} catch (error) {
+				logger.error({ error }, "Failed to check usage");
 				throw new ORPCError("INTERNAL_SERVER_ERROR", {
 					message: "Failed to retrieve usage data",
+					cause: error,
 				});
 			}
-			const used = data.usage ?? 0;
-			const usageLimit = data.usage_limit ?? 0;
-			const unlimited = data.unlimited ?? false;
-			const balance = data.balance ?? 0;
-			const includedUsage = data.included_usage ?? 0;
-			const overageAllowed = data.overage_allowed ?? false;
-
-			const remaining = unlimited ? null : Math.max(0, usageLimit - used);
-
-			return {
-				used,
-				limit: unlimited ? null : usageLimit,
-				unlimited,
-				balance,
-				remaining,
-				includedUsage,
-				overageAllowed,
-				isOrganizationUsage: isOrganization,
-				canUserUpgrade,
-			};
-		} catch (error) {
-			logger.error({ error }, "Failed to check usage");
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message: "Failed to retrieve usage data",
-				cause: error,
-			});
-		}
-	}),
+		}),
 
 	getBillingContext: publicProcedure
 		.route({

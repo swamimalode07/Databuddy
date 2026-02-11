@@ -65,7 +65,8 @@ const revenueOutputSchema = z.record(z.string(), z.unknown());
 export const revenueRouter = {
 	get: protectedProcedure
 		.route({
-			description: "Returns revenue config for website or org. Requires configure permission.",
+			description:
+				"Returns revenue config for website or org. Requires configure permission.",
 			method: "POST",
 			path: "/revenue/get",
 			summary: "Get revenue config",
@@ -114,7 +115,8 @@ export const revenueRouter = {
 
 	upsert: protectedProcedure
 		.route({
-			description: "Creates or updates revenue config. Requires configure permission.",
+			description:
+				"Creates or updates revenue config. Requires configure permission.",
 			method: "POST",
 			path: "/revenue/upsert",
 			summary: "Upsert revenue config",

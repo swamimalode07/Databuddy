@@ -22,24 +22,24 @@ export const preferencesRouter = {
 		})
 		.output(preferencesOutputSchema)
 		.handler(async ({ context }) => {
-		let preferences = await context.db.query.userPreferences.findFirst({
-			where: eq(userPreferences.userId, context.user.id),
-		});
+			let preferences = await context.db.query.userPreferences.findFirst({
+				where: eq(userPreferences.userId, context.user.id),
+			});
 
-		if (!preferences) {
-			const inserted = await context.db
-				.insert(userPreferences)
-				.values({
-					id: randomUUIDv7(),
-					userId: context.user.id,
-					...defaultPreferences,
-					updatedAt: new Date(),
-				})
-				.returning();
-			preferences = inserted[0];
-		}
-		return preferences;
-	}),
+			if (!preferences) {
+				const inserted = await context.db
+					.insert(userPreferences)
+					.values({
+						id: randomUUIDv7(),
+						userId: context.user.id,
+						...defaultPreferences,
+						updatedAt: new Date(),
+					})
+					.returning();
+				preferences = inserted[0];
+			}
+			return preferences;
+		}),
 
 	updateUserPreferences: protectedProcedure
 		.route({

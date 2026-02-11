@@ -30,7 +30,8 @@ export const agentRouter = {
 
 	deleteFeedback: protectedProcedure
 		.route({
-			description: "Deletes feedback from a chat message. Requires read permission.",
+			description:
+				"Deletes feedback from a chat message. Requires read permission.",
 			method: "POST",
 			path: "/agent/deleteFeedback",
 			summary: "Delete feedback",

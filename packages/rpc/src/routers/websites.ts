@@ -1,4 +1,3 @@
-import { websitesApi } from "@databuddy/auth";
 import { chQuery, db, eq, inArray, member, websites } from "@databuddy/db";
 import { createDrizzleCache, redis } from "@databuddy/redis";
 import {
@@ -309,34 +308,33 @@ export const websitesRouter = {
 		})
 		.output(z.array(websiteOutputSchema))
 		.handler(({ context }) => {
-		const listAllCacheKey = `listAll:${context.user.id}`;
-		return websiteCache.withCache({
-			key: listAllCacheKey,
-			ttl: CACHE_DURATION,
-			tables: ["websites"],
-			queryFn: async () => {
-				const userMemberships = await context.db.query.member.findMany({
-					where: eq(member.userId, context.user.id),
-					columns: { organizationId: true },
-				});
-				const orgIds = userMemberships.map((m) => m.organizationId);
+			const listAllCacheKey = `listAll:${context.user.id}`;
+			return websiteCache.withCache({
+				key: listAllCacheKey,
+				ttl: CACHE_DURATION,
+				tables: ["websites"],
+				queryFn: async () => {
+					const userMemberships = await context.db.query.member.findMany({
+						where: eq(member.userId, context.user.id),
+						columns: { organizationId: true },
+					});
+					const orgIds = userMemberships.map((m) => m.organizationId);
 
-				if (orgIds.length === 0) {
-					return [];
-				}
+					if (orgIds.length === 0) {
+						return [];
+					}
 
-				return context.db.query.websites.findMany({
-					where: inArray(websites.organizationId, orgIds),
-					orderBy: (table, { desc }) => [desc(table.createdAt)],
-				});
-			},
-		});
-	}),
+					return context.db.query.websites.findMany({
+						where: inArray(websites.organizationId, orgIds),
+						orderBy: (table, { desc }) => [desc(table.createdAt)],
+					});
+				},
+			});
+		}),
 
 	listWithCharts: protectedProcedure
 		.route({
-			description:
-				"Returns websites with chart data and active users.",
+			description: "Returns websites with chart data and active users.",
 			method: "POST",
 			path: "/websites/listWithCharts",
 			summary: "List websites with charts",
@@ -391,7 +389,7 @@ export const websitesRouter = {
 			};
 		}),
 
-		getById: publicProcedure
+	getById: publicProcedure
 		.route({
 			description: "Returns a website by id. Requires read permission.",
 			method: "POST",
@@ -564,7 +562,8 @@ export const websitesRouter = {
 
 	togglePublic: protectedProcedure
 		.route({
-			description: "Toggles website public/private. Requires update permission.",
+			description:
+				"Toggles website public/private. Requires update permission.",
 			method: "POST",
 			path: "/websites/togglePublic",
 			summary: "Toggle public",

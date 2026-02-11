@@ -1,6 +1,5 @@
 import { chQuery, db, eq, inArray, member, websites } from "@databuddy/db";
 import { createDrizzleCache, redis } from "@databuddy/redis";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../orpc";
 import { checkOrgPermission } from "../utils/auth";
@@ -394,7 +393,8 @@ const buildInsights = (
 export const insightsRouter = {
 	getSmartInsights: protectedProcedure
 		.route({
-			description: "Returns smart insights for organization or user workspaces.",
+			description:
+				"Returns smart insights for organization or user workspaces.",
 			method: "POST",
 			path: "/insights/getSmartInsights",
 			summary: "Get smart insights",

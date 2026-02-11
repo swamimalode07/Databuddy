@@ -15,7 +15,8 @@ const modeMap: Record<string, Mode> = {
 export const chatRouter = {
 	stream: protectedProcedure
 		.route({
-			description: "Streams AI chat/agent response for a website. Requires read permission.",
+			description:
+				"Streams AI chat/agent response for a website. Requires read permission.",
 			method: "POST",
 			path: "/chat/stream",
 			summary: "Stream chat",

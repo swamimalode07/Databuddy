@@ -113,9 +113,10 @@ export const uptimeRouter = {
 			return schedule ?? null;
 		}),
 
-		listSchedules: protectedProcedure
+	listSchedules: protectedProcedure
 		.route({
-			description: "Returns uptime schedules for organization or all user workspaces.",
+			description:
+				"Returns uptime schedules for organization or all user workspaces.",
 			method: "POST",
 			path: "/uptime/listSchedules",
 			summary: "List schedules",
@@ -198,7 +199,8 @@ export const uptimeRouter = {
 
 	createSchedule: protectedProcedure
 		.route({
-			description: "Creates an uptime monitor. Requires workspace update permission.",
+			description:
+				"Creates an uptime monitor. Requires workspace update permission.",
 			method: "POST",
 			path: "/uptime/createSchedule",
 			summary: "Create schedule",
