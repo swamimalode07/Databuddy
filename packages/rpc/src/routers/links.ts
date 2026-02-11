@@ -146,6 +146,7 @@ export const linksRouter = {
 			summary: "List links",
 			description:
 				"Returns all links for the given organization. Requires read:links scope.",
+			spec: (s) => ({ ...s, "x-required-scopes": ["read:links"] as const }),
 		})
 		.input(listLinksSchema)
 		.output(z.array(linkOutputSchema))
@@ -169,6 +170,7 @@ export const linksRouter = {
 			tags: ["Links"],
 			summary: "Get link",
 			description: "Returns a single link by id. Requires read:links scope.",
+			spec: (s) => ({ ...s, "x-required-scopes": ["read:links"] as const }),
 		})
 		.input(getLinkSchema)
 		.output(linkOutputSchema)
@@ -205,6 +207,7 @@ export const linksRouter = {
 			tags: ["Links"],
 			summary: "Create link",
 			description: "Creates a new short link. Requires write:links scope.",
+			spec: (s) => ({ ...s, "x-required-scopes": ["write:links"] as const }),
 		})
 		.input(createLinkSchema)
 		.output(linkOutputSchema)
@@ -310,6 +313,7 @@ export const linksRouter = {
 			tags: ["Links"],
 			summary: "Update link",
 			description: "Updates an existing link. Requires write:links scope.",
+			spec: (s) => ({ ...s, "x-required-scopes": ["write:links"] as const }),
 		})
 		.input(updateLinkSchema)
 		.output(linkOutputSchema)
@@ -390,6 +394,7 @@ export const linksRouter = {
 			tags: ["Links"],
 			summary: "Delete link",
 			description: "Deletes a link by id. Requires write:links scope.",
+			spec: (s) => ({ ...s, "x-required-scopes": ["write:links"] as const }),
 		})
 		.input(deleteLinkSchema)
 		.output(z.object({ success: z.literal(true) }))
