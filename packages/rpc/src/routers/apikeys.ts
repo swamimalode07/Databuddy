@@ -8,7 +8,13 @@ import { websitesApi } from "@databuddy/auth";
 import { and, apikey, desc, eq, isNull } from "@databuddy/db";
 import { invalidateCacheableKey } from "@databuddy/redis";
 import { ORPCError } from "@orpc/server";
-import { ApiKeyErrorCode, hasAllScopes, hasAnyScope, hasScope, isExpired } from "keypal";
+import {
+	ApiKeyErrorCode,
+	hasAllScopes,
+	hasAnyScope,
+	hasScope,
+	isExpired,
+} from "keypal";
 import { z } from "zod";
 import type { Context } from "../orpc";
 import { protectedProcedure, publicProcedure } from "../orpc";
@@ -79,7 +85,6 @@ async function getKeyWithAuth(
 	return key;
 }
 
-
 function mapKey(key: ApiKey, full = false) {
 	const meta = getMeta(key);
 	return {
@@ -123,9 +128,9 @@ export const apikeysRouter = {
 					input.organizationId
 						? eq(apikey.organizationId, input.organizationId)
 						: and(
-							eq(apikey.userId, context.user.id),
-							isNull(apikey.organizationId)
-						)
+								eq(apikey.userId, context.user.id),
+								isNull(apikey.organizationId)
+							)
 				)
 				.orderBy(desc(apikey.createdAt));
 			return rows.map((r) => mapKey(r));

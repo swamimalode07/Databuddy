@@ -1,7 +1,13 @@
 import type { InferSelectModel } from "@databuddy/db";
 import { apikey, db, eq } from "@databuddy/db";
 import { cacheable } from "@databuddy/redis";
-import { createKeys, hasAllScopes, hasAnyScope, hasScope, isExpired } from "keypal";
+import {
+	createKeys,
+	hasAllScopes,
+	hasAnyScope,
+	hasScope,
+	isExpired,
+} from "keypal";
 
 export type ApiKeyRow = InferSelectModel<typeof apikey>;
 export type ApiScope = ApiKeyRow["scopes"][number];

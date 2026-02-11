@@ -168,8 +168,7 @@ export const linksRouter = {
 			path: "/links/get",
 			tags: ["Links"],
 			summary: "Get link",
-			description:
-				"Returns a single link by id. Requires read:links scope.",
+			description: "Returns a single link by id. Requires read:links scope.",
 		})
 		.input(getLinkSchema)
 		.output(linkOutputSchema)
@@ -205,8 +204,7 @@ export const linksRouter = {
 			path: "/links/create",
 			tags: ["Links"],
 			summary: "Create link",
-			description:
-				"Creates a new short link. Requires write:links scope.",
+			description: "Creates a new short link. Requires write:links scope.",
 		})
 		.input(createLinkSchema)
 		.output(linkOutputSchema)
@@ -311,8 +309,7 @@ export const linksRouter = {
 			path: "/links/update",
 			tags: ["Links"],
 			summary: "Update link",
-			description:
-				"Updates an existing link. Requires write:links scope.",
+			description: "Updates an existing link. Requires write:links scope.",
 		})
 		.input(updateLinkSchema)
 		.output(linkOutputSchema)
@@ -392,8 +389,7 @@ export const linksRouter = {
 			path: "/links/delete",
 			tags: ["Links"],
 			summary: "Delete link",
-			description:
-				"Deletes a link by id. Requires write:links scope.",
+			description: "Deletes a link by id. Requires write:links scope.",
 		})
 		.input(deleteLinkSchema)
 		.output(z.object({ success: z.literal(true) }))
