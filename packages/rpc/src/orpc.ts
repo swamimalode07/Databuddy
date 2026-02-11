@@ -1,3 +1,4 @@
+import { getApiKeyFromHeader } from "@databuddy/api-keys/resolve";
 import { auth, type User } from "@databuddy/auth";
 import { and, db, eq, member } from "@databuddy/db";
 import { os as createOS } from "@orpc/server";
@@ -70,18 +71,19 @@ async function getBillingOwnerId(
 }
 
 export const createRPCContext = async (opts: { headers: Headers }) => {
-	const session = await auth.api.getSession({
-		headers: opts.headers,
-	});
+	const [session, apiKey] = await Promise.all([
+		auth.api.getSession({ headers: opts.headers }),
+		getApiKeyFromHeader(opts.headers),
+	]);
 
 	// Get billing information if user is authenticated
 	let billingContext:
 		| {
-				customerId: string;
-				isOrganization: boolean;
-				canUserUpgrade: boolean;
-				planId: string;
-		  }
+			customerId: string;
+			isOrganization: boolean;
+			canUserUpgrade: boolean;
+			planId: string;
+		}
 		| undefined;
 
 	if (session?.user) {
@@ -101,6 +103,7 @@ export const createRPCContext = async (opts: { headers: Headers }) => {
 		auth,
 		session: session?.session,
 		user: session?.user as User | undefined,
+		apiKey: apiKey ?? undefined,
 		billing: billingContext,
 		...opts,
 	};
@@ -134,18 +137,29 @@ export const protectedProcedure = os.use(({ context, next, errors }) => {
 		});
 	}
 
-	if (!(context.user && context.session)) {
-		recordORPCError({ code: "UNAUTHORIZED" });
-		throw errors.UNAUTHORIZED();
+	if (context.user && context.session) {
+		return next({
+			context: {
+				...context,
+				session: context.session,
+				user: context.user,
+			},
+		});
 	}
 
-	return next({
-		context: {
-			...context,
-			session: context.session,
-			user: context.user,
-		},
-	});
+	// API key auth — scope/permission checks happen downstream (e.g. withLinksAccess)
+	if (context.apiKey) {
+		return next({
+			context: {
+				...context,
+				session: context.session,
+				user: context.user,
+			},
+		});
+	}
+
+	recordORPCError({ code: "UNAUTHORIZED" });
+	throw errors.UNAUTHORIZED();
 });
 
 export const adminProcedure = protectedProcedure.use(
@@ -153,7 +167,7 @@ export const adminProcedure = protectedProcedure.use(
 		setProcedureAttributes("admin");
 		enrichSpanWithContext(context);
 
-		if (context.user.role !== "ADMIN") {
+		if (!context.user || context.user.role !== "ADMIN") {
 			recordORPCError({
 				code: "FORBIDDEN",
 				message: "Admin access required",

@@ -1,4 +1,11 @@
-import { and, desc, eq, isUniqueViolationFor, links } from "@databuddy/db";
+import {
+	and,
+	desc,
+	eq,
+	isUniqueViolationFor,
+	links,
+	member,
+} from "@databuddy/db";
 import {
 	type CachedLink,
 	invalidateLinkCache,
@@ -11,7 +18,7 @@ import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { protectedProcedure } from "../orpc";
 import {
-	withWorkspace,
+	withLinksAccess,
 	workspaceInputSchema,
 } from "../procedures/with-workspace";
 
@@ -29,21 +36,20 @@ const getLinkSchema = workspaceInputSchema.extend({
 	organizationId: z.string(),
 });
 
-const slugRegex = /^[a-zA-Z0-9_-]+$/;
+const slugSchema = z
+	.string()
+	.min(3)
+	.max(50)
+	.regex(
+		/^[a-zA-Z0-9_-]+$/,
+		"Slug can only contain letters, numbers, hyphens, and underscores"
+	);
 
 const createLinkSchema = z.object({
 	organizationId: z.string(),
 	name: z.string().min(1).max(255),
 	targetUrl: z.url(),
-	slug: z
-		.string()
-		.min(3)
-		.max(50)
-		.regex(
-			slugRegex,
-			"Slug can only contain letters, numbers, hyphens, and underscores"
-		)
-		.optional(),
+	slug: slugSchema.optional(),
 	expiresAt: z.date().nullable().optional(),
 	expiredRedirectUrl: z.url().nullable().optional(),
 	ogTitle: z.string().max(200).nullable().optional(),
@@ -58,15 +64,7 @@ const updateLinkSchema = z.object({
 	id: z.string(),
 	name: z.string().min(1).max(255).optional(),
 	targetUrl: z.url().optional(),
-	slug: z
-		.string()
-		.min(3)
-		.max(50)
-		.regex(
-			slugRegex,
-			"Slug can only contain letters, numbers, hyphens, and underscores"
-		)
-		.optional(),
+	slug: slugSchema.optional(),
 	expiresAt: z.string().datetime().nullable().optional(),
 	expiredRedirectUrl: z.url().nullable().optional(),
 	ogTitle: z.string().max(200).nullable().optional(),
@@ -81,6 +79,26 @@ const deleteLinkSchema = z.object({
 	id: z.string(),
 });
 
+const linkOutputSchema = z.object({
+	id: z.string(),
+	organizationId: z.string(),
+	createdBy: z.string(),
+	slug: z.string(),
+	name: z.string(),
+	targetUrl: z.string(),
+	expiresAt: z.date().nullable(),
+	expiredRedirectUrl: z.string().nullable(),
+	ogTitle: z.string().nullable(),
+	ogDescription: z.string().nullable(),
+	ogImageUrl: z.string().nullable(),
+	ogVideoUrl: z.string().nullable(),
+	iosUrl: z.string().nullable(),
+	androidUrl: z.string().nullable(),
+	deletedAt: z.date().nullable(),
+	createdAt: z.date(),
+	updatedAt: z.date(),
+});
+
 interface LinkRecord {
 	id: string;
 	slug: string;
@@ -93,6 +111,15 @@ interface LinkRecord {
 	ogVideoUrl: string | null;
 	iosUrl: string | null;
 	androidUrl: string | null;
+}
+
+function validateHttpUrl(url: string): void {
+	const parsed = new URL(url);
+	if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+		throw new ORPCError("BAD_REQUEST", {
+			message: "Target URL must be an absolute HTTP or HTTPS URL",
+		});
+	}
 }
 
 function toCachedLink(link: LinkRecord): CachedLink {
@@ -112,12 +139,20 @@ function toCachedLink(link: LinkRecord): CachedLink {
 
 export const linksRouter = {
 	list: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/links/list",
+			tags: ["Links"],
+			summary: "List links",
+			description:
+				"Returns all links for the given organization. Requires read:links scope.",
+		})
 		.input(listLinksSchema)
+		.output(z.array(linkOutputSchema))
 		.handler(async ({ context, input }) => {
-			await withWorkspace(context, {
+			await withLinksAccess(context, {
 				organizationId: input.organizationId,
-				resource: "link",
-				permissions: ["read"],
+				permission: "read",
 			});
 
 			return context.db
@@ -128,12 +163,20 @@ export const linksRouter = {
 		}),
 
 	get: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/links/get",
+			tags: ["Links"],
+			summary: "Get link",
+			description:
+				"Returns a single link by id. Requires read:links scope.",
+		})
 		.input(getLinkSchema)
+		.output(linkOutputSchema)
 		.handler(async ({ context, input }) => {
-			await withWorkspace(context, {
+			await withLinksAccess(context, {
 				organizationId: input.organizationId,
-				resource: "link",
-				permissions: ["read"],
+				permission: "read",
 			});
 
 			const result = await context.db
@@ -157,28 +200,58 @@ export const linksRouter = {
 		}),
 
 	create: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/links/create",
+			tags: ["Links"],
+			summary: "Create link",
+			description:
+				"Creates a new short link. Requires write:links scope.",
+		})
 		.input(createLinkSchema)
+		.output(linkOutputSchema)
 		.handler(async ({ context, input }) => {
-			const workspace = await withWorkspace(context, {
+			await withLinksAccess(context, {
 				organizationId: input.organizationId,
-				resource: "link",
-				permissions: ["create"],
+				permission: "create",
 			});
 
-			// User is guaranteed to exist after withWorkspace with permissions
-			const userId = workspace.user?.id ?? context.user?.id;
-			if (!userId) {
+			let userId: string;
+			if (context.user) {
+				userId = context.user.id;
+			} else if (context.apiKey) {
+				// For API keys: use key's userId or resolve org owner
+				if (context.apiKey.userId) {
+					userId = context.apiKey.userId;
+				} else if (context.apiKey.organizationId) {
+					const [ownerRow] = await context.db
+						.select({ userId: member.userId })
+						.from(member)
+						.where(
+							and(
+								eq(member.organizationId, context.apiKey.organizationId),
+								eq(member.role, "owner")
+							)
+						)
+						.limit(1);
+					if (!ownerRow) {
+						throw new ORPCError("FORBIDDEN", {
+							message: "Could not resolve organization owner for API key",
+						});
+					}
+					userId = ownerRow.userId;
+				} else {
+					throw new ORPCError("UNAUTHORIZED", {
+						message: "API key must be scoped to user or organization",
+					});
+				}
+			} else {
 				throw new ORPCError("UNAUTHORIZED", {
 					message: "Authentication is required",
 				});
 			}
 
-			const url = new URL(input.targetUrl);
-			if (url.protocol !== "http:" && url.protocol !== "https:") {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Target URL must be an absolute HTTP or HTTPS URL",
-				});
-			}
+			validateHttpUrl(input.targetUrl);
 
 			const linkValues = {
 				organizationId: input.organizationId,
@@ -195,70 +268,35 @@ export const linksRouter = {
 				androidUrl: input.androidUrl ?? null,
 			};
 
-			if (input.slug) {
+			const slugsToTry = input.slug
+				? [input.slug]
+				: Array.from({ length: 10 }, () => generateSlug());
+
+			for (const slug of slugsToTry) {
 				try {
 					const linkId = randomUUIDv7();
 					const [newLink] = await context.db
 						.insert(links)
-						.values({
-							id: linkId,
-							slug: input.slug,
-							...linkValues,
-						})
+						.values({ id: linkId, slug, ...linkValues })
 						.returning();
 
-					await setCachedLink(input.slug, toCachedLink(newLink)).catch(
-						(error) => {
-							logger.error(
-								{ slug: input.slug, linkId: newLink.id, error: String(error) },
-								"Failed to cache link after create"
-							);
-						}
+					await setCachedLink(slug, toCachedLink(newLink)).catch((err) =>
+						logger.error(
+							{ slug, linkId: newLink.id, error: String(err) },
+							"Failed to cache link after create"
+						)
 					);
 
 					return newLink;
 				} catch (error) {
-					if (isUniqueViolationFor(error, "links_slug_unique")) {
+					if (!isUniqueViolationFor(error, "links_slug_unique")) {
+						throw error;
+					}
+					if (input.slug) {
 						throw new ORPCError("CONFLICT", {
 							message: "This slug is already taken",
 						});
 					}
-					throw error;
-				}
-			}
-
-			let slug = "";
-			let attempts = 0;
-			const maxAttempts = 10;
-
-			while (attempts < maxAttempts) {
-				slug = generateSlug();
-
-				try {
-					const linkId = randomUUIDv7();
-					const [newLink] = await context.db
-						.insert(links)
-						.values({
-							id: linkId,
-							slug,
-							...linkValues,
-						})
-						.returning();
-
-					await setCachedLink(slug, toCachedLink(newLink)).catch((error) => {
-						logger.error(
-							{ slug, linkId: newLink.id, error: String(error) },
-							"Failed to cache link after create"
-						);
-					});
-
-					return newLink;
-				} catch (error) {
-					if (isUniqueViolationFor(error, "links_slug_unique")) {
-						attempts++;
-						continue;
-					}
-					throw error;
 				}
 			}
 
@@ -268,7 +306,16 @@ export const linksRouter = {
 		}),
 
 	update: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/links/update",
+			tags: ["Links"],
+			summary: "Update link",
+			description:
+				"Updates an existing link. Requires write:links scope.",
+		})
 		.input(updateLinkSchema)
+		.output(linkOutputSchema)
 		.handler(async ({ context, input }) => {
 			const existingLink = await context.db
 				.select()
@@ -283,19 +330,13 @@ export const linksRouter = {
 			}
 
 			const link = existingLink[0];
-			await withWorkspace(context, {
+			await withLinksAccess(context, {
 				organizationId: link.organizationId,
-				resource: "link",
-				permissions: ["update"],
+				permission: "update",
 			});
 
 			if (input.targetUrl) {
-				const url = new URL(input.targetUrl);
-				if (url.protocol !== "http:" && url.protocol !== "https:") {
-					throw new ORPCError("BAD_REQUEST", {
-						message: "Target URL must be an absolute HTTP or HTTPS URL",
-					});
-				}
+				validateHttpUrl(input.targetUrl);
 			}
 
 			const { id, expiresAt, ...updates } = input;
@@ -317,27 +358,22 @@ export const linksRouter = {
 					.where(eq(links.id, id))
 					.returning();
 
-				const newSlug = updatedLink.slug;
-
-				// Invalidate old slug and set new cached value
-				try {
-					await Promise.all([
-						oldSlug !== newSlug
-							? invalidateLinkCache(oldSlug)
-							: Promise.resolve(),
-						setCachedLink(newSlug, toCachedLink(updatedLink)),
-					]);
-				} catch (cacheError) {
+				await Promise.all([
+					oldSlug !== updatedLink.slug
+						? invalidateLinkCache(oldSlug)
+						: Promise.resolve(),
+					setCachedLink(updatedLink.slug, toCachedLink(updatedLink)),
+				]).catch((err) =>
 					logger.error(
 						{
 							linkId: updatedLink.id,
 							oldSlug,
-							newSlug,
-							error: String(cacheError),
+							newSlug: updatedLink.slug,
+							error: String(err),
 						},
 						"Failed to update link cache"
-					);
-				}
+					)
+				);
 
 				return updatedLink;
 			} catch (error) {
@@ -351,7 +387,16 @@ export const linksRouter = {
 		}),
 
 	delete: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/links/delete",
+			tags: ["Links"],
+			summary: "Delete link",
+			description:
+				"Deletes a link by id. Requires write:links scope.",
+		})
 		.input(deleteLinkSchema)
+		.output(z.object({ success: z.literal(true) }))
 		.handler(async ({ context, input }) => {
 			const existingLink = await context.db
 				.select({
@@ -370,10 +415,9 @@ export const linksRouter = {
 
 			const link = existingLink[0];
 
-			await withWorkspace(context, {
+			await withLinksAccess(context, {
 				organizationId: link.organizationId,
-				resource: "link",
-				permissions: ["delete"],
+				permission: "delete",
 			});
 
 			// Invalidate cache first, then delete from DB

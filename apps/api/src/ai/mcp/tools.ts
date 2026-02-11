@@ -243,9 +243,7 @@ export function createMcpTools(ctx: McpToolContext) {
 				z.object({
 					websiteId: z.string().describe("Website ID from list_websites"),
 					type: z.string().describe("Query type for single-query mode"),
-					preset: z
-						.enum(MCP_DATE_PRESETS as [string, ...string[]])
-						.optional(),
+					preset: z.enum(MCP_DATE_PRESETS as [string, ...string[]]).optional(),
 					from: z.string().optional(),
 					to: z.string().optional(),
 					timeUnit: z.enum(TIME_UNIT).optional(),
@@ -272,18 +270,18 @@ export function createMcpTools(ctx: McpToolContext) {
 						? args.queries
 						: args.type
 							? [
-								{
-									type: args.type,
-									preset: args.preset,
-									from: args.from,
-									to: args.to,
-									timeUnit: args.timeUnit,
-									limit: args.limit,
-									filters: args.filters,
-									groupBy: args.groupBy,
-									orderBy: args.orderBy,
-								},
-							]
+									{
+										type: args.type,
+										preset: args.preset,
+										from: args.from,
+										to: args.to,
+										timeUnit: args.timeUnit,
+										limit: args.limit,
+										filters: args.filters,
+										groupBy: args.groupBy,
+										orderBy: args.orderBy,
+									},
+								]
 							: [];
 
 				if (items.length === 0) {
@@ -311,21 +309,21 @@ export function createMcpTools(ctx: McpToolContext) {
 					return toMcpResult(
 						isBatch
 							? {
-								batch: true,
-								results: results.map((r) => ({
-									type: r.type,
-									data: r.data,
-									rowCount: r.data.length,
-									...(r.error && { error: "Query failed" }),
-								})),
-							}
+									batch: true,
+									results: results.map((r) => ({
+										type: r.type,
+										data: r.data,
+										rowCount: r.data.length,
+										...(r.error && { error: "Query failed" }),
+									})),
+								}
 							: results[0]
 								? {
-									data: results[0].data,
-									rowCount: results[0].data.length,
-									type: results[0].type,
-									...(results[0].error && { error: "Query failed" }),
-								}
+										data: results[0].data,
+										rowCount: results[0].data.length,
+										type: results[0].type,
+										...(results[0].error && { error: "Query failed" }),
+									}
 								: { error: "Query failed" }
 					);
 				} catch {
@@ -351,7 +349,13 @@ export function createMcpTools(ctx: McpToolContext) {
 					datePresets: MCP_DATE_PRESETS,
 					dateFormat: "YYYY-MM-DD",
 					maxLimit: 1000,
-					availableTools: ["ask", "list_websites", "get_data", "get_schema", "capabilities"],
+					availableTools: [
+						"ask",
+						"list_websites",
+						"get_data",
+						"get_schema",
+						"capabilities",
+					],
 					hints: [
 						"list_websites first, then get_data",
 						"get_data batch: pass queries array (2-10 items, each with type + preset or from/to)",

@@ -1,0 +1,18 @@
+{
+  "name": "@databuddy/api-keys",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./scopes": "./src/scopes.ts",
+    "./resolve": "./src/resolve.ts"
+  },
+  "dependencies": {
+    "@databuddy/db": "workspace:*",
+    "@databuddy/redis": "workspace:*",
+    "keypal": "^0.1.11"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

@@ -63,7 +63,7 @@ async function getLinkBySlug(slug: string): Promise<CachedLink | null> {
 	});
 
 	if (!dbLink) {
-		await setCachedLinkNotFound(slug).catch(() => { });
+		await setCachedLinkNotFound(slug).catch(() => {});
 		return null;
 	}
 
@@ -80,7 +80,7 @@ async function getLinkBySlug(slug: string): Promise<CachedLink | null> {
 		androidUrl: dbLink.androidUrl,
 	};
 
-	await setCachedLink(slug, link).catch(() => { });
+	await setCachedLink(slug, link).catch(() => {});
 	return link;
 }
 
@@ -90,7 +90,9 @@ async function recordClick(
 	ip: string,
 	request: Request
 ): Promise<void> {
-	const shouldRecord = await shouldRecordClick(link.id, ipHash).catch(() => true);
+	const shouldRecord = await shouldRecordClick(link.id, ipHash).catch(
+		() => true
+	);
 	if (!shouldRecord) {
 		return;
 	}

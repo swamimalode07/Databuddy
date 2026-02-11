@@ -10,8 +10,11 @@ import {
 import { logger } from "@databuddy/shared/logger";
 import cors from "@elysiajs/cors";
 import { context } from "@opentelemetry/api";
+import { OpenAPIHandler } from "@orpc/openapi/fetch";
+import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { autumnHandler } from "autumn-js/elysia";
 import { Elysia } from "elysia";
 import {
@@ -30,7 +33,75 @@ import { webhooks } from "./routes/webhooks/index";
 initTracing();
 setupUncaughtErrorHandlers();
 
+async function handleRpcRoute(
+	ctx: {
+		request: Request;
+		store: {
+			tracing?: {
+				activeContext?: ReturnType<typeof context.active> | null;
+			};
+		};
+	},
+	handle: (
+		request: Request,
+		rpcContext: Awaited<ReturnType<typeof createRPCContext>>
+	) => Promise<{ matched: boolean; response?: Response }>
+) {
+	const { request, store } = ctx;
+	try {
+		const rpcContext = await createRPCContext({ headers: request.headers });
+		const run = async () => {
+			const result = await handle(request, rpcContext);
+			return result.response ?? new Response("Not Found", { status: 404 });
+		};
+		const activeContext = store.tracing?.activeContext;
+		return activeContext ? context.with(activeContext, run) : run();
+	} catch (error) {
+		if (error instanceof ORPCError) {
+			recordORPCError({ code: error.code, message: error.message });
+		}
+		logger.error({ error }, "RPC handler failed");
+		return new Response("Internal Server Error", { status: 500 });
+	}
+}
+
 const rpcHandler = new RPCHandler(appRouter, {
+	interceptors: [
+		createAbortSignalInterceptor(),
+		onError((error) => {
+			logger.error(error);
+		}),
+	],
+});
+
+const openApiHandler = new OpenAPIHandler(appRouter, {
+	plugins: [
+		new OpenAPIReferencePlugin({
+			schemaConverters: [new ZodToJsonSchemaConverter()],
+			specPath: "/spec.json",
+			docsPath: "/",
+			docsTitle: "Databuddy API",
+			specGenerateOptions: {
+				info: {
+					title: "Databuddy API",
+					version: "1.0.0",
+					description: "Databuddy analytics and link management API",
+				},
+				security: [{ apiKey: [] }],
+				components: {
+					securitySchemes: {
+						apiKey: {
+							type: "apiKey",
+							in: "header",
+							name: "x-api-key",
+							description:
+								"API key. Also accepted as a Bearer token in the Authorization header.",
+						},
+					},
+				},
+			},
+		}),
+	],
 	interceptors: [
 		createAbortSignalInterceptor(),
 		onError((error) => {
@@ -71,7 +142,11 @@ const app = new Elysia()
 		const method = request.method;
 		const startTime = Date.now();
 
-		const route = path.startsWith("/rpc/") ? path.slice(5) : path;
+		const route = path.startsWith("/rpc/")
+			? path.slice(5)
+			: path.startsWith("/api/")
+				? path.slice(5)
+				: path;
 		const { span, activeContext } = startRequestSpan(
 			method,
 			request.url,
@@ -121,41 +196,25 @@ const app = new Elysia()
 	.use(mcp)
 	.all(
 		"/rpc/*",
-		async ({ request, store }) => {
-			try {
-				const rpcContext = await createRPCContext({
-					headers: request.headers,
-				});
-
-				const handler = async () => {
-					const { response } = await rpcHandler.handle(request, {
-						prefix: "/rpc",
-						context: rpcContext,
-					});
-					return response;
-				};
-
-				const activeContext = store.tracing?.activeContext;
-				const response = activeContext
-					? await context.with(activeContext, handler)
-					: await handler();
-
-				return response ?? new Response("Not Found", { status: 404 });
-			} catch (error) {
-				if (error instanceof ORPCError) {
-					recordORPCError({
-						code: error.code,
-						message: error.message,
-					});
-				}
-
-				logger.error({ error }, "RPC handler failed");
-				return new Response("Internal Server Error", { status: 500 });
-			}
-		},
-		{
-			parse: "none",
-		}
+		(ctx) =>
+			handleRpcRoute(ctx, (request, rpcContext) =>
+				rpcHandler.handle(request, {
+					prefix: "/rpc",
+					context: rpcContext,
+				})
+			),
+		{ parse: "none" }
+	)
+	.all(
+		"/api/*",
+		(ctx) =>
+			handleRpcRoute(ctx, (request, rpcContext) =>
+				openApiHandler.handle(request, {
+					prefix: "/api",
+					context: rpcContext,
+				})
+			),
+		{ parse: "none" }
 	)
 	.onError(function handleError({ error, code, store }) {
 		const statusCode = code === "NOT_FOUND" ? 404 : 500;

@@ -1,37 +1,25 @@
-import { websitesApi } from "@databuddy/auth";
 import {
-	and,
-	apikey,
-	desc,
-	eq,
-	type InferSelectModel,
-	isNull,
-} from "@databuddy/db";
+	type ApiKeyRow,
+	collectScopes,
+	keys,
+} from "@databuddy/api-keys/resolve";
+import { API_SCOPES } from "@databuddy/api-keys/scopes";
+import { websitesApi } from "@databuddy/auth";
+import { and, apikey, desc, eq, isNull } from "@databuddy/db";
 import { invalidateCacheableKey } from "@databuddy/redis";
 import { ORPCError } from "@orpc/server";
-import {
-	ApiKeyErrorCode,
-	createKeys,
-	hasAllScopes,
-	hasAnyScope,
-	hasScope,
-	isExpired,
-} from "keypal";
+import { ApiKeyErrorCode, hasAllScopes, hasAnyScope, hasScope, isExpired } from "keypal";
 import { z } from "zod";
 import type { Context } from "../orpc";
 import { protectedProcedure, publicProcedure } from "../orpc";
 
-export const keys = createKeys({ prefix: "dbdy_", length: 48 });
-
-type ApiKey = InferSelectModel<typeof apikey>;
+type ApiKey = ApiKeyRow;
 interface Metadata {
 	resources?: Record<string, string[]>;
 	tags?: string[];
 	description?: string;
 	lastUsedAt?: string;
 }
-
-export const API_SCOPES = ["read:data", "write:llm", "track:events"] as const;
 
 const scopeEnum = z.enum(API_SCOPES);
 const resourcesSchema = z.record(z.string(), z.array(scopeEnum));
@@ -91,21 +79,6 @@ async function getKeyWithAuth(
 	return key;
 }
 
-function getScopes(key: ApiKey, resource?: string): string[] {
-	const scopes = new Set<string>(key.scopes);
-	const res = getMeta(key).resources;
-	if (res) {
-		for (const s of res.global ?? []) {
-			scopes.add(s);
-		}
-		if (resource && res[resource]) {
-			for (const s of res[resource]) {
-				scopes.add(s);
-			}
-		}
-	}
-	return [...scopes];
-}
 
 function mapKey(key: ApiKey, full = false) {
 	const meta = getMeta(key);
@@ -116,7 +89,7 @@ function mapKey(key: ApiKey, full = false) {
 		start: key.start,
 		type: key.type,
 		enabled: key.enabled,
-		scopes: getScopes(key),
+		scopes: collectScopes(key),
 		tags: meta.tags ?? [],
 		expiresAt: key.expiresAt,
 		revokedAt: key.revokedAt,
@@ -150,9 +123,9 @@ export const apikeysRouter = {
 					input.organizationId
 						? eq(apikey.organizationId, input.organizationId)
 						: and(
-								eq(apikey.userId, context.user.id),
-								isNull(apikey.organizationId)
-							)
+							eq(apikey.userId, context.user.id),
+							isNull(apikey.organizationId)
+						)
 				)
 				.orderBy(desc(apikey.createdAt));
 			return rows.map((r) => mapKey(r));
@@ -400,7 +373,7 @@ export const apikeysRouter = {
 				};
 			}
 
-			const scopes = getScopes(key, input.resource);
+			const scopes = collectScopes(key, input.resource);
 
 			// Use keypal's scope checking
 			if (input.requiredScopes?.length) {

@@ -15,6 +15,11 @@
  * After migration, remove authorizeWebsiteAccess from utils/auth.ts
  */
 
+import { hasKeyScope } from "@databuddy/api-keys/resolve";
+import {
+	LINKS_SCOPE_MAP,
+	type LinksPermission,
+} from "@databuddy/api-keys/scopes";
 import {
 	type PermissionFor,
 	type ResourceType,
@@ -284,26 +289,21 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 		requiredPlans,
 	} = options;
 
-	// Must be authenticated
 	if (!context.user) {
 		throw new ORPCError("UNAUTHORIZED", {
 			message: "Authentication is required",
 		});
 	}
 
-	const plan = (context.billing?.planId ?? "free") as PlanId;
-
-	// Validate plan requirements
-	validatePlan(plan, requiredPlans);
-
-	// Workspace is required
 	if (!organizationId) {
 		throw new ORPCError("BAD_REQUEST", {
 			message: "Workspace is required",
 		});
 	}
 
-	// Check workspace membership and permissions
+	const plan = (context.billing?.planId ?? "free") as PlanId;
+	validatePlan(plan, requiredPlans);
+
 	let role: string | null;
 	try {
 		role = await getOrganizationRole(context.user.id, organizationId);
@@ -323,7 +323,6 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 		});
 	}
 
-	// Check permissions via better-auth
 	if (permissions.length > 0) {
 		const hasPermission = await checkPermissions(
 			context.headers,
@@ -528,6 +527,49 @@ export const withAnalyticsWebsite = (context: Context, websiteId: string) =>
 
 export const withConfigureWebsite = (context: Context, websiteId: string) =>
 	withWebsite(context, websiteId, { permissions: ["configure"] });
+
+/**
+ * Authorizes links access for session or API key.
+ * For sessions: delegates to withWorkspace for org membership + permission checks.
+ * For API keys: validates scope and org match inline.
+ */
+export async function withLinksAccess(
+	context: Context,
+	options: {
+		organizationId: string;
+		permission: LinksPermission;
+	}
+): Promise<void> {
+	const { organizationId, permission } = options;
+
+	if (context.user) {
+		await withWorkspace(context, {
+			organizationId,
+			resource: "link",
+			permissions: [permission],
+		});
+		return;
+	}
+
+	if (context.apiKey) {
+		const scope = LINKS_SCOPE_MAP[permission];
+		if (!hasKeyScope(context.apiKey, scope)) {
+			throw new ORPCError("FORBIDDEN", {
+				message: `API key missing ${scope} scope`,
+			});
+		}
+		if (context.apiKey.organizationId !== organizationId) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "API key organization does not match",
+			});
+		}
+		return;
+	}
+
+	throw new ORPCError("UNAUTHORIZED", {
+		message: "Authentication is required",
+	});
+}
 
 export type {
 	PlanId,
