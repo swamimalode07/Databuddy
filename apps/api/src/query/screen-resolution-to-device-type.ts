@@ -92,7 +92,13 @@ function classifyResolution(w: number, h: number): DeviceType {
 	if (shortSide <= 480) {
 		return "mobile";
 	}
-	if (shortSide <= 900) {
+	const laptopAspect = aspect >= 1.5 && aspect <= 1.95;
+	const laptopDimensions =
+		longSide >= 1300 && shortSide >= 600 && shortSide <= 1200;
+	if (laptopAspect && laptopDimensions) {
+		return "laptop";
+	}
+	if (shortSide <= 800) {
 		return "tablet";
 	}
 	if (longSide <= 1600) {

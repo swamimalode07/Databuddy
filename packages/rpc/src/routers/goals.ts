@@ -356,7 +356,6 @@ export const goalsRouter = {
 				key: cacheKey,
 				ttl: ANALYTICS_CACHE_TTL,
 				tables: ["goals"],
-				ed: true,
 				queryFn: async () => {
 					const steps: AnalyticsStep[] = [
 						{
