@@ -21,18 +21,25 @@ const ATTRIBUTION_CTE = `
 			AND r.created <= toDateTime(concat({endDate:String}, ' 23:59:59'))
 			AND r.type != 'subscription_event'
 	),
-	customer_identity_map AS (
-		SELECT 
-			r_customer_id as customer_id,
-			argMin(r_anonymous_id, created) as mapped_anonymous_id,
-			argMin(r_session_id, created) as mapped_session_id
+	active_customers AS (
+		SELECT DISTINCT r_customer_id as customer_id
 		FROM revenue_base
 		WHERE r_customer_id IS NOT NULL AND r_customer_id != ''
+	),
+	customer_identity_map AS (
+		SELECT 
+			r.customer_id as customer_id,
+			argMin(r.anonymous_id, r.created) as mapped_anonymous_id,
+			argMin(r.session_id, r.created) as mapped_session_id
+		FROM ${Analytics.revenue} r
+		INNER JOIN active_customers ac ON r.customer_id = ac.customer_id
+		WHERE (r.owner_id = {websiteId:String} OR r.website_id = {websiteId:String})
+			AND r.customer_id IS NOT NULL AND r.customer_id != ''
 			AND (
-				(r_anonymous_id IS NOT NULL AND r_anonymous_id != '')
-				OR (r_session_id IS NOT NULL AND r_session_id != '')
+				(r.anonymous_id IS NOT NULL AND r.anonymous_id != '')
+				OR (r.session_id IS NOT NULL AND r.session_id != '')
 			)
-		GROUP BY r_customer_id
+		GROUP BY r.customer_id
 	),
 	first_touch AS (
 		SELECT 
