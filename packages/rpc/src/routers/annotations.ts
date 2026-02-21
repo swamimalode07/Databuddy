@@ -175,20 +175,45 @@ export const annotationsRouter = {
 		.input(z.object({ id: z.string() }))
 		.output(annotationOutputSchema)
 		.handler(async ({ context, input, errors }) => {
-			const annotation = await context.db.query.annotations.findFirst({
+			const annotationRow = await context.db.query.annotations.findFirst({
 				where: and(eq(annotations.id, input.id), isNull(annotations.deletedAt)),
-				columns: { websiteId: true },
+				columns: {
+					websiteId: true,
+					isPublic: true,
+					createdBy: true,
+				},
 			});
 
-			if (!annotation) {
+			if (!annotationRow) {
 				throw errors.NOT_FOUND({
 					message: "Annotation not found",
 					data: { resourceType: "annotation", resourceId: input.id },
 				});
 			}
 
+			const website = await authorizeWebsiteAccess(
+				context,
+				annotationRow.websiteId,
+				"read"
+			);
+
+			// Apply same visibility rules as list: on public websites, private annotations
+			// are only visible to their creator (or API key holders who see all)
+			if (website.isPublic && !context.apiKey) {
+				const canSee =
+					context.user !== undefined &&
+					annotationRow.createdBy === context.user.id;
+				const isPublicAnnotation = annotationRow.isPublic;
+				if (!(canSee || isPublicAnnotation)) {
+					throw errors.NOT_FOUND({
+						message: "Annotation not found",
+						data: { resourceType: "annotation", resourceId: input.id },
+					});
+				}
+			}
+
 			const authContext = await getCacheAuthContext(context, {
-				websiteId: annotation.websiteId,
+				websiteId: annotationRow.websiteId,
 			});
 
 			return annotationsCache.withCache({
@@ -218,11 +243,6 @@ export const annotationsRouter = {
 							data: { resourceType: "annotation", resourceId: input.id },
 						});
 					}
-					await authorizeWebsiteAccess(
-						context,
-						annotationResult.websiteId,
-						"read"
-					);
 
 					return annotationResult;
 				},
@@ -387,12 +407,29 @@ export const annotationsRouter = {
 				});
 			}
 
+			const updateData: {
+				text?: string;
+				tags?: string[];
+				color?: string;
+				isPublic?: boolean;
+				updatedAt: Date;
+			} = { updatedAt: new Date() };
+			if (input.text !== undefined) {
+				updateData.text = input.text;
+			}
+			if (input.tags !== undefined) {
+				updateData.tags = input.tags;
+			}
+			if (input.color !== undefined) {
+				updateData.color = input.color;
+			}
+			if (input.isPublic !== undefined) {
+				updateData.isPublic = input.isPublic;
+			}
+
 			const [updatedAnnotation] = await context.db
 				.update(annotations)
-				.set({
-					...input,
-					updatedAt: new Date(),
-				})
+				.set(updateData)
 				.where(eq(annotations.id, input.id))
 				.returning();
 

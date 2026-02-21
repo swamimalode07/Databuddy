@@ -348,7 +348,7 @@ export function AnnotationModal(props: AnnotationModalProps) {
 									Public
 								</span>
 								<span className="ml-1.5 text-muted-foreground text-xs">
-									Visible to team
+									Visible to everyone who can view this chart
 								</span>
 							</div>
 						</div>
