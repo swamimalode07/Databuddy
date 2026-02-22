@@ -96,53 +96,51 @@ function OrganizationSelectorTrigger({
 	return (
 		<div
 			className={cn(
-				"flex h-12 w-full items-center border-b bg-sidebar-accent px-3 py-3",
+				"flex h-12 w-full items-center overflow-hidden border-b bg-sidebar-accent px-3 py-3",
 				"hover:bg-sidebar-accent/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50",
 				isSettingActiveOrganization ? "cursor-not-allowed opacity-70" : "",
 				isOpen ? "bg-sidebar-accent/60" : ""
 			)}
 		>
-			<div className="flex w-full min-w-0 items-center justify-between">
-				<div className="flex min-w-0 items-center gap-3">
-					<div className="shrink-0 rounded">
-						<Avatar className="size-7">
-							<AvatarImage
+			<div className="flex w-full min-w-0 items-center gap-2">
+				<div className="shrink-0 rounded">
+					<Avatar className="size-7">
+						<AvatarImage
+							alt={activeOrganization?.name ?? "Workspace"}
+							className="rounded"
+							src={getDicebearUrl(
+								activeOrganization?.logo || activeOrganization?.id
+							)}
+						/>
+						<AvatarFallback className="bg-secondary">
+							<Image
 								alt={activeOrganization?.name ?? "Workspace"}
 								className="rounded"
+								height={28}
 								src={getDicebearUrl(
 									activeOrganization?.logo || activeOrganization?.id
 								)}
+								unoptimized
+								width={28}
 							/>
-							<AvatarFallback className="bg-secondary">
-								<Image
-									alt={activeOrganization?.name ?? "Workspace"}
-									className="rounded"
-									height={28}
-									src={getDicebearUrl(
-										activeOrganization?.logo || activeOrganization?.id
-									)}
-									unoptimized
-									width={28}
-								/>
-							</AvatarFallback>
-						</Avatar>
+						</AvatarFallback>
+					</Avatar>
+				</div>
+				<div className="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
+					<div className="flex min-w-0 items-center gap-2">
+						<span className="min-w-0 flex-1 truncate text-left font-semibold text-sidebar-accent-foreground text-sm">
+							{activeOrganization?.name ?? "Select workspace"}
+						</span>
+						<Badge
+							className="shrink-0 py-1 text-xs leading-none"
+							variant={planInfo?.variant || "gray"}
+						>
+							{planInfo?.name || "Free"}
+						</Badge>
 					</div>
-					<div className="flex min-w-0 flex-1 flex-col items-start gap-1">
-						<div className="flex min-w-0 items-center gap-2">
-							<span className="min-w-0 truncate text-left font-semibold text-sidebar-accent-foreground text-sm">
-								{activeOrganization?.name ?? "Select workspace"}
-							</span>
-							<Badge
-								className="shrink-0 py-1 text-xs leading-none"
-								variant={planInfo?.variant || "gray"}
-							>
-								{planInfo?.name || "Free"}
-							</Badge>
-						</div>
-						<p className="truncate text-left text-sidebar-accent-foreground/70 text-xs">
-							{activeOrganization?.slug ?? "No workspace selected"}
-						</p>
-					</div>
+					<p className="truncate text-left text-sidebar-accent-foreground/70 text-xs">
+						{activeOrganization?.slug ?? "No workspace selected"}
+					</p>
 				</div>
 				{isSettingActiveOrganization ? (
 					<SpinnerGapIcon
@@ -236,7 +234,7 @@ export function OrganizationSelector() {
 					<Button
 						aria-expanded={isOpen}
 						aria-haspopup="listbox"
-						className="h-auto w-full rounded-none p-0 hover:bg-transparent"
+						className="h-auto w-full overflow-hidden rounded-none p-0 hover:bg-transparent"
 						disabled={isSwitching}
 						type="button"
 						variant="ghost"
@@ -282,11 +280,11 @@ export function OrganizationSelector() {
 											/>
 										</AvatarFallback>
 									</Avatar>
-									<div className="flex min-w-0 flex-1 flex-col items-start text-left">
-										<span className="truncate text-left font-medium text-sm">
+									<div className="flex min-w-0 flex-1 flex-col items-start overflow-hidden text-left">
+										<span className="w-full truncate text-left font-medium text-sm">
 											{org.name}
 										</span>
-										<span className="truncate text-left text-sidebar-foreground/70 text-xs">
+										<span className="w-full truncate text-left text-sidebar-foreground/70 text-xs">
 											{org.slug}
 										</span>
 									</div>
