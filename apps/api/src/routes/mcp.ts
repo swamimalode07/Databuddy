@@ -9,7 +9,6 @@ import {
 	hasKeyScope,
 	isApiKeyPresent,
 } from "../lib/api-key";
-
 export const mcp = new Elysia({ prefix: "/v1/mcp" })
 	.derive(async ({ request }) => {
 		const hasApiKey = isApiKeyPresent(request.headers);

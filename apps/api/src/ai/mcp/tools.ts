@@ -253,6 +253,13 @@ function getMcpAttribution(ctx: McpToolContext): {
 	return { organization_id, user_id, auth_type };
 }
 
+function rpcErrorMessage(err: unknown, fallback: string): string {
+	if (err instanceof Error) {
+		return err.message;
+	}
+	return fallback;
+}
+
 function trackToolCompletion(
 	ctx: McpToolContext,
 	tool: string,
@@ -322,9 +329,15 @@ export function createMcpTools(ctx: McpToolContext) {
 
 					trackToolCompletion(ctx, "ask", true);
 					return toMcpResult({ answer, conversationId });
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "ask", false);
-					return toMcpResult({ error: "Agent failed" }, true);
+					const message =
+						err instanceof Error
+							? err.name === "AbortError"
+								? "Request timed out. Try a simpler question or use get_data for direct queries."
+								: `Agent error: ${err.message}`
+							: "Agent failed unexpectedly";
+					return toMcpResult({ error: message }, true);
 				}
 			},
 		},
@@ -357,60 +370,77 @@ export function createMcpTools(ctx: McpToolContext) {
 		},
 		get_data: {
 			description:
-				"Run analytics query(ies). Single: type + preset or from/to. Batch: queries array (2-10). Defaults to last_7d. Supports filters, groupBy, orderBy. Accepts websiteId, websiteName, or websiteDomain to identify the website.",
-			inputSchema: z.union([
-				z.object({
-					websiteId: z
-						.string()
-						.optional()
-						.describe("Website ID from list_websites"),
-					websiteName: z
-						.string()
-						.optional()
-						.describe(
-							"Website name (e.g. 'Landing Page'). Alternative to websiteId."
-						),
-					websiteDomain: z
-						.string()
-						.optional()
-						.describe(
-							"Website domain (e.g. 'databuddy.cc'). Alternative to websiteId."
-						),
-					queries: z.preprocess(
-						coerceQueriesArray,
-						z.array(QueryItemSchema).min(2).max(10)
+				"Run analytics query(ies). Single mode: pass type + preset or from/to. Batch mode: pass queries array (2-10 items). Defaults to last_7d when no date specified. Supports filters, groupBy, orderBy. Identify the website with websiteId, websiteName, or websiteDomain.",
+			inputSchema: z.object({
+				websiteId: z
+					.string()
+					.optional()
+					.describe("Website ID from list_websites"),
+				websiteName: z
+					.string()
+					.optional()
+					.describe(
+						"Website name (e.g. 'Landing Page'). Alternative to websiteId."
 					),
-					timezone: z.string().optional().default("UTC"),
-				}),
-				z.object({
-					websiteId: z
-						.string()
-						.optional()
-						.describe("Website ID from list_websites"),
-					websiteName: z
-						.string()
-						.optional()
-						.describe(
-							"Website name (e.g. 'Landing Page'). Alternative to websiteId."
-						),
-					websiteDomain: z
-						.string()
-						.optional()
-						.describe(
-							"Website domain (e.g. 'databuddy.cc'). Alternative to websiteId."
-						),
-					type: z.string().describe("Query type for single-query mode"),
-					preset: z.enum(MCP_DATE_PRESETS as [string, ...string[]]).optional(),
-					from: z.string().optional(),
-					to: z.string().optional(),
-					timeUnit: z.enum(TIME_UNIT).optional(),
-					limit: z.number().min(1).max(1000).optional(),
-					filters: z.array(FilterSchema).optional(),
-					groupBy: z.array(z.string()).optional(),
-					orderBy: z.string().optional(),
-					timezone: z.string().optional().default("UTC"),
-				}),
-			]),
+				websiteDomain: z
+					.string()
+					.optional()
+					.describe(
+						"Website domain (e.g. 'databuddy.cc'). Alternative to websiteId."
+					),
+				type: z
+					.string()
+					.optional()
+					.describe(
+						"Query type for single-query mode (e.g. 'summary_metrics', 'top_pages', 'country'). Use capabilities tool to see all types."
+					),
+				preset: z
+					.enum(MCP_DATE_PRESETS as [string, ...string[]])
+					.optional()
+					.describe(
+						"Date preset (e.g. 'last_7d', 'last_30d', 'today'). Alternative to from/to."
+					),
+				from: z
+					.string()
+					.optional()
+					.describe("Start date YYYY-MM-DD. Use with 'to'."),
+				to: z
+					.string()
+					.optional()
+					.describe("End date YYYY-MM-DD. Use with 'from'."),
+				timeUnit: z
+					.enum(TIME_UNIT)
+					.optional()
+					.describe("Time granularity for time-series data."),
+				limit: z
+					.number()
+					.min(1)
+					.max(1000)
+					.optional()
+					.describe("Max rows to return (1-1000)."),
+				filters: z
+					.array(FilterSchema)
+					.optional()
+					.describe(
+						"Array of filters. Each: {field, op, value}. ops: eq, ne, contains, not_contains, starts_with, in, not_in."
+					),
+				groupBy: z.array(z.string()).optional().describe("Fields to group by."),
+				orderBy: z.string().optional().describe("Field to order results by."),
+				queries: z
+					.array(QueryItemSchema)
+					.min(2)
+					.max(10)
+					.optional()
+					.describe(
+						"Batch mode: 2-10 query items, each with type + preset or from/to. Omit 'type' when using this."
+					),
+				timezone: z
+					.string()
+					.optional()
+					.describe(
+						"IANA timezone (e.g. 'America/New_York'). Defaults to UTC."
+					),
+			}),
 			handler: async (args: GetDataArgs) => {
 				const resolvedId = await resolveWebsiteId(args, ctx);
 				if (resolvedId instanceof Error) {
@@ -425,13 +455,20 @@ export function createMcpTools(ctx: McpToolContext) {
 				);
 				if (access instanceof Error) {
 					trackToolCompletion(ctx, "get_data", false);
-					return toMcpResult({ error: "Request failed" }, true);
+					return toMcpResult({ error: access.message }, true);
 				}
 
 				const timezone = args.timezone ?? "UTC";
-				const items: McpQueryItem[] =
-					args.queries && args.queries.length >= 2
+
+				const rawQueries = args.queries
+					? Array.isArray(args.queries)
 						? args.queries
+						: coerceQueriesArray(args.queries)
+					: undefined;
+
+				const items: McpQueryItem[] =
+					rawQueries && rawQueries.length >= 2
+						? (rawQueries as McpQueryItem[])
 						: args.type
 							? [
 									{
@@ -450,7 +487,13 @@ export function createMcpTools(ctx: McpToolContext) {
 
 				if (items.length === 0) {
 					trackToolCompletion(ctx, "get_data", false);
-					return toMcpResult({ error: "Invalid request" }, true);
+					return toMcpResult(
+						{
+							error:
+								"Either 'type' (single query) or 'queries' array (batch, 2-10 items) is required",
+						},
+						true
+					);
 				}
 
 				const buildResult = buildBatchQueryRequests(
@@ -460,7 +503,7 @@ export function createMcpTools(ctx: McpToolContext) {
 				);
 				if ("error" in buildResult) {
 					trackToolCompletion(ctx, "get_data", false);
-					return toMcpResult({ error: "Invalid request" }, true);
+					return toMcpResult({ error: buildResult.error }, true);
 				}
 				const requests = buildResult.requests;
 				const isBatch = requests.length > 1;
@@ -481,7 +524,7 @@ export function createMcpTools(ctx: McpToolContext) {
 										type: r.type,
 										data: r.data,
 										rowCount: r.data.length,
-										...(r.error && { error: "Query failed" }),
+										...(r.error && { error: r.error }),
 									})),
 								}
 							: results[0]
@@ -489,13 +532,15 @@ export function createMcpTools(ctx: McpToolContext) {
 										data: results[0].data,
 										rowCount: results[0].data.length,
 										type: results[0].type,
-										...(results[0].error && { error: "Query failed" }),
+										...(results[0].error && { error: results[0].error }),
 									}
-								: { error: "Query failed" }
+								: { error: "No results returned" }
 					);
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "get_data", false);
-					return toMcpResult({ error: "Query failed" }, true);
+					const message =
+						err instanceof Error ? err.message : "Query execution failed";
+					return toMcpResult({ error: message }, true);
 				}
 			},
 		},
@@ -584,9 +629,12 @@ export function createMcpTools(ctx: McpToolContext) {
 						funnels: result,
 						count: Array.isArray(result) ? result.length : 0,
 					});
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "list_funnels", false);
-					return toMcpResult({ error: "Failed to list funnels" }, true);
+					return toMcpResult(
+						{ error: rpcErrorMessage(err, "Failed to list funnels") },
+						true
+					);
 				}
 			},
 		},
@@ -632,9 +680,14 @@ export function createMcpTools(ctx: McpToolContext) {
 					);
 					trackToolCompletion(ctx, "get_funnel_analytics", true);
 					return toMcpResult(result);
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "get_funnel_analytics", false);
-					return toMcpResult({ error: "Failed to get funnel analytics" }, true);
+					return toMcpResult(
+						{
+							error: rpcErrorMessage(err, "Failed to get funnel analytics"),
+						},
+						true
+					);
 				}
 			},
 		},
@@ -659,9 +712,12 @@ export function createMcpTools(ctx: McpToolContext) {
 						goals: result,
 						count: Array.isArray(result) ? result.length : 0,
 					});
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "list_goals", false);
-					return toMcpResult({ error: "Failed to list goals" }, true);
+					return toMcpResult(
+						{ error: rpcErrorMessage(err, "Failed to list goals") },
+						true
+					);
 				}
 			},
 		},
@@ -707,9 +763,12 @@ export function createMcpTools(ctx: McpToolContext) {
 					);
 					trackToolCompletion(ctx, "get_goal_analytics", true);
 					return toMcpResult(result);
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "get_goal_analytics", false);
-					return toMcpResult({ error: "Failed to get goal analytics" }, true);
+					return toMcpResult(
+						{ error: rpcErrorMessage(err, "Failed to get goal analytics") },
+						true
+					);
 				}
 			},
 		},
@@ -725,7 +784,7 @@ export function createMcpTools(ctx: McpToolContext) {
 					const orgId = await getOrganizationId(args.websiteId);
 					if (orgId instanceof Error) {
 						trackToolCompletion(ctx, "list_links", false);
-						return toMcpResult({ error: "Failed to list links" }, true);
+						return toMcpResult({ error: orgId.message }, true);
 					}
 					const rpcCtx = buildRpcContext(ctx);
 					const result = await callRPCProcedure(
@@ -762,9 +821,12 @@ export function createMcpTools(ctx: McpToolContext) {
 						),
 						count: links.length,
 					});
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "list_links", false);
-					return toMcpResult({ error: "Failed to list links" }, true);
+					return toMcpResult(
+						{ error: rpcErrorMessage(err, "Failed to list links") },
+						true
+					);
 				}
 			},
 		},
@@ -783,7 +845,7 @@ export function createMcpTools(ctx: McpToolContext) {
 					const orgId = await getOrganizationId(args.websiteId);
 					if (orgId instanceof Error) {
 						trackToolCompletion(ctx, "search_links", false);
-						return toMcpResult({ error: "Failed to search links" }, true);
+						return toMcpResult({ error: orgId.message }, true);
 					}
 					const rpcCtx = buildRpcContext(ctx);
 					const allLinks = (await callRPCProcedure(
@@ -817,9 +879,12 @@ export function createMcpTools(ctx: McpToolContext) {
 						})),
 						count: matches.length,
 					});
-				} catch {
+				} catch (err) {
 					trackToolCompletion(ctx, "search_links", false);
-					return toMcpResult({ error: "Failed to search links" }, true);
+					return toMcpResult(
+						{ error: rpcErrorMessage(err, "Failed to search links") },
+						true
+					);
 				}
 			},
 		},

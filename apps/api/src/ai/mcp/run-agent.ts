@@ -2,6 +2,8 @@ import { ToolLoopAgent } from "ai";
 import { createMcpAgentConfig } from "../agents/mcp";
 import { models } from "../config/models";
 
+const MCP_AGENT_TIMEOUT_MS = 45_000;
+
 export interface RunMcpAgentOptions {
 	question: string;
 	requestHeaders: Headers;
@@ -40,9 +42,20 @@ export async function runMcpAgent(
 				]
 			: [{ role: "user" as const, content: options.question }];
 
-	const result = await agent.generate({
-		messages,
-	});
+	const abortController = new AbortController();
+	const timeout = setTimeout(
+		() => abortController.abort(),
+		MCP_AGENT_TIMEOUT_MS
+	);
 
-	return result.text ?? "No response generated.";
+	try {
+		const result = await agent.generate({
+			messages,
+			abortSignal: abortController.signal,
+		});
+
+		return result.text ?? "No response generated.";
+	} finally {
+		clearTimeout(timeout);
+	}
 }
