@@ -13,12 +13,13 @@ import { SciFiButton } from "@/components/landing/scifi-btn";
 import { SciFiCard } from "@/components/scifi-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { HONEYPOT_FIELD } from "./constants";
 import { PhoneInput } from "./phone-input";
 
 const URL_TLD_REGEX = /\.[a-z]{2,}$/i;
 
 const contactSchema = z.object({
-	company: z.string().max(0).optional(),
+	[HONEYPOT_FIELD]: z.string().max(0).optional(),
 	fullName: z
 		.string()
 		.min(1, "Full name is required")
@@ -107,7 +108,7 @@ export default function ContactForm() {
 	} = useForm<ContactFormValues>({
 		resolver: zodResolver(contactSchema),
 		defaultValues: {
-			company: "",
+			[HONEYPOT_FIELD]: "",
 			fullName: "",
 			businessName: "",
 			website: "",
@@ -131,7 +132,7 @@ export default function ContactForm() {
 					...data,
 					anonId,
 					sessionId,
-					...(data.company ? { honeypot: true } : {}),
+					...(data[HONEYPOT_FIELD] ? { honeypot: true } : {}),
 				}),
 				signal: controller.signal,
 			});
@@ -201,13 +202,13 @@ export default function ContactForm() {
 		<SciFiCard className="rounded border border-border bg-card/50 p-5 backdrop-blur-sm sm:p-6">
 			<form className="space-y-4" onSubmit={handleSubmit(submitForm)}>
 				<div aria-hidden="true" className="absolute -left-[9999px] opacity-0">
-					<label htmlFor="company">Company</label>
+					<label htmlFor={HONEYPOT_FIELD}>Leave blank</label>
 					<input
 						autoComplete="off"
-						id="company"
+						id={HONEYPOT_FIELD}
 						tabIndex={-1}
 						type="text"
-						{...register("company")}
+						{...register(HONEYPOT_FIELD)}
 					/>
 				</div>
 
