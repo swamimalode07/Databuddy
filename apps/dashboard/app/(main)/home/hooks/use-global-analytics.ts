@@ -2,7 +2,7 @@
 
 import type { ProcessedMiniChartData } from "@databuddy/shared/types/website";
 import { useMemo } from "react";
-import { useWebsites } from "./use-websites";
+import { useWebsites } from "@/hooks/use-websites";
 
 export interface GlobalAnalytics {
 	totalActiveUsers: number;

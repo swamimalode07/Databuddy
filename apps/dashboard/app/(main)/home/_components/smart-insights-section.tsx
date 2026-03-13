@@ -18,12 +18,12 @@ import { generateId } from "ai";
 import Link from "next/link";
 import { type ReactNode, useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import type {
 	Insight,
 	InsightSentiment,
 	InsightType,
-} from "@/hooks/use-smart-insights";
-import { cn } from "@/lib/utils";
+} from "../hooks/use-smart-insights";
 
 function buildDiagnosticPrompt(insight: Insight): string {
 	const parts = [

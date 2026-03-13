@@ -42,7 +42,9 @@ interface InsightsResponse {
 	source: "ai" | "fallback";
 }
 
-async function fetchInsights(organizationId: string): Promise<InsightsResponse> {
+async function fetchInsights(
+	organizationId: string
+): Promise<InsightsResponse> {
 	const res = await fetch(`${API_URL}/v1/insights/ai`, {
 		method: "POST",
 		credentials: "include",
