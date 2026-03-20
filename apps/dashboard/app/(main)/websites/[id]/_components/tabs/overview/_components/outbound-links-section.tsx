@@ -6,6 +6,7 @@ import {
 	DataTable,
 	type TabConfig,
 } from "@/components/table/data-table";
+import { PercentageBadge } from "@/app/(main)/websites/[id]/_components/utils/technology-helpers";
 import type {
 	OutboundDomainRow,
 	OutboundLinkRow,
@@ -28,14 +29,15 @@ const createDomainIndicator = () => (
 	<div className="size-2 shrink-0 rounded bg-blue-500" />
 );
 
-const createPercentageBadge = (percentage: number) => {
-	const safePercentage =
-		percentage == null || Number.isNaN(percentage) ? 0 : percentage;
-	return (
-		<div className="inline-flex items-center rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
-			{safePercentage.toFixed(1)}%
-		</div>
-	);
+const parseMetricNumber = (value: unknown): number => {
+	if (typeof value === "number" && !Number.isNaN(value)) {
+		return value;
+	}
+	if (typeof value === "string") {
+		const n = Number.parseFloat(value);
+		return Number.isNaN(n) ? 0 : n;
+	}
+	return 0;
 };
 
 const createMetricDisplay = (value: number, label: string) => (
@@ -116,11 +118,9 @@ const outboundLinksColumns: ColumnDef<OutboundLinkRow, unknown>[] = [
 		id: "percentage",
 		accessorKey: "percentage",
 		header: "Share",
-		cell: ({ getValue }: CellContext<OutboundLinkRow, unknown>) => {
-			const v = getValue();
-			const n = typeof v === "number" ? v : 0;
-			return createPercentageBadge(n);
-		},
+		cell: ({ getValue }: CellContext<OutboundLinkRow, unknown>) => (
+			<PercentageBadge percentage={parseMetricNumber(getValue())} />
+		),
 	},
 ];
 
@@ -174,11 +174,9 @@ const outboundDomainsColumns: ColumnDef<OutboundDomainRow, unknown>[] = [
 		id: "percentage",
 		accessorKey: "percentage",
 		header: "Share",
-		cell: ({ getValue }: CellContext<OutboundDomainRow, unknown>) => {
-			const v = getValue();
-			const n = typeof v === "number" ? v : 0;
-			return createPercentageBadge(n);
-		},
+		cell: ({ getValue }: CellContext<OutboundDomainRow, unknown>) => (
+			<PercentageBadge percentage={parseMetricNumber(getValue())} />
+		),
 	},
 ];
 
@@ -212,11 +210,10 @@ function toOutboundLinkRow(link: Record<string, unknown> & { href: string }): Ou
 		name: link.href,
 		href: link.href,
 		text: typeof link.text === "string" ? link.text : "",
-		total_clicks: typeof link.total_clicks === "number" ? link.total_clicks : 0,
-		unique_users: typeof link.unique_users === "number" ? link.unique_users : 0,
-		unique_sessions:
-			typeof link.unique_sessions === "number" ? link.unique_sessions : 0,
-		percentage: typeof link.percentage === "number" ? link.percentage : 0,
+		total_clicks: parseMetricNumber(link.total_clicks),
+		unique_users: parseMetricNumber(link.unique_users),
+		unique_sessions: parseMetricNumber(link.unique_sessions),
+		percentage: parseMetricNumber(link.percentage),
 	};
 }
 
@@ -226,10 +223,10 @@ function toOutboundDomainRow(
 	return {
 		name: row.domain,
 		domain: row.domain,
-		total_clicks: typeof row.total_clicks === "number" ? row.total_clicks : 0,
-		unique_users: typeof row.unique_users === "number" ? row.unique_users : 0,
-		unique_links: typeof row.unique_links === "number" ? row.unique_links : 0,
-		percentage: typeof row.percentage === "number" ? row.percentage : 0,
+		total_clicks: parseMetricNumber(row.total_clicks),
+		unique_users: parseMetricNumber(row.unique_users),
+		unique_links: parseMetricNumber(row.unique_links),
+		percentage: parseMetricNumber(row.percentage),
 	};
 }
 
