@@ -3,7 +3,7 @@
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import { useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { DateRange as DayPickerRange } from "react-day-picker";

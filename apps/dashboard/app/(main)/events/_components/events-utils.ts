@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 
 export function formatCompactNumber(value: number | null | undefined): string {
 	if (value === null || value === undefined || Number.isNaN(value)) {

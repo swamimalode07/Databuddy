@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { parseAsString, useQueryState } from "nuqs";
 import { useCallback, useMemo } from "react";
 import {

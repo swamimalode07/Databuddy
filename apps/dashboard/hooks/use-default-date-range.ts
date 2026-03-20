@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 
 const DEFAULT_DATE_RANGE_STORAGE_KEY = "databuddy-default-date-range";

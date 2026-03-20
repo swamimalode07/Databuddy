@@ -1,12 +1,5 @@
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import dayjs from "@/lib/dayjs";
 import { toast } from "sonner";
-
-dayjs.extend(relativeTime);
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 /** Bounce rate must be 0–100%. Clamp invalid values from bad data or miscalculations. */
 export function clampBounceRate(value: number | null | undefined): number {

@@ -7,7 +7,7 @@ import { TimerIcon } from "@phosphor-icons/react/dist/ssr/Timer";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import type { ColumnDef } from "@tanstack/react-table";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo } from "react";

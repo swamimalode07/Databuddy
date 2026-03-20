@@ -11,7 +11,7 @@ import {
 	SmileyIcon,
 	WarningCircleIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

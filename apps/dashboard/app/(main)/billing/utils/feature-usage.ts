@@ -1,8 +1,5 @@
 import type { CustomerFeature } from "autumn-js";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(relativeTime);
+import dayjs from "@/lib/dayjs";
 
 export interface PricingTier {
 	to: number | "inf";

@@ -1,8 +1,7 @@
 "use client";
 
 import { ClockIcon, CodeIcon, GlobeIcon } from "@phosphor-icons/react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "@/lib/dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
@@ -15,8 +14,6 @@ import { ErrorDetailModal } from "./error-detail-modal";
 import { getDeviceIcon, getErrorTypeIcon } from "./error-icons";
 import type { RecentError } from "./types";
 import { formatDateTimeSeconds, getErrorCategory } from "./utils";
-
-dayjs.extend(relativeTime);
 
 interface Props {
 	recentErrors: RecentError[];

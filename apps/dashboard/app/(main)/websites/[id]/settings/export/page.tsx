@@ -9,7 +9,7 @@ import {
 	TableIcon,
 } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { DateRange as DayPickerRange } from "react-day-picker";

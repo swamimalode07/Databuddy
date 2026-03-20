@@ -7,7 +7,7 @@ import {
 	UserPlusIcon,
 	UsersIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useMemo, useState } from "react";
 import { StatCard } from "@/components/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

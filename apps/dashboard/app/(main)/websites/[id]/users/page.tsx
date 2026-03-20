@@ -14,15 +14,8 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import utc from "dayjs/plugin/utc";
 import { useAtomValue } from "jotai";
 import Image from "next/image";
-
-dayjs.extend(relativeTime);
-dayjs.extend(utc);
-
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
@@ -45,6 +38,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDateFilters } from "@/hooks/use-date-filters";
+import dayjs from "@/lib/dayjs";
 import { getDeviceIcon } from "@/lib/utils";
 import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import { generateProfileName } from "./[userId]/_components/generate-profile-name";

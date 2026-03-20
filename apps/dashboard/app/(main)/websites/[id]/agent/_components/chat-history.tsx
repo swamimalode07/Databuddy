@@ -3,8 +3,7 @@
 import { ChatCircleDotsIcon } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "@/lib/dayjs";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useAgentChatId } from "./agent-chat-context";
 import { clearLastChatId, useChatList } from "./hooks/use-chat-db";
-
-dayjs.extend(relativeTime);
 
 export function ChatHistory() {
 	const [open, setOpen] = useState(false);

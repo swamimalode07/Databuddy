@@ -1,5 +1,5 @@
 import { MinusIcon, TrendDownIcon, TrendUpIcon } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { type ElementType, memo } from "react";
 import {
 	Area,

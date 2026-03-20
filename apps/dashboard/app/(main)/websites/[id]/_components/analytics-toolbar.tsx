@@ -2,7 +2,7 @@
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import clsx from "clsx";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import type { DateRange as DayPickerRange } from "react-day-picker";

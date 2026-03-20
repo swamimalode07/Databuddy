@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import dayjs from "@/lib/dayjs";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { usePersistentState } from "@/hooks/use-persistent-state";
@@ -84,7 +85,7 @@ export function MetricsChartWithAnnotations({
 			dateRange: {
 				start_date: dateRange.startDate.toISOString(),
 				end_date: dateRange.endDate.toISOString(),
-				granularity: "daily",
+				granularity: dateRange.granularity,
 			},
 			metrics: ["pageviews", "sessions", "visitors"],
 		};
@@ -106,7 +107,15 @@ export function MetricsChartWithAnnotations({
 			return [];
 		}
 
-		const { startDate, endDate } = dateRange;
+		const { startDate, endDate, granularity } = dateRange;
+
+		// When hourly granularity, endDate is midnight (start of day) but the chart
+		// renders data points throughout the day — extend to end-of-day so hourly
+		// annotations aren't silently filtered out
+		const effectiveEndDate =
+			granularity === "hourly"
+				? dayjs(endDate).endOf("day").toDate()
+				: endDate;
 
 		return allAnnotations.filter((annotation) => {
 			const annotationStart = new Date(annotation.xValue);
@@ -114,9 +123,7 @@ export function MetricsChartWithAnnotations({
 				? new Date(annotation.xEndValue)
 				: annotationStart;
 
-			// Check if annotation range overlaps with visible chart range
-			// Two ranges overlap if: annotationStart <= endDate && annotationEnd >= startDate
-			return annotationStart <= endDate && annotationEnd >= startDate;
+			return annotationStart <= effectiveEndDate && annotationEnd >= startDate;
 		});
 	}, [allAnnotations, dateRange]);
 

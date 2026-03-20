@@ -7,7 +7,7 @@ import {
 	LockKeyIcon,
 	WarningIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import type { ApiKeyListItem } from "@/components/organizations/api-key-types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

@@ -1,6 +1,6 @@
 import type { CustomerProduct } from "autumn-js";
 import { useCustomer, usePricingTable } from "autumn-js/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import AttachDialog from "@/components/autumn/attach-dialog";

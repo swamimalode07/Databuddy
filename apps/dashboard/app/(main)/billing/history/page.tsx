@@ -9,8 +9,7 @@ import {
 	XCircleIcon,
 } from "@phosphor-icons/react";
 import type { CustomerInvoice } from "autumn-js";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "@/lib/dayjs";
 import { memo, useMemo } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { RightSidebar } from "@/components/right-sidebar";
@@ -20,8 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ErrorState } from "../components/empty-states";
 import { useBilling, useBillingData } from "../hooks/use-billing";
-
-dayjs.extend(relativeTime);
 
 export default function HistoryPage() {
 	const { customerData, isLoading, error, refetch } = useBillingData();

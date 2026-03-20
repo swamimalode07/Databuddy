@@ -7,8 +7,6 @@ import {
 	InfinityIcon,
 	XIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,9 +15,8 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
-
-dayjs.extend(relativeTime);
 
 interface ExpirationPreset {
 	label: string;

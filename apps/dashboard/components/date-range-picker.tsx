@@ -5,7 +5,7 @@ import {
 	CaretRightIcon,
 	CheckIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";

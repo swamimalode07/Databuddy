@@ -1,5 +1,5 @@
 import type { invitation } from "@databuddy/db";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { atom } from "jotai";
 
 export type Invitation = typeof invitation.$inferSelect;

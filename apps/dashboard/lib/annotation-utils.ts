@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import type { Annotation } from "@/types/annotations";
 
 type Granularity = "hourly" | "daily" | "weekly" | "monthly";

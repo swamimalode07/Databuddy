@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import type { CustomerProduct, Product } from "autumn-js";
 import { useCustomer } from "autumn-js/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import Link from "next/link";
 import { useMemo } from "react";
 import AttachDialog from "@/components/autumn/attach-dialog";

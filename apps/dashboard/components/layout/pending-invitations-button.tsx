@@ -1,8 +1,6 @@
 "use client";
 
 import { BuildingsIcon, EnvelopeIcon } from "@phosphor-icons/react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +16,9 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
 import { useUserInvitations } from "./hooks/use-user-invitations";
-
-dayjs.extend(relativeTime);
 
 export function PendingInvitationsButton() {
 	const [isOpen, setIsOpen] = useState(false);

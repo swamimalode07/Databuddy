@@ -13,7 +13,7 @@ import {
 	LinkSimpleIcon,
 	QrCodeIcon,
 } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";

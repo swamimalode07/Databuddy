@@ -7,9 +7,6 @@ import {
 	MonitorIcon,
 } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
-import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import { useCallback, useMemo } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { BrowserIcon } from "@/components/icon";
@@ -22,9 +19,6 @@ import {
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { PercentageBadge } from "../utils/technology-helpers";
 import type { FullTabProps } from "../utils/types";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 interface BrowserVersion {
 	version: string;

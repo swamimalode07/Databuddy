@@ -46,7 +46,7 @@ export const formatNumber = (num: number | undefined | null): string => {
 };
 
 // Date formatting utilities
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 
 // Predefined date formats for consistency across the app
 export const DATE_FORMATS = {

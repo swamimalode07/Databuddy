@@ -1,5 +1,5 @@
 import { ChartLineIcon, XIcon } from "@phosphor-icons/react";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import {

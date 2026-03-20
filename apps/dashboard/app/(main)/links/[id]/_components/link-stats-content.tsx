@@ -7,7 +7,7 @@ import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
 import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import {

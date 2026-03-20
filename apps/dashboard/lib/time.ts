@@ -4,16 +4,8 @@
  * Always import dayjs from this file instead of 'dayjs' directly
  * to ensure consistent timezone handling across the application.
  */
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import dayjs from "@/lib/dayjs";
 import { getUserTimezone } from "./timezone";
-
-// Configure dayjs plugins once
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(relativeTime);
 
 // Get the user's timezone
 const userTimezone = getUserTimezone();

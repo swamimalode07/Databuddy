@@ -2,8 +2,7 @@
 
 import { ClockIcon, RobotIcon, WarningIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "@/lib/dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { SimpleMetricsChart } from "@/components/charts/simple-metrics-chart";
 import { DataTable, type TabConfig } from "@/components/table/data-table";
@@ -24,8 +23,6 @@ import {
 	type LLMRecentErrorData,
 } from "../_components/llm-types";
 import { LLMErrorDetailModal } from "./_components/llm-error-detail-modal";
-
-dayjs.extend(relativeTime);
 
 function getRelativeTime(timestamp: string): string {
 	const date = dayjs(timestamp);

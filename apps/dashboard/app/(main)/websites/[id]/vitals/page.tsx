@@ -1,7 +1,7 @@
 "use client";
 
 import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
