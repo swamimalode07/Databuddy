@@ -112,7 +112,7 @@ export default function Hero({
 								rel="noopener noreferrer"
 								target="_blank"
 							>
-								Get early access
+								Get started
 							</a>
 						</SciFiButton>
 					</div>
