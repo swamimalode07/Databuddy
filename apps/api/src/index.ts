@@ -23,6 +23,7 @@ import {
 	enrichApiWideEvent,
 	flushBatchedApiDrain,
 } from "@/lib/evlog-api";
+import { initTccTracing, shutdownTccTracing } from "@/lib/tcc-otel";
 import { captureError } from "@/lib/tracing";
 import { agent } from "./routes/agent";
 import { health } from "./routes/health";
@@ -40,6 +41,17 @@ initLogger({
 		keep: [{ status: 400 }, { duration: 1500 }],
 	},
 });
+
+try {
+	initTccTracing();
+} catch (error) {
+	log.warn({
+		service: "api",
+		component: "tcc_otel",
+		message: "TCC tracing disabled (init failed)",
+		error: error instanceof Error ? error.message : String(error),
+	});
+}
 
 process.on("unhandledRejection", (reason, _promise) => {
 	captureError(reason);
@@ -373,22 +385,38 @@ export default {
 
 process.on("SIGINT", async () => {
 	log.info("lifecycle", "SIGINT received, shutting down gracefully");
-	await flushBatchedApiDrain().catch((error) =>
-		log.error({
-			lifecycle: "drainFlush",
-			error: error instanceof Error ? error.message : String(error),
-		})
-	);
+	await Promise.all([
+		flushBatchedApiDrain().catch((error) =>
+			log.error({
+				lifecycle: "drainFlush",
+				error: error instanceof Error ? error.message : String(error),
+			})
+		),
+		shutdownTccTracing().catch((error) =>
+			log.error({
+				lifecycle: "tccOtelShutdown",
+				error: error instanceof Error ? error.message : String(error),
+			})
+		),
+	]);
 	process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
 	log.info("lifecycle", "SIGTERM received, shutting down gracefully");
-	await flushBatchedApiDrain().catch((error) =>
-		log.error({
-			lifecycle: "drainFlush",
-			error: error instanceof Error ? error.message : String(error),
-		})
-	);
+	await Promise.all([
+		flushBatchedApiDrain().catch((error) =>
+			log.error({
+				lifecycle: "drainFlush",
+				error: error instanceof Error ? error.message : String(error),
+			})
+		),
+		shutdownTccTracing().catch((error) =>
+			log.error({
+				lifecycle: "tccOtelShutdown",
+				error: error instanceof Error ? error.message : String(error),
+			})
+		),
+	]);
 	process.exit(0);
 });

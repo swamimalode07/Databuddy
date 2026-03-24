@@ -220,6 +220,8 @@ Rules:
 - Never fabricate or round numbers beyond what's in the data`;
 
 async function analyzeWebsite(
+	organizationId: string,
+	userId: string,
 	websiteId: string,
 	domain: string,
 	timezone: string
@@ -274,6 +276,19 @@ async function analyzeWebsite(
 			prompt,
 			temperature: 0.2,
 			abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+			experimental_telemetry: {
+				isEnabled: true,
+				functionId: "databuddy.insights.analyze_website",
+				metadata: {
+					source: "insights",
+					feature: "smart_insights",
+					organizationId,
+					userId,
+					websiteId,
+					websiteDomain: domain,
+					timezone,
+				},
+			},
 		});
 
 		if (!result.output) {
@@ -402,6 +417,8 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 					sites.slice(0, MAX_WEBSITES),
 					async (site) => {
 						const results = await analyzeWebsite(
+							organizationId,
+							userId,
 							site.id,
 							site.domain,
 							timezone

@@ -18,12 +18,15 @@ export interface RunMcpAgentOptions {
 	>;
 	userId: string | null;
 	timezone?: string;
+	conversationId?: string;
 	priorMessages?: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 export async function runMcpAgent(
 	options: RunMcpAgentOptions
 ): Promise<string> {
+	const sessionId = options.conversationId ?? crypto.randomUUID();
+
 	const apiKeyId =
 		options.apiKey &&
 		typeof options.apiKey === "object" &&
@@ -38,6 +41,7 @@ export async function runMcpAgent(
 				apiKey: options.apiKey,
 				userId: options.userId,
 				timezone: options.timezone,
+				chatId: sessionId,
 			})
 		),
 		isMemoryEnabled()
@@ -50,6 +54,21 @@ export async function runMcpAgent(
 		? `${config.system}\n\n${memoryBlock}`
 		: config.system;
 
+	const mcpUserId = options.userId ?? options.apiKey?.userId;
+	const mcpTelemetryMetadata: Record<string, string> = {
+		source: "mcp",
+		authType: options.apiKey ? "api_key" : "session",
+		timezone: options.timezone ?? "UTC",
+		"tcc.conversational": "true",
+	};
+	if (mcpUserId) {
+		mcpTelemetryMetadata.userId = mcpUserId;
+	}
+	if (options.apiKey?.organizationId) {
+		mcpTelemetryMetadata.organizationId = options.apiKey.organizationId;
+	}
+	mcpTelemetryMetadata["tcc.sessionId"] = sessionId;
+
 	const agent = new ToolLoopAgent({
 		model: config.model,
 		instructions,
@@ -57,6 +76,11 @@ export async function runMcpAgent(
 		stopWhen: config.stopWhen,
 		temperature: config.temperature,
 		experimental_context: config.experimental_context,
+		experimental_telemetry: {
+			isEnabled: true,
+			functionId: "databuddy.mcp.ask",
+			metadata: mcpTelemetryMetadata,
+		},
 	});
 
 	const messages =
