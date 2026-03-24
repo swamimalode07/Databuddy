@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery, convertClickhouseDateToJs } from "@databuddy/db";
 import { referrers } from "@databuddy/shared/lists/referrers";
 
 export interface AnalyticsStep {
@@ -28,6 +28,15 @@ export interface StepAnalytics {
 	top_errors: StepErrorInsight[];
 }
 
+export interface FunnelTimeSeriesPoint {
+	date: string;
+	users: number;
+	conversions: number;
+	conversion_rate: number;
+	dropoffs: number;
+	avg_time: number;
+}
+
 export interface FunnelAnalytics {
 	overall_conversion_rate: number;
 	total_users_entered: number;
@@ -37,6 +46,7 @@ export interface FunnelAnalytics {
 	biggest_dropoff_step: number;
 	biggest_dropoff_rate: number;
 	steps_analytics: StepAnalytics[];
+	time_series?: FunnelTimeSeriesPoint[];
 	error_insights: {
 		total_errors: number;
 		sessions_with_errors: number;
@@ -124,6 +134,26 @@ function toFiniteNumber(value: unknown, fallback = 0): number {
 	}
 	const n = Number(value);
 	return Number.isFinite(n) ? n : fallback;
+}
+
+/**
+ * DateTime64 columns arrive as ISO-like strings from ClickHouse JSON; only Int* types are
+ * coerced to numbers in chQuery (see packages/db/src/clickhouse/client.ts).
+ * Seconds since Unix epoch for funnel step ordering and daily buckets.
+ */
+function parseClickhouseTimestampSeconds(value: unknown): number {
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return value;
+	}
+	if (typeof value === "bigint") {
+		const n = Number(value);
+		return Number.isFinite(n) ? n : 0;
+	}
+	if (typeof value === "string" && value.length > 0) {
+		const ms = convertClickhouseDateToJs(value).getTime();
+		return Number.isFinite(ms) ? ms / 1000 : 0;
+	}
+	return 0;
 }
 
 const parseReferrer = (ref: string): ParsedReferrer => {
@@ -458,11 +488,28 @@ const queryFunnelErrors = async (
 	return { errorsByPath, sessionsWithErrors, totalErrors };
 };
 
+export const queryLinkVisitorIds = async (
+	linkId: string,
+	params: ClickhouseQueryParams
+): Promise<Set<string>> => {
+	const refParams = { ...params, linkRefPattern: `%ref=${linkId}%` };
+	const rows = await chQuery<{ vid: string }>(
+		`SELECT DISTINCT anonymous_id as vid
+		 FROM analytics.events
+		 WHERE client_id = {websiteId:String}
+			AND ${buildTimeRangeWhere("time")}
+			AND url LIKE {linkRefPattern:String}`,
+		refParams
+	);
+	return new Set(rows.map((r) => String(r.vid ?? "")));
+};
+
 // Main funnel analytics
 export const processFunnelAnalytics = async (
 	steps: AnalyticsStep[],
 	filters: Filter[],
-	params: ClickhouseQueryParams
+	params: ClickhouseQueryParams,
+	visitorFilter?: Set<string>
 ): Promise<FunnelAnalytics> => {
 	const filterSQL = buildFilterSQL(filters, params);
 	const stepQueries = steps.map((s, i) =>
@@ -476,7 +523,7 @@ export const processFunnelAnalytics = async (
 		ts: number;
 	}>(
 		`WITH events AS (${stepQueries.join("\nUNION ALL\n")})
-		 SELECT DISTINCT step, name, vid, ts FROM events ORDER BY vid, ts`,
+			SELECT DISTINCT step, name, vid, ts FROM events ORDER BY vid, ts`,
 		params
 	);
 
@@ -484,10 +531,15 @@ export const processFunnelAnalytics = async (
 		step: toFiniteNumber(r.step, 0),
 		name: String(r.name ?? ""),
 		vid: String(r.vid ?? ""),
-		ts: toFiniteNumber(r.ts, 0),
+		ts: parseClickhouseTimestampSeconds(r.ts),
 	}));
 
-	const visitors = groupByVisitor(rows);
+	const allVisitors = groupByVisitor(rows);
+
+	// Apply visitor filter if provided (e.g. link attribution)
+	const visitors = visitorFilter
+		? new Map([...allVisitors].filter(([vid]) => visitorFilter.has(vid)))
+		: allVisitors;
 	const counts = countStepCompletions(visitors);
 	const totalSteps = steps.length;
 	const totalUsers = counts.get(1)?.size || 0;
@@ -499,21 +551,27 @@ export const processFunnelAnalytics = async (
 	const { errorsByPath, sessionsWithErrors, totalErrors } =
 		await queryFunnelErrors(steps, allFunnelVids, params);
 
-	// Calculate step timings and track drop-offs per step
+	// Calculate step timings, track drop-offs per step, and bucket by entry day
 	const completionTimes: number[] = [];
 	const stepTimes = new Map<number, number[]>();
 	const dropoffsByStep = new Map<number, Set<string>>();
+	const dailyBuckets = new Map<
+		string,
+		{ users: number; conversions: number; completionTimes: number[] }
+	>();
 
 	for (const [vid, stepList] of visitors) {
 		let expected = 1;
 		let firstTime = 0;
 		let prevTime = 0;
 		let lastCompletedStep = 0;
+		let entryDate = "";
 
 		for (const s of stepList) {
 			if (s.step === expected) {
 				if (expected === 1) {
 					firstTime = prevTime = s.time;
+					entryDate = new Date(s.time * 1000).toISOString().slice(0, 10);
 				} else {
 					let arr = stepTimes.get(expected);
 					if (!arr) {
@@ -540,6 +598,23 @@ export const processFunnelAnalytics = async (
 				dropoffsByStep.set(dropStep, set);
 			}
 			set.add(vid);
+		}
+
+		// Bucket by entry day for time-series
+		if (entryDate) {
+			let bucket = dailyBuckets.get(entryDate);
+			if (!bucket) {
+				bucket = { users: 0, conversions: 0, completionTimes: [] };
+				dailyBuckets.set(entryDate, bucket);
+			}
+			bucket.users++;
+			if (lastCompletedStep === totalSteps) {
+				bucket.conversions++;
+				const totalTime = stepList.filter((s) => s.step === totalSteps).at(0);
+				if (totalTime) {
+					bucket.completionTimes.push(totalTime.time - firstTime);
+				}
+			}
 		}
 	}
 
@@ -624,6 +699,18 @@ export const processFunnelAnalytics = async (
 					.reduce((max, s) => (s.dropoff_rate > max.dropoff_rate ? s : max))
 			: stepsAnalytics[0];
 
+	// Build time-series from daily buckets
+	const timeSeries: FunnelTimeSeriesPoint[] = [...dailyBuckets.entries()]
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([date, bucket]) => ({
+			date,
+			users: bucket.users,
+			conversions: bucket.conversions,
+			conversion_rate: pct(bucket.conversions, bucket.users),
+			dropoffs: bucket.users - bucket.conversions,
+			avg_time: avg(bucket.completionTimes),
+		}));
+
 	return {
 		overall_conversion_rate: pct(lastStep?.users || 0, totalUsers),
 		total_users_entered: totalUsers,
@@ -633,6 +720,7 @@ export const processFunnelAnalytics = async (
 		biggest_dropoff_step: biggestDropoff?.step_number || 1,
 		biggest_dropoff_rate: biggestDropoff?.dropoff_rate || 0,
 		steps_analytics: stepsAnalytics,
+		time_series: timeSeries.length > 0 ? timeSeries : undefined,
 		error_insights: {
 			total_errors: totalErrors,
 			sessions_with_errors: sessionsWithErrors.size,
@@ -754,7 +842,7 @@ export const processFunnelAnalyticsByReferrer = async (
 	const rows = rawRefRows.map((r) => ({
 		step: toFiniteNumber(r.step, 0),
 		vid: String(r.vid ?? ""),
-		ts: toFiniteNumber(r.ts, 0),
+		ts: parseClickhouseTimestampSeconds(r.ts),
 		ref: String(r.ref ?? ""),
 	}));
 

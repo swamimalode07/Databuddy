@@ -13,6 +13,7 @@ import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import {
 	useFunnelAnalytics,
+	useFunnelAnalyticsByLink,
 	useFunnelAnalyticsByReferrer,
 	useFunnels,
 } from "@/hooks/use-funnels";
@@ -25,6 +26,7 @@ import {
 	FunnelItemSkeleton,
 	FunnelsList,
 } from "./_components";
+import { FunnelLinkPicker } from "./_components/funnel-link-picker";
 
 const EditFunnelDialog = dynamic(
 	() =>
@@ -51,6 +53,7 @@ export default function FunnelsPage() {
 
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [selectedReferrer, setSelectedReferrer] = useState("all");
+	const [selectedLinkId, setSelectedLinkId] = useState<string | null>(null);
 	const [editing, setEditing] = useState<FunnelItemData | "new" | null>(null);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -90,6 +93,19 @@ export default function FunnelsPage() {
 			end_date: formattedDateRangeState.endDate,
 		},
 		{ enabled: !!expandedId }
+	);
+
+	const {
+		data: linkAnalyticsData,
+		isLoading: linkAnalyticsLoading,
+		error: linkAnalyticsError,
+		refetch: refetchLinkAnalytics,
+	} = useFunnelAnalyticsByLink(
+		websiteId,
+		expandedId ?? "",
+		selectedLinkId,
+		dateRange,
+		{ enabled: !!expandedId && !!selectedLinkId }
 	);
 
 	const autocomplete = useAutocompleteData(websiteId);
@@ -180,26 +196,41 @@ export default function FunnelsPage() {
 				/>
 
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-none">
-				{isLoading ? (
-					<FunnelsListSkeleton />
-				) : (
-					<FunnelsList
-						analyticsMap={analyticsMap}
-						expandedFunnelId={expandedId}
-						funnels={funnels ?? []}
-						loadingAnalyticsIds={loadingIds}
-						onCreateFunnel={() => setEditing("new")}
-						onDeleteFunnel={setDeletingId}
-						onEditFunnel={(funnel) => setEditing(funnel)}
-						onToggleFunnel={(funnelId) => {
-							setExpandedId(expandedId === funnelId ? null : funnelId);
-							setSelectedReferrer("all");
-						}}
-					>
+					{isLoading ? (
+						<FunnelsListSkeleton />
+					) : (
+						<FunnelsList
+							analyticsMap={analyticsMap}
+							expandedFunnelId={expandedId}
+							funnels={funnels ?? []}
+							loadingAnalyticsIds={loadingIds}
+							onCreateFunnel={() => setEditing("new")}
+							onDeleteFunnel={setDeletingId}
+							onEditFunnel={(funnel) => setEditing(funnel)}
+							onToggleFunnel={(funnelId) => {
+								setExpandedId(expandedId === funnelId ? null : funnelId);
+								setSelectedReferrer("all");
+								setSelectedLinkId(null);
+							}}
+						>
 						{(funnel) => {
 							if (expandedId !== funnel.id) {
 								return null;
 							}
+
+							const showLinkData = !!selectedLinkId;
+							const activeData = showLinkData
+								? linkAnalyticsData
+								: analyticsData;
+							const activeLoading = showLinkData
+								? linkAnalyticsLoading
+								: analyticsLoading;
+							const activeError = showLinkData
+								? linkAnalyticsError
+								: analyticsError;
+							const activeRefetch = showLinkData
+								? refetchLinkAnalytics
+								: refetchAnalytics;
 
 							return (
 								<div className="space-y-4">
@@ -211,18 +242,30 @@ export default function FunnelsPage() {
 									/>
 
 									<FunnelAnalytics
-										data={analyticsData}
-										error={analyticsError as Error | null}
-										isLoading={analyticsLoading}
-										onRetry={refetchAnalytics}
-										referrerAnalytics={referrerData?.referrer_analytics}
-										selectedReferrer={selectedReferrer}
+										data={activeData}
+										error={activeError as Error | null}
+										headerAction={
+											<FunnelLinkPicker
+												onLinkChangeAction={setSelectedLinkId}
+												selectedLinkId={selectedLinkId}
+											/>
+										}
+										isLoading={activeLoading}
+										onRetry={activeRefetch}
+										referrerAnalytics={
+											showLinkData
+												? undefined
+												: referrerData?.referrer_analytics
+										}
+										selectedReferrer={
+											showLinkData ? "all" : selectedReferrer
+										}
 									/>
 								</div>
 							);
 						}}
-					</FunnelsList>
-				)}
+						</FunnelsList>
+					)}
 				</div>
 
 				{editing !== null && (

@@ -10,15 +10,22 @@ export interface FetchedOgData {
 	image: string;
 }
 
+const TRUSTED_IMAGE_HOSTS = new Set(["cdn.databuddy.cc", "api.dicebear.com"]);
+
+function isTrustedImageHost(url: string): boolean {
+	try {
+		const { hostname } = new URL(url);
+		return TRUSTED_IMAGE_HOSTS.has(hostname);
+	} catch {
+		return false;
+	}
+}
+
 export function getProxiedImageUrl(url: string): string {
 	if (!url) {
 		return "";
 	}
-	if (
-		url.startsWith("/") ||
-		url.includes("cdn.databuddy.cc") ||
-		url.includes("api.dicebear.com")
-	) {
+	if (url.startsWith("/") || isTrustedImageHost(url)) {
 		return url;
 	}
 	return `/api/image-proxy?url=${encodeURIComponent(url)}`;
