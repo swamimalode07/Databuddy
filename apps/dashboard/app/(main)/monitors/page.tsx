@@ -7,6 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
+import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
@@ -15,7 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { type Monitor, MonitorsList } from "./_components/monitors-list";
-import { PageHeader } from "./_components/page-header";
 
 const MonitorsListSkeleton = () => (
 	<div>

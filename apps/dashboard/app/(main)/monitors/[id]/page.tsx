@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
 import {
@@ -35,7 +36,6 @@ import { orpc } from "@/lib/orpc";
 import { fromNow, localDayjs } from "@/lib/time";
 import { RecentActivity } from "../../websites/[id]/pulse/_components/recent-activity";
 import { UptimeHeatmap } from "../../websites/[id]/pulse/_components/uptime-heatmap";
-import { PageHeader } from "../_components/page-header";
 
 const granularityLabels: Record<string, string> = {
 	minute: "Every minute",
