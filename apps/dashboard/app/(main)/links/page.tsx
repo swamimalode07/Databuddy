@@ -15,7 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { type Link, useDeleteLink, useLinks } from "@/hooks/use-links";
-import { LinksList, LinksListSkeleton } from "./_components/link-item";
+import {
+	LinksList,
+	LinksListSkeleton,
+	LinksSearchBarSkeleton,
+} from "./_components/link-item";
 import { LinkSheet } from "./_components/link-sheet";
 import { LinksSearchBar } from "./_components/links-search-bar";
 import { QrCodeDialog } from "./_components/qr-code-dialog";
@@ -25,38 +29,46 @@ import {
 } from "./_components/use-filtered-links";
 
 export default function LinksPage() {
+	const [sheetLink, setSheetLink] = useState<Link | null>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
-	const [editingLink, setEditingLink] = useState<Link | null>(null);
-	const [deletingLinkId, setDeletingLinkId] = useState<string | null>(null);
+	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [qrLink, setQrLink] = useState<Link | null>(null);
-
-	const [searchQuery, setSearchQuery] = useState("");
-	const [sortBy, setSortBy] = useState<SortOption>("newest");
+	const [search, setSearch] = useState("");
+	const [sort, setSort] = useState<SortOption>("newest");
 
 	const { links, isLoading, isError, isFetching, refetch } = useLinks();
-	const deleteLinkMutation = useDeleteLink();
+	const deleteLink = useDeleteLink();
+	const filtered = useFilteredLinks(links, search, sort);
 
-	const filteredLinks = useFilteredLinks(links, searchQuery, sortBy);
+	const busy = isLoading || isFetching;
+	const hasLinks = links.length > 0;
+	const noResults = !busy && hasLinks && filtered.length === 0;
 
-	const handleDeleteLink = async (linkId: string) => {
-		try {
-			await deleteLinkMutation.mutateAsync({ id: linkId });
-			setDeletingLinkId(null);
-		} catch (error: unknown) {
-			const message =
-				error instanceof Error ? error.message : "Failed to delete link";
-			toast.error(message);
-		}
-	};
-
-	const handleShowQr = useCallback((link: Link) => {
-		setQrLink(link);
-	}, []);
-
-	const handleCreateLink = useCallback(() => {
-		setEditingLink(null);
+	const openCreate = useCallback(() => {
+		setSheetLink(null);
 		setIsSheetOpen(true);
 	}, []);
+
+	const openEdit = useCallback((link: Link) => {
+		setSheetLink(link);
+		setIsSheetOpen(true);
+	}, []);
+
+	const closeSheet = useCallback(() => {
+		setIsSheetOpen(false);
+		setSheetLink(null);
+	}, []);
+
+	const handleDelete = async (id: string) => {
+		try {
+			await deleteLink.mutateAsync({ id });
+			setDeleteId(null);
+		} catch (error: unknown) {
+			toast.error(
+				error instanceof Error ? error.message : "Failed to delete link"
+			);
+		}
+	};
 
 	if (isError) {
 		return (
@@ -81,11 +93,6 @@ export default function LinksPage() {
 		);
 	}
 
-	const displayLinks = isLoading ? [] : filteredLinks;
-	const showEmptySearch =
-		!isLoading && links.length > 0 && filteredLinks.length === 0;
-	const hasLinks = !isLoading && links.length > 0;
-
 	return (
 		<ErrorBoundary>
 			<div className="flex h-full flex-col">
@@ -99,17 +106,17 @@ export default function LinksPage() {
 						<>
 							<Button
 								aria-label="Refresh links"
-								disabled={isFetching}
+								disabled={busy}
 								onClick={() => refetch()}
 								size="icon"
 								variant="secondary"
 							>
 								<ArrowClockwiseIcon
-									className={isFetching ? "animate-spin" : ""}
+									className={busy ? "animate-spin" : ""}
 									size={16}
 								/>
 							</Button>
-							<Button onClick={handleCreateLink}>
+							<Button onClick={openCreate}>
 								<PlusIcon size={16} />
 								Create Link
 							</Button>
@@ -118,52 +125,44 @@ export default function LinksPage() {
 					title="Links"
 				/>
 
-				{hasLinks && (
+				{busy ? (
+					<LinksSearchBarSkeleton />
+				) : hasLinks ? (
 					<div className="flex shrink-0 items-center border-b px-2 py-1.5">
 						<LinksSearchBar
-							onSearchQueryChangeAction={setSearchQuery}
-							onSortByChangeAction={setSortBy}
-							searchQuery={searchQuery}
-							sortBy={sortBy}
+							onSearchQueryChangeAction={setSearch}
+							onSortByChangeAction={setSort}
+							searchQuery={search}
+							sortBy={sort}
 						/>
 					</div>
-				)}
+				) : null}
 
-				{isLoading ? (
+				{busy ? (
 					<LinksListSkeleton />
-				) : showEmptySearch ? (
+				) : noResults ? (
 					<div className="flex flex-1 flex-col items-center justify-center gap-2 py-16">
 						<MagnifyingGlassIcon
 							className="size-8 text-muted-foreground/40"
 							weight="duotone"
 						/>
 						<p className="text-pretty text-muted-foreground text-sm">
-							No links match &ldquo;{searchQuery}&rdquo;
+							No links match &ldquo;{search}&rdquo;
 						</p>
 					</div>
 				) : (
 					<LinksList
-						links={displayLinks}
-						onCreateLink={handleCreateLink}
-						onDelete={(linkId) => setDeletingLinkId(linkId)}
-						onEdit={(link) => {
-							setEditingLink(link);
-							setIsSheetOpen(true);
-						}}
-						onShowQr={handleShowQr}
+						links={filtered}
+						onCreateLink={openCreate}
+						onDelete={setDeleteId}
+						onEdit={openEdit}
+						onShowQr={setQrLink}
 					/>
 				)}
 
 				<LinkSheet
-					link={editingLink}
-					onOpenChange={(open) => {
-						if (open) {
-							setIsSheetOpen(true);
-						} else {
-							setIsSheetOpen(false);
-							setEditingLink(null);
-						}
-					}}
+					link={sheetLink}
+					onOpenChange={(open) => (open ? setIsSheetOpen(true) : closeSheet())}
 					open={isSheetOpen}
 				/>
 
@@ -177,14 +176,14 @@ export default function LinksPage() {
 					open={!!qrLink}
 				/>
 
-				{deletingLinkId && (
+				{deleteId && (
 					<DeleteDialog
 						confirmLabel="Delete Link"
 						description="Are you sure you want to delete this link? This action cannot be undone and will permanently remove all click data."
-						isDeleting={deleteLinkMutation.isPending}
-						isOpen={!!deletingLinkId}
-						onClose={() => setDeletingLinkId(null)}
-						onConfirm={() => deletingLinkId && handleDeleteLink(deletingLinkId)}
+						isDeleting={deleteLink.isPending}
+						isOpen={!!deleteId}
+						onClose={() => setDeleteId(null)}
+						onConfirm={() => handleDelete(deleteId)}
 						title="Delete Link"
 					/>
 				)}

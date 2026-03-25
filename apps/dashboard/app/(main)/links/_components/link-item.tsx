@@ -116,13 +116,11 @@ function ExpiryBadge({ link }: { link: Link }) {
 						"flex items-center gap-1 rounded px-1.5 py-0.5 text-xs",
 						isExpired
 							? "bg-destructive/10 text-destructive"
-							: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+							: "bg-amber-500/10 text-amber-600 dark:text-amber-400"
 					)}
 				>
 					<ClockCountdownIcon className="size-3" weight="duotone" />
-					{isExpired
-						? "Expired"
-						: localDayjs(link.expiresAt).fromNow(true)}
+					{isExpired ? "Expired" : localDayjs(link.expiresAt).fromNow(true)}
 				</span>
 			</TooltipTrigger>
 			<TooltipContent side="top">
@@ -152,7 +150,7 @@ function LinkRow({
 		<NextLink
 			className={cn(
 				"group flex w-full items-center gap-3 border-b px-3 py-3 transition-colors hover:bg-accent/50 sm:gap-4 sm:px-4",
-				isExpired && "opacity-50",
+				isExpired && "opacity-50"
 			)}
 			href={`/links/${link.id}`}
 		>
@@ -284,6 +282,17 @@ export function LinksListSkeleton() {
 					<Skeleton className="size-7 shrink-0 rounded" />
 				</div>
 			))}
+		</div>
+	);
+}
+
+export function LinksSearchBarSkeleton() {
+	return (
+		<div className="flex shrink-0 items-center border-b px-2 py-1.5">
+			<div className="flex w-full items-center gap-1.5">
+				<Skeleton className="h-7 flex-1 rounded" />
+				<Skeleton className="h-7 w-16 shrink-0 rounded sm:w-20" />
+			</div>
 		</div>
 	);
 }
