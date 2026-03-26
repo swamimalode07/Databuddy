@@ -3,7 +3,6 @@ import { Databuddy } from "@databuddy/sdk/react";
 import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
@@ -102,31 +101,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 				trackOutgoingLinks
 				trackWebVitals
 			/>
-			<Script
-				data-project-id="1dee68c1-9213-4e17-a4bc-afcc38c8862c"
-				src="https://ingest.promptwatch.com/js/client.min.js"
-				strategy="afterInteractive"
-			/>
-			{process.env.NODE_ENV === "production" && (
-				<>
-					<Script
-						dangerouslySetInnerHTML={{
-							__html: `
-								window.dataLayer = window.dataLayer || [];
-								function gtag(){dataLayer.push(arguments);}
-								gtag('js', new Date());
-								gtag('config', 'AW-17988229504');
-							`,
-						}}
-						id="gtag-init"
-						strategy="beforeInteractive"
-					/>
-					<Script
-						src="https://www.googletagmanager.com/gtag/js?id=AW-17988229504"
-						strategy="afterInteractive"
-					/>
-				</>
-			)}
 			<body>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<NuqsAdapter>

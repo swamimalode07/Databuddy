@@ -82,7 +82,7 @@ export function TrustedBy() {
 		<div className="relative space-y-8 sm:space-y-10">
 			<div className="space-y-4">
 				<p className="text-balance text-center font-medium text-muted-foreground text-xs uppercase tracking-widest">
-					Trusted by industry leaders
+					Trusted by developers at
 				</p>
 
 				<div className="group relative overflow-hidden">
@@ -90,12 +90,12 @@ export function TrustedBy() {
 					<div className="absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-background to-transparent sm:w-24" />
 
 					<div className="flex py-4">
-						<div className="flex shrink-0 animate-marquee items-center group-hover:[animation-play-state:paused]">
+						<div className="group-hover:pause flex shrink-0 animate-marquee items-center">
 							{industryLeaders.map((company) => (
 								<MarqueeItem company={company} key={company.name} />
 							))}
 						</div>
-						<div className="flex shrink-0 animate-marquee items-center group-hover:[animation-play-state:paused]">
+						<div className="group-hover:pause flex shrink-0 animate-marquee items-center">
 							{industryLeaders.map((company) => (
 								<MarqueeItem company={company} key={`${company.name}-copy`} />
 							))}

@@ -43,6 +43,14 @@ export const Navbar = ({ stars }: NavbarProps) => {
 								<li className="ml-2">
 									<ThemeToggle />
 								</li>
+								<li className="ml-2">
+									<a
+										className="inline-flex items-center rounded bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90"
+										href="https://app.databuddy.cc/login"
+									>
+										Start free
+									</a>
+								</li>
 							</ul>
 						</div>
 
@@ -90,6 +98,15 @@ export const Navbar = ({ stars }: NavbarProps) => {
 							stars={stars}
 							transitionDelayMs={navMenu.length * 50}
 						/>
+						<div className="px-4 pt-2">
+							<a
+								className="block w-full rounded bg-primary px-4 py-3 text-center font-medium text-base text-primary-foreground"
+								href="https://app.databuddy.cc/login"
+								onClick={() => setIsMobileMenuOpen(false)}
+							>
+								Start free
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -105,12 +122,12 @@ export interface NavMenuItem {
 
 export const navMenu: NavMenuItem[] = [
 	{ name: "Docs", path: "/docs" },
+	{ name: "Pricing", path: "/pricing" },
+	{ name: "Compare", path: "/compare" },
+	{ name: "Changelog", path: "/changelog" },
 	{
-		name: "Dashboard",
+		name: "Log in",
 		path: "https://app.databuddy.cc/login",
 		external: true,
 	},
-	{ name: "Pricing", path: "/pricing" },
-	{ name: "Changelog", path: "/changelog" },
-	{ name: "Contact", path: "/contact" },
 ];

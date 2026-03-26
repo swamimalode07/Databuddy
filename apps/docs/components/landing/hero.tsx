@@ -47,8 +47,10 @@ type FullscreenElement = HTMLIFrameElement & {
 
 export default function Hero({
 	demoEmbedBaseUrl,
+	stars,
 }: {
 	demoEmbedBaseUrl: string;
+	stars?: number | null;
 }) {
 	const [activeTab, setActiveTab] = useState(tabs[0].id);
 	const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -87,34 +89,44 @@ export default function Hero({
 			<div className="mx-auto w-full max-w-7xl px-4 pt-16 pb-8 sm:px-6 sm:pt-20 lg:px-8 lg:pt-24">
 				<div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
 					<h1 className="text-balance font-bold text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-						Analytics that{" "}
-						<span className="underline decoration-2 decoration-wavy underline-offset-8">
-							runs <span className="text-muted-foreground">itself</span>
+						Privacy-first analytics.{" "}
+						<span className="text-muted-foreground">
+							One script, no cookies, no consent banners.
 						</span>
 					</h1>
 
 					<p className="max-w-2xl text-pretty font-medium text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
-						Usage, errors, and experiments in one layer.{" "}
+						Web analytics, error tracking, and feature flags in a single script
+						under 30 KB. GDPR compliant out of the box.{" "}
 						<Link
 							className="text-foreground"
 							href="https://github.com/databuddy-analytics/databuddy"
 						>
 							Open source
-						</Link>{" "}
-						and autonomous.
+						</Link>
+						.
 					</p>
 
-					<div>
+					<div className="flex items-center gap-3">
 						<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
-							<a
-								href="https://app.databuddy.cc/login"
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								Get started
-							</a>
+							<a href="https://app.databuddy.cc/login">Start free</a>
+						</SciFiButton>
+						<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
+							<Link href="/docs">Live demo</Link>
 						</SciFiButton>
 					</div>
+
+					<p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+						<span>Used by 400+ teams</span>
+						<span className="text-border">·</span>
+						{stars ? (
+							<>
+								<span>{stars.toLocaleString()} GitHub stars</span>
+								<span className="text-border">·</span>
+							</>
+						) : null}
+						<span>Open source</span>
+					</p>
 				</div>
 
 				<div className="mt-8 space-y-8">

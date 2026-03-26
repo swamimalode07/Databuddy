@@ -26,8 +26,32 @@ export const metadata: Metadata = {
 	},
 };
 
+async function getGithubStars(): Promise<number | null> {
+	try {
+		const response = await fetch(
+			"https://api.github.com/repos/databuddy-analytics/databuddy",
+			{
+				headers: { Accept: "application/vnd.github+json" },
+				next: { revalidate: 3600 },
+			}
+		);
+		if (!response.ok) {
+			return null;
+		}
+		const data = (await response.json()) as { stargazers_count?: number };
+		return typeof data.stargazers_count === "number"
+			? data.stargazers_count
+			: null;
+	} catch {
+		return null;
+	}
+}
+
 export default async function HomePage() {
-	const headerList = await headers();
+	const [headerList, stars] = await Promise.all([
+		headers(),
+		getGithubStars(),
+	]);
 	const demoEmbedBaseUrl = getDemoEmbedBaseUrl(hostFromNextHeaders(headerList));
 
 	return (
@@ -47,7 +71,7 @@ export default async function HomePage() {
 			/>
 			<div className="overflow-hidden">
 				<Section className="overflow-hidden" customPaddings id="hero">
-					<Hero demoEmbedBaseUrl={demoEmbedBaseUrl} />
+					<Hero demoEmbedBaseUrl={demoEmbedBaseUrl} stars={stars} />
 				</Section>
 
 				<Section

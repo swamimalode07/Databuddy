@@ -48,7 +48,7 @@ const BentoCard = ({
 			"group relative overflow-hidden border border-border bg-card backdrop-blur-xl duration-500",
 			className
 		)}
-		initial={{ opacity: 0, y: 20 }}
+		initial={{ opacity: 1, y: 0 }}
 		transition={{ duration: 0.5, ease: "easeOut" }}
 		viewport={{ once: true }}
 		whileInView={{ opacity: 1, y: 0 }}
@@ -446,11 +446,9 @@ const ErrorTrackingFeature = () => (
 			<div className="mt-6 flex h-14 items-end gap-1 opacity-60">
 				{[40, 70, 30, 80, 50, 90, 60, 40, 65, 85, 45, 75].map((h, i) => (
 					<motion.div
-						animate={{ height: `${h}%` }}
 						className="flex-1 rounded-t-[1px] bg-accent-foreground duration-300 hover:bg-accent-foreground/50"
-						initial={{ height: 0 }}
 						key={`bar-${h}-${i}`}
-						transition={{ duration: 0.5, delay: i * 0.05 }}
+						style={{ height: `${h}%` }}
 					/>
 				))}
 			</div>
@@ -515,50 +513,14 @@ const FeatureFlagsFeature = () => {
 	);
 };
 
+const WEB_VITALS_METRICS = [
+	{ label: "LCP", value: "0.8s", score: 98 },
+	{ label: "FID", value: "12ms", score: 100 },
+	{ label: "CLS", value: "0.02", score: 95 },
+] as const;
+
 const WebVitalsFeature = () => {
-	const [animatedScores, setAnimatedScores] = useState([0, 0, 0]);
-	const metrics = [
-		{
-			label: "LCP",
-			value: "0.8s",
-			score: 98,
-		},
-		{
-			label: "FID",
-			value: "12ms",
-			score: 100,
-		},
-		{
-			label: "CLS",
-			value: "0.02",
-			score: 95,
-		},
-	];
-
-	const [isComplete, setIsComplete] = useState(false);
-
-	useEffect(() => {
-		const duration = 1800;
-		const steps = 60;
-		const interval = duration / steps;
-
-		let step = 0;
-		const timer = setInterval(() => {
-			step += 1;
-			const progress = step / steps;
-			// More dramatic easing - starts slow, accelerates, then settles
-			const eased = 1 - (1 - progress) ** 4;
-
-			setAnimatedScores(metrics.map((m) => Math.round(m.score * eased)));
-
-			if (step >= steps) {
-				clearInterval(timer);
-				setIsComplete(true);
-			}
-		}, interval);
-
-		return () => clearInterval(timer);
-	}, []);
+	const metrics = WEB_VITALS_METRICS;
 
 	return (
 		<div className="grid h-[150px] grid-cols-3 gap-3">
@@ -629,15 +591,13 @@ const WebVitalsFeature = () => {
 								}}
 							/>
 						</svg>
-						{/* Animated score number */}
 						<motion.span
-							animate={{
-								scale: isComplete ? [1, 1.1, 1] : 1,
-							}}
+							animate={{ opacity: 1 }}
 							className="absolute font-medium font-mono text-foreground text-sm"
+							initial={{ opacity: 0 }}
 							transition={{ duration: 0.3, delay: 1.8 + i * 0.25 }}
 						>
-							{animatedScores[i]}
+							{m.score}
 						</motion.span>
 					</div>
 					<div className="space-y-0.5 text-center">

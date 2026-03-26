@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaDiscord, FaGithub, FaXTwitter } from "react-icons/fa6";
+import { FaDiscord, FaXTwitter } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { CCPAIcon } from "./icons/ccpa";
 import { GDPRIcon } from "./icons/gdpr";
@@ -20,13 +20,7 @@ export function Footer() {
 					</h2>
 					<div className="flex items-center justify-center gap-3">
 						<SciFiButton asChild>
-							<a
-								href="https://app.databuddy.cc/login"
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								GET STARTED
-							</a>
+							<a href="https://app.databuddy.cc/login">START FREE</a>
 						</SciFiButton>
 						<SciFiButton asChild>
 							<Link href="/contact">CONTACT US</Link>
@@ -50,15 +44,7 @@ export function Footer() {
 									className="text-muted-foreground hover:text-foreground"
 									href="/docs"
 								>
-									Documentation
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
-									href="/api"
-								>
-									API
+									Docs
 								</Link>
 							</li>
 							<li>
@@ -78,14 +64,12 @@ export function Footer() {
 								</Link>
 							</li>
 							<li>
-								<a
+								<Link
 									className="text-muted-foreground hover:text-foreground"
-									href="https://app.databuddy.cc/login"
-									rel="noopener"
-									target="_blank"
+									href="/changelog"
 								>
-									Dashboard
-								</a>
+									Changelog
+								</Link>
 							</li>
 						</ul>
 					</div>
@@ -104,56 +88,26 @@ export function Footer() {
 							<li>
 								<Link
 									className="text-muted-foreground hover:text-foreground"
-									href="/roadmap"
-								>
-									Roadmap
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
-									href="/contributors"
-								>
-									Contributors
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
-									href="/ambassadors"
-								>
-									Ambassadors
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
-									href="/sponsors"
-								>
-									Sponsors
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
-									href="/branding"
-								>
-									Branding
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="text-muted-foreground hover:text-foreground"
 									href="/contact"
 								>
 									Contact
+								</Link>
+							</li>
+							<li>
+								<Link
+									className="text-muted-foreground hover:text-foreground"
+									href="https://github.com/databuddy-analytics/Databuddy"
+									rel="noopener"
+									target="_blank"
+								>
+									GitHub
 								</Link>
 							</li>
 						</ul>
 					</div>
 
 					<div className="col-span-2 space-y-4 md:col-span-1">
-						<h3 className="font-semibold text-base sm:text-lg">Contact</h3>
+						<h3 className="font-semibold text-base sm:text-lg">Connect</h3>
 						<ul className="space-y-3 text-sm sm:text-base">
 							<li>
 								<Link
@@ -173,17 +127,6 @@ export function Footer() {
 								>
 									<FaDiscord className="size-5" />
 									Discord
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="group flex items-center gap-3 text-muted-foreground hover:text-foreground"
-									href="https://github.com/databuddy-analytics/Databuddy"
-									rel="noopener"
-									target="_blank"
-								>
-									<FaGithub className="size-5" />
-									GitHub
 								</Link>
 							</li>
 							<li>

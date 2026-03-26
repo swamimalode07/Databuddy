@@ -4,7 +4,7 @@ export const homePageSeo = {
 	title:
 		"Privacy-First Web Analytics — Under 30 KB, No Cookies, GDPR Compliant",
 	description:
-		"One lightweight layer for analytics, error tracking, and feature flags. Under 30 KB script, zero cookies, full GDPR compliance. Set up in 5 minutes. Open-source Google Analytics alternative that stays simple.",
+		"Web analytics, error tracking, and feature flags in one script under 30 KB. No cookies, no consent banners, GDPR compliant by default. Set up in 5 minutes. Open-source Google Analytics alternative.",
 	url: SITE_URL,
 } as const;
 
