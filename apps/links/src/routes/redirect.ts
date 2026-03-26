@@ -11,7 +11,7 @@ import {
 } from "@databuddy/redis";
 import { Elysia, redirect, t } from "elysia";
 import { sendLinkVisit } from "../lib/producer";
-import { captureError, setAttributes } from "../lib/tracing";
+import { captureError, mergeWideEvent, setAttributes } from "../lib/tracing";
 import { isBot, isSocialBot } from "../utils/bot-detection";
 import { getTargetUrl } from "../utils/device-targeting";
 import { extractIp, getGeo } from "../utils/geo";
@@ -37,15 +37,26 @@ function generateETag(link: CachedLink, targetUrl: string): string {
 	return `"${hash}"`;
 }
 
-async function getLinkBySlug(slug: string): Promise<CachedLink | null> {
-	const cached = await getCachedLink(slug).catch(() => null);
+interface LinkLookupResult {
+	link: CachedLink | null;
+	cacheHit: boolean;
+	cacheMs: number;
+	dbMs: number;
+}
+
+async function getLinkBySlug(slug: string): Promise<LinkLookupResult> {
+	const tCache = performance.now();
+	const cached = await getCachedLink(slug).catch((err) => {
+		captureError(err, { error_step: "cache_get" });
+		return null;
+	});
+	const cacheMs = Math.round(performance.now() - tCache);
+
 	if (cached) {
-		setAttributes({ link_cache_hit: true });
-		return cached;
+		return { link: cached, cacheHit: true, cacheMs, dbMs: 0 };
 	}
 
-	setAttributes({ link_cache_hit: false });
-
+	const tDb = performance.now();
 	const dbLink = await db.query.links.findFirst({
 		where: eq(links.slug, slug),
 		columns: {
@@ -61,10 +72,13 @@ async function getLinkBySlug(slug: string): Promise<CachedLink | null> {
 			androidUrl: true,
 		},
 	});
+	const dbMs = Math.round(performance.now() - tDb);
 
 	if (!dbLink) {
-		await setCachedLinkNotFound(slug).catch(() => {});
-		return null;
+		await setCachedLinkNotFound(slug).catch((err) => {
+			captureError(err, { error_step: "cache_set_not_found" });
+		});
+		return { link: null, cacheHit: false, cacheMs, dbMs };
 	}
 
 	const link: CachedLink = {
@@ -80,8 +94,11 @@ async function getLinkBySlug(slug: string): Promise<CachedLink | null> {
 		androidUrl: dbLink.androidUrl,
 	};
 
-	await setCachedLink(slug, link).catch(() => {});
-	return link;
+	await setCachedLink(slug, link).catch((err) => {
+		captureError(err, { error_step: "cache_backfill" });
+	});
+
+	return { link, cacheHit: false, cacheMs, dbMs };
 }
 
 function appendRefParam(targetUrl: string, linkId: string): string {
@@ -100,10 +117,19 @@ async function recordClick(
 	ip: string,
 	request: Request
 ): Promise<void> {
-	const shouldRecord = await shouldRecordClick(link.id, ipHash).catch(
-		() => true
-	);
+	const t0 = performance.now();
+
+	const shouldRecord = await shouldRecordClick(link.id, ipHash).catch((err) => {
+		captureError(err, { error_step: "dedup_check" });
+		return true;
+	});
+
 	if (!shouldRecord) {
+		setAttributes({
+			click_recorded: false,
+			click_reason: "deduplicated",
+			click_pipeline_ms: Math.round(performance.now() - t0),
+		});
 		return;
 	}
 
@@ -128,44 +154,63 @@ async function recordClick(
 		},
 		link.id
 	);
+
+	setAttributes({
+		click_recorded: true,
+		click_pipeline_ms: Math.round(performance.now() - t0),
+	});
 }
 
 export const redirectRoute = new Elysia().get(
 	"/:slug",
 	async function handleRedirect({ params, request, set }) {
+		const t0 = performance.now();
 		const { slug } = params;
 		const ip = extractIp(request);
 		const ipHash = hashIp(ip);
 
-		setAttributes({ link_slug: slug });
+		const event: Record<string, string | number | boolean> = {
+			link_slug: slug,
+		};
+
+		function emit(result: string) {
+			event.redirect_result = result;
+			event.latency_total_ms = Math.round(performance.now() - t0);
+			mergeWideEvent(event);
+		}
 
 		// Rate limit: allow through if Redis fails
-		const rl = await rateLimit(`redirect:${ipHash}`, 100, 60).catch(
-			() => DEFAULT_RATE_LIMIT
-		);
+		const tRl = performance.now();
+		const rl = await rateLimit(`redirect:${ipHash}`, 100, 60).catch((err) => {
+			captureError(err, { error_step: "rate_limit" });
+			return DEFAULT_RATE_LIMIT;
+		});
+		event.latency_rate_limit_ms = Math.round(performance.now() - tRl);
+		event.rate_limit_remaining = rl.remaining;
 		const headers = getRateLimitHeaders(rl);
 
 		if (!rl.success) {
-			setAttributes({ redirect_result: "rate_limited" });
+			emit("rate_limited");
 			set.status = 429;
 			set.headers = { ...headers, "Content-Type": "application/json" };
 			return { error: "Too many requests" };
 		}
 
-		const link = await getLinkBySlug(slug);
+		const { link, cacheHit, cacheMs, dbMs } = await getLinkBySlug(slug);
+		event.cache_hit = cacheHit;
+		event.latency_cache_ms = cacheMs;
+		event.latency_db_ms = dbMs;
 
 		if (!link) {
-			setAttributes({ redirect_result: "not_found" });
+			emit("not_found");
 			set.headers = { ...headers, "Cache-Control": "private, no-store" };
 			return redirect(NOT_FOUND_URL, 302);
 		}
 
-		setAttributes({ link_id: link.id });
+		event.link_id = link.id;
 
-		// Check expiration
-		const expired = link.expiresAt && new Date(link.expiresAt) < new Date();
-		if (expired) {
-			setAttributes({ redirect_result: "expired" });
+		if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
+			emit("expired");
 			set.headers = { ...headers, "Cache-Control": "private, no-store" };
 			return redirect(link.expiredRedirectUrl ?? EXPIRED_URL, 302);
 		}
@@ -173,25 +218,23 @@ export const redirectRoute = new Elysia().get(
 		const userAgent = request.headers.get("user-agent");
 		const targetUrl = getTargetUrl(link, userAgent);
 
-		// Social bots get OG preview page
 		if (isSocialBot(userAgent)) {
-			setAttributes({ redirect_result: "og_preview" });
+			emit("og_preview");
 			set.headers = { ...headers, "Cache-Control": "private, no-store" };
 			return redirect(`${PROXY_URL}/${slug}`, 302);
 		}
 
-		// Regular bots skip caching
 		if (isBot(userAgent)) {
-			setAttributes({ redirect_result: "bot" });
+			emit("bot");
 			set.headers = { ...headers, "Cache-Control": "private, no-store" };
 			return redirect(targetUrl, 302);
 		}
 
 		const attributedUrl = appendRefParam(targetUrl, link.id);
-
 		const etag = generateETag(link, attributedUrl);
+
 		if (request.headers.get("if-none-match") === etag) {
-			setAttributes({ redirect_result: "not_modified" });
+			emit("not_modified");
 			set.status = 304;
 			set.headers = {
 				...headers,
@@ -201,12 +244,11 @@ export const redirectRoute = new Elysia().get(
 			return;
 		}
 
-		// Record click async
 		recordClick(link, ipHash, ip, request).catch((err) =>
-			captureError(err, { link_id: link.id, operation: "record_click" })
+			captureError(err, { error_step: "record_click", link_id: link.id })
 		);
 
-		setAttributes({ redirect_result: "success" });
+		emit("success");
 		set.headers = {
 			...headers,
 			"Cache-Control": "private, no-cache",

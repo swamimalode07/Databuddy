@@ -8,6 +8,7 @@ import {
 	ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 import { log } from "evlog";
+import { useLogger as getRequestLogger } from "evlog/elysia";
 import pkg from "../../package.json";
 
 let sdk: NodeSDK | null = null;
@@ -84,18 +85,31 @@ export function record<T>(name: string, fn: () => Promise<T> | T): Promise<T> {
 	});
 }
 
+export function mergeWideEvent(
+	fields: Record<string, string | number | boolean>
+): void {
+	setAttributes(fields);
+	try {
+		getRequestLogger().set(fields as Record<string, unknown>);
+	} catch {
+		// Outside request context — OTel attributes already set above
+	}
+}
+
 export function captureError(
 	error: unknown,
 	attributes?: Record<string, string | number | boolean>
 ): void {
 	const errorObj = error instanceof Error ? error : new Error(String(error));
-	const errorMessage = errorObj.message;
-	const errorStack = errorObj.stack;
+
+	if (attributes?.error_step != null) {
+		mergeWideEvent({ request_error: true, ...attributes });
+	}
 
 	log.error({
 		links: "captureError",
-		error: errorMessage,
-		stack: errorStack,
+		error: errorObj.message,
+		stack: errorObj.stack,
 		...(attributes ?? {}),
 	});
 
