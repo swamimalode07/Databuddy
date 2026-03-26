@@ -5,6 +5,10 @@ import { estimateTieredOverageCostFromTiers } from "@/app/(home)/pricing/_pricin
 
 const PLANS: NormalizedPlan[] = normalizePlans(RAW_PLANS);
 
+/** Industry-typical cookie-banner friction band (low / high bounce) for range display */
+export const BOUNCE_RANGE_LOW = 0.2;
+export const BOUNCE_RANGE_HIGH = 0.4;
+
 function getDatabuddyMonthlyCost(monthlyEvents: number): {
 	plan: NormalizedPlan;
 	totalCost: number;
@@ -36,7 +40,7 @@ function getDatabuddyMonthlyCost(monthlyEvents: number): {
 export interface CalculatorInputs {
 	monthlyVisitors: number;
 	bannerBounceRate: number;
-	conversionRate: number;
+	visitorToPaidRate: number;
 	revenuePerConversion: number;
 }
 
@@ -45,31 +49,66 @@ export interface CalculatorOutputs {
 	lostConversions: number;
 	lostRevenueMonthly: number;
 	lostRevenueYearly: number;
-	roiMultiplier: number;
+	/** Same inputs, 20% banner bounce — lower bound of industry band */
+	lostRevenueYearlyRangeLow: number;
+	/** Same inputs, 40% banner bounce — upper bound of industry band */
+	lostRevenueYearlyRangeHigh: number;
 	databuddyMonthlyCost: number;
 	databuddyPlanName: string;
 }
 
-export function calculateCookieBannerCost(
-	inputs: CalculatorInputs
-): CalculatorOutputs {
-	const lostVisitors = inputs.monthlyVisitors * inputs.bannerBounceRate;
-	const lostConversions = lostVisitors * inputs.conversionRate;
-	const lostRevenueMonthly = lostConversions * inputs.revenuePerConversion;
+function coreCalc(
+	monthlyVisitors: number,
+	bannerBounce: number,
+	visitorToPaid: number,
+	revenuePerConversion: number
+): {
+	lostVisitors: number;
+	lostConversions: number;
+	lostRevenueMonthly: number;
+	lostRevenueYearly: number;
+} {
+	const lostVisitors = monthlyVisitors * bannerBounce;
+	const lostConversions = lostVisitors * visitorToPaid;
+	const lostRevenueMonthly = lostConversions * revenuePerConversion;
 	const lostRevenueYearly = lostRevenueMonthly * 12;
-
-	const { plan, totalCost } = getDatabuddyMonthlyCost(
-		inputs.monthlyVisitors
-	);
-	const roiMultiplier =
-		totalCost > 0 ? lostRevenueMonthly / totalCost : 0;
-
 	return {
 		lostVisitors,
 		lostConversions,
 		lostRevenueMonthly,
 		lostRevenueYearly,
-		roiMultiplier,
+	};
+}
+
+export function calculateCookieBannerCost(
+	inputs: CalculatorInputs
+): CalculatorOutputs {
+	const primary = coreCalc(
+		inputs.monthlyVisitors,
+		inputs.bannerBounceRate,
+		inputs.visitorToPaidRate,
+		inputs.revenuePerConversion
+	);
+
+	const lowBand = coreCalc(
+		inputs.monthlyVisitors,
+		BOUNCE_RANGE_LOW,
+		inputs.visitorToPaidRate,
+		inputs.revenuePerConversion
+	);
+	const highBand = coreCalc(
+		inputs.monthlyVisitors,
+		BOUNCE_RANGE_HIGH,
+		inputs.visitorToPaidRate,
+		inputs.revenuePerConversion
+	);
+
+	const { plan, totalCost } = getDatabuddyMonthlyCost(inputs.monthlyVisitors);
+
+	return {
+		...primary,
+		lostRevenueYearlyRangeLow: lowBand.lostRevenueYearly,
+		lostRevenueYearlyRangeHigh: highBand.lostRevenueYearly,
 		databuddyMonthlyCost: totalCost,
 		databuddyPlanName: plan.name,
 	};
@@ -88,8 +127,8 @@ const SCENARIO_CONFIGS: Omit<Scenario, "outputs">[] = [
 		description: "Content site with affiliate revenue",
 		inputs: {
 			monthlyVisitors: 5_000,
-			bannerBounceRate: 0.09,
-			conversionRate: 0.02,
+			bannerBounceRate: 0.25,
+			visitorToPaidRate: 0.012,
 			revenuePerConversion: 45,
 		},
 	},
@@ -98,19 +137,20 @@ const SCENARIO_CONFIGS: Omit<Scenario, "outputs">[] = [
 		description: "Established content site with courses",
 		inputs: {
 			monthlyVisitors: 25_000,
-			bannerBounceRate: 0.09,
-			conversionRate: 0.025,
+			bannerBounceRate: 0.28,
+			visitorToPaidRate: 0.015,
 			revenuePerConversion: 120,
 		},
 	},
 	{
 		name: "Growing SaaS",
-		description: "B2B SaaS with trial-to-paid funnel",
+		description:
+			"B2B — conservative visitor-to-paid (many visitors never buy)",
 		inputs: {
 			monthlyVisitors: 25_000,
-			bannerBounceRate: 0.12,
-			conversionRate: 0.035,
-			revenuePerConversion: 65,
+			bannerBounceRate: 0.26,
+			visitorToPaidRate: 0.012,
+			revenuePerConversion: 58,
 		},
 	},
 	{
@@ -118,8 +158,8 @@ const SCENARIO_CONFIGS: Omit<Scenario, "outputs">[] = [
 		description: "E-commerce or marketplace",
 		inputs: {
 			monthlyVisitors: 100_000,
-			bannerBounceRate: 0.1,
-			conversionRate: 0.03,
+			bannerBounceRate: 0.3,
+			visitorToPaidRate: 0.02,
 			revenuePerConversion: 85,
 		},
 	},
@@ -128,8 +168,8 @@ const SCENARIO_CONFIGS: Omit<Scenario, "outputs">[] = [
 		description: "Large-scale SaaS or media platform",
 		inputs: {
 			monthlyVisitors: 500_000,
-			bannerBounceRate: 0.11,
-			conversionRate: 0.025,
+			bannerBounceRate: 0.32,
+			visitorToPaidRate: 0.015,
 			revenuePerConversion: 110,
 		},
 	},
@@ -160,11 +200,4 @@ export function formatNumber(value: number): string {
 
 export function formatPercent(value: number): string {
 	return `${(value * 100).toFixed(1)}%`;
-}
-
-export function formatMultiplier(value: number): string {
-	if (value >= 1_000) {
-		return `${(value / 1_000).toFixed(0)}K`;
-	}
-	return `${Math.round(value)}`;
 }

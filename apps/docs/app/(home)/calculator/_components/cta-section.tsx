@@ -32,8 +32,8 @@ export function CtaSection() {
 							title="Under 30 KB"
 						/>
 						<ValueProp
-							description="Starts at $10/mo — pays for itself in hours"
-							title="ROI from day one"
+							description="Starts at $10/mo — compare to the number above"
+							title="Predictable pricing"
 						/>
 					</div>
 

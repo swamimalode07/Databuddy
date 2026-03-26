@@ -7,9 +7,10 @@ import { ScenariosSection } from "./_components/scenarios-section";
 
 const TITLE = "Cookie Banner Cost Calculator";
 const DESCRIPTION =
-	"Cookie consent banners bounce 9–12% of visitors before they see your site. Plug in your numbers and see how much revenue you're losing every month.";
+	"Model opportunity cost from cookie-banner bounce using your traffic, visitor-to-paid rate, and revenue per customer — with a transparent industry bounce range.";
 
-const DEFAULT_OG_PARAMS = "revenue=78000&visitors=25000&roi=722";
+/** Matches conservative defaults: 50k visitors, 30% bounce, 1.5% visitor-to-paid, $50 — ~$135k/yr; ~$11/mo Databuddy at this volume */
+const DEFAULT_OG_PARAMS = "revenue=135000&visitors=50000&cost=11";
 
 interface PageProps {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -22,18 +23,18 @@ export async function generateMetadata({
 	const revenue = typeof params.revenue === "string" ? params.revenue : null;
 	const visitors =
 		typeof params.visitors === "string" ? params.visitors : null;
-	const roi = typeof params.roi === "string" ? params.roi : null;
+	const cost = typeof params.cost === "string" ? params.cost : null;
 
-	const hasPersonalizedParams = revenue && visitors && roi;
+	const hasPersonalizedParams = revenue && visitors && cost;
 
 	const ogParams = hasPersonalizedParams
-		? `revenue=${revenue}&visitors=${visitors}&roi=${roi}`
+		? `revenue=${revenue}&visitors=${visitors}&cost=${cost}`
 		: DEFAULT_OG_PARAMS;
 
 	const ogImageUrl = `${SITE_URL}/calculator/og?${ogParams}`;
 
 	const personalizedDescription = hasPersonalizedParams
-		? `This cookie banner is costing $${Number(revenue).toLocaleString()}/year in lost revenue. Calculate yours.`
+		? `Estimated opportunity cost ~$${Number(revenue).toLocaleString()}/year vs Databuddy ~$${Number(cost).toLocaleString()}/month. Model yours.`
 		: DESCRIPTION;
 
 	return {
@@ -73,9 +74,9 @@ export default function CalculatorPage() {
 						Cookie Banner Cost Calculator
 					</h1>
 					<p className="mx-auto max-w-2xl text-balance text-muted-foreground text-sm sm:text-base">
-						Cookie consent banners bounce 9–12% of visitors before
-						they even see your site. Plug in your numbers and see
-						exactly how much revenue you're losing every month.
+						Visitors who bounce on the consent screen never enter your
+						funnel. This tool estimates opportunity cost from that lost
+						traffic — not guaranteed revenue.
 					</p>
 				</header>
 

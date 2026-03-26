@@ -2,24 +2,24 @@
 
 import { useState } from "react";
 import { SciFiCard } from "@/components/scifi-card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import {
+	BOUNCE_RANGE_HIGH,
+	BOUNCE_RANGE_LOW,
 	calculateCookieBannerCost,
 	formatCurrencyFull,
-	formatMultiplier,
 	formatNumber,
 	formatPercent,
 } from "./calculator-engine";
 import { ShareButtons } from "./share-buttons";
 
 const DEFAULT_VISITORS = 50_000;
-const DEFAULT_BOUNCE_RATE = 0.09;
-const DEFAULT_CONVERSION_RATE = 0.03;
-const DEFAULT_REVENUE_PER_CONVERSION = 85;
+const DEFAULT_BOUNCE_RATE = 0.3;
+const DEFAULT_VISITOR_TO_PAID = 0.015;
+const DEFAULT_REVENUE_PER_CONVERSION = 50;
 
 function percentToSlider(value: number): number {
 	return Math.round(value * 1000);
@@ -32,8 +32,8 @@ function sliderToPercent(value: number): number {
 export function CalculatorSection() {
 	const [monthlyVisitors, setMonthlyVisitors] = useState(DEFAULT_VISITORS);
 	const [bannerBounceRate, setBannerBounceRate] = useState(DEFAULT_BOUNCE_RATE);
-	const [conversionRate, setConversionRate] = useState(
-		DEFAULT_CONVERSION_RATE
+	const [visitorToPaidRate, setVisitorToPaidRate] = useState(
+		DEFAULT_VISITOR_TO_PAID
 	);
 	const [revenuePerConversion, setRevenuePerConversion] = useState(
 		DEFAULT_REVENUE_PER_CONVERSION
@@ -42,7 +42,7 @@ export function CalculatorSection() {
 	const results = calculateCookieBannerCost({
 		monthlyVisitors,
 		bannerBounceRate,
-		conversionRate,
+		visitorToPaidRate,
 		revenuePerConversion,
 	});
 
@@ -95,12 +95,12 @@ export function CalculatorSection() {
 
 								<InputField
 									displayPercent
-									hint="% of visitors who leave because of your cookie banner"
+									hint="Share of visitors who leave before engaging because of the banner. Research often cites ~20–40% for consent friction."
 									id="bounce"
 									label="Banner Bounce Rate"
-									max={0.3}
+									max={0.45}
 									min={0}
-									sliderMax={300}
+									sliderMax={450}
 									sliderStep={1}
 									sliderToValue={sliderToPercent}
 									step={0.01}
@@ -111,22 +111,22 @@ export function CalculatorSection() {
 
 								<InputField
 									displayPercent
-									hint="% of visitors who convert (buy, sign up, etc.)"
-									id="conversion"
-									label="Conversion Rate"
-									max={0.2}
+									hint="What % of all visitors become paying customers? Typical SaaS ~0.5–3%, e-commerce ~1–4%. Use paid conversions, not raw signups."
+									id="visitor-paid"
+									label="Visitor-to-Paid Rate"
+									max={0.05}
 									min={0}
-									sliderMax={200}
+									sliderMax={50}
 									sliderStep={1}
 									sliderToValue={sliderToPercent}
-									step={0.005}
-									value={conversionRate}
+									step={0.001}
+									value={visitorToPaidRate}
 									valueToSlider={percentToSlider}
-									onChangeAction={setConversionRate}
+									onChangeAction={setVisitorToPaidRate}
 								/>
 
 								<InputField
-									hint="Average revenue per conversion"
+									hint="Average revenue per paying customer attributed to a visit (order value, subscription, etc.)"
 									id="revenue"
 									label="Revenue per Conversion"
 									max={1000}
@@ -158,12 +158,12 @@ export function CalculatorSection() {
 									value={formatNumber(results.lostVisitors)}
 								/>
 								<ResultRow
-									label="Lost Conversions / mo"
+									label="Lost Paying Customers / mo"
 									value={formatNumber(results.lostConversions)}
 								/>
 								<ResultRow
 									highlight
-									label="Lost Revenue / mo"
+									label="Opportunity Cost / mo"
 									value={formatCurrencyFull(
 										results.lostRevenueMonthly
 									)}
@@ -173,41 +173,73 @@ export function CalculatorSection() {
 
 								<div className="rounded border border-destructive/20 bg-destructive/5 p-4">
 									<p className="mb-1 text-muted-foreground text-xs uppercase tracking-wider">
-										Lost Revenue / Year
+										Opportunity Cost / Year
 									</p>
 									<p className="font-bold text-2xl tabular-nums tracking-tight text-destructive sm:text-3xl">
 										{formatCurrencyFull(
 											results.lostRevenueYearly
 										)}
 									</p>
+									<p className="mt-2 text-muted-foreground text-xs text-pretty">
+										Range at {formatPercent(BOUNCE_RANGE_LOW)}–
+										{formatPercent(BOUNCE_RANGE_HIGH)} banner bounce
+										(same other inputs):{" "}
+										<span className="font-mono text-foreground">
+											{formatCurrencyFull(
+												results.lostRevenueYearlyRangeLow
+											)}{" "}
+											–{" "}
+											{formatCurrencyFull(
+												results.lostRevenueYearlyRangeHigh
+											)}
+										</span>
+										/year
+									</p>
 								</div>
 
-								<div className="flex items-center justify-between rounded border border-border bg-card/40 p-3">
-									<div>
-										<p className="text-muted-foreground text-xs">
-											ROI vs Databuddy{" "}
-											{results.databuddyPlanName} (
-											{formatCurrencyFull(
-												results.databuddyMonthlyCost
-											)}
-											/mo)
-										</p>
-										<p className="font-semibold text-lg tabular-nums">
-											{formatMultiplier(
-												results.roiMultiplier
-											)}
-											x return
-										</p>
+								<div className="space-y-2 rounded border border-border bg-card/40 p-3">
+									<p className="text-muted-foreground text-xs">
+										Side-by-side (no ratio — compare yourself)
+									</p>
+									<div className="flex flex-col gap-1.5 text-sm">
+										<div className="flex justify-between gap-2">
+											<span className="text-muted-foreground">
+												Banner opportunity cost
+											</span>
+											<span className="font-semibold tabular-nums">
+												{formatCurrencyFull(
+													results.lostRevenueMonthly
+												)}
+												/mo
+											</span>
+										</div>
+										<div className="flex justify-between gap-2">
+											<span className="text-muted-foreground">
+												Databuddy ({results.databuddyPlanName})
+											</span>
+											<span className="font-semibold tabular-nums">
+												{formatCurrencyFull(
+													results.databuddyMonthlyCost
+												)}
+												/mo
+											</span>
+										</div>
 									</div>
 								</div>
 							</div>
 
+							<p className="mt-4 text-muted-foreground text-xs text-pretty">
+								This estimates opportunity cost from industry bounce
+								data. Real impact varies by site, audience, and how your
+								banner is implemented.
+							</p>
+
 							<Separator className="my-4" />
 
 							<ShareButtons
+								databuddyMonthlyCost={results.databuddyMonthlyCost}
 								lostRevenueYearly={results.lostRevenueYearly}
 								monthlyVisitors={monthlyVisitors}
-								roiMultiplier={results.roiMultiplier}
 							/>
 						</div>
 					</SciFiCard>
@@ -215,18 +247,11 @@ export function CalculatorSection() {
 			</div>
 
 			<div className="mt-4 text-center">
-				<p className="text-muted-foreground text-xs">
-					Based on{" "}
-					<a
-						className="underline underline-offset-2 hover:text-foreground"
-						href="https://www.cookiebot.com/en/cookie-banner-statistics/"
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						industry research
-					</a>{" "}
-					showing 9-12% bounce rates from cookie consent banners.
-					Databuddy uses no cookies, so no banner is needed.
+				<p className="text-muted-foreground text-xs text-pretty">
+					Banner friction in the ~{formatPercent(BOUNCE_RANGE_LOW)}–
+					{formatPercent(BOUNCE_RANGE_HIGH)} range is commonly reported (e.g.
+					consent vendors, enterprise analytics). Databuddy needs no
+					cookies, so no banner.
 				</p>
 			</div>
 		</section>

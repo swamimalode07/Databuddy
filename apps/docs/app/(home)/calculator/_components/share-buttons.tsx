@@ -9,12 +9,12 @@ const CALCULATOR_BASE = "https://www.databuddy.cc/calculator";
 function buildShareUrl(
 	lostRevenueYearly: number,
 	monthlyVisitors: number,
-	roiMultiplier: number
+	databuddyMonthlyCost: number
 ): string {
 	const params = new URLSearchParams({
 		revenue: String(Math.round(lostRevenueYearly)),
 		visitors: String(Math.round(monthlyVisitors)),
-		roi: String(Math.round(roiMultiplier)),
+		cost: String(Math.round(databuddyMonthlyCost)),
 	});
 	return `${CALCULATOR_BASE}?${params.toString()}`;
 }
@@ -22,14 +22,14 @@ function buildShareUrl(
 function buildTwitterShareUrl(
 	lostRevenueYearly: number,
 	monthlyVisitors: number,
-	roiMultiplier: number
+	databuddyMonthlyCost: number
 ): string {
 	const shareUrl = buildShareUrl(
 		lostRevenueYearly,
 		monthlyVisitors,
-		roiMultiplier
+		databuddyMonthlyCost
 	);
-	const text = `🍪 My cookie banner is costing me ${formatCurrencyFull(lostRevenueYearly)}/year in lost revenue. Calculate yours →`;
+	const text = `🍪 My cookie banner is costing me ${formatCurrencyFull(lostRevenueYearly)}/year in opportunity cost. Model yours →`;
 	const params = new URLSearchParams({ text, url: shareUrl });
 	return `https://x.com/intent/tweet?${params.toString()}`;
 }
@@ -37,14 +37,14 @@ function buildTwitterShareUrl(
 function buildRedditShareUrl(
 	lostRevenueYearly: number,
 	monthlyVisitors: number,
-	roiMultiplier: number
+	databuddyMonthlyCost: number
 ): string {
 	const shareUrl = buildShareUrl(
 		lostRevenueYearly,
 		monthlyVisitors,
-		roiMultiplier
+		databuddyMonthlyCost
 	);
-	const title = `My cookie banner is costing me ${formatCurrencyFull(lostRevenueYearly)}/year — here's the math`;
+	const title = `Cookie banner opportunity cost: ${formatCurrencyFull(lostRevenueYearly)}/year — here's the math`;
 	const params = new URLSearchParams({ url: shareUrl, title });
 	return `https://www.reddit.com/submit?${params.toString()}`;
 }
@@ -52,29 +52,29 @@ function buildRedditShareUrl(
 interface ShareButtonsProps {
 	lostRevenueYearly: number;
 	monthlyVisitors: number;
-	roiMultiplier: number;
+	databuddyMonthlyCost: number;
 }
 
 export function ShareButtons({
 	lostRevenueYearly,
 	monthlyVisitors,
-	roiMultiplier,
+	databuddyMonthlyCost,
 }: ShareButtonsProps) {
 	const twitterUrl = buildTwitterShareUrl(
 		lostRevenueYearly,
 		monthlyVisitors,
-		roiMultiplier
+		databuddyMonthlyCost
 	);
 	const redditUrl = buildRedditShareUrl(
 		lostRevenueYearly,
 		monthlyVisitors,
-		roiMultiplier
+		databuddyMonthlyCost
 	);
 
 	return (
 		<div className="space-y-3">
 			<p className="text-muted-foreground text-xs">
-				Share your results (with your numbers baked into the preview)
+				Share your results (preview uses your numbers)
 			</p>
 			<div className="flex flex-wrap gap-2">
 				<SciFiButton asChild>

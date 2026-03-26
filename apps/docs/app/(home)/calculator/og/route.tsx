@@ -6,15 +6,15 @@ export function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	const revenue = searchParams.get("revenue") || "0";
 	const visitors = searchParams.get("visitors") || "0";
-	const roi = searchParams.get("roi") || "0";
+	const cost = searchParams.get("cost") || "0";
 
 	const revenueNum = Number.parseInt(revenue, 10);
 	const visitorsNum = Number.parseInt(visitors, 10);
-	const roiNum = Number.parseInt(roi, 10);
+	const costNum = Number.parseInt(cost, 10);
 
 	const formattedRevenue = `$${revenueNum.toLocaleString("en-US")}`;
 	const formattedVisitors = visitorsNum.toLocaleString("en-US");
-	const formattedRoi = `${roiNum}x`;
+	const formattedCost = `$${costNum.toLocaleString("en-US")}`;
 
 	return new ImageResponse(
 		<div
@@ -28,7 +28,6 @@ export function GET(request: Request) {
 				overflow: "hidden",
 			}}
 		>
-			{/* Grid background */}
 			<div
 				style={{
 					position: "absolute",
@@ -42,7 +41,6 @@ export function GET(request: Request) {
 				}}
 			/>
 
-			{/* Accent glow */}
 			<div
 				style={{
 					position: "absolute",
@@ -55,7 +53,6 @@ export function GET(request: Request) {
 				}}
 			/>
 
-			{/* Top bar */}
 			<div
 				style={{
 					display: "flex",
@@ -110,7 +107,6 @@ export function GET(request: Request) {
 				</span>
 			</div>
 
-			{/* Main content */}
 			<div
 				style={{
 					display: "flex",
@@ -122,7 +118,6 @@ export function GET(request: Request) {
 					gap: "32px",
 				}}
 			>
-				{/* Big number */}
 				<div
 					style={{
 						display: "flex",
@@ -140,7 +135,7 @@ export function GET(request: Request) {
 							fontFamily: "monospace",
 						}}
 					>
-						Lost Revenue Per Year
+						Estimated Opportunity Cost / Year
 					</span>
 					<span
 						style={{
@@ -155,7 +150,6 @@ export function GET(request: Request) {
 					</span>
 				</div>
 
-				{/* Stats row */}
 				<div
 					style={{
 						display: "flex",
@@ -216,7 +210,7 @@ export function GET(request: Request) {
 								fontFamily: "monospace",
 							}}
 						>
-							ROI vs Databuddy
+							Databuddy (est.)
 						</span>
 						<span
 							style={{
@@ -225,13 +219,12 @@ export function GET(request: Request) {
 								fontWeight: 700,
 							}}
 						>
-							{formattedRoi}
+							{formattedCost}/mo
 						</span>
 					</div>
 				</div>
 			</div>
 
-			{/* Bottom CTA */}
 			<div
 				style={{
 					display: "flex",
@@ -247,7 +240,7 @@ export function GET(request: Request) {
 						fontFamily: "monospace",
 					}}
 				>
-					Calculate yours at databuddy.cc/calculator
+					Model yours at databuddy.cc/calculator
 				</span>
 			</div>
 		</div>,
