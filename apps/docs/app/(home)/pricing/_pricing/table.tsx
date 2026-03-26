@@ -1,10 +1,15 @@
 import { CheckIcon, XIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { SciFiButton } from "@/components/landing/scifi-btn";
+import { GatedFeaturePricingRows } from "./gated-feature-rows";
 import type { NormalizedPlan } from "./types";
 
 interface Props {
 	plans: NormalizedPlan[];
+}
+
+function planComparisonTdClass(planId: string): string {
+	return `px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${planId === "pro" ? "border-border border-x bg-primary/10" : ""}`;
 }
 
 function FeatureCheck() {
@@ -58,7 +63,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`price-${p.id}`}
 								>
 									{p.id === "enterprise" ? (
@@ -87,7 +92,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`events-${p.id}`}
 								>
 									{p.id === "enterprise"
@@ -103,7 +108,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`msgs-${p.id}`}
 								>
 									{p.id === "enterprise" ? (
@@ -116,6 +121,42 @@ export function PlansComparisonTable({ plans }: Props) {
 								</td>
 							))}
 						</tr>
+						{/* Websites row (from normalized plan data) */}
+						<tr className="border-border border-t hover:bg-card/10">
+							<td className="px-4 py-3 text-muted-foreground text-sm sm:px-5 lg:px-6">
+								Websites
+							</td>
+							{plans.map((p) => (
+								<td
+									className={planComparisonTdClass(p.id)}
+									key={`sites-${p.id}`}
+								>
+									{p.id === "enterprise" ? (
+										"Custom"
+									) : p.websitesIncluded == null ? (
+										<FeatureX />
+									) : p.websitesIncluded === "inf" ? (
+										"Unlimited"
+									) : (
+										<div className="flex flex-col items-center gap-0.5">
+											<span>
+												{p.websitesIncluded.toLocaleString()} included
+											</span>
+											{p.websitesOveragePerUnit == null ? null : (
+												<span className="text-muted-foreground text-xs">
+													+
+													{new Intl.NumberFormat("en-US", {
+														style: "currency",
+														currency: "USD",
+													}).format(p.websitesOveragePerUnit)}
+													/mo each
+												</span>
+											)}
+										</div>
+									)}
+								</td>
+							))}
+						</tr>
 						{/* Tiered overage row */}
 						<tr className="border-border border-t hover:bg-card/10">
 							<td className="px-4 py-3 text-muted-foreground text-sm sm:px-5 lg:px-6">
@@ -123,7 +164,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`over-${p.id}`}
 								>
 									{p.id === "enterprise" || p.eventTiers ? (
@@ -134,6 +175,10 @@ export function PlansComparisonTable({ plans }: Props) {
 								</td>
 							))}
 						</tr>
+						<GatedFeaturePricingRows
+							planTdClassName={planComparisonTdClass}
+							plans={plans}
+						/>
 						{/* Support row */}
 						<tr className="border-border border-t hover:bg-card/10">
 							<td className="px-4 py-3 text-muted-foreground text-sm sm:px-5 lg:px-6">
@@ -150,7 +195,7 @@ export function PlansComparisonTable({ plans }: Props) {
 												: "Dedicated + Slack";
 								return (
 									<td
-										className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+										className={planComparisonTdClass(p.id)}
 										key={`support-${p.id}`}
 									>
 										{support}
@@ -165,7 +210,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`sso-${p.id}`}
 								>
 									{p.id === "enterprise" ? <FeatureCheck /> : <FeatureX />}
@@ -179,7 +224,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`audit-${p.id}`}
 								>
 									{p.id === "enterprise" ? <FeatureCheck /> : <FeatureX />}
@@ -193,7 +238,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							</td>
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center text-foreground sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`onboard-${p.id}`}
 								>
 									{p.id === "enterprise" ? <FeatureCheck /> : <FeatureX />}
@@ -205,7 +250,7 @@ export function PlansComparisonTable({ plans }: Props) {
 							<td className="px-4 py-3 sm:px-5 lg:px-6" />
 							{plans.map((p) => (
 								<td
-									className={`px-4 py-3 text-center sm:px-5 lg:px-6 ${p.id === "pro" ? "border-border border-x bg-primary/10" : ""}`}
+									className={planComparisonTdClass(p.id)}
 									key={`cta-${p.id}`}
 								>
 									<SciFiButton asChild>
