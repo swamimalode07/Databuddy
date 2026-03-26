@@ -31,7 +31,7 @@ export function StatusNavbar() {
 						</Link>
 					</Button>
 
-					<ThemeToggle className="flex" tooltip={false} />
+					<ThemeToggle className="flex" />
 
 					<Button asChild className="ml-1" size="sm">
 						<Link

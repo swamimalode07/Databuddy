@@ -179,7 +179,7 @@ export function CategorySidebar({
 				<div className="space-y-2 border-t p-2 pb-4">
 					<div className="flex justify-center">
 						<div className="flex size-8 items-center justify-center">
-							<ThemeToggle />
+							<ThemeToggle tooltip />
 						</div>
 					</div>
 

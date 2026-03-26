@@ -12,10 +12,11 @@ import { cn } from "@/lib/utils";
 
 interface ThemeTogglerProps {
 	className?: string;
+	/** When true, wraps the control in a tooltip. Default: no tooltip. */
 	tooltip?: boolean;
 }
 
-export function ThemeToggle({ className, tooltip = true }: ThemeTogglerProps) {
+export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 	const { theme, setTheme } = useTheme();
 	const currentTheme = theme ?? "system";
 
@@ -69,59 +70,65 @@ export function ThemeToggle({ className, tooltip = true }: ThemeTogglerProps) {
 		}
 	};
 
-	return (
-		<Tooltip delayDuration={500} open={tooltip}>
-			<TooltipTrigger asChild>
-				<Button
-					aria-label="Toggle theme"
-					className={cn(
-						"relative hidden size-8 transition-all duration-200 md:flex",
-						className
-					)}
-					onClick={switchTheme}
-					suppressHydrationWarning
-					type="button"
-					variant="ghost"
-				>
-					<SunIcon
-						className={cn(
-							"size-5 transition-all duration-300",
-							currentTheme === "light"
-								? "rotate-0 scale-100"
-								: "-rotate-90 scale-0"
-						)}
-						size={32}
-						suppressHydrationWarning
-						weight="duotone"
-					/>
-					<MoonIcon
-						className={cn(
-							"absolute size-5 transition-all duration-300",
-							currentTheme === "dark"
-								? "rotate-0 scale-100"
-								: "rotate-90 scale-0"
-						)}
-						size={32}
-						suppressHydrationWarning
-						weight="duotone"
-					/>
-					<MonitorIcon
-						className={cn(
-							"absolute size-5 transition-all duration-300",
-							currentTheme === "system"
-								? "rotate-0 scale-100"
-								: "rotate-90 scale-0"
-						)}
-						size={32}
-						suppressHydrationWarning
-						weight="duotone"
-					/>
-					<span className="sr-only">Toggle theme</span>
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent side="right" sideOffset={8}>
-				{getThemeLabel()} • {getNextThemeLabel()}
-			</TooltipContent>
-		</Tooltip>
+	const button = (
+		<Button
+			aria-label="Toggle theme"
+			className={cn(
+				"relative hidden size-8 transition-all duration-200 md:flex",
+				className
+			)}
+			onClick={switchTheme}
+			suppressHydrationWarning
+			type="button"
+			variant="ghost"
+		>
+			<SunIcon
+				className={cn(
+					"size-5 transition-all duration-300",
+					currentTheme === "light"
+						? "rotate-0 scale-100"
+						: "-rotate-90 scale-0"
+				)}
+				size={32}
+				suppressHydrationWarning
+				weight="duotone"
+			/>
+			<MoonIcon
+				className={cn(
+					"absolute size-5 transition-all duration-300",
+					currentTheme === "dark"
+						? "rotate-0 scale-100"
+						: "rotate-90 scale-0"
+				)}
+				size={32}
+				suppressHydrationWarning
+				weight="duotone"
+			/>
+			<MonitorIcon
+				className={cn(
+					"absolute size-5 transition-all duration-300",
+					currentTheme === "system"
+						? "rotate-0 scale-100"
+						: "rotate-90 scale-0"
+				)}
+				size={32}
+				suppressHydrationWarning
+				weight="duotone"
+			/>
+			<span className="sr-only">Toggle theme</span>
+		</Button>
 	);
+
+	if (tooltip) {
+		return (
+			<Tooltip delayDuration={500}>
+				<TooltipTrigger asChild>{button}</TooltipTrigger>
+				<TooltipContent side="right" sideOffset={8}>
+					{getThemeLabel()} • {getNextThemeLabel()}
+				</TooltipContent>
+			</Tooltip>
+		);
+	}
+
+	return button;
 }
