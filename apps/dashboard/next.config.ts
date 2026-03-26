@@ -102,7 +102,17 @@ const nextConfig: NextConfig = {
 				],
 			},
 			{
-				source: "/((?!demo).*)",
+				source: "/public/:path*",
+				headers: [
+					...securityHeaders,
+					{
+						key: "Content-Security-Policy",
+						value: demoCspDirectives.join("; "),
+					},
+				],
+			},
+			{
+				source: "/((?!demo|public).*)",
 				headers: [
 					...securityHeaders,
 					{

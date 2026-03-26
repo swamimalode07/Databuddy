@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
 	const isPublic = websiteData?.isPublic ?? false;
 	const shareableLink = websiteData
-		? `${window.location.origin}/demo/${websiteId}`
+		? `${window.location.origin}/public/${websiteId}`
 		: "";
 
 	const handleTogglePublic = useCallback(() => {
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
 			<PageHeader
 				badgeContent={isPublic ? "Public" : "Private"}
 				badgeVariant={isPublic ? "blue" : "secondary"}
-				description="Control public access to your website's analytics dashboard"
+				description="Share a read-only public overview of your traffic (same metrics as the main dashboard overview)"
 				icon={<ShareIcon />}
 				title="Privacy"
 			/>
@@ -86,8 +86,8 @@ export default function PrivacyPage() {
 						<div className="space-y-1">
 							<p className="font-medium text-sm">Enable public sharing</p>
 							<p className="text-muted-foreground text-xs">
-								Anyone with the link can view your analytics data in read-only
-								mode.
+								Anyone with the link sees your overview in read-only mode — no
+								settings, no other tabs.
 							</p>
 							{isPublic && (
 								<Badge className="mt-3" variant="blue">
@@ -109,9 +109,7 @@ export default function PrivacyPage() {
 				{isPublic && (
 					<section className="border-b px-4 py-5 sm:px-6">
 						<div className="mb-3 flex items-center gap-2">
-							<h2 className="font-semibold text-sm">
-								Shareable Dashboard Link
-							</h2>
+							<h2 className="font-semibold text-sm">Public overview link</h2>
 							<Badge className="text-xs" variant="gray">
 								Read-only
 							</Badge>
@@ -122,7 +120,7 @@ export default function PrivacyPage() {
 								<code className="flex flex-1 items-center justify-between overflow-x-auto break-all rounded-md border bg-card px-3 py-2 font-mono text-sm">
 									{shareableLink}
 									<Button
-										aria-label="Copy shareable link"
+										aria-label="Copy public overview link"
 										className="shrink-0"
 										onClick={handleCopyLink}
 										size="sm"
@@ -133,7 +131,7 @@ export default function PrivacyPage() {
 								</code>
 							</div>
 							<NoticeBanner
-								description="This link provides secure, view-only access to your analytics dashboard. Shared users can explore data but cannot modify settings or delete the website."
+								description="This URL opens your public overview only. Visitors cannot open settings, other analytics sections, or delete your site."
 								icon={<InfoIcon />}
 							/>
 						</div>
