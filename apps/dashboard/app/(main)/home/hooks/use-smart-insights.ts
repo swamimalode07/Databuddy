@@ -37,6 +37,9 @@ export type InsightSeverity = "critical" | "warning" | "info";
 
 export type InsightSentiment = "positive" | "neutral" | "negative";
 
+/** Where this row came from when merging AI + history feeds. */
+export type InsightSource = "ai" | "history";
+
 export interface Insight {
 	id: string;
 	type: InsightType;
@@ -51,6 +54,13 @@ export interface Insight {
 	suggestion: string;
 	changePercent?: number;
 	link: string;
+	insightSource?: InsightSource;
+	createdAt?: string;
+	currentPeriodFrom?: string | null;
+	currentPeriodTo?: string | null;
+	previousPeriodFrom?: string | null;
+	previousPeriodTo?: string | null;
+	timezone?: string | null;
 }
 
 interface InsightsAiResponse {
@@ -59,7 +69,7 @@ interface InsightsAiResponse {
 	source: "ai" | "fallback";
 }
 
-interface HistoryInsightRow {
+export interface HistoryInsightRow {
 	id: string;
 	type: string;
 	severity: string;
@@ -73,6 +83,12 @@ interface HistoryInsightRow {
 	suggestion: string;
 	changePercent?: number | null;
 	link: string;
+	createdAt?: string;
+	currentPeriodFrom?: string | null;
+	currentPeriodTo?: string | null;
+	previousPeriodFrom?: string | null;
+	previousPeriodTo?: string | null;
+	timezone?: string | null;
 }
 
 interface InsightsHistoryResponse {
@@ -81,7 +97,7 @@ interface InsightsHistoryResponse {
 	hasMore: boolean;
 }
 
-function mapHistoryRowToInsight(row: HistoryInsightRow): Insight {
+export function mapHistoryRowToInsight(row: HistoryInsightRow): Insight {
 	return {
 		id: row.id,
 		type: row.type as InsightType,
@@ -96,6 +112,13 @@ function mapHistoryRowToInsight(row: HistoryInsightRow): Insight {
 		suggestion: row.suggestion,
 		changePercent: row.changePercent ?? undefined,
 		link: row.link,
+		insightSource: "history",
+		createdAt: row.createdAt ?? undefined,
+		currentPeriodFrom: row.currentPeriodFrom,
+		currentPeriodTo: row.currentPeriodTo,
+		previousPeriodFrom: row.previousPeriodFrom,
+		previousPeriodTo: row.previousPeriodTo,
+		timezone: row.timezone,
 	};
 }
 
@@ -194,7 +217,12 @@ export function useSmartInsights() {
 	});
 
 	const mergedInsights = useMemo(() => {
-		const fresh = aiQuery.data?.insights ?? [];
+		const fresh = (aiQuery.data?.insights ?? []).map(
+			(i): Insight => ({
+				...i,
+				insightSource: "ai",
+			})
+		);
 		const stored = (historyQuery.data?.insights ?? []).map(
 			mapHistoryRowToInsight
 		);

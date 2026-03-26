@@ -105,17 +105,19 @@ const queryClient = new QueryClient({
 export default function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-			<QueryClientProvider client={queryClient}>
-				<TooltipProvider>
-					<FlagsProviderWrapper>
-						<OrganizationsProvider>
-							<ToastTracker>
-								<NuqsAdapter>{children}</NuqsAdapter>
-							</ToastTracker>
-						</OrganizationsProvider>
-					</FlagsProviderWrapper>
-				</TooltipProvider>
-			</QueryClientProvider>
+			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+				<QueryClientProvider client={queryClient}>
+					<TooltipProvider>
+						<FlagsProviderWrapper>
+							<OrganizationsProvider>
+								<ToastTracker>
+									<NuqsAdapter>{children}</NuqsAdapter>
+								</ToastTracker>
+							</OrganizationsProvider>
+						</FlagsProviderWrapper>
+					</TooltipProvider>
+				</QueryClientProvider>
+			</div>
 		</ThemeProvider>
 	);
 }

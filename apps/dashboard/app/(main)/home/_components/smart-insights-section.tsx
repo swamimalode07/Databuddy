@@ -47,9 +47,8 @@ function buildDiagnosticPrompt(insight: Insight): string {
 	return parts.join("\n");
 }
 
-const ICON_STYLES: Record<
-	InsightType,
-	{ icon: ReactNode; color: string; bg: string }
+const ICON_STYLES: Partial<
+	Record<InsightType, { icon: ReactNode; color: string; bg: string }>
 > = {
 	error_spike: {
 		icon: <BugIcon className="size-4" weight="duotone" />,
@@ -308,7 +307,15 @@ interface InsightsSectionProps {
 	isFetchingFresh?: boolean;
 	isError?: boolean;
 	onRefreshAction?: () => void;
+	/** `compact` = capped list height (home). `full` = grows with parent flex layout (`/insights`). */
+	variant?: "compact" | "full";
 }
+
+const cardShell = (variant: "compact" | "full") =>
+	cn(
+		"rounded border bg-card",
+		variant === "full" && "flex min-h-0 flex-1 flex-col"
+	);
 
 export function SmartInsightsSection({
 	insights,
@@ -318,10 +325,11 @@ export function SmartInsightsSection({
 	isFetchingFresh,
 	isError,
 	onRefreshAction,
+	variant = "compact",
 }: InsightsSectionProps) {
 	if (isLoading) {
 		return (
-			<div className="rounded border bg-card">
+			<div className={cardShell(variant)}>
 				<div className="flex items-center gap-2 border-b px-4 py-3">
 					<SparkleIcon className="size-4 text-primary" weight="duotone" />
 					<h3 className="font-semibold text-foreground text-sm">
@@ -335,7 +343,7 @@ export function SmartInsightsSection({
 
 	if (isError) {
 		return (
-			<div className="rounded border bg-card">
+			<div className={cardShell(variant)}>
 				<div className="flex items-center justify-between border-b px-4 py-3">
 					<div className="flex items-center gap-2">
 						<SparkleIcon className="size-4 text-primary" weight="duotone" />
@@ -351,7 +359,7 @@ export function SmartInsightsSection({
 
 	if (showAnalyzing) {
 		return (
-			<div className="rounded border bg-card">
+			<div className={cardShell(variant)}>
 				<div className="flex items-center gap-2 border-b px-4 py-3">
 					<SparkleIcon className="size-4 text-primary" weight="duotone" />
 					<h3 className="font-semibold text-foreground text-sm">
@@ -367,7 +375,7 @@ export function SmartInsightsSection({
 	const showEmpty = insights.length === 0;
 
 	return (
-		<div className="rounded border bg-card">
+		<div className={cardShell(variant)}>
 			<div className="flex items-center justify-between border-b px-4 py-3">
 				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
 					<div className="flex items-center gap-2">
@@ -408,7 +416,14 @@ export function SmartInsightsSection({
 			</div>
 			{showEmpty && <EmptyState />}
 			{showInsights && (
-				<div className="max-h-[min(400px,60dvh)] divide-y overflow-y-auto">
+				<div
+					className={cn(
+						"divide-y overflow-y-auto",
+						variant === "compact"
+							? "max-h-[min(400px,60dvh)]"
+							: "min-h-0 flex-1"
+					)}
+				>
 					{insights.map((insight) => (
 						<InsightRow insight={insight} key={insight.id} />
 					))}

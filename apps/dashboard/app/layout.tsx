@@ -119,13 +119,15 @@ export default function RootLayout({
 
 	return (
 		<html
-			className={`${ltSuperior.className} ${ltSuperior.variable} ${ltSuperiorMono.variable} h-full`}
+			className={`${ltSuperior.className} ${ltSuperior.variable} ${ltSuperiorMono.variable} h-full overflow-hidden`}
 			lang="en"
 			suppressHydrationWarning
 		>
-			<body className="flex h-full min-h-dvh flex-col bg-background text-foreground antialiased">
+			<body className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground antialiased">
 				<Providers>
-					<main className="flex-1">{children}</main>
+					<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+						{children}
+					</main>
 				</Providers>
 				<Toaster />
 				<Databuddy

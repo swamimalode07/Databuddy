@@ -35,6 +35,7 @@ import {
 	RoadHorizonIcon,
 	RobotIcon,
 	ShieldCheckIcon,
+	SparkleIcon,
 	SpeakerHighIcon,
 	TargetIcon,
 	TrendUpIcon,
@@ -119,6 +120,10 @@ export const createWebsitesNavigation = (
 ): NavigationEntry[] => [
 	createNavItem("Home", HouseIcon, "/home", {
 		highlight: true,
+	}),
+	createNavItem("Insights", SparkleIcon, "/insights", {
+		highlight: true,
+		flag: "insights",
 	}),
 	...createDynamicNavigation(
 		websites,
@@ -462,6 +467,10 @@ const createLoadingNavigation = (
 export const createLoadingWebsitesNavigation = (): NavigationEntry[] => [
 	createNavItem("Home", HouseIcon, "/home", {
 		highlight: true,
+	}),
+	createNavItem("Insights", SparkleIcon, "/insights", {
+		highlight: true,
+		flag: "insights",
 	}),
 	...createLoadingNavigation(
 		"Websites",
