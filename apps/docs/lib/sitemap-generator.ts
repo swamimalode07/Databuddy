@@ -7,10 +7,8 @@ import { source } from "@/lib/source";
 const priorityRules = [
 	{ pattern: "/", priority: 1.0 },
 	{ pattern: "/docs", priority: 1.0 },
+	{ pattern: "/compare/", priority: 0.85 },
 	{ pattern: "/compare", priority: 0.9 },
-	{ pattern: "/compare/plausible", priority: 0.85 },
-	{ pattern: "/compare/google-analytics", priority: 0.85 },
-	{ pattern: "/compare/fathom", priority: 0.85 },
 
 	{ pattern: "/getting-started", priority: 0.9 },
 	{ pattern: "/sdk", priority: 0.9 },
@@ -97,6 +95,23 @@ export async function generateSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 	const entries: MetadataRoute.Sitemap = [];
 
 	try {
+		// Comparison hub + every competitor page first (high-intent landing pages)
+		const competitorSlugs = getAllCompetitorSlugs();
+		entries.push({
+			url: `${SITE_URL}/compare`,
+			lastModified,
+			changeFrequency: "monthly",
+			priority: getPriority("/compare"),
+		});
+		entries.push(
+			...competitorSlugs.map((slug) => ({
+				url: `${SITE_URL}/compare/${slug}`,
+				lastModified,
+				changeFrequency: "monthly" as const,
+				priority: getPriority(`/compare/${slug}`),
+			}))
+		);
+
 		// Get all documentation pages from source
 		const pages = source.getPages();
 		entries.push(
@@ -108,7 +123,7 @@ export async function generateSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 			}))
 		);
 
-		// Add static pages that actually exist
+		// Add static pages that actually exist (/compare already emitted above)
 		const staticPages = [
 			"/privacy",
 			"/llms.txt",
@@ -121,7 +136,6 @@ export async function generateSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 			"/sponsors",
 			"/terms",
 			"/ambassadors",
-			"/compare",
 			"/data-policy",
 			"/dpa",
 		];
@@ -162,15 +176,6 @@ export async function generateSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 				priority: 0.8,
 			});
 		}
-
-		const competitorSlugs = getAllCompetitorSlugs();
-		const comparisonEntries = competitorSlugs.map((slug) => ({
-			url: `${SITE_URL}/compare/${slug}`,
-			lastModified,
-			changeFrequency: "monthly" as const,
-			priority: getPriority(`/compare/${slug}`),
-		}));
-		entries.push(...comparisonEntries);
 	} catch (error) {
 		console.warn("Sitemap generation failed, using minimal fallback:", error);
 		entries.push({
