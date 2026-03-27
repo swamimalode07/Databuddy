@@ -6,6 +6,7 @@ import {
 	CaretDownIcon,
 	ChartLineUpIcon,
 	CopyIcon,
+	DotsThreeIcon,
 	GaugeIcon,
 	LightningIcon,
 	LinkIcon,
@@ -19,7 +20,7 @@ import {
 	XIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useMemo } from "react";
 import { toast } from "sonner";
 import type {
 	Insight,
@@ -30,10 +31,15 @@ import type {
 import {
 	buildInsightCopyText,
 	buildInsightShareUrl,
-	formatComparisonWindow,
 	formatInsightFreshness,
 } from "@/app/(main)/insights/lib/insight-meta";
 import type { InsightFeedbackVote } from "@/app/(main)/insights/lib/insight-feedback-vote";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -108,22 +114,10 @@ const TYPE_STYLES: Record<
 	},
 };
 
-const SEVERITY_STYLES: Record<
-	InsightSeverity,
-	{ label: string; color: string }
-> = {
-	critical: {
-		label: "Critical",
-		color: "text-red-600 dark:text-red-400",
-	},
-	warning: {
-		label: "Warning",
-		color: "text-amber-600 dark:text-amber-400",
-	},
-	info: {
-		label: "Info",
-		color: "text-blue-600 dark:text-blue-400",
-	},
+const SEVERITY_BORDER: Record<InsightSeverity, string> = {
+	critical: "border-l-red-500",
+	warning: "border-l-amber-500",
+	info: "border-l-blue-400",
 };
 
 const SENTIMENT_STYLES: Record<
@@ -159,6 +153,8 @@ function buildDiagnosticPrompt(insight: Insight): string {
 
 export interface InsightCardProps {
 	insight: Insight;
+	expanded: boolean;
+	onToggleAction: () => void;
 	onDismissAction?: () => void;
 	feedbackVote?: InsightFeedbackVote | null;
 	onFeedbackAction?: (vote: InsightFeedbackVote | null) => void;
@@ -166,14 +162,15 @@ export interface InsightCardProps {
 
 export function InsightCard({
 	insight,
+	expanded,
+	onToggleAction,
 	onDismissAction,
 	feedbackVote,
 	onFeedbackAction,
 }: InsightCardProps) {
-	const [expanded, setExpanded] = useState(false);
 	const typeStyle = TYPE_STYLES[insight.type];
-	const severityStyle = SEVERITY_STYLES[insight.severity];
 	const sentimentStyle = SENTIMENT_STYLES[insight.sentiment];
+	const freshnessLine = formatInsightFreshness(insight);
 
 	const agentHref = useMemo(() => {
 		const chatId = crypto.randomUUID();
@@ -181,11 +178,7 @@ export function InsightCard({
 		return `/websites/${insight.websiteId}/agent/${chatId}?prompt=${prompt}`;
 	}, [insight]);
 
-	const comparisonLine = formatComparisonWindow(insight);
-	const freshnessLine = formatInsightFreshness(insight);
-
-	const copySummaryAction = async (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const copySummaryAction = async () => {
 		try {
 			await navigator.clipboard.writeText(buildInsightCopyText(insight));
 			toast.success("Copied insight to clipboard");
@@ -194,8 +187,7 @@ export function InsightCard({
 		}
 	};
 
-	const copyLinkAction = async (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const copyLinkAction = async () => {
 		const url = buildInsightShareUrl(insight.id);
 		if (!url) {
 			return;
@@ -211,15 +203,23 @@ export function InsightCard({
 	return (
 		<div
 			className={cn(
-				"scroll-mt-24 transition-colors",
+				"group scroll-mt-24 border-b border-l-2 transition-colors",
+				SEVERITY_BORDER[insight.severity],
 				expanded ? "bg-accent/20" : "hover:bg-accent/40"
 			)}
 			id={`insight-${insight.id}`}
 		>
-			<button
-				className="flex w-full items-start gap-3 px-4 py-3 text-left sm:px-6"
-				onClick={() => setExpanded((v) => !v)}
-				type="button"
+			<div
+				className="flex cursor-pointer items-start gap-3 px-4 py-3 sm:px-6"
+				onClick={onToggleAction}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						onToggleAction();
+					}
+				}}
+				role="button"
+				tabIndex={0}
 			>
 				<div
 					className={cn(
@@ -236,9 +236,19 @@ export function InsightCard({
 							{insight.title}
 						</p>
 						<div className="flex shrink-0 items-center gap-1.5">
-							<span className={cn("text-[11px]", severityStyle.color)}>
-								{severityStyle.label}
-							</span>
+							{onDismissAction && (
+								<button
+									aria-label="Dismiss insight"
+									className="flex size-6 items-center justify-center rounded text-muted-foreground opacity-0 transition-all hover:bg-accent hover:text-foreground group-hover:opacity-100"
+									onClick={(e) => {
+										e.stopPropagation();
+										onDismissAction();
+									}}
+									type="button"
+								>
+									<XIcon className="size-3" weight="bold" />
+								</button>
+							)}
 							<span className="font-mono text-[11px] text-muted-foreground tabular-nums">
 								{insight.priority}/10
 							</span>
@@ -283,19 +293,24 @@ export function InsightCard({
 						</p>
 					)}
 				</div>
-			</button>
+			</div>
 
 			{expanded && (
-				<div className="space-y-2.5 px-4 pb-3 pl-14 sm:pl-15">
-					<p className="text-pretty text-muted-foreground text-xs leading-relaxed">
+				<div
+					className="space-y-2.5 px-4 pb-4 pl-14 sm:pl-15"
+					onClick={onToggleAction}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							e.preventDefault();
+							onToggleAction();
+						}
+					}}
+					role="button"
+					tabIndex={-1}
+				>
+					<p className="text-pretty text-muted-foreground text-sm leading-relaxed">
 						{insight.description}
 					</p>
-
-					{comparisonLine && (
-						<p className="text-balance text-muted-foreground/70 text-[11px]">
-							{comparisonLine}
-						</p>
-					)}
 
 					<div className="flex items-start gap-2 rounded bg-accent/60 px-2.5 py-2">
 						<SparkleIcon
@@ -307,67 +322,62 @@ export function InsightCard({
 						</p>
 					</div>
 
-					<div className="flex flex-wrap items-center gap-2">
+					<div
+						className="flex items-center gap-2 pt-0.5"
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+						role="group"
+					>
 						<Link
 							className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs transition-opacity hover:opacity-90"
 							href={agentHref}
-							onClick={(e) => e.stopPropagation()}
 						>
-							Investigate with Databunny
+							Investigate
 							<ArrowRightIcon className="size-3" weight="fill" />
 						</Link>
 						<Link
-							className="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-accent"
+							className="text-muted-foreground text-xs transition-colors hover:text-foreground"
 							href={insight.link}
-							onClick={(e) => e.stopPropagation()}
 						>
 							View analytics
 						</Link>
-						<button
-							className="inline-flex items-center gap-1 rounded border px-2 py-1.5 text-muted-foreground text-xs transition-colors hover:bg-accent hover:text-foreground"
-							onClick={copySummaryAction}
-							type="button"
-						>
-							<CopyIcon aria-hidden className="size-3.5" weight="duotone" />
-						</button>
-						<button
-							className="inline-flex items-center gap-1 rounded border px-2 py-1.5 text-muted-foreground text-xs transition-colors hover:bg-accent hover:text-foreground"
-							onClick={copyLinkAction}
-							type="button"
-						>
-							<LinkIcon aria-hidden className="size-3.5" weight="duotone" />
-						</button>
 
-						{onDismissAction && (
-							<button
-								aria-label="Dismiss insight"
-								className="inline-flex items-center gap-1 rounded border px-2 py-1.5 text-muted-foreground text-xs transition-colors hover:bg-accent hover:text-foreground"
-								onClick={(e) => {
-									e.stopPropagation();
-									onDismissAction();
-								}}
-								type="button"
-							>
-								<XIcon aria-hidden className="size-3.5" weight="bold" />
-							</button>
-						)}
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button
+									aria-label="More actions"
+									className="flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+									type="button"
+								>
+									<DotsThreeIcon className="size-4" weight="bold" />
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start" className="w-40">
+								<DropdownMenuItem onClick={copySummaryAction}>
+									<CopyIcon className="size-4" weight="duotone" />
+									Copy insight
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={copyLinkAction}>
+									<LinkIcon className="size-4" weight="duotone" />
+									Copy link
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 
 						{onFeedbackAction && (
-							<>
-								<span className="mx-0.5 h-4 w-px bg-border" />
+							<div className="ml-auto flex items-center gap-1">
 								<button
 									aria-label="Mark as helpful"
 									aria-pressed={feedbackVote === "up"}
 									className={cn(
-										"inline-flex size-7 items-center justify-center rounded border transition-colors",
+										"flex size-6 items-center justify-center rounded transition-colors",
 										feedbackVote === "up"
-											? "border-primary bg-primary/10 text-primary"
-											: "text-muted-foreground hover:bg-accent hover:text-foreground"
+											? "bg-primary/10 text-primary"
+											: "text-muted-foreground/50 hover:text-foreground"
 									)}
-									onClick={(e) => {
-										e.stopPropagation();
-										onFeedbackAction(feedbackVote === "up" ? null : "up");
-									}}
+									onClick={() =>
+										onFeedbackAction(feedbackVote === "up" ? null : "up")
+									}
 									type="button"
 								>
 									<ThumbsUpIcon className="size-3.5" weight="duotone" />
@@ -376,20 +386,19 @@ export function InsightCard({
 									aria-label="Mark as not helpful"
 									aria-pressed={feedbackVote === "down"}
 									className={cn(
-										"inline-flex size-7 items-center justify-center rounded border transition-colors",
+										"flex size-6 items-center justify-center rounded transition-colors",
 										feedbackVote === "down"
-											? "border-destructive bg-destructive/10 text-destructive"
-											: "text-muted-foreground hover:bg-accent hover:text-foreground"
+											? "bg-destructive/10 text-destructive"
+											: "text-muted-foreground/50 hover:text-foreground"
 									)}
-									onClick={(e) => {
-										e.stopPropagation();
-										onFeedbackAction(feedbackVote === "down" ? null : "down");
-									}}
+									onClick={() =>
+										onFeedbackAction(feedbackVote === "down" ? null : "down")
+									}
 									type="button"
 								>
 									<ThumbsDownIcon className="size-3.5" weight="duotone" />
 								</button>
-							</>
+							</div>
 						)}
 					</div>
 				</div>
@@ -400,7 +409,7 @@ export function InsightCard({
 
 export function InsightCardSkeleton() {
 	return (
-		<div className="flex items-start gap-3 px-4 py-3 sm:px-6">
+		<div className="flex items-start gap-3 border-b px-4 py-3 sm:px-6">
 			<Skeleton className="mt-0.5 size-7 shrink-0 rounded" />
 			<div className="min-w-0 flex-1 space-y-2">
 				<div className="flex items-start justify-between gap-2">
