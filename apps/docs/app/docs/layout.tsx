@@ -37,6 +37,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
 		<DocsLayout
 			tree={source.pageTree}
 			{...baseOptions}
+			containerProps={{
+				className: "min-h-0 flex-1",
+			}}
 			nav={{
 				enabled: true,
 				component: <Navbar stars={stars} />,

@@ -418,6 +418,7 @@
 }
 
 html {
+  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
@@ -604,9 +605,9 @@ html {
   }
 }
 
-/* Prevent horizontal scrolling */
+/* Horizontal overflow on html (not body) so position:fixed/sticky headers stay viewport-anchored */
 body {
-  overflow-x: hidden;
+  overflow-x: unset;
 }
 
 /* Smooth scrolling for all elements */
@@ -619,9 +620,9 @@ body {
   padding-top: 0px !important;
 }
 
-/* Add padding to docs layout to account for fixed navbar and sidebar */
+/* Navbar is fixed with an in-flow spacer; do not add top padding here or the main column doubles the offset */
 #nd-docs-layout {
-  padding-top: 64px; /* Account for fixed navbar (h-16 = 64px) */
+  min-height: 0; /* allow flex child to shrink so inner panes scroll, not the viewport */
 }
 
 #nd-docs-layout main,

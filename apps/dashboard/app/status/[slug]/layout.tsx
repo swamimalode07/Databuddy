@@ -45,14 +45,12 @@ export default function StatusLayout({
 									Databuddy
 								</a>
 							</p>
-							<a
-								className="text-muted-foreground text-xs transition-colors hover:text-foreground"
-								href="https://www.databuddy.cc/docs/uptime"
-								rel="noopener noreferrer dofollow"
-								target="_blank"
-							>
-								Get your own status page &rarr;
-							</a>
+							<p className="text-muted-foreground text-xs">
+								Get your own status page{" "}
+								<span className="font-medium text-foreground">
+									· Coming soon
+								</span>
+							</p>
 						</div>
 					</footer>
 				</div>

@@ -34,9 +34,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
 	return (
 		<HomeLayout {...baseOptions}>
 			<Navbar stars={stars} />
-			<main className="flex min-h-screen flex-col">
-				{children}
-			</main>
+			<div className="flex min-h-0 flex-1 flex-col">{children}</div>
 		</HomeLayout>
 	);
 }

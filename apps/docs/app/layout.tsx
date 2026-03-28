@@ -101,11 +101,11 @@ export default function Layout({ children }: { children: ReactNode }) {
 				trackOutgoingLinks
 				trackWebVitals
 			/>
-			<body>
+			<body className="min-h-dvh">
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<NuqsAdapter>
 						<RootProvider>
-							<main>{children}</main>
+							<div className="flex min-h-dvh flex-col">{children}</div>
 							<Toaster
 								closeButton
 								duration={1500}
