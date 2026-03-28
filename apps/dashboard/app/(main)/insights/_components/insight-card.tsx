@@ -11,7 +11,6 @@ import {
 	LightningIcon,
 	LinkIcon,
 	RocketIcon,
-	SparkleIcon,
 	ThumbsDownIcon,
 	ThumbsUpIcon,
 	TrendDownIcon,
@@ -30,6 +29,7 @@ import {
 	formatComparisonWindow,
 	formatInsightFreshness,
 } from "@/app/(main)/insights/lib/insight-meta";
+import { InsightMetrics } from "@/components/insight-metrics";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -231,7 +231,7 @@ export function InsightCard({
 		>
 			{/* biome-ignore lint/a11y/useSemanticElements: full-row toggle cannot use <button> because of nested dismiss control */}
 			<div
-				className="flex min-h-20 cursor-pointer items-start gap-3 px-4 py-3 sm:px-6"
+				className="flex cursor-pointer items-start gap-3 px-4 py-3.5 sm:px-6"
 				onClick={onToggleAction}
 				onKeyDown={(e) => {
 					if (e.key === "Enter" || e.key === " ") {
@@ -302,8 +302,6 @@ export function InsightCard({
 									</span>
 								</>
 							)}
-						<span className="text-muted-foreground/30">&middot;</span>
-						<span className="text-muted-foreground">{freshnessLine}</span>
 					</div>
 					{!expanded && (
 						<p className="mt-1 line-clamp-1 text-muted-foreground text-xs">
@@ -317,7 +315,7 @@ export function InsightCard({
 				<>
 					{/* biome-ignore lint/a11y/useSemanticElements: expanded panel toggle; nested links/buttons prevent a single <button> wrapper */}
 					<div
-						className="space-y-2.5 px-4 pb-4 pl-14 sm:pl-15"
+						className="flex flex-col gap-4 px-4 pb-5 pl-14 sm:pl-15"
 						onClick={onToggleAction}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" || e.key === " ") {
@@ -328,21 +326,21 @@ export function InsightCard({
 						role="button"
 						tabIndex={-1}
 					>
-						<p className="text-pretty text-muted-foreground text-sm leading-relaxed">
-							{insight.description}
-						</p>
+						{insight.metrics && insight.metrics.length > 0 && (
+							<InsightMetrics metrics={insight.metrics} />
+						)}
 
-						<div className="flex items-start gap-2 rounded bg-accent/60 px-2.5 py-2">
-							<SparkleIcon
-								className="mt-px size-3 shrink-0 text-primary"
-								weight="duotone"
-							/>
-							<p className="text-pretty text-foreground text-xs leading-relaxed">
+						<div className="flex flex-col gap-2.5">
+							<p className="text-pretty text-[13px] text-muted-foreground leading-relaxed">
+								{insight.description}
+							</p>
+
+							<p className="text-pretty border-primary/40 border-l-2 pl-3 text-foreground/80 text-xs leading-relaxed">
 								{insight.suggestion}
 							</p>
 						</div>
 
-						<div className="flex items-center gap-2 pt-0.5">
+						<div className="flex items-center gap-2">
 							<Link
 								aria-label="Open AI agent with this insight as context"
 								className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs transition-opacity hover:opacity-90"
@@ -352,18 +350,6 @@ export function InsightCard({
 								Ask agent
 								<ArrowRightIcon className="size-3" weight="fill" />
 							</Link>
-							<button
-								aria-label="Copy structured prompt for an AI agent: issue, analysis, data, and recommended fix"
-								className="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-accent"
-								onClick={(e) => {
-									e.stopPropagation();
-									copyAgentPromptAction();
-								}}
-								type="button"
-							>
-								<CopyIcon aria-hidden className="size-3.5" weight="duotone" />
-								Copy prompt
-							</button>
 							<Link
 								aria-label={
 									pathHint
@@ -388,7 +374,16 @@ export function InsightCard({
 										<DotsThreeIcon className="size-4" weight="bold" />
 									</button>
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start" className="w-40">
+								<DropdownMenuContent align="start" className="w-44">
+									<DropdownMenuItem
+										onClick={(e) => {
+											e.stopPropagation();
+											copyAgentPromptAction();
+										}}
+									>
+										<CopyIcon className="size-4" weight="duotone" />
+										Copy prompt
+									</DropdownMenuItem>
 									<DropdownMenuItem onClick={copyLinkAction}>
 										<LinkIcon className="size-4" weight="duotone" />
 										Copy link
@@ -396,45 +391,53 @@ export function InsightCard({
 								</DropdownMenuContent>
 							</DropdownMenu>
 
-							{onFeedbackAction && (
-								<div className="ml-auto flex items-center gap-1.5">
-									<span className="text-muted-foreground text-xs">Useful?</span>
-									<button
-										aria-label="Mark as helpful"
-										aria-pressed={feedbackVote === "up"}
-										className={cn(
-											"flex size-7 items-center justify-center rounded border transition-colors",
-											feedbackVote === "up"
-												? "border-primary bg-primary/10 text-primary"
-												: "text-muted-foreground hover:bg-accent hover:text-foreground"
-										)}
-										onClick={(e) => {
-											e.stopPropagation();
-											onFeedbackAction(feedbackVote === "up" ? null : "up");
-										}}
-										type="button"
-									>
-										<ThumbsUpIcon className="size-3.5" weight="duotone" />
-									</button>
-									<button
-										aria-label="Mark as not helpful"
-										aria-pressed={feedbackVote === "down"}
-										className={cn(
-											"flex size-7 items-center justify-center rounded border transition-colors",
-											feedbackVote === "down"
-												? "border-destructive bg-destructive/10 text-destructive"
-												: "text-muted-foreground hover:bg-accent hover:text-foreground"
-										)}
-										onClick={(e) => {
-											e.stopPropagation();
-											onFeedbackAction(feedbackVote === "down" ? null : "down");
-										}}
-										type="button"
-									>
-										<ThumbsDownIcon className="size-3.5" weight="duotone" />
-									</button>
-								</div>
-							)}
+							<div className="ml-auto flex items-center gap-1.5">
+								{freshnessLine && (
+									<span className="text-[11px] text-muted-foreground">
+										{freshnessLine}
+									</span>
+								)}
+								{onFeedbackAction && (
+									<>
+										<button
+											aria-label="Mark as helpful"
+											aria-pressed={feedbackVote === "up"}
+											className={cn(
+												"flex size-7 items-center justify-center rounded border transition-colors",
+												feedbackVote === "up"
+													? "border-primary bg-primary/10 text-primary"
+													: "text-muted-foreground hover:bg-accent hover:text-foreground"
+											)}
+											onClick={(e) => {
+												e.stopPropagation();
+												onFeedbackAction(feedbackVote === "up" ? null : "up");
+											}}
+											type="button"
+										>
+											<ThumbsUpIcon className="size-3.5" weight="duotone" />
+										</button>
+										<button
+											aria-label="Mark as not helpful"
+											aria-pressed={feedbackVote === "down"}
+											className={cn(
+												"flex size-7 items-center justify-center rounded border transition-colors",
+												feedbackVote === "down"
+													? "border-destructive bg-destructive/10 text-destructive"
+													: "text-muted-foreground hover:bg-accent hover:text-foreground"
+											)}
+											onClick={(e) => {
+												e.stopPropagation();
+												onFeedbackAction(
+													feedbackVote === "down" ? null : "down"
+												);
+											}}
+											type="button"
+										>
+											<ThumbsDownIcon className="size-3.5" weight="duotone" />
+										</button>
+									</>
+								)}
+							</div>
 						</div>
 					</div>
 				</>

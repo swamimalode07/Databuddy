@@ -53,6 +53,13 @@ interface WebsiteInsight extends ParsedInsight {
 	link: string;
 }
 
+interface InsightMetricRow {
+	label: string;
+	current: number;
+	previous?: number;
+	format: "number" | "percent" | "duration_ms" | "duration_s";
+}
+
 interface InsightsPayload {
 	insights: WebsiteInsight[];
 	source: "ai" | "fallback";
@@ -571,9 +578,9 @@ Cross-dimension depth (when Countries, Browsers, or Web Vitals sections appear):
 - For Web Vitals: use metric rows with non-trivial sample counts. Compare p75 between periods for LCP, INP, CLS, FCP when present. Tie performance language to user impact (load responsiveness, layout stability)—do not invent vitals that are missing from the data.
 
 Suggestion field (required quality):
-- Must answer "what should we do next?" in one or two sentences grounded in the actual metrics shown (repeat or reference specific counts, rates, or page labels from the data). This is an analytics product—avoid generic marketing coaching ("social proof", "limited-time offer") unless you tie it to a concrete gap in the numbers (e.g. two paths' visitor counts, bounce rate, session duration).
-- Bad: "Monitor traffic", "Keep an eye on this", "Consider reviewing analytics", vague growth tactics without figures.
-- Good: tie to pages, channels, CTAs, error classes, or experiments using numbers already in the prompt.
+- Must answer "what should we do next?" in one or two sentences. Reference metric labels (e.g. "Contact Page Visitors", "Bounce Rate") but do NOT restate the values — those are in the metrics array. This is an analytics product—avoid generic marketing coaching.
+- Bad: "Monitor traffic", "Keep an eye on this", "the 199 visitors compared to the 294 visitors" (number repetition).
+- Good: tie to pages, channels, CTAs, error classes, or experiments by label. "Audit CTAs on Pricing Page to drive traffic toward Contact Page given the visitor disparity."
 
 Titles and page paths:
 - Never put raw URL paths with opaque ID segments in the title (no long random slugs). Use the Human label from Top Pages (e.g. "Demo page", "Pricing page").
@@ -581,9 +588,21 @@ Titles and page paths:
 Balanced weeks (mostly positive metrics):
 - Still surface at least one insight that highlights a downside risk or watch item when the data supports it: e.g. median session duration down, bounce up, errors up in absolute count, heavy reliance on one volatile referrer or channel. If you only report wins when those signals exist, you are failing the user.
 
+Metrics array (required):
+- Every insight MUST include a "metrics" array of 1-5 data points that back the narrative.
+- The first metric should be the primary one the insight is about (e.g. Visitors, Error Rate, Bounce Rate).
+- Add supporting metrics that give context (e.g. alongside a traffic insight, include Sessions or Bounce Rate).
+- Use the correct format: "number" for counts, "percent" for rates/percentages, "duration_ms" for millisecond timings (LCP, INP, FCP), "duration_s" for second-based durations.
+- Both "current" and "previous" must come directly from the data. Omit "previous" only when comparison data is missing.
+
+Separation of numbers and narrative (critical):
+- The metrics array is the SINGLE SOURCE OF TRUTH for numbers. The UI shows metrics as structured data chips.
+- The description MUST NOT restate values already in the metrics array. Instead, reference metrics by their label name (e.g. "Contact Page Visitors dropped sharply" not "visitors fell from 352 to 199"). Focus description on the WHY: causes, implications, context, and connections between metrics.
+- The suggestion MUST NOT restate metric values either. Reference labels and recommend a specific action grounded in the pattern.
+- The title MAY include the primary number or percentage for scannability (e.g. "Contact page visitors down 43%").
+
 Rules:
-- Every insight MUST include specific numbers from both periods where applicable.
-- If annotations explain a change, mention it but still report the data.
+- If annotations explain a change, mention it but still populate the metrics array.
 - If everything is stable, return ONE positive/neutral insight (e.g. "Steady at 2,400 weekly visitors") with a light suggestion if appropriate.
 - Never fabricate or round numbers beyond what's in the data`;
 
@@ -831,6 +850,7 @@ async function getRecentInsightsFromDb(
 			type: analyticsInsights.type,
 			priority: analyticsInsights.priority,
 			changePercent: analyticsInsights.changePercent,
+			metrics: analyticsInsights.metrics,
 			createdAt: analyticsInsights.createdAt,
 		})
 		.from(analyticsInsights)
@@ -859,6 +879,7 @@ async function getRecentInsightsFromDb(
 			title: r.title,
 			description: r.description,
 			suggestion: r.suggestion,
+			metrics: (r.metrics as InsightMetricRow[] | null) ?? [],
 			severity: r.severity as ParsedInsight["severity"],
 			sentiment: r.sentiment as ParsedInsight["sentiment"],
 			type: r.type as ParsedInsight["type"],
@@ -984,6 +1005,7 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 					type: analyticsInsights.type,
 					priority: analyticsInsights.priority,
 					changePercent: analyticsInsights.changePercent,
+					metrics: analyticsInsights.metrics,
 					createdAt: analyticsInsights.createdAt,
 					currentPeriodFrom: analyticsInsights.currentPeriodFrom,
 					currentPeriodTo: analyticsInsights.currentPeriodTo,
@@ -1008,6 +1030,7 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 				title: r.title,
 				description: r.description,
 				suggestion: r.suggestion,
+				metrics: (r.metrics as InsightMetricRow[] | null) ?? [],
 				severity: r.severity,
 				sentiment: r.sentiment,
 				type: r.type,
@@ -1250,6 +1273,7 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 						type: string;
 						priority: number;
 						changePercent: number | null;
+						metrics: InsightMetricRow[] | null;
 						timezone: string;
 						currentPeriodFrom: string;
 						currentPeriodTo: string;
@@ -1281,6 +1305,7 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 							type: insight.type,
 							priority: insight.priority,
 							changePercent: insight.changePercent ?? null,
+							metrics: insight.metrics.length > 0 ? insight.metrics : null,
 							timezone,
 							currentPeriodFrom: period.current.from,
 							currentPeriodTo: period.current.to,
@@ -1327,6 +1352,8 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 										type: insight.type,
 										priority: insight.priority,
 										changePercent: insight.changePercent ?? null,
+										metrics:
+											insight.metrics.length > 0 ? insight.metrics : null,
 									})
 									.where(eq(analyticsInsights.id, insight.id))
 							)

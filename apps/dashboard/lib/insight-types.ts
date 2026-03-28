@@ -19,6 +19,19 @@ export type InsightSentiment = "positive" | "neutral" | "negative";
 
 export type InsightSource = "ai" | "history";
 
+export type InsightMetricFormat =
+	| "number"
+	| "percent"
+	| "duration_ms"
+	| "duration_s";
+
+export interface InsightMetric {
+	label: string;
+	current: number;
+	previous?: number;
+	format: InsightMetricFormat;
+}
+
 export interface Insight {
 	id: string;
 	type: InsightType;
@@ -31,6 +44,7 @@ export interface Insight {
 	title: string;
 	description: string;
 	suggestion: string;
+	metrics?: InsightMetric[];
 	changePercent?: number;
 	link: string;
 	insightSource?: InsightSource;
@@ -54,6 +68,7 @@ export interface HistoryInsightRow {
 	title: string;
 	description: string;
 	suggestion: string;
+	metrics?: InsightMetric[];
 	changePercent?: number | null;
 	link: string;
 	createdAt?: string;
@@ -77,6 +92,7 @@ export function mapHistoryRowToInsight(row: HistoryInsightRow): Insight {
 		title: row.title,
 		description: row.description,
 		suggestion: row.suggestion,
+		metrics: row.metrics ?? [],
 		changePercent: row.changePercent ?? undefined,
 		link: row.link,
 		insightSource: "history",

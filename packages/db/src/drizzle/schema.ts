@@ -776,6 +776,15 @@ export const analyticsInsights = pgTable(
 		type: text("type").notNull(),
 		priority: integer("priority").notNull(),
 		changePercent: doublePrecision("change_percent"),
+		metrics:
+			jsonb("metrics").$type<
+				Array<{
+					label: string;
+					current: number;
+					previous?: number;
+					format: "number" | "percent" | "duration_ms" | "duration_s";
+				}>
+			>(),
 		timezone: text("timezone").notNull().default("UTC"),
 		currentPeriodFrom: text("current_period_from").notNull(),
 		currentPeriodTo: text("current_period_to").notNull(),

@@ -1,5 +1,24 @@
 import { z } from "zod";
 
+export const insightMetricSchema = z.object({
+	label: z
+		.string()
+		.describe(
+			"Short human-readable metric name, e.g. 'Visitors', 'Bounce Rate', 'LCP (p75)', 'Errors'"
+		),
+	current: z.number().describe("Value for the current period"),
+	previous: z
+		.number()
+		.optional()
+		.describe("Value for the previous period (omit if no comparison)"),
+	format: z
+		.enum(["number", "percent", "duration_ms", "duration_s"])
+		.default("number")
+		.describe(
+			"How to display: number = raw count, percent = %, duration_ms = milliseconds, duration_s = seconds"
+		),
+});
+
 export const insightSchema = z.object({
 	title: z
 		.string()
@@ -9,12 +28,19 @@ export const insightSchema = z.object({
 	description: z
 		.string()
 		.describe(
-			"2-5 complete sentences with specific numbers from BOTH periods; use more sentences when the insight ties together multiple metrics (e.g. traffic + geography + vitals). End with a full stop. Do not truncate mid-sentence or end with '...'. Name pages using human labels when the path has opaque IDs. Explain cause only when grounded in the data or annotations."
+			"2-3 concise sentences explaining WHY the change matters and what likely caused it. Do NOT restate numbers that are already in the metrics array — reference metrics by their label name instead (e.g. 'Contact Page Visitors dropped sharply while Pricing Page Visitors surged'). Focus on the narrative: causes, implications, and context that the numbers alone cannot convey. End with a full stop. Name pages using human labels when the path has opaque IDs."
 		),
 	suggestion: z
 		.string()
 		.describe(
-			"One or two sentences tied to THIS product's data only: cite concrete figures from tool results (e.g. two page paths, two visitor counts, or bounce/session metrics). Do not give generic marketing platitudes or hypothetical tactics; if you recommend a CTA or experiment, anchor it to numbers you stated above."
+			"One or two actionable sentences tied to THIS product's data. Reference metric labels from the metrics array rather than restating their values. Recommend a specific next step grounded in the data pattern. Do not give generic marketing platitudes or hypothetical tactics."
+		),
+	metrics: z
+		.array(insightMetricSchema)
+		.min(1)
+		.max(5)
+		.describe(
+			"1-5 key data points backing this insight. Always include the primary metric the insight is about, then supporting metrics that add context. These are shown as structured data alongside the narrative description."
 		),
 	severity: z.enum(["critical", "warning", "info"]),
 	sentiment: z
@@ -62,3 +88,4 @@ export const insightsOutputSchema = z.object({
 });
 
 export type ParsedInsight = z.infer<typeof insightSchema>;
+export type InsightMetric = z.infer<typeof insightMetricSchema>;

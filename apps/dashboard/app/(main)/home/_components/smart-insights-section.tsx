@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { type ReactNode, useMemo, useState } from "react";
+import { InsightMetrics } from "@/components/insight-metrics";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	changePercentChipClassName,
@@ -182,21 +183,20 @@ function InsightRow({ insight }: { insight: Insight }) {
 			</div>
 
 			{expanded && (
-				<div className="space-y-2 px-4 pb-3 pl-14">
-					<p className="text-pretty text-muted-foreground text-xs leading-relaxed">
-						{insight.description}
-					</p>
-					<div className="flex items-start gap-2 rounded bg-accent/60 px-2.5 py-2">
-						<SparkleIcon
-							className="mt-px size-3 shrink-0 text-primary"
-							weight="duotone"
-						/>
-						<p className="text-pretty text-foreground text-xs leading-relaxed">
+				<div className="flex flex-col gap-3 px-4 pb-4 pl-14">
+					{insight.metrics && insight.metrics.length > 0 && (
+						<InsightMetrics metrics={insight.metrics} />
+					)}
+					<div className="flex flex-col gap-2">
+						<p className="text-pretty text-[13px] text-muted-foreground leading-relaxed">
+							{insight.description}
+						</p>
+						<p className="text-pretty border-primary/40 border-l-2 pl-3 text-foreground/80 text-xs leading-relaxed">
 							{insight.suggestion}
 						</p>
 					</div>
 					<Link
-						className="mt-1 inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs transition-opacity hover:opacity-90"
+						className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs transition-opacity hover:opacity-90"
 						href={agentHref}
 						onClick={(e) => e.stopPropagation()}
 					>
