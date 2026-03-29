@@ -18,7 +18,7 @@ const MANAGER_ITERATIONS = (() => {
 
 test.describe.configure({ mode: "parallel" });
 
-test.describe("Fuzz — CoreFlagsManager (many async getFlag tries)", () => {
+test.describe("Fuzz — BrowserFlagsManager (many async getFlag tries)", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.route(
 			"**/api.databuddy.cc/public/v1/flags/**",
@@ -65,7 +65,7 @@ test.describe("Fuzz — CoreFlagsManager (many async getFlag tries)", () => {
 		const result = await page.evaluate(async ({ iterations: total }) => {
 			const failures: string[] = [];
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "fuzz-client", autoFetch: false },
 			});
 
@@ -100,7 +100,7 @@ test.describe("Fuzz — CoreFlagsManager (many async getFlag tries)", () => {
 		const result = await page.evaluate(async () => {
 			const failures: string[] = [];
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "fuzz-client", autoFetch: false },
 			});
 
@@ -137,7 +137,7 @@ test.describe("Fuzz — CoreFlagsManager (many async getFlag tries)", () => {
 		const result = await page.evaluate(async ({ iterations: total }) => {
 			const failures: string[] = [];
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "fuzz-client", autoFetch: false },
 			});
 

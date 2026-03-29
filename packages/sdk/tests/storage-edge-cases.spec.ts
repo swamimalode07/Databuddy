@@ -8,43 +8,17 @@ test.describe("BrowserFlagStorage — edge cases", () => {
 		await page.evaluate(() => localStorage.clear());
 	});
 
-	test("corrupt JSON in db-flag-* is skipped in getAll", async ({ page }) => {
-		await page.evaluate(() => {
-			localStorage.setItem("db-flag-bad", "{ not json");
-			localStorage.setItem("db-flag-good", "not-json-at-all");
-		});
-
+	test("corrupt JSON in db-flags blob returns empty", async ({ page }) => {
 		const result = await page.evaluate(() => {
+			localStorage.setItem("db-flags", "{ not json");
 			const storage = new window.__SDK__.BrowserFlagStorage();
-			storage.set("ok", {
-				enabled: true,
-				value: true,
-				payload: null,
-				reason: "MATCH",
-			});
 			return storage.getAll();
 		});
 
-		expect(Object.keys(result)).toEqual(["ok"]);
+		expect(Object.keys(result)).toHaveLength(0);
 	});
 
-	test("cleanupExpired removes corrupt keys via catch path", async ({
-		page,
-	}) => {
-		await page.evaluate(() => {
-			localStorage.setItem("db-flag-garbage", "{{{");
-		});
-
-		const stillThere = await page.evaluate(() => {
-			const storage = new window.__SDK__.BrowserFlagStorage();
-			storage.cleanupExpired();
-			return localStorage.getItem("db-flag-garbage");
-		});
-
-		expect(stillThere).toBeNull();
-	});
-
-	test("setItem quota failure is swallowed (no throw)", async ({ page }) => {
+	test("setAll quota failure is swallowed (no throw)", async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const storage = new window.__SDK__.BrowserFlagStorage();
 			const original = Storage.prototype.setItem;
@@ -53,11 +27,13 @@ test.describe("BrowserFlagStorage — edge cases", () => {
 				throw new DOMException("QuotaExceededError", "QuotaExceededError");
 			};
 			try {
-				storage.set("q", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
+				storage.setAll({
+					q: {
+						enabled: true,
+						value: true,
+						payload: null,
+						reason: "MATCH",
+					},
 				});
 			} catch {
 				threw = true;
@@ -69,76 +45,50 @@ test.describe("BrowserFlagStorage — edge cases", () => {
 		expect(result.threw).toBe(false);
 	});
 
-	test("numeric value 0 round-trip (documents value || parsed behavior)", async ({
-		page,
-	}) => {
+	test("numeric value 0 round-trip via setAll/getAll", async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const storage = new window.__SDK__.BrowserFlagStorage();
-			storage.set("zero", {
-				enabled: true,
-				value: 0,
-				payload: null,
-				reason: "MATCH",
+			storage.setAll({
+				zero: {
+					enabled: true,
+					value: 0,
+					payload: null,
+					reason: "MATCH",
+				},
 			});
-			const got = storage.get("zero");
-			return { value: got?.value, raw: localStorage.getItem("db-flag-zero") };
+			const all = storage.getAll();
+			return { value: all.zero?.value };
 		});
 
-		expect(result.raw).toBeTruthy();
 		expect(result.value).toBe(0);
 	});
 
-	test("get returns null when JSON parses but value is expired", async ({
-		page,
-	}) => {
+	test("expired blob returns empty on getAll", async ({ page }) => {
 		const result = await page.evaluate(() => {
 			localStorage.setItem(
-				"db-flag-exp",
+				"db-flags",
 				JSON.stringify({
-					value: {
-						enabled: true,
-						value: true,
-						payload: null,
-						reason: "MATCH",
+					flags: {
+						exp: {
+							enabled: true,
+							value: true,
+							payload: null,
+							reason: "MATCH",
+						},
 					},
-					expiresAt: Date.now() - 100,
+					savedAt: Date.now() - 100_000_000,
 				})
 			);
 			const storage = new window.__SDK__.BrowserFlagStorage();
-			return storage.get("exp");
+			return storage.getAll();
 		});
 
-		expect(result).toBeNull();
-	});
-
-	test("legacy shape without expiresAt still readable from get", async ({
-		page,
-	}) => {
-		const result = await page.evaluate(() => {
-			localStorage.setItem(
-				"db-flag-legacy",
-				JSON.stringify({
-					enabled: true,
-					value: "legacy",
-					payload: null,
-					reason: "MATCH",
-				})
-			);
-			const storage = new window.__SDK__.BrowserFlagStorage();
-			return storage.get("legacy");
-		});
-
-		expect(result).toEqual({
-			enabled: true,
-			value: "legacy",
-			payload: null,
-			reason: "MATCH",
-		});
+		expect(Object.keys(result)).toHaveLength(0);
 	});
 });
 
 test.describe("Anonymous id when localStorage is unusable", () => {
-	test("CoreFlagsManager works when did cannot be persisted", async ({
+	test("BrowserFlagsManager works when did cannot be persisted", async ({
 		page,
 	}) => {
 		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
@@ -170,7 +120,7 @@ test.describe("Anonymous id when localStorage is unusable", () => {
 			};
 
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "anon-fail", autoFetch: false },
 			});
 

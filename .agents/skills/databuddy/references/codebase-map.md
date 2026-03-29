@@ -102,6 +102,14 @@ Use this file when the task spans multiple packages or when the right edit locat
 - Published Databuddy SDK
 - Supports React, Vue, and Node entrypoints
 - Good starting point for external-facing analytics API changes
+- Flags architecture:
+  - `BaseFlagsManager` (abstract) → `BrowserFlagsManager` (client) / `ServerFlagsManager` (node)
+  - Promise-based cache with TTL + SWR revalidation, request batching via `RequestBatcher`
+  - `BrowserFlagStorage` — single-blob localStorage under `db-flags` key
+  - React: `FlagsProvider` + `useFlag` + `useFlags` (no `useFeature`/`useVariant`/`useFlagValue`)
+  - Vue: `createFlagsPlugin` + `useFlag` + `useFlags`
+  - Node: `createServerFlagsManager` (no `InMemory` alias)
+  - `subscribe()`/`getSnapshot()` for `useSyncExternalStore` integration
 
 ### `packages/tracker`
 

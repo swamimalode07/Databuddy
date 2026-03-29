@@ -11,7 +11,7 @@ test.describe("Fuzz — BrowserFlagStorage stress + edge cases", () => {
 		await page.evaluate(() => localStorage.clear());
 	});
 
-	test("many random set/get cycles stay consistent", async ({ page }) => {
+	test("many random setAll/getAll cycles stay consistent", async ({ page }) => {
 		const iterations = getStressIterations();
 		const seed = 99;
 
@@ -37,31 +37,31 @@ test.describe("Fuzz — BrowserFlagStorage stress + edge cases", () => {
 					reason: "MATCH",
 				};
 
-				const keys: string[] = [];
 				for (let i = 0; i < n; i++) {
-					const key = `f-${Math.floor(rand() * 1_000_000)}-${i % 50}`;
-					keys.push(key);
-					storage.set(key, base);
-					const got = storage.get(key);
-					if (!got || got.enabled !== true) {
-						failures.push(`get mismatch at ${i}`);
+					const batchSize = 1 + Math.floor(rand() * 10);
+					const batch: Record<string, typeof base> = {};
+					const keys: string[] = [];
+					for (let j = 0; j < batchSize; j++) {
+						const key = `f-${Math.floor(rand() * 1_000_000)}-${i % 50}`;
+						batch[key] = base;
+						keys.push(key);
+					}
+					storage.setAll(batch);
+					const all = storage.getAll();
+					for (const key of keys) {
+						if (!all[key] || all[key].enabled !== true) {
+							failures.push(`getAll mismatch at iter ${i}, key ${key}`);
+						}
 					}
 				}
 
-				const all = storage.getAll();
-				for (const key of keys) {
-					if (!all[key]) {
-						failures.push(`getAll missing ${key}`);
-					}
-				}
-
-				return { failures, uniqueKeys: new Set(keys).size };
+				return { failures, iterations: n };
 			},
 			{ iterations, seed }
 		);
 
 		expect(result.failures, result.failures.join("\n")).toHaveLength(0);
-		expect(result.uniqueKeys).toBeGreaterThan(0);
+		expect(result.iterations).toBeGreaterThan(0);
 	});
 
 	test("setAll replaces prior keys (repeated random)", async ({ page }) => {
@@ -113,9 +113,7 @@ test.describe("Fuzz — BrowserFlagStorage stress + edge cases", () => {
 		expect(result.failures, result.failures.join("\n")).toHaveLength(0);
 	});
 
-	test("deleteMultiple + cleanupExpired are safe under churn", async ({
-		page,
-	}) => {
+	test("clear removes all flags, getAll returns empty", async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const failures: string[] = [];
 			const storage = new window.__SDK__.BrowserFlagStorage();
@@ -126,24 +124,22 @@ test.describe("Fuzz — BrowserFlagStorage stress + edge cases", () => {
 				reason: "MATCH",
 			};
 
+			const batch: Record<string, typeof v> = {};
 			for (let i = 0; i < 80; i++) {
-				storage.set(`c-${i}`, v);
+				batch[`c-${i}`] = v;
 			}
-			storage.deleteMultiple(["c-0", "c-1", "c-2"]);
-			if (storage.get("c-0")) {
-				failures.push("c-0 should be gone");
+			storage.setAll(batch);
+
+			const before = Object.keys(storage.getAll()).length;
+			if (before !== 80) {
+				failures.push(`expected 80 keys, got ${before}`);
 			}
 
-			localStorage.setItem(
-				"db-flag-stale",
-				JSON.stringify({
-					value: v,
-					expiresAt: Date.now() - 10,
-				})
-			);
-			storage.cleanupExpired();
-			if (localStorage.getItem("db-flag-stale")) {
-				failures.push("stale should be removed");
+			storage.clear();
+
+			const after = Object.keys(storage.getAll()).length;
+			if (after !== 0) {
+				failures.push(`expected 0 keys after clear, got ${after}`);
 			}
 
 			return { failures };
@@ -152,19 +148,20 @@ test.describe("Fuzz — BrowserFlagStorage stress + edge cases", () => {
 		expect(result.failures, result.failures.join("\n")).toHaveLength(0);
 	});
 
-	test("string value round-trip in storage wrapper", async ({ page }) => {
+	test("string value round-trip in storage", async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const failures: string[] = [];
 			const storage = new window.__SDK__.BrowserFlagStorage();
-			const payload = {
-				enabled: true,
-				value: "variant-b",
-				payload: null,
-				reason: "MATCH",
-			};
-			storage.set("str-val", payload);
-			const got = storage.get("str-val");
-			if (got?.value !== "variant-b") {
+			storage.setAll({
+				"str-val": {
+					enabled: true,
+					value: "variant-b",
+					payload: null,
+					reason: "MATCH",
+				},
+			});
+			const all = storage.getAll();
+			if (all["str-val"]?.value !== "variant-b") {
 				failures.push("value mismatch");
 			}
 			return { failures };

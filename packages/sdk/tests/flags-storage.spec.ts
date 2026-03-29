@@ -8,135 +8,23 @@ test.describe("BrowserFlagStorage", () => {
 		await page.evaluate(() => localStorage.clear());
 	});
 
-	test.describe("set and get", () => {
-		test("stores and retrieves a flag value", async ({ page }) => {
+	test.describe("setAll and getAll", () => {
+		test("stores and retrieves multiple flags", async ({ page }) => {
 			const result = await page.evaluate(() => {
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("my-flag", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				return storage.get("my-flag");
-			});
-
-			expect(result).toEqual({
-				enabled: true,
-				value: true,
-				payload: null,
-				reason: "MATCH",
-			});
-		});
-
-		test("returns null for non-existent key", async ({ page }) => {
-			const result = await page.evaluate(() => {
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				return storage.get("does-not-exist");
-			});
-
-			expect(result).toBeNull();
-		});
-
-		test("stores with db-flag- prefix in localStorage", async ({ page }) => {
-			const exists = await page.evaluate(() => {
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("test-key", {
-					enabled: true,
-					value: "hello",
-					payload: null,
-					reason: "MATCH",
-				});
-				return localStorage.getItem("db-flag-test-key") !== null;
-			});
-
-			expect(exists).toBe(true);
-		});
-
-		test("stored entries have TTL metadata", async ({ page }) => {
-			const data = await page.evaluate(() => {
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("ttl-test", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				const raw = localStorage.getItem("db-flag-ttl-test");
-				return raw ? JSON.parse(raw) : null;
-			});
-
-			expect(data).toBeTruthy();
-			expect(data.expiresAt).toBeGreaterThan(Date.now());
-			expect(data.timestamp).toBeLessThanOrEqual(Date.now());
-		});
-	});
-
-	test.describe("TTL expiration", () => {
-		test("returns null for expired entries", async ({ page }) => {
-			const result = await page.evaluate(() => {
-				localStorage.setItem(
-					"db-flag-expired",
-					JSON.stringify({
-						value: {
-							enabled: true,
-							value: true,
-							payload: null,
-							reason: "MATCH",
-						},
-						timestamp: Date.now() - 100_000,
-						expiresAt: Date.now() - 1,
-					})
-				);
-
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				return storage.get("expired");
-			});
-
-			expect(result).toBeNull();
-		});
-
-		test("removes expired entries from localStorage on get", async ({
-			page,
-		}) => {
-			const exists = await page.evaluate(() => {
-				localStorage.setItem(
-					"db-flag-to-expire",
-					JSON.stringify({
-						value: {
-							enabled: true,
-							value: true,
-							payload: null,
-							reason: "MATCH",
-						},
-						expiresAt: Date.now() - 1,
-					})
-				);
-
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.get("to-expire");
-				return localStorage.getItem("db-flag-to-expire");
-			});
-
-			expect(exists).toBeNull();
-		});
-	});
-
-	test.describe("getAll", () => {
-		test("returns all stored flags", async ({ page }) => {
-			const result = await page.evaluate(() => {
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("flag-a", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				storage.set("flag-b", {
-					enabled: false,
-					value: false,
-					payload: null,
-					reason: "NO_MATCH",
+				storage.setAll({
+					"flag-a": {
+						enabled: true,
+						value: true,
+						payload: null,
+						reason: "MATCH",
+					},
+					"flag-b": {
+						enabled: false,
+						value: false,
+						payload: null,
+						reason: "NO_MATCH",
+					},
 				});
 				return storage.getAll();
 			});
@@ -147,81 +35,52 @@ test.describe("BrowserFlagStorage", () => {
 			expect(result["flag-b"].enabled).toBe(false);
 		});
 
-		test("excludes expired entries from getAll", async ({ page }) => {
+		test("returns empty object when nothing stored", async ({ page }) => {
 			const result = await page.evaluate(() => {
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("valid-flag", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-
-				localStorage.setItem(
-					"db-flag-expired-flag",
-					JSON.stringify({
-						value: {
-							enabled: true,
-							value: true,
-							payload: null,
-							reason: "MATCH",
-						},
-						expiresAt: Date.now() - 1,
-					})
-				);
-
 				return storage.getAll();
 			});
 
-			expect(result["valid-flag"]).toBeDefined();
-			expect(result["expired-flag"]).toBeUndefined();
+			expect(Object.keys(result)).toHaveLength(0);
 		});
 
-		test("only returns entries with db-flag- prefix", async ({ page }) => {
+		test("uses single db-flags key in localStorage", async ({ page }) => {
 			const result = await page.evaluate(() => {
-				localStorage.setItem("other-key", "should-not-appear");
-				localStorage.setItem("did", "anon-id");
-
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("real-flag", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
+				storage.setAll({
+					"test-flag": {
+						enabled: true,
+						value: "hello",
+						payload: null,
+						reason: "MATCH",
+					},
 				});
-
-				const all = storage.getAll();
 				return {
-					keys: Object.keys(all),
-					hasRealFlag: "real-flag" in all,
+					hasKey: localStorage.getItem("db-flags") !== null,
+					keyCount: Object.keys(localStorage).filter((k) =>
+						k.startsWith("db-flag")
+					).length,
 				};
 			});
 
-			expect(result.hasRealFlag).toBe(true);
-			expect(result.keys).not.toContain("other-key");
-			expect(result.keys).not.toContain("did");
+			expect(result.hasKey).toBe(true);
+			expect(result.keyCount).toBe(1);
 		});
-	});
 
-	test.describe("setAll", () => {
-		test("sets all flags and removes old ones", async ({ page }) => {
+		test("overwrites previous flags on setAll", async ({ page }) => {
 			const result = await page.evaluate(() => {
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("old-flag", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-
 				storage.setAll({
-					"new-flag-a": {
+					"old-flag": {
 						enabled: true,
 						value: true,
 						payload: null,
 						reason: "MATCH",
 					},
-					"new-flag-b": {
+				});
+
+				storage.setAll({
+					"new-flag": {
 						enabled: false,
 						value: false,
 						payload: null,
@@ -232,27 +91,118 @@ test.describe("BrowserFlagStorage", () => {
 				return storage.getAll();
 			});
 
-			expect(result["new-flag-a"]).toBeDefined();
-			expect(result["new-flag-b"]).toBeDefined();
+			expect(result["new-flag"]).toBeDefined();
 			expect(result["old-flag"]).toBeUndefined();
+		});
+
+		test("preserves variant and payload in round-trip", async ({ page }) => {
+			const result = await page.evaluate(() => {
+				const storage = new window.__SDK__.BrowserFlagStorage();
+				storage.setAll({
+					"var-flag": {
+						enabled: true,
+						value: "treatment-a",
+						payload: { color: "red", size: 42 },
+						reason: "MATCH",
+						variant: "treatment-a",
+					},
+				});
+				return storage.getAll();
+			});
+
+			expect(result["var-flag"].value).toBe("treatment-a");
+			expect(result["var-flag"].variant).toBe("treatment-a");
+			expect(result["var-flag"].payload).toEqual({ color: "red", size: 42 });
+		});
+	});
+
+	test.describe("TTL expiration", () => {
+		test("returns empty for expired blob", async ({ page }) => {
+			const result = await page.evaluate(() => {
+				localStorage.setItem(
+					"db-flags",
+					JSON.stringify({
+						flags: {
+							"expired-flag": {
+								enabled: true,
+								value: true,
+								payload: null,
+								reason: "MATCH",
+							},
+						},
+						savedAt: Date.now() - 100_000_000,
+					})
+				);
+
+				const storage = new window.__SDK__.BrowserFlagStorage();
+				return storage.getAll();
+			});
+
+			expect(Object.keys(result)).toHaveLength(0);
+		});
+
+		test("removes expired blob from localStorage", async ({ page }) => {
+			const exists = await page.evaluate(() => {
+				localStorage.setItem(
+					"db-flags",
+					JSON.stringify({
+						flags: {
+							old: {
+								enabled: true,
+								value: true,
+								payload: null,
+								reason: "MATCH",
+							},
+						},
+						savedAt: Date.now() - 100_000_000,
+					})
+				);
+
+				const storage = new window.__SDK__.BrowserFlagStorage();
+				storage.getAll();
+				return localStorage.getItem("db-flags");
+			});
+
+			expect(exists).toBeNull();
+		});
+
+		test("returns flags when blob is not expired", async ({ page }) => {
+			const result = await page.evaluate(() => {
+				localStorage.setItem(
+					"db-flags",
+					JSON.stringify({
+						flags: {
+							fresh: {
+								enabled: true,
+								value: true,
+								payload: null,
+								reason: "MATCH",
+							},
+						},
+						savedAt: Date.now(),
+					})
+				);
+
+				const storage = new window.__SDK__.BrowserFlagStorage();
+				return storage.getAll();
+			});
+
+			expect(result.fresh).toBeDefined();
+			expect(result.fresh.enabled).toBe(true);
 		});
 	});
 
 	test.describe("clear", () => {
-		test("removes all flag entries", async ({ page }) => {
+		test("removes the db-flags key", async ({ page }) => {
 			const result = await page.evaluate(() => {
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("flag-1", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				storage.set("flag-2", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
+				storage.setAll({
+					"flag-1": {
+						enabled: true,
+						value: true,
+						payload: null,
+						reason: "MATCH",
+					},
 				});
 
 				localStorage.setItem("non-flag-key", "preserved");
@@ -270,111 +220,28 @@ test.describe("BrowserFlagStorage", () => {
 		});
 	});
 
-	test.describe("delete", () => {
-		test("removes a single flag", async ({ page }) => {
+	test.describe("corrupt data", () => {
+		test("returns empty for corrupt JSON blob", async ({ page }) => {
 			const result = await page.evaluate(() => {
+				localStorage.setItem("db-flags", "not valid json {{{");
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("keep", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				storage.set("remove", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-
-				storage.delete("remove");
 				return storage.getAll();
 			});
 
-			expect(result["keep"]).toBeDefined();
-			expect(result["remove"]).toBeUndefined();
+			expect(Object.keys(result)).toHaveLength(0);
 		});
 
-		test("deleteMultiple removes multiple flags", async ({ page }) => {
+		test("handles blob with missing flags field", async ({ page }) => {
 			const result = await page.evaluate(() => {
+				localStorage.setItem(
+					"db-flags",
+					JSON.stringify({ savedAt: Date.now() })
+				);
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("a", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				storage.set("b", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-				storage.set("c", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-
-				storage.deleteMultiple(["a", "b"]);
 				return storage.getAll();
 			});
 
-			expect(result["a"]).toBeUndefined();
-			expect(result["b"]).toBeUndefined();
-			expect(result["c"]).toBeDefined();
-		});
-	});
-
-	test.describe("cleanupExpired", () => {
-		test("removes only expired entries", async ({ page }) => {
-			const result = await page.evaluate(() => {
-				const storage = new window.__SDK__.BrowserFlagStorage();
-				storage.set("valid", {
-					enabled: true,
-					value: true,
-					payload: null,
-					reason: "MATCH",
-				});
-
-				localStorage.setItem(
-					"db-flag-expired-1",
-					JSON.stringify({
-						value: {
-							enabled: true,
-							value: true,
-							payload: null,
-							reason: "MATCH",
-						},
-						expiresAt: Date.now() - 1000,
-					})
-				);
-				localStorage.setItem(
-					"db-flag-expired-2",
-					JSON.stringify({
-						value: {
-							enabled: true,
-							value: true,
-							payload: null,
-							reason: "MATCH",
-						},
-						expiresAt: Date.now() - 500,
-					})
-				);
-
-				storage.cleanupExpired();
-
-				return {
-					all: storage.getAll(),
-					expired1: localStorage.getItem("db-flag-expired-1"),
-					expired2: localStorage.getItem("db-flag-expired-2"),
-				};
-			});
-
-			expect(result.all["valid"]).toBeDefined();
-			expect(result.expired1).toBeNull();
-			expect(result.expired2).toBeNull();
+			expect(Object.keys(result)).toHaveLength(0);
 		});
 	});
 });

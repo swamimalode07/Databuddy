@@ -6,7 +6,7 @@ import {
 	waitForSDK,
 } from "./test-utils";
 
-test.describe("CoreFlagsManager", () => {
+test.describe("BrowserFlagsManager", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.route(
 			"**/api.databuddy.cc/public/v1/flags/**",
@@ -70,7 +70,7 @@ test.describe("CoreFlagsManager", () => {
 	test.describe("initialization", () => {
 		test("creates manager and reaches ready state", async ({ page }) => {
 			const ready = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				await new Promise((r) => setTimeout(r, 50));
@@ -98,7 +98,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id" },
 				});
 				await new Promise((r) => setTimeout(r, 200));
@@ -123,7 +123,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				await new Promise((r) => setTimeout(r, 200));
@@ -137,7 +137,7 @@ test.describe("CoreFlagsManager", () => {
 	test.describe("getFlag", () => {
 		test("fetches and returns an enabled flag", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const flag = await manager.getFlag("feature-on");
@@ -152,7 +152,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("fetches and returns a disabled flag", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const flag = await manager.getFlag("feature-off");
@@ -168,7 +168,7 @@ test.describe("CoreFlagsManager", () => {
 			page,
 		}) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const flag = await manager.getFlag("feature-variant");
@@ -183,7 +183,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("returns default when disabled", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false, disabled: true },
 				});
 				const flag = await manager.getFlag("feature-on");
@@ -197,7 +197,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("returns pending when isPending is true", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						autoFetch: false,
@@ -217,7 +217,7 @@ test.describe("CoreFlagsManager", () => {
 	test.describe("isEnabled (synchronous)", () => {
 		test("returns loading state for uncached flag", async ({ page }) => {
 			const state = await page.evaluate(() => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const result = manager.isEnabled("uncached-flag");
@@ -232,7 +232,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("returns ready state for cached flag", async ({ page }) => {
 			const state = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				await manager.getFlag("feature-on");
@@ -250,7 +250,7 @@ test.describe("CoreFlagsManager", () => {
 	test.describe("getValue", () => {
 		test("returns cached value", async ({ page }) => {
 			const value = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				await manager.getFlag("feature-variant");
@@ -264,7 +264,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("returns default for uncached flag", async ({ page }) => {
 			const value = await page.evaluate(() => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const result = manager.getValue("unknown-flag", 42);
@@ -289,7 +289,7 @@ test.describe("CoreFlagsManager", () => {
 					return originalFetch(...args);
 				};
 
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						autoFetch: false,
@@ -314,7 +314,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("cache expires after TTL", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						autoFetch: false,
@@ -367,7 +367,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 
@@ -407,7 +407,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						user: { userId: "user-123", email: "test@example.com" },
@@ -440,7 +440,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						user: { userId: "user-1" },
@@ -476,7 +476,7 @@ test.describe("CoreFlagsManager", () => {
 
 			await page.evaluate(async () => {
 				localStorage.removeItem("did");
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id" },
 				});
 				await new Promise((r) => setTimeout(r, 200));
@@ -505,7 +505,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id" },
 				});
 				await new Promise((r) => setTimeout(r, 200));
@@ -521,7 +521,7 @@ test.describe("CoreFlagsManager", () => {
 		}) => {
 			const result = await page.evaluate(async () => {
 				const storage = new window.__SDK__.BrowserFlagStorage();
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id" },
 					storage,
 				});
@@ -547,7 +547,7 @@ test.describe("CoreFlagsManager", () => {
 
 		test("destroy clears cache and stops batching", async ({ page }) => {
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				await manager.getFlag("feature-on");
@@ -571,7 +571,7 @@ test.describe("CoreFlagsManager", () => {
 	test.describe("getMemoryFlags", () => {
 		test("returns all cached flags", async ({ page }) => {
 			const flags = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id" },
 				});
 				await new Promise((r) => setTimeout(r, 300));
@@ -597,7 +597,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			const result = await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", autoFetch: false },
 				});
 				const flag = await manager.getFlag("feature-on");
@@ -630,7 +630,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", disabled: true },
 				});
 				await new Promise((r) => setTimeout(r, 100));
@@ -661,7 +661,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: { clientId: "test-id", isPending: true },
 				});
 				await new Promise((r) => setTimeout(r, 100));
@@ -690,7 +690,7 @@ test.describe("CoreFlagsManager", () => {
 			);
 
 			await page.evaluate(async () => {
-				const manager = new window.__SDK__.CoreFlagsManager({
+				const manager = new window.__SDK__.BrowserFlagsManager({
 					config: {
 						clientId: "test-id",
 						environment: "staging",

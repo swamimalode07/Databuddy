@@ -24,18 +24,6 @@ function bulkOnlyRoute(
 			return;
 		}
 
-		if (url.pathname.includes("/evaluate")) {
-			const key = url.searchParams.get("key") ?? "";
-			const flags = handler([key]);
-			const one = flags[key] ?? MOCK_FLAG_DISABLED;
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify(one),
-			});
-			return;
-		}
-
 		await route.fulfill({
 			status: 404,
 			body: "not found",
@@ -43,53 +31,7 @@ function bulkOnlyRoute(
 	});
 }
 
-test.describe("CoreFlagsManager — edge cases", () => {
-	test("callbacks: onReady, onFlagsUpdate, onConfigUpdate", async ({ page }) => {
-		let bulkHits = 0;
-		await bulkOnlyRoute(page, (keys) => {
-			bulkHits++;
-			return Object.fromEntries(
-				keys.map((k) => [k, MOCK_FLAG_ENABLED])
-			);
-		});
-
-		await page.goto("/test");
-		await waitForSDK(page);
-
-		const result = await page.evaluate(async () => {
-			const events: string[] = [];
-			const SDK = window.__SDK__;
-
-			const manager = new SDK.CoreFlagsManager({
-				config: { clientId: "cb-test", autoFetch: true },
-				onReady: () => {
-					events.push("ready");
-				},
-				onFlagsUpdate: () => {
-					events.push("flags");
-				},
-				onConfigUpdate: () => {
-					events.push("config");
-				},
-			});
-
-			await new Promise((r) => setTimeout(r, 300));
-			manager.updateConfig({
-				clientId: "cb-test",
-				environment: "staging",
-			});
-			await new Promise((r) => setTimeout(r, 100));
-			manager.destroy();
-
-			return { events };
-		});
-
-		expect(result.events).toContain("ready");
-		expect(result.events).toContain("flags");
-		expect(result.events).toContain("config");
-		expect(bulkHits).toBeGreaterThanOrEqual(1);
-	});
-
+test.describe("BrowserFlagsManager — edge cases", () => {
 	test("skipStorage: does not hydrate cache from BrowserFlagStorage", async ({
 		page,
 	}) => {
@@ -103,14 +45,16 @@ test.describe("CoreFlagsManager — edge cases", () => {
 		const result = await page.evaluate(async () => {
 			const SDK = window.__SDK__;
 			const storage = new SDK.BrowserFlagStorage();
-			storage.set("preseed", {
-				enabled: true,
-				value: true,
-				payload: null,
-				reason: "MATCH",
+			storage.setAll({
+				preseed: {
+					enabled: true,
+					value: true,
+					payload: null,
+					reason: "MATCH",
+				},
 			});
 
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "skip-test", autoFetch: false, skipStorage: true },
 				storage,
 			});
@@ -143,7 +87,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 			const SDK = window.__SDK__;
 			const kA = SDK.getCacheKey("shared-flag", { userId: "user-a" });
 			const kB = SDK.getCacheKey("shared-flag", { userId: "user-b" });
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: {
 					clientId: "u-test",
 					autoFetch: false,
@@ -194,7 +138,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "dedup-test", autoFetch: false },
 			});
 
@@ -232,7 +176,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		const result = await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "colon-test", autoFetch: false },
 			});
 
@@ -278,7 +222,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		const result = await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "empty-bulk", autoFetch: false },
 			});
 
@@ -326,7 +270,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		const result = await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "err-status", autoFetch: false },
 			});
 
@@ -365,7 +309,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "vis-test", autoFetch: false },
 			});
 			await manager.fetchAllFlags();
@@ -421,7 +365,7 @@ test.describe("CoreFlagsManager — edge cases", () => {
 
 		const result = await page.evaluate(async () => {
 			const SDK = window.__SDK__;
-			const manager = new SDK.CoreFlagsManager({
+			const manager = new SDK.BrowserFlagsManager({
 				config: { clientId: "net-fail", autoFetch: false },
 			});
 
@@ -437,54 +381,5 @@ test.describe("CoreFlagsManager — edge cases", () => {
 		});
 
 		expect(result.rejected).toBe(true);
-	});
-
-	test("fetchFlag returns ERROR shape on non-OK response", async ({ page }) => {
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			await route.fulfill({ status: 500, body: "err" });
-		});
-
-		await page.goto("/test");
-		await waitForSDK(page);
-
-		const result = await page.evaluate(async () => {
-			const SDK = window.__SDK__;
-			const params = new URLSearchParams();
-			params.set("clientId", "c1");
-			const r = await SDK.fetchFlag(
-				"https://api.databuddy.cc",
-				"my-key",
-				params
-			);
-			return { reason: r.reason, enabled: r.enabled };
-		});
-
-		expect(result.reason).toBe("ERROR");
-		expect(result.enabled).toBe(false);
-	});
-
-	test("retryWithBackoff succeeds after transient failures", async ({ page }) => {
-		await page.goto("/test");
-		await waitForSDK(page);
-
-		const result = await page.evaluate(async () => {
-			const SDK = window.__SDK__;
-			let n = 0;
-			const value = await SDK.retryWithBackoff(
-				async () => {
-					n++;
-					if (n < 3) {
-						throw new Error("fail");
-					}
-					return "ok";
-				},
-				5,
-				1
-			);
-			return { value, attempts: n };
-		});
-
-		expect(result.value).toBe("ok");
-		expect(result.attempts).toBe(3);
 	});
 });
