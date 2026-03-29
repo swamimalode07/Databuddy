@@ -27,13 +27,18 @@ function HeatmapCell({
 	day,
 	isActive,
 	interactive,
+	ref,
+	...rest
 }: {
 	day: UptimeHeatmapDay;
 	isActive: boolean;
 	interactive: boolean;
-}) {
+	ref?: React.Ref<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement>) {
 	return (
 		<div
+			ref={ref}
+			{...rest}
 			className={cn(
 				"h-full flex-1 rounded-sm transition-colors",
 				getUptimeHeatmapCellClass({
@@ -41,7 +46,8 @@ function HeatmapCell({
 					hasData: day.hasData,
 					isActive,
 					interactive,
-				})
+				}),
+				rest.className
 			)}
 		/>
 	);
@@ -81,11 +87,7 @@ export function UptimeHeatmapStrip({
 				return (
 					<Tooltip key={day.dateStr} skipProvider>
 						<TooltipTrigger asChild>
-							<HeatmapCell
-								day={day}
-								interactive
-								isActive={isActive}
-							/>
+							<HeatmapCell day={day} interactive isActive={isActive} />
 						</TooltipTrigger>
 						<TooltipContent
 							className={cn(uptimeHeatmapTooltipContentClassName)}
