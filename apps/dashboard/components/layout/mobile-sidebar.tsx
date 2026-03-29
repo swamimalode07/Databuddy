@@ -21,14 +21,18 @@ import { Button } from "@/components/ui/button";
 import { useCommandSearchOpenAction } from "@/components/ui/command-search";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useMonitorsLight } from "@/hooks/use-monitors";
+import type { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import { Branding } from "./logo";
+import { isNavItemActive } from "./navigation/nav-item-active";
 import {
 	categoryConfig,
+	createLoadingMonitorsNavigation,
 	createLoadingWebsitesNavigation,
+	createMonitorsNavigation,
 	createWebsitesNavigation,
 	filterCategoriesByFlags,
 	filterCategoriesForRoute,
@@ -36,7 +40,6 @@ import {
 	getDefaultCategory,
 } from "./navigation/navigation-config";
 import { NavigationItem } from "./navigation/navigation-item";
-import { isNavItemActive } from "./navigation/nav-item-active";
 import { NavigationSection } from "./navigation/navigation-section";
 import type {
 	NavigationEntry,
@@ -125,6 +128,9 @@ export function MobileSidebar({
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
 		enabled: user !== null,
 	});
+	const { monitors, isLoading: isLoadingMonitors } = useMonitorsLight({
+		enabled: user !== null,
+	});
 
 	useEffect(() => {
 		setIsOpen(false);
@@ -141,6 +147,9 @@ export function MobileSidebar({
 							home: isLoadingWebsites
 								? createLoadingWebsitesNavigation()
 								: createWebsitesNavigation(websites),
+							monitors: isLoadingMonitors
+								? createLoadingMonitorsNavigation()
+								: createMonitorsNavigation(monitors),
 						},
 					}
 				: baseConfig;
@@ -150,7 +159,15 @@ export function MobileSidebar({
 			hasMounted,
 			getFlag
 		);
-	}, [pathname, websites, isLoadingWebsites, hasMounted, getFlag]);
+	}, [
+		pathname,
+		websites,
+		isLoadingWebsites,
+		monitors,
+		isLoadingMonitors,
+		hasMounted,
+		getFlag,
+	]);
 
 	const defaultCategory = useMemo(
 		() => getDefaultCategory(pathname),

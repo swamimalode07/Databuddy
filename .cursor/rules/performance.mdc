@@ -24,6 +24,9 @@ When you discover a new performance improvement, optimization pattern, or fix a 
 ## Caching layers
 
 - **In-process**: `lru-cache` (Map + TTL) in front of Redis — eliminates network round-trip on hot paths, sub-millisecond reads
+- Use `NULL_SENTINEL` pattern (`Object.freeze({ __null: true })`) to cache negative lookups in LRU — avoids repeated Redis/DB calls for non-existent keys
+- Cache pure CPU work (UA parsing, bot detection, ETag hashing, geo lookups) in LRU — these repeat with the same inputs across requests
+- Cache dedup/idempotency results in LRU — once a write is known to be a no-op (e.g. click already recorded), skip the Redis check entirely on repeat calls
 - **Next.js layer**: `unstable_cache` with `revalidate` and `tags` for page-level data
 - **API layer**: Redis `cacheable` wrapper with `staleWhileRevalidate` to absorb concurrent requests
 - **CDN layer**: `Cache-Control: public, s-maxage=N, stale-while-revalidate=M` headers for edge caching
@@ -48,7 +51,16 @@ When you discover a new performance improvement, optimization pattern, or fix a 
 - Skip rendering expensive wrappers (e.g. `Tooltip`, `TooltipProvider`) when not needed — check a boolean prop first
 - Use `useMemo` for derived data that's expensive to compute from props
 
+## Layout shift prevention
+
+- Derive loading booleans from query state instead of managing with `useState`/`useEffect` — e.g. `allItems.length === 0 && (isPending || isFetching)` instead of a manually toggled `isInitialLoad` flag
+- Show `Skeleton` placeholders at the exact dimensions of real content for data-dependent cells — never render text that changes (e.g. "Unknown" → "Operational")
+- Use `min-h-*` on containers whose content loads asynchronously to reserve stable space
+- Avoid conditional banners/bars that insert/remove height — fold the info into existing UI (header buttons, stat rows) instead
+- Loading skeletons should structurally match the real page: same sections, same heights, same padding — include placeholders for dynamically loaded chunks (e.g. `LatencyChartChunkPlaceholder`)
+
 ## Perceived performance
 
 - Add `loading.tsx` skeletons for routes that may take time to generate
 - Use `router.refresh()` with a countdown for auto-refresh instead of full page reloads
+- Gate skeleton → page transition on the fastest critical query, then show inline skeletons for remaining data — avoids blocking on the slowest query while preventing staggered pop-in

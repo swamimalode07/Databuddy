@@ -16,6 +16,21 @@ This file is **intentionally small**. It grows as we lock patterns. **Interactio
 - **Typography:** Headings `text-balance`, body `text-pretty`, numeric data `tabular-nums` (see ui-guidelines).
 - **Primitives:** Use existing app primitives (Base UI / Radix / project components) before inventing new ones (see ui-guidelines).
 
+## Detail page metadata bars
+
+- Use a compact inline `flex` bar at `min-h-10` / `py-2.5` (40px, matching sidebar item height and the 10px spacing grid) for metadata like status, frequency, timestamps.
+- Stat items are inline `flex items-center gap-1.5` with `text-xs` labels in `text-muted-foreground` and `font-medium` values in `text-foreground`.
+- Status uses a dot (`size-1.5 rounded`) + colored text — not a `Badge` — for compactness.
+- Use `flex-wrap` with `gap-x-5 gap-y-1` so the bar wraps cleanly on mobile without breaking the 10px grid.
+- Canonical reference: `apps/dashboard/app/(main)/monitors/[id]/page.tsx` → `StatusIndicator` + stats bar.
+
+## Row items (list pages)
+
+- Row wrapper: single `<Link>` as root, `group flex w-full items-center gap-3 border-b px-3 py-3 transition-colors hover:bg-accent/50 sm:gap-4 sm:px-4`.
+- Leading icon: `size-9` container with `rounded border bg-card`, `FaviconImage` at `size={18}` with a Phosphor fallback.
+- Actions: `size-7` ghost button, `opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100`, wrapped in a stop-propagation `div`.
+- Canonical reference: `components/monitors/monitor-row.tsx`, `apps/dashboard/app/(main)/links/_components/link-item.tsx`.
+
 ## Where patterns live
 
 - Dashboard UI: `apps/dashboard/` (components co-located with features unless shared).

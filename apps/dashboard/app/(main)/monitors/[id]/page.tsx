@@ -3,8 +3,6 @@
 import {
 	ArrowClockwiseIcon,
 	ArrowLeftIcon,
-	ArrowSquareOutIcon,
-	CopyIcon,
 	GlobeIcon,
 	HeartbeatIcon,
 	PauseIcon,
@@ -20,9 +18,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { MonitorDetailLoading } from "@/app/(main)/monitors/_components/monitor-detail-loading";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
+import { FaviconImage } from "@/components/analytics/favicon-image";
 import { EmptyState } from "@/components/empty-state";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
-import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,15 +31,15 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
 import { fromNow, localDayjs } from "@/lib/time";
 import { LatencyChartChunkPlaceholder } from "@/lib/uptime/latency-chart-chunk-placeholder";
 import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
+import { cn } from "@/lib/utils";
 import {
 	RecentActivity,
 	type RecentActivityCheck,
@@ -90,21 +88,77 @@ interface ScheduleData {
 	} | null;
 }
 
+function resolveStatus(check: RecentActivityCheck | undefined) {
+	if (!check) {
+		return "unknown" as const;
+	}
+	if (check.status === 1) {
+		return "up" as const;
+	}
+	if (check.status === 2) {
+		return "unknown" as const;
+	}
+	if (check.http_code > 0 && check.http_code < 500) {
+		return "degraded" as const;
+	}
+	return "down" as const;
+}
+
+function StatusIndicator({
+	status,
+	isPaused,
+}: {
+	status: ReturnType<typeof resolveStatus>;
+	isPaused: boolean;
+}) {
+	const config = {
+		up: {
+			label: "Operational",
+			dot: "bg-emerald-500",
+			text: "text-emerald-600",
+		},
+		degraded: {
+			label: "Degraded",
+			dot: "bg-amber-500",
+			text: "text-amber-600",
+		},
+		down: { label: "Outage", dot: "bg-red-500", text: "text-red-600" },
+		unknown: {
+			label: "Unknown",
+			dot: "bg-muted-foreground",
+			text: "text-muted-foreground",
+		},
+	};
+
+	const c = isPaused
+		? {
+				label: "Paused",
+				dot: "bg-muted-foreground",
+				text: "text-muted-foreground",
+			}
+		: config[status];
+
+	return (
+		<span className={cn("flex items-center gap-1.5 font-medium", c.text)}>
+			<span className={cn("inline-block size-1.5 shrink-0 rounded", c.dot)} />
+			{c.label}
+		</span>
+	);
+}
+
 export default function MonitorDetailsPage() {
 	const { id: scheduleId } = useParams();
 	const router = useRouter();
-	const { activeOrganization } = useOrganizationsContext();
 	const { dateRange } = useDateFilters();
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+	const [isSheetOpen, setIsSheetOpen] = useState(false);
 	const [editingSchedule, setEditingSchedule] = useState<{
 		id: string;
 		url: string;
 		name?: string | null;
 		granularity: string;
 		isPublic?: boolean;
-		jsonParsingConfig?: {
-			enabled: boolean;
-		} | null;
+		jsonParsingConfig?: { enabled: boolean } | null;
 	} | null>(null);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const [isPausing, setIsPausing] = useState(false);
@@ -117,8 +171,6 @@ export default function MonitorDetailsPage() {
 		useState<HTMLTableCellElement | null>(null);
 	const [recentScrollContainerRef, setRecentScrollContainerRef] =
 		useState<HTMLDivElement | null>(null);
-	const [isRecentChecksInitialLoad, setIsRecentChecksInitialLoad] =
-		useState(true);
 
 	const {
 		data: rawSchedule,
@@ -133,6 +185,16 @@ export default function MonitorDetailsPage() {
 	});
 
 	const schedule = rawSchedule as ScheduleData | undefined;
+	const hasMonitor = !!schedule;
+
+	const queryIdOptions = useMemo(() => {
+		if (!schedule) {
+			return { scheduleId: scheduleId as string };
+		}
+		return schedule.websiteId
+			? { websiteId: schedule.websiteId }
+			: { scheduleId: schedule.id };
+	}, [schedule, scheduleId]);
 
 	const pauseMutation = useMutation({
 		...orpc.uptime.pauseSchedule.mutationOptions(),
@@ -147,19 +209,8 @@ export default function MonitorDetailsPage() {
 		...orpc.statusPage.togglePublicMonitor.mutationOptions(),
 	});
 
-	const hasMonitor = !!schedule;
+	// --- Recent checks (paginated) ---
 
-	// Build query options - use websiteId for website monitors, scheduleId for custom monitors
-	const queryIdOptions = useMemo(() => {
-		if (!schedule) {
-			return { scheduleId: scheduleId as string };
-		}
-		return schedule.websiteId
-			? { websiteId: schedule.websiteId }
-			: { scheduleId: schedule.id };
-	}, [schedule, scheduleId]);
-
-	// Fetch uptime analytics data (paginated for infinite scroll)
 	const uptimeQueries = useMemo(
 		() => [
 			{
@@ -193,10 +244,90 @@ export default function MonitorDetailsPage() {
 		return Array.isArray(raw) ? (raw as RecentActivityCheck[]) : [];
 	}, [uptimeBatchResults]);
 
+	// Derived loading state — no manual tracking needed
+	const isInitialChecksLoading =
+		allRecentChecks.length === 0 &&
+		(isPendingUptimeChecks || isFetchingUptimeChecks);
+
+	// --- Heatmap ---
+
+	const heatmapDateRange = useMemo(
+		() => ({
+			start_date: localDayjs()
+				.subtract(89, "day")
+				.startOf("day")
+				.format("YYYY-MM-DD"),
+			end_date: localDayjs().startOf("day").format("YYYY-MM-DD"),
+			granularity: "daily" as const,
+		}),
+		[]
+	);
+
+	const heatmapQueries = useMemo(
+		() => [
+			{
+				id: "uptime-heatmap",
+				parameters: ["uptime_time_series"],
+				granularity: "daily" as const,
+			},
+		],
+		[]
+	);
+
+	const {
+		getDataForQuery: getHeatmapData,
+		refetch: refetchHeatmapData,
+		isLoading: isLoadingHeatmap,
+	} = useBatchDynamicQuery(queryIdOptions, heatmapDateRange, heatmapQueries, {
+		enabled: hasMonitor,
+	});
+
+	const heatmapData =
+		getHeatmapData("uptime-heatmap", "uptime_time_series") || [];
+
+	// --- Latency chart ---
+
+	const latencyDateRange = useMemo(() => {
+		const days = localDayjs(dateRange.end_date).diff(
+			localDayjs(dateRange.start_date),
+			"day"
+		);
+		const granularity: "hourly" | "daily" = days <= 7 ? "hourly" : "daily";
+		return {
+			start_date: dateRange.start_date,
+			end_date: dateRange.end_date,
+			granularity,
+		};
+	}, [dateRange]);
+
+	const latencyQueries = useMemo(
+		() => [
+			{
+				id: "uptime-latency",
+				parameters: ["uptime_response_time_trends"],
+			},
+		],
+		[]
+	);
+
+	const {
+		getDataForQuery: getLatencyData,
+		isLoading: isLoadingLatency,
+		refetch: refetchLatencyData,
+	} = useBatchDynamicQuery(queryIdOptions, latencyDateRange, latencyQueries, {
+		enabled: hasMonitor,
+	});
+
+	const latencyData = getLatencyData(
+		"uptime-latency",
+		"uptime_response_time_trends"
+	);
+
+	// --- Pagination effects ---
+
 	useEffect(() => {
 		setRecentChecksPage(1);
 		setAllRecentChecks([]);
-		setIsRecentChecksInitialLoad(true);
 	}, [dateRange, scheduleId]);
 
 	const recentChecksHasNext =
@@ -240,10 +371,6 @@ export default function MonitorDetailsPage() {
 
 	useEffect(() => {
 		if (pageRecentChecks.length === 0) {
-			if (recentChecksPage === 1 && !isFetchingUptimeChecks) {
-				setAllRecentChecks([]);
-				setIsRecentChecksInitialLoad(false);
-			}
 			return;
 		}
 
@@ -262,100 +389,31 @@ export default function MonitorDetailsPage() {
 			}
 			return merged;
 		});
-		setIsRecentChecksInitialLoad(false);
-	}, [pageRecentChecks, recentChecksPage, isFetchingUptimeChecks]);
+	}, [pageRecentChecks, recentChecksPage]);
 
-	const heatmapDateRange = useMemo(
-		() => ({
-			start_date: localDayjs()
-				.subtract(89, "day")
-				.startOf("day")
-				.format("YYYY-MM-DD"),
-			end_date: localDayjs().startOf("day").format("YYYY-MM-DD"),
-			granularity: "daily" as const,
-		}),
-		[]
-	);
-
-	const heatmapQueries = useMemo(
-		() => [
-			{
-				id: "uptime-heatmap",
-				parameters: ["uptime_time_series"],
-				granularity: "daily" as const,
-			},
-		],
-		[]
-	);
-
-	const {
-		getDataForQuery: getHeatmapData,
-		refetch: refetchHeatmapData,
-		isLoading: isLoadingHeatmap,
-	} = useBatchDynamicQuery(queryIdOptions, heatmapDateRange, heatmapQueries, {
-		enabled: hasMonitor,
-	});
-
-	const heatmapData =
-		getHeatmapData("uptime-heatmap", "uptime_time_series") || [];
-
-	const latencyDateRange = useMemo(() => {
-		const days = localDayjs(dateRange.end_date).diff(
-			localDayjs(dateRange.start_date),
-			"day"
-		);
-		const granularity: "hourly" | "daily" = days <= 7 ? "hourly" : "daily";
-		return {
-			start_date: dateRange.start_date,
-			end_date: dateRange.end_date,
-			granularity,
-		};
-	}, [dateRange]);
-
-	const latencyQueries = useMemo(
-		() => [
-			{
-				id: "uptime-latency",
-				parameters: ["uptime_response_time_trends"],
-			},
-		],
-		[]
-	);
-
-	const {
-		getDataForQuery: getLatencyData,
-		isLoading: isLoadingLatency,
-		refetch: refetchLatencyData,
-	} = useBatchDynamicQuery(queryIdOptions, latencyDateRange, latencyQueries, {
-		enabled: hasMonitor,
-	});
-
-	const latencyData = getLatencyData(
-		"uptime-latency",
-		"uptime_response_time_trends"
-	);
+	// --- Handlers ---
 
 	const handleEditMonitor = () => {
-		if (schedule) {
-			setEditingSchedule({
-				id: schedule.id,
-				url: schedule.url,
-				name: schedule.name,
-				granularity: schedule.granularity,
-				isPublic: schedule.isPublic,
-				jsonParsingConfig: schedule.jsonParsingConfig as {
-					enabled: boolean;
-				} | null,
-			});
-			setIsDialogOpen(true);
+		if (!schedule) {
+			return;
 		}
+		setEditingSchedule({
+			id: schedule.id,
+			url: schedule.url,
+			name: schedule.name,
+			granularity: schedule.granularity,
+			isPublic: schedule.isPublic,
+			jsonParsingConfig: schedule.jsonParsingConfig as {
+				enabled: boolean;
+			} | null,
+		});
+		setIsSheetOpen(true);
 	};
 
 	const handleTogglePause = async () => {
 		if (!schedule) {
 			return;
 		}
-
 		setIsPausing(true);
 		try {
 			if (schedule.isPaused) {
@@ -375,7 +433,7 @@ export default function MonitorDetailsPage() {
 	};
 
 	const handleMonitorSaved = async () => {
-		setIsDialogOpen(false);
+		setIsSheetOpen(false);
 		setEditingSchedule(null);
 		await refetchSchedule();
 	};
@@ -384,7 +442,6 @@ export default function MonitorDetailsPage() {
 		if (!schedule) {
 			return;
 		}
-
 		try {
 			await deleteMutation.mutateAsync({ scheduleId: schedule.id });
 			toast.success("Monitor deleted successfully");
@@ -400,7 +457,6 @@ export default function MonitorDetailsPage() {
 		setIsRefreshing(true);
 		setRecentChecksPage(1);
 		setAllRecentChecks([]);
-		setIsRecentChecksInitialLoad(true);
 		try {
 			await Promise.all([
 				refetchSchedule(),
@@ -409,20 +465,15 @@ export default function MonitorDetailsPage() {
 				refetchLatencyData(),
 			]);
 		} catch {
-			// Error handled by individual refetch handlers
+			// Errors handled by individual queries
 		}
 		setIsRefreshing(false);
 	};
-
-	const statusPageUrl = activeOrganization?.slug
-		? `${globalThis.location?.origin ?? ""}/status/${activeOrganization.slug}`
-		: null;
 
 	const handleTogglePublic = async () => {
 		if (!schedule) {
 			return;
 		}
-
 		try {
 			const result = await togglePublicMutation.mutateAsync({
 				scheduleId: schedule.id,
@@ -441,12 +492,7 @@ export default function MonitorDetailsPage() {
 		}
 	};
 
-	const handleCopyStatusUrl = () => {
-		if (statusPageUrl) {
-			navigator.clipboard.writeText(statusPageUrl);
-			toast.success("Status page URL copied");
-		}
-	};
+	// --- Render ---
 
 	if (isLoadingSchedule) {
 		return <MonitorDetailLoading />;
@@ -468,18 +514,10 @@ export default function MonitorDetailsPage() {
 		);
 	}
 
-	const latestCheck = allRecentChecks[0];
-	const currentStatus: "up" | "degraded" | "down" | "unknown" = latestCheck
-		? latestCheck.status === 1
-			? "up"
-			: latestCheck.status === 2
-				? "unknown"
-				: latestCheck.http_code > 0 && latestCheck.http_code < 500
-					? "degraded"
-					: "down"
-		: "unknown";
+	const latestCheck = allRecentChecks.at(0);
+	const currentStatus = resolveStatus(latestCheck);
+	const isChecksReady = !isInitialChecksLoading;
 
-	// Determine display name - prefer website name/domain for website monitors
 	const isWebsiteMonitor = !!schedule.websiteId;
 	const displayName = isWebsiteMonitor
 		? schedule.website?.name ||
@@ -487,12 +525,26 @@ export default function MonitorDetailsPage() {
 			schedule.name ||
 			"Uptime Monitor"
 		: schedule.name || schedule.url || "Uptime Monitor";
+	const displayDomain = isWebsiteMonitor
+		? schedule.website?.domain
+		: schedule.url;
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col">
 			<PageHeader
 				description={schedule.url}
-				icon={<HeartbeatIcon />}
+				icon={
+					displayDomain ? (
+						<FaviconImage
+							altText={`${displayName} favicon`}
+							domain={displayDomain}
+							fallbackIcon={<HeartbeatIcon weight="duotone" />}
+							size={20}
+						/>
+					) : (
+						<HeartbeatIcon />
+					)
+				}
 				right={
 					<>
 						<Button
@@ -580,137 +632,58 @@ export default function MonitorDetailsPage() {
 			/>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-				{schedule.isPublic && statusPageUrl ? (
-					<div className="flex h-10 shrink-0 items-center justify-between border-b bg-emerald-500/5 px-4 py-2.5 sm:px-6">
-						<div className="flex items-center gap-2 overflow-hidden">
+				<div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-b bg-card px-4 py-2.5 text-xs sm:px-6">
+					{isChecksReady ? (
+						<StatusIndicator
+							isPaused={schedule.isPaused}
+							status={currentStatus}
+						/>
+					) : (
+						<Skeleton className="h-3.5 w-16 rounded" />
+					)}
+
+					<span className="flex items-center gap-1.5">
+						<span className="text-muted-foreground">Frequency</span>
+						<span className="font-medium text-foreground">
+							{granularityLabels[schedule.granularity] || schedule.granularity}
+						</span>
+					</span>
+
+					{isChecksReady ? (
+						latestCheck ? (
+							<span className="flex items-center gap-1.5">
+								<span className="text-muted-foreground">Last check</span>
+								<span className="font-medium text-foreground tabular-nums">
+									{fromNow(latestCheck.timestamp)}
+								</span>
+							</span>
+						) : null
+					) : (
+						<Skeleton className="h-3.5 w-24 rounded" />
+					)}
+
+					{isWebsiteMonitor && schedule.website ? (
+						<Link
+							className="flex items-center gap-1.5 text-primary hover:underline"
+							href={`/websites/${schedule.websiteId}/pulse`}
+						>
 							<GlobeIcon
-								className="size-4 shrink-0 text-emerald-600"
+								aria-hidden
+								className="size-3.5 shrink-0"
 								weight="duotone"
 							/>
-							<span className="truncate text-pretty text-muted-foreground text-xs">
-								Visible on{" "}
-								<Link
-									className="font-medium text-foreground hover:underline"
-									href={statusPageUrl}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									public status page
-								</Link>
+							<span className="truncate font-medium">
+								{schedule.website.name || schedule.website.domain}
 							</span>
-						</div>
-						<div className="flex shrink-0 items-center gap-1">
-							<Button
-								aria-label="Copy status page URL"
-								onClick={handleCopyStatusUrl}
-								size="sm"
-								variant="ghost"
-							>
-								<CopyIcon size={14} weight="duotone" />
-							</Button>
-							<Button
-								aria-label="Open status page"
-								asChild
-								size="sm"
-								variant="ghost"
-							>
-								<Link
-									href={statusPageUrl}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									<ArrowSquareOutIcon size={14} weight="duotone" />
-								</Link>
-							</Button>
-						</div>
-					</div>
-				) : null}
-
-				<div className="shrink-0 border-b bg-card px-4 py-4 sm:px-6">
-					<dl className="grid min-h-[5.25rem] gap-4 sm:grid-cols-2 lg:grid-cols-4">
-						<div className="min-w-0">
-							<dt className="text-balance text-muted-foreground text-xs">
-								Status
-							</dt>
-							<dd className="mt-1.5">
-								<Badge
-									className={cn(
-										!schedule.isPaused && currentStatus === "up" &&
-											"border-emerald-500/20 bg-emerald-500/10 text-emerald-600",
-										!schedule.isPaused && currentStatus === "degraded" &&
-											"border-amber-500/20 bg-amber-500/10 text-amber-600",
-									)}
-									variant={
-										schedule.isPaused
-											? "secondary"
-											: currentStatus === "down"
-												? "destructive"
-												: "default"
-									}
-								>
-									{schedule.isPaused
-										? "Paused"
-										: currentStatus === "down"
-											? "Outage"
-											: currentStatus === "degraded"
-												? "Degraded"
-												: currentStatus === "up"
-													? "Operational"
-													: "Unknown"}
-								</Badge>
-							</dd>
-						</div>
-						<div className="min-w-0">
-							<dt className="text-balance text-muted-foreground text-xs">
-								Check frequency
-							</dt>
-							<dd className="mt-1.5 text-pretty font-medium text-foreground text-sm">
-								{granularityLabels[schedule.granularity] ||
-									schedule.granularity}
-							</dd>
-						</div>
-						{latestCheck ? (
-							<div className="min-w-0">
-								<dt className="text-balance text-muted-foreground text-xs">
-									Last check
-								</dt>
-								<dd className="mt-1.5 text-pretty font-medium text-foreground text-sm tabular-nums">
-									{fromNow(latestCheck.timestamp)}
-								</dd>
-							</div>
-						) : (
-							<div className="min-w-0">
-								<dt className="text-balance text-muted-foreground text-xs">
-									Last check
-								</dt>
-								<dd className="mt-1.5 text-muted-foreground text-sm">
-									Waiting for data
-								</dd>
-							</div>
-						)}
-						{schedule.websiteId && schedule.website ? (
-							<div className="min-w-0 sm:col-span-2 lg:col-span-1">
-								<dt className="text-balance text-muted-foreground text-xs">
-									Website
-								</dt>
-								<dd className="mt-1.5 min-w-0">
-									<Link
-										className="inline-flex max-w-full items-center gap-1.5 text-pretty font-medium text-primary text-sm hover:underline"
-										href={`/websites/${schedule.websiteId}/pulse`}
-									>
-										<GlobeIcon
-											aria-hidden
-											className="size-4 shrink-0"
-											weight="duotone"
-										/>
-										<span className="truncate">
-											{schedule.website.name || schedule.website.domain}
-										</span>
-									</Link>
-								</dd>
-							</div>
-						) : null}
-					</dl>
+						</Link>
+					) : (
+						<span className="flex min-w-0 items-center gap-1.5">
+							<span className="text-muted-foreground">URL</span>
+							<span className="truncate font-medium text-foreground">
+								{schedule.url}
+							</span>
+						</span>
+					)}
 				</div>
 
 				<div className="shrink-0 bg-sidebar">
@@ -734,15 +707,9 @@ export default function MonitorDetailsPage() {
 						<RecentActivity
 							checks={allRecentChecks}
 							hasMore={recentChecksHasNext}
-							isLoading={
-								isRecentChecksInitialLoad &&
-								allRecentChecks.length === 0 &&
-								isPendingUptimeChecks
-							}
+							isLoading={isInitialChecksLoading}
 							isLoadingMore={
-								!isRecentChecksInitialLoad &&
-								allRecentChecks.length > 0 &&
-								isFetchingUptimeChecks
+								allRecentChecks.length > 0 && isFetchingUptimeChecks
 							}
 							loadMoreRef={setRecentLoadMoreRef}
 						/>
@@ -750,13 +717,15 @@ export default function MonitorDetailsPage() {
 				</div>
 			</div>
 
-			<MonitorSheet
-				onCloseAction={setIsDialogOpen}
-				onSaveAction={handleMonitorSaved}
-				open={isDialogOpen}
-				schedule={editingSchedule}
-				websiteId={schedule.websiteId || undefined}
-			/>
+			{isSheetOpen ? (
+				<MonitorSheet
+					onCloseAction={setIsSheetOpen}
+					onSaveAction={handleMonitorSaved}
+					open={isSheetOpen}
+					schedule={editingSchedule}
+					websiteId={schedule.websiteId || undefined}
+				/>
+			) : null}
 
 			<AlertDialog
 				onOpenChange={setIsDeleteDialogOpen}

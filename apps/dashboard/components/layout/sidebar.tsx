@@ -5,14 +5,18 @@ import { useFlags } from "@databuddy/sdk/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import { CategorySidebar } from "./category-sidebar";
 import { MobileSidebar } from "./mobile-sidebar";
+import { isNavItemActive } from "./navigation/nav-item-active";
 import {
 	categoryConfig,
+	createLoadingMonitorsNavigation,
 	createLoadingWebsitesNavigation,
+	createMonitorsNavigation,
 	createWebsitesNavigation,
 	getContextConfig,
 	getDefaultCategory,
@@ -24,7 +28,6 @@ import type {
 	NavigationItem as NavigationItemType,
 	NavigationSection as NavigationSectionType,
 } from "./navigation/types";
-import { isNavItemActive } from "./navigation/nav-item-active";
 import { WebsiteHeader } from "./navigation/website-header";
 import { OrganizationSelector } from "./organization-selector";
 
@@ -62,6 +65,9 @@ export function Sidebar() {
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
 		enabled: user !== null,
 	});
+	const { monitors, isLoading: isLoadingMonitors } = useMonitorsLight({
+		enabled: user !== null,
+	});
 	const accordionStates = useAccordionStates();
 
 	const websiteId = useMemo(
@@ -88,6 +94,9 @@ export function Sidebar() {
 							home: isLoadingWebsites
 								? createLoadingWebsitesNavigation()
 								: createWebsitesNavigation(websites),
+							monitors: isLoadingMonitors
+								? createLoadingMonitorsNavigation()
+								: createMonitorsNavigation(monitors),
 						},
 					}
 				: baseConfig;
@@ -155,6 +164,8 @@ export function Sidebar() {
 		currentWebsite,
 		websites,
 		isLoadingWebsites,
+		monitors,
+		isLoadingMonitors,
 		getFlag,
 	]);
 

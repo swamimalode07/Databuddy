@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +56,7 @@ interface MonitorRowProps {
 	onRefetchAction: () => void;
 }
 
-export function MonitorRow({
+function MonitorActions({
 	schedule,
 	onEditAction,
 	onDeleteAction,
@@ -105,6 +106,51 @@ export function MonitorRow({
 		}
 	};
 
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					aria-label="Monitor actions"
+					className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+					size="icon"
+					variant="ghost"
+				>
+					<DotsThreeIcon className="size-4" weight="bold" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end" className="w-40">
+				<DropdownMenuItem onClick={onEditAction}>
+					<PencilIcon className="size-4" weight="duotone" />
+					Edit
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					disabled={
+						isPausing || pauseMutation.isPending || resumeMutation.isPending
+					}
+					onClick={handleTogglePause}
+				>
+					<HeartbeatIcon className="size-4" weight="duotone" />
+					{schedule.isPaused ? "Resume" : "Pause"}
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					className="text-destructive focus:text-destructive"
+					disabled={deleteMutation.isPending}
+					onClick={handleDelete}
+				>
+					<TrashIcon className="size-4" weight="duotone" />
+					Delete
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+export function MonitorRow({
+	schedule,
+	onEditAction,
+	onDeleteAction,
+	onRefetchAction,
+}: MonitorRowProps) {
 	const isWebsiteMonitor = !!schedule.websiteId;
 	const displayName = isWebsiteMonitor
 		? schedule.website?.name || schedule.website?.domain || "Unknown"
@@ -112,94 +158,79 @@ export function MonitorRow({
 	const displayUrl = isWebsiteMonitor ? schedule.website?.domain : schedule.url;
 
 	return (
-		<div className="border-border border-b">
-			<div className="group flex items-center hover:bg-accent/50">
-				<Link
-					className="flex flex-1 cursor-pointer items-center gap-4 px-4 py-3 text-left sm:px-6 sm:py-4"
-					href={`/monitors/${schedule.id}`}
-				>
-					<div className="flex size-10 shrink-0 items-center justify-center rounded border bg-secondary">
-						<HeartbeatIcon
-							className="text-accent-foreground"
-							size={20}
-							weight="duotone"
-						/>
-					</div>
-					<div className="min-w-0 flex-1">
-						<div className="flex items-center gap-2">
-							<h3 className="truncate font-medium text-foreground">
-								{displayName}
-							</h3>
-							<Badge
-								className="gap-1.5"
-								variant={schedule.isPaused ? "amber" : "green"}
-							>
-								<span
-									className={`size-1.5 rounded ${
-										schedule.isPaused ? "bg-amber-500" : "bg-green-500"
-									}`}
-								/>
-								{schedule.isPaused ? "Paused" : "Active"}
-							</Badge>
-							{schedule.isPublic ? (
-								<Badge className="gap-1" variant="outline">
-									<GlobeIcon className="size-3" weight="duotone" />
-									Public
-								</Badge>
-							) : null}
-						</div>
-						<div className="mt-0.5 flex items-center gap-2">
-							<div className="flex items-center gap-1.5">
-								<GlobeIcon className="size-3.5 shrink-0" weight="duotone" />
-								<span className="truncate text-muted-foreground text-xs">
-									{displayUrl}
-								</span>
-							</div>
-							<span className="text-muted-foreground text-xs">•</span>
-							<span className="text-muted-foreground text-xs">
-								{granularityLabels[schedule.granularity] ||
-									schedule.granularity}
-							</span>
-						</div>
-					</div>
-				</Link>
-
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							aria-label="Monitor actions"
-							className="size-8 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-							size="icon"
-							variant="ghost"
-						>
-							<DotsThreeIcon className="size-5" weight="bold" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-40">
-						<DropdownMenuItem onClick={onEditAction}>
-							<PencilIcon className="size-4" weight="duotone" />
-							Edit
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							disabled={
-								isPausing || pauseMutation.isPending || resumeMutation.isPending
-							}
-							onClick={handleTogglePause}
-						>
-							<HeartbeatIcon className="size-4" weight="duotone" />
-							{schedule.isPaused ? "Resume" : "Pause"}
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							className="text-destructive focus:text-destructive"
-							disabled={deleteMutation.isPending}
-							onClick={handleDelete}
-						>
-							<TrashIcon className="size-4" weight="duotone" />
-							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+		<Link
+			className="group flex w-full items-center gap-3 border-b px-3 py-3 transition-colors hover:bg-accent/50 sm:gap-4 sm:px-4"
+			href={`/monitors/${schedule.id}`}
+		>
+			<div className="flex size-9 shrink-0 items-center justify-center rounded border bg-card">
+				{displayUrl ? (
+					<FaviconImage
+						altText={`${displayName} favicon`}
+						domain={displayUrl}
+						fallbackIcon={
+							<HeartbeatIcon
+								className="text-muted-foreground"
+								size={18}
+								weight="duotone"
+							/>
+						}
+						size={18}
+					/>
+				) : (
+					<HeartbeatIcon
+						className="text-muted-foreground"
+						size={18}
+						weight="duotone"
+					/>
+				)}
 			</div>
-		</div>
+
+			<div className="min-w-0 flex-1">
+				<div className="flex items-center gap-2">
+					<span className="truncate font-medium text-sm">{displayName}</span>
+					<Badge
+						className="shrink-0 gap-1.5"
+						variant={schedule.isPaused ? "amber" : "green"}
+					>
+						<span
+							className={`size-1.5 rounded ${
+								schedule.isPaused ? "bg-amber-500" : "bg-green-500"
+							}`}
+						/>
+						{schedule.isPaused ? "Paused" : "Active"}
+					</Badge>
+					{schedule.isPublic ? (
+						<Badge className="hidden gap-1 sm:flex" variant="outline">
+							<GlobeIcon className="size-3" weight="duotone" />
+							Public
+						</Badge>
+					) : null}
+				</div>
+				<div className="mt-0.5 flex items-center gap-1.5 text-xs">
+					<span className="truncate text-muted-foreground">{displayUrl}</span>
+					<span className="text-muted-foreground/30">•</span>
+					<span className="shrink-0 text-muted-foreground">
+						{granularityLabels[schedule.granularity] || schedule.granularity}
+					</span>
+				</div>
+			</div>
+
+			<div
+				className="shrink-0"
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+				}}
+				onKeyDown={(e) => e.stopPropagation()}
+				role="presentation"
+			>
+				<MonitorActions
+					onDeleteAction={onDeleteAction}
+					onEditAction={onEditAction}
+					onRefetchAction={onRefetchAction}
+					schedule={schedule}
+				/>
+			</div>
+		</Link>
 	);
 }

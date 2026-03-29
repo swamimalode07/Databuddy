@@ -269,10 +269,41 @@ export const billingNavigation: NavigationSection[] = [
 	]),
 ];
 
-export const monitorsNavigation: NavigationSection[] = [
-	createNavSection("Monitoring", HeartbeatIcon, [
-		createNavItem("Overview", HeartbeatIcon, "/monitors"),
-	]),
+export const createMonitorsNavigation = (
+	monitors: Array<{
+		id: string;
+		name: string | null;
+		url: string | null;
+		websiteId: string | null;
+		website: { id: string; name: string | null; domain: string } | null;
+	}>
+): NavigationSection[] => [
+	...createDynamicNavigation(
+		monitors.map((m) => ({
+			id: m.id,
+			name: m.name || m.website?.name || m.url || "Monitor",
+			domain: m.website?.domain || m.url || "",
+		})),
+		"Monitoring",
+		HeartbeatIcon,
+		"All Monitors",
+		"/monitors",
+		HeartbeatIcon,
+		"/monitors",
+		"Add Your First Monitor",
+		(monitor) => ({ domain: monitor.domain })
+	),
+];
+
+export const createLoadingMonitorsNavigation = (): NavigationSection[] => [
+	...createLoadingNavigation(
+		"Monitoring",
+		HeartbeatIcon,
+		"All Monitors",
+		"/monitors",
+		"Loading monitors...",
+		HeartbeatIcon
+	),
 ];
 
 export const websiteNavigation: NavigationSection[] = [
@@ -409,7 +440,7 @@ export const categoryConfig = {
 		"home",
 		{
 			home: [],
-			monitors: monitorsNavigation,
+			monitors: [],
 			organizations: organizationNavigation,
 			billing: billingNavigation,
 			settings: personalNavigation,

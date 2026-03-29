@@ -15,12 +15,15 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
 	categoryConfig,
+	createLoadingMonitorsNavigation,
 	createLoadingWebsitesNavigation,
+	createMonitorsNavigation,
 	createWebsitesNavigation,
 	filterCategoriesByFlags,
 	filterCategoriesForRoute,
@@ -55,6 +58,9 @@ export function CategorySidebar({
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
 		enabled: user !== null,
 	});
+	const { monitors, isLoading: isLoadingMonitors } = useMonitorsLight({
+		enabled: user !== null,
+	});
 	const [helpOpen, setHelpOpen] = useState(false);
 	const { getFlag } = useFlags();
 	const hasMounted = useHasMounted();
@@ -71,6 +77,9 @@ export function CategorySidebar({
 							home: isLoadingWebsites
 								? createLoadingWebsitesNavigation()
 								: createWebsitesNavigation(websites),
+							monitors: isLoadingMonitors
+								? createLoadingMonitorsNavigation()
+								: createMonitorsNavigation(monitors),
 						},
 					}
 				: baseConfig;
@@ -83,7 +92,15 @@ export function CategorySidebar({
 		);
 
 		return { categories: filteredCategories, defaultCategory: defaultCat };
-	}, [pathname, websites, isLoadingWebsites, hasMounted, getFlag]);
+	}, [
+		pathname,
+		websites,
+		isLoadingWebsites,
+		monitors,
+		isLoadingMonitors,
+		hasMounted,
+		getFlag,
+	]);
 
 	const activeCategory = selectedCategory || defaultCategory;
 

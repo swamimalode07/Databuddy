@@ -1,36 +1,43 @@
-/**
- * Bot Detection for Links App
- *
- * Uses centralized bot detection from @databuddy/shared
- */
-
 import {
 	BotCategory,
 	detectBot as detectBotShared,
 } from "@databuddy/shared/bot-detection";
+import { LRUCache } from "lru-cache";
 
-/**
- * Check if user agent is a bot (any kind)
- */
+interface BotResult {
+	isBot: boolean;
+	isSocialBot: boolean;
+}
+
+const cache = new LRUCache<string, BotResult>({ max: 500, ttl: 300_000 });
+
+function detect(userAgent: string): BotResult {
+	const cached = cache.get(userAgent);
+	if (cached) {
+		return cached;
+	}
+
+	const result = detectBotShared(userAgent);
+	const botResult: BotResult = {
+		isBot: result.isBot,
+		isSocialBot:
+			result.category === BotCategory.SOCIAL_MEDIA ||
+			result.category === BotCategory.SEARCH_ENGINE,
+	};
+	cache.set(userAgent, botResult);
+	return botResult;
+}
+
 export function isBot(userAgent: string | null): boolean {
 	if (!userAgent) {
 		return false;
 	}
-	const result = detectBotShared(userAgent);
-	return result.isBot;
+	return detect(userAgent).isBot;
 }
 
-/**
- * Check if user agent is a social media or search engine bot
- * These are typically allowed for link previews
- */
 export function isSocialBot(userAgent: string | null): boolean {
 	if (!userAgent) {
 		return false;
 	}
-	const result = detectBotShared(userAgent);
-	return (
-		result.category === BotCategory.SOCIAL_MEDIA ||
-		result.category === BotCategory.SEARCH_ENGINE
-	);
+	return detect(userAgent).isSocialBot;
 }

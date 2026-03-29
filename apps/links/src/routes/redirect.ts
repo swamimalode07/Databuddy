@@ -10,6 +10,7 @@ import {
 	shouldRecordClick,
 } from "@databuddy/redis";
 import { Elysia, redirect, t } from "elysia";
+import { LRUCache } from "lru-cache";
 import { sendLinkVisit } from "../lib/producer";
 import { captureError, mergeWideEvent, setAttributes } from "../lib/tracing";
 import { isBot, isSocialBot } from "../utils/bot-detection";
@@ -22,19 +23,41 @@ const EXPIRED_URL = "https://app.databuddy.cc/dby/expired";
 const NOT_FOUND_URL = "https://app.databuddy.cc/dby/not-found";
 const PROXY_URL = "https://app.databuddy.cc/dby/l";
 
-const DEFAULT_RATE_LIMIT = {
-	success: true,
-	limit: 100,
-	remaining: 99,
-	reset: Date.now() + 60_000,
-};
+function defaultRateLimit() {
+	return {
+		success: true,
+		limit: 100,
+		remaining: 99,
+		reset: Date.now() + 60_000,
+	};
+}
+
+const NULL_SENTINEL = Object.freeze({ __null: true }) as unknown as CachedLink;
+
+const linkMemCache = new LRUCache<string, CachedLink>({
+	max: 1000,
+	ttl: 5000,
+});
+const etagMemCache = new LRUCache<string, string>({
+	max: 1000,
+	ttl: 60_000,
+});
+const dedupMemCache = new LRUCache<string, true>({
+	max: 10_000,
+	ttl: 300_000,
+});
 
 function generateETag(link: CachedLink, targetUrl: string): string {
-	const hash = createHash("md5")
-		.update(`${link.id}:${targetUrl}:${link.expiresAt ?? ""}`)
-		.digest("hex")
-		.slice(0, 16);
-	return `"${hash}"`;
+	const cacheKey = `${link.id}:${targetUrl}:${link.expiresAt ?? ""}`;
+	const cached = etagMemCache.get(cacheKey);
+	if (cached) {
+		return cached;
+	}
+
+	const hash = createHash("md5").update(cacheKey).digest("hex").slice(0, 16);
+	const etag = `"${hash}"`;
+	etagMemCache.set(cacheKey, etag);
+	return etag;
 }
 
 interface LinkLookupResult {
@@ -45,6 +68,12 @@ interface LinkLookupResult {
 }
 
 async function getLinkBySlug(slug: string): Promise<LinkLookupResult> {
+	const memHit = linkMemCache.get(slug);
+	if (memHit !== undefined) {
+		const link = memHit === NULL_SENTINEL ? null : memHit;
+		return { link, cacheHit: true, cacheMs: 0, dbMs: 0 };
+	}
+
 	const tCache = performance.now();
 	const cached = await getCachedLink(slug).catch((err) => {
 		captureError(err, { error_step: "cache_get" });
@@ -53,6 +82,7 @@ async function getLinkBySlug(slug: string): Promise<LinkLookupResult> {
 	const cacheMs = Math.round(performance.now() - tCache);
 
 	if (cached) {
+		linkMemCache.set(slug, cached);
 		return { link: cached, cacheHit: true, cacheMs, dbMs: 0 };
 	}
 
@@ -75,6 +105,7 @@ async function getLinkBySlug(slug: string): Promise<LinkLookupResult> {
 	const dbMs = Math.round(performance.now() - tDb);
 
 	if (!dbLink) {
+		linkMemCache.set(slug, NULL_SENTINEL);
 		await setCachedLinkNotFound(slug).catch((err) => {
 			captureError(err, { error_step: "cache_set_not_found" });
 		});
@@ -94,6 +125,7 @@ async function getLinkBySlug(slug: string): Promise<LinkLookupResult> {
 		androidUrl: dbLink.androidUrl,
 	};
 
+	linkMemCache.set(slug, link);
 	await setCachedLink(slug, link).catch((err) => {
 		captureError(err, { error_step: "cache_backfill" });
 	});
@@ -118,6 +150,16 @@ async function recordClick(
 	request: Request
 ): Promise<void> {
 	const t0 = performance.now();
+	const dedupKey = `${link.id}:${ipHash}`;
+
+	if (dedupMemCache.has(dedupKey)) {
+		setAttributes({
+			click_recorded: false,
+			click_reason: "mem_deduplicated",
+			click_pipeline_ms: Math.round(performance.now() - t0),
+		});
+		return;
+	}
 
 	const shouldRecord = await shouldRecordClick(link.id, ipHash).catch((err) => {
 		captureError(err, { error_step: "dedup_check" });
@@ -125,6 +167,7 @@ async function recordClick(
 	});
 
 	if (!shouldRecord) {
+		dedupMemCache.set(dedupKey, true);
 		setAttributes({
 			click_recorded: false,
 			click_reason: "deduplicated",
@@ -134,10 +177,8 @@ async function recordClick(
 	}
 
 	const userAgent = request.headers.get("user-agent");
-	const [geo, ua] = await Promise.all([
-		getGeo(ip, request),
-		Promise.resolve(parseUserAgent(userAgent)),
-	]);
+	const ua = parseUserAgent(userAgent);
+	const geo = await getGeo(ip, request);
 
 	await sendLinkVisit(
 		{
@@ -179,11 +220,10 @@ export const redirectRoute = new Elysia().get(
 			mergeWideEvent(event);
 		}
 
-		// Rate limit: allow through if Redis fails
 		const tRl = performance.now();
 		const rl = await rateLimit(`redirect:${ipHash}`, 100, 60).catch((err) => {
 			captureError(err, { error_step: "rate_limit" });
-			return DEFAULT_RATE_LIMIT;
+			return defaultRateLimit();
 		});
 		event.latency_rate_limit_ms = Math.round(performance.now() - tRl);
 		event.rate_limit_remaining = rl.remaining;

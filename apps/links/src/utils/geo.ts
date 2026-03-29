@@ -6,18 +6,31 @@ import {
 	Reader,
 } from "@maxmind/geoip2-node";
 import { log } from "evlog";
+import { LRUCache } from "lru-cache";
 import { captureError, record, setAttributes } from "../lib/tracing";
 
 interface GeoIPReader extends Reader {
 	city(ip: string): City;
 }
 
+interface GeoResult {
+	country: string | null;
+	region: string | null;
+	city: string | null;
+}
+
 const CDN_URL = "https://cdn.databuddy.cc/mmdb/GeoLite2-City.mmdb";
+const EMPTY_GEO: GeoResult = { country: null, region: null, city: null };
 
 let reader: GeoIPReader | null = null;
 let isLoading = false;
 let loadPromise: Promise<void> | null = null;
 let dbBuffer: Buffer | null = null;
+
+const geoMemCache = new LRUCache<string, GeoResult>({
+	max: 2000,
+	ttl: 60_000,
+});
 
 function loadDatabaseFromCdn(): Promise<Buffer> {
 	return record("links-geo_load_database", async () => {
@@ -84,17 +97,13 @@ function getCloudflareCountry(headers: Headers): string | null {
 	return null;
 }
 
-async function lookupGeoLocation(ip: string): Promise<{
-	country: string | null;
-	region: string | null;
-	city: string | null;
-}> {
+async function lookupGeoLocation(ip: string): Promise<GeoResult> {
 	if (!(reader || isLoading)) {
 		await loadDatabase();
 	}
 
 	if (!reader) {
-		return { country: null, region: null, city: null };
+		return EMPTY_GEO;
 	}
 
 	try {
@@ -109,13 +118,13 @@ async function lookupGeoLocation(ip: string): Promise<{
 			err instanceof AddressNotFoundError ||
 			err instanceof BadMethodCallError
 		) {
-			return { country: null, region: null, city: null };
+			return EMPTY_GEO;
 		}
 		log.error({
 			links: "geoip_lookup",
 			error: err instanceof Error ? err.message : String(err),
 		});
-		return { country: null, region: null, city: null };
+		return EMPTY_GEO;
 	}
 }
 
@@ -126,28 +135,40 @@ const cachedGeoLookup = cacheable(lookupGeoLocation, {
 	staleTime: 86_400,
 });
 
-export function getGeo(ip: string, request?: Request) {
+export async function getGeo(
+	ip: string,
+	request?: Request
+): Promise<GeoResult> {
 	if (!ip || ignore.includes(ip) || !isValidIp(ip)) {
-		return Promise.resolve({ country: null, region: null, city: null });
+		return EMPTY_GEO;
 	}
 
-	return (async () => {
-		const geo = await cachedGeoLookup(ip);
+	const memHit = geoMemCache.get(ip);
+	if (memHit) {
+		return memHit;
+	}
 
-		// Fallback to Cloudflare headers if MMDB lookup failed
-		if (!geo.country && request?.headers) {
-			const cfCountry = getCloudflareCountry(request.headers);
-			if (cfCountry) {
-				setAttributes({
-					geo_fallback: "cloudflare",
-					geo_country: cfCountry,
-				});
-				return { country: cfCountry, region: null, city: null };
-			}
+	const geo = await cachedGeoLookup(ip);
+
+	if (!geo.country && request?.headers) {
+		const cfCountry = getCloudflareCountry(request.headers);
+		if (cfCountry) {
+			const result: GeoResult = {
+				country: cfCountry,
+				region: null,
+				city: null,
+			};
+			geoMemCache.set(ip, result);
+			setAttributes({ geo_fallback: "cloudflare", geo_country: cfCountry });
+			return result;
 		}
+	}
 
-		return geo;
-	})();
+	if (geo.country) {
+		geoMemCache.set(ip, geo);
+	}
+
+	return geo;
 }
 
 export function extractIp(request: Request): string {

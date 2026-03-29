@@ -23,6 +23,7 @@
     "elysia": "^1.4.22",
     "evlog": "^2.8.0",
     "kafkajs": "^2.2.4",
+    "lru-cache": "^11.2.7",
     "ua-parser-js": "^2.0.8"
   },
   "devDependencies": {

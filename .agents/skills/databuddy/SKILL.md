@@ -117,6 +117,7 @@ Read [codebase-map.md](./references/codebase-map.md) when you need deeper routin
 - **`@elysiajs/cors` with `origin: true`** sets `Vary: *`, killing CDN caching. Override with `set.headers.vary = "Origin"` on cacheable public endpoints.
 - **`applyAuthWideEvent`** in `apps/api/src/index.ts` runs a session DB lookup on every request including anonymous `/public/` routes. Skip it for public endpoints via URL check in `onBeforeHandle`.
 - **Flags API local dev** requires `dotenv -e .env` from repo root to pick up `REDIS_URL`, `DATABASE_URL`, etc.
+- **Detail page stats**: Use compact inline `flex` bars at `min-h-10`/`py-2.5` (40px) — not `<dl>` grids with large padding. Heights must be multiples of 10px to align with sidebar item sizing. Status uses a colored dot + text, not `Badge`.
 
 ## Search Hints
 
