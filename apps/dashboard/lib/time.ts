@@ -4,17 +4,15 @@
  * Always import dayjs from this file instead of 'dayjs' directly
  * to ensure consistent timezone handling across the application.
  */
-import dayjs from "@/lib/dayjs";
-import { getUserTimezone } from "./timezone";
+import dayjs, { guessTimezone } from "@/lib/dayjs";
 
-// Get the user's timezone
-const userTimezone = getUserTimezone();
+const localTz = guessTimezone();
 
 /**
  * Parse a date string (UTC) and convert to user's local timezone
  */
 export function toLocalTime(date: string | Date | dayjs.Dayjs): dayjs.Dayjs {
-	return dayjs.utc(date).tz(userTimezone);
+	return dayjs.utc(date).tz(localTz);
 }
 
 /**
@@ -83,7 +81,7 @@ export function formatDateOnly(
  */
 export function localDayjs(date?: string | Date | dayjs.Dayjs): dayjs.Dayjs {
 	if (!date) {
-		return dayjs().tz(userTimezone);
+		return dayjs().tz(localTz);
 	}
-	return dayjs.utc(date).tz(userTimezone);
+	return dayjs.utc(date).tz(localTz);
 }

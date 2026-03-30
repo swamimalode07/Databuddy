@@ -345,9 +345,7 @@ export default async function OGImage({
 											key={i}
 											style={{
 												flex: 1,
-												backgroundColor: getBarColor(
-													day.uptime_percentage
-												),
+												backgroundColor: getBarColor(day.uptime_percentage),
 												borderRadius: "2px",
 											}}
 										/>

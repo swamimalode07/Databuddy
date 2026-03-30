@@ -1,4 +1,4 @@
-import dayjs from "@/lib/dayjs";
+import dayjs, { guessTimezone } from "@/lib/dayjs";
 
 export interface DynamicQueryFilter {
 	field: string;
@@ -84,9 +84,7 @@ export const setDateRangeAndAdjustGranularityAtom = atom(
 );
 
 // --- Timezone ---
-export const timezoneAtom = atom<string>(
-	Intl.DateTimeFormat().resolvedOptions().timeZone
-);
+export const timezoneAtom = atom<string>(guessTimezone());
 
 // --- Basic Filters ---
 // Used for simple selections, e.g., a list of countries or device types.

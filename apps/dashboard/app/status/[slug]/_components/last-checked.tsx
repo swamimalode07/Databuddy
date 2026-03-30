@@ -7,7 +7,5 @@ interface LastCheckedProps {
 }
 
 export function LastChecked({ timestamp }: LastCheckedProps) {
-	return (
-		<p className="text-muted-foreground text-xs">{fromNow(timestamp)}</p>
-	);
+	return <p className="text-muted-foreground text-xs">{fromNow(timestamp)}</p>;
 }

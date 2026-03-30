@@ -10,7 +10,7 @@ import type {
 } from "@databuddy/shared/types/parameters";
 import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
-import { getUserTimezone } from "@/lib/timezone";
+import { guessTimezone } from "@/lib/dayjs";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -101,7 +101,7 @@ async function fetchDynamicQuery(
 	queryData: DynamicQueryRequest | DynamicQueryRequest[],
 	signal?: AbortSignal
 ): Promise<DynamicQueryResponse | BatchQueryResponse> {
-	const timezone = getUserTimezone();
+	const timezone = guessTimezone();
 
 	// Support both old string API (websiteId) and new options object
 	const options: FetchOptions =

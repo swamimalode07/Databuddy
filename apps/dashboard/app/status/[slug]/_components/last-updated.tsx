@@ -4,8 +4,8 @@ import { ClockIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useInterval } from "@/hooks/use-interval";
+import { guessTimezone } from "@/lib/dayjs";
 import { formatDateTime, localDayjs } from "@/lib/time";
-import { getUserTimezone } from "@/lib/timezone";
 
 const REFRESH_INTERVAL_SEC = 60;
 
@@ -14,7 +14,7 @@ interface LastUpdatedProps {
 }
 
 export function LastUpdated({ timestamp }: LastUpdatedProps) {
-	const tz = getUserTimezone();
+	const tz = guessTimezone();
 	const abbreviation = localDayjs().format("z");
 	const router = useRouter();
 	const [countdown, setCountdown] = useState(REFRESH_INTERVAL_SEC);

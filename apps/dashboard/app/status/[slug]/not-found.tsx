@@ -7,8 +7,8 @@ export default function StatusNotFound() {
 				Status page not found
 			</h1>
 			<p className="mt-2 max-w-sm text-pretty text-muted-foreground text-sm">
-				This organization doesn&apos;t have a public status page, or the URL
-				is incorrect.
+				This organization doesn&apos;t have a public status page, or the URL is
+				incorrect.
 			</p>
 			<Link
 				className="mt-6 font-medium text-foreground text-sm hover:underline"

@@ -1,5 +1,5 @@
-import type { Insight, HistoryInsightRow } from "@/lib/insight-types";
-import { getUserTimezone } from "@/lib/timezone";
+import { guessTimezone } from "@/lib/dayjs";
+import type { HistoryInsightRow, Insight } from "@/lib/insight-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -34,7 +34,7 @@ export async function fetchInsightsAi(
 		method: "POST",
 		credentials: "include",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ organizationId, timezone: getUserTimezone() }),
+		body: JSON.stringify({ organizationId, timezone: guessTimezone() }),
 		signal: AbortSignal.timeout(90_000),
 	});
 
