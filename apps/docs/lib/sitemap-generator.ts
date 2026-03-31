@@ -97,6 +97,10 @@ function getChangeFrequency(url: string): "weekly" | "monthly" | "yearly" {
 }
 
 export async function generateSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+	if (process.env.NODE_ENV === "development") {
+		return [];
+	}
+
 	const lastModified = new Date();
 	const entries: MetadataRoute.Sitemap = [];
 

@@ -45,6 +45,10 @@ const getPublicStatusPages = unstable_cache(
 );
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	if (process.env.NODE_ENV === "development") {
+		return [];
+	}
+
 	const statusPages = await getPublicStatusPages();
 
 	return statusPages.map((statusPage) => ({
