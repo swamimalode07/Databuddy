@@ -89,7 +89,7 @@ export default function GeneralSettingsPage() {
 								{websiteId}
 							</p>
 						</div>
-						<Button onClick={handleCopyWebsiteId} size="sm" variant="secondary">
+						<Button onClick={handleCopyWebsiteId} size="sm" variant="outline">
 							{copiedWebsiteId ? (
 								<>
 									<CheckIcon className="size-3.5" weight="bold" />
@@ -117,7 +117,7 @@ export default function GeneralSettingsPage() {
 						<Button
 							onClick={() => setShowEditDialog(true)}
 							size="sm"
-							variant="secondary"
+							variant="outline"
 						>
 							<PencilSimpleIcon className="size-3.5" /> Edit
 						</Button>
@@ -136,7 +136,7 @@ export default function GeneralSettingsPage() {
 						<Button
 							onClick={() => setShowEditDialog(true)}
 							size="sm"
-							variant="secondary"
+							variant="outline"
 						>
 							<PencilSimpleIcon className="size-3.5" /> Edit
 						</Button>
@@ -156,7 +156,7 @@ export default function GeneralSettingsPage() {
 								router.push(`/websites/${websiteId}/settings/transfer`)
 							}
 							size="sm"
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowSquareOutIcon className="size-3.5" /> Transfer
 						</Button>

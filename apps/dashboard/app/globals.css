@@ -10,10 +10,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-* {
-  font-family: var(--font-lt-superior);
-}
-
 @theme inline {
   /* Color System */
   --color-background: var(--background);

@@ -118,7 +118,7 @@ export function GeneralSettings({
 								onClick={handleCopyOrgId}
 								size="sm"
 								type="button"
-								variant="secondary"
+								variant="outline"
 							>
 								{copiedOrgId ? (
 									<>

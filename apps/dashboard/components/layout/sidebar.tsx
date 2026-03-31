@@ -5,6 +5,7 @@ import { useFlags } from "@databuddy/sdk/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useHasMounted } from "@/hooks/use-has-mounted";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
@@ -69,6 +70,7 @@ export function Sidebar() {
 		enabled: user !== null,
 	});
 	const accordionStates = useAccordionStates();
+	const hasMounted = useHasMounted();
 
 	const websiteId = useMemo(
 		() => (isDemo || isWebsite ? pathname.split("/")[2] : null),
@@ -91,10 +93,10 @@ export function Sidebar() {
 						...baseConfig,
 						navigationMap: {
 							...baseConfig.navigationMap,
-							home: isLoadingWebsites
+							home: (!hasMounted || isLoadingWebsites)
 								? createLoadingWebsitesNavigation()
 								: createWebsitesNavigation(websites),
-							monitors: isLoadingMonitors
+							monitors: (!hasMounted || isLoadingMonitors)
 								? createLoadingMonitorsNavigation()
 								: createMonitorsNavigation(monitors),
 						},
@@ -166,6 +168,7 @@ export function Sidebar() {
 		isLoadingWebsites,
 		monitors,
 		isLoadingMonitors,
+		hasMounted,
 		getFlag,
 	]);
 

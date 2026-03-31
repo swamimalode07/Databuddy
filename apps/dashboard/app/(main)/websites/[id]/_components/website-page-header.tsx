@@ -352,7 +352,7 @@ export function WebsitePageHeader({
 						<Button
 							disabled={isRefreshing}
 							onClick={onRefreshAction}
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowClockwiseIcon
 								className={isRefreshing ? "animate-spin" : ""}

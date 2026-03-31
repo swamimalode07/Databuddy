@@ -64,7 +64,7 @@ export function MonitorsList({
 	}
 
 	return (
-		<div>
+		<div className="w-full overflow-x-auto">
 			{monitors.map((monitor) => (
 				<MonitorRow
 					key={monitor.id}

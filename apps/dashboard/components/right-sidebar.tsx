@@ -123,7 +123,7 @@ function DocsLink({
 		<Button
 			asChild
 			className={cn("w-full justify-start", className)}
-			variant="secondary"
+			variant="outline"
 		>
 			<a href={href} rel="noopener noreferrer" target="_blank">
 				<BookOpenIcon size={16} />

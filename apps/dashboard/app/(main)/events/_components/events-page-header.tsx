@@ -92,7 +92,7 @@ export function EventsPageHeader() {
 						disabled={query.isFetching || !hasQueryId}
 						onClick={() => query.refetch()}
 						size="icon"
-						variant="secondary"
+						variant="outline"
 					>
 						<ArrowClockwiseIcon
 							className={query.isFetching ? "animate-spin" : ""}

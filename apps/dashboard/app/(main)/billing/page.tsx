@@ -219,11 +219,11 @@ export default function BillingPage() {
 							{canUserUpgrade ? (
 								<>
 									{isCanceled ? (
-										<Button asChild className="w-full" variant="secondary">
+										<Button asChild className="w-full" variant="outline">
 											<Link href="/billing/plans">Reactivate Plan</Link>
 										</Button>
 									) : isFree ? (
-										<Button asChild className="w-full" variant="secondary">
+										<Button asChild className="w-full" variant="outline">
 											<Link href="/billing/plans">Upgrade Plan</Link>
 										</Button>
 									) : (
@@ -242,7 +242,7 @@ export default function BillingPage() {
 											>
 												Cancel Plan
 											</Button>
-											<Button asChild className="w-full" variant="secondary">
+											<Button asChild className="w-full" variant="outline">
 												<Link href="/billing/plans">Change Plan</Link>
 											</Button>
 										</>

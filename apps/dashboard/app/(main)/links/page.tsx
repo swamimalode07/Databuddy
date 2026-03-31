@@ -108,7 +108,7 @@ export default function LinksPage() {
 								disabled={busy}
 								onClick={() => refetch()}
 								size="icon"
-								variant="secondary"
+								variant="outline"
 							>
 								<ArrowClockwiseIcon
 									className={busy ? "animate-spin" : ""}

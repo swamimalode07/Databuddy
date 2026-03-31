@@ -79,7 +79,7 @@ export function MobileCategorySelector({
 					<Button
 						className="flex h-10 w-full items-center justify-between border-sidebar-border border-b px-3"
 						type="button"
-						variant="secondary"
+						variant="outline"
 					>
 						<div className="flex items-center gap-2">
 							{currentCategory?.icon ? (

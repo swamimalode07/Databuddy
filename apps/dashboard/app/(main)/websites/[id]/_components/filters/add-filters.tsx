@@ -416,7 +416,7 @@ export function AddFilterForm({
 				className={cn("h-8 text-xs", className)}
 				disabled={disabled}
 				onClick={() => setIsOpen(true)}
-				variant="secondary"
+				variant="outline"
 			>
 				<FunnelIcon className="size-3.5" weight="duotone" />
 				{buttonText}

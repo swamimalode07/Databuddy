@@ -1,16 +1,17 @@
 "use client";
 
-import { HeartbeatIcon, PlusIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon, LockIcon, PlusIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import dayjs from "@/lib/dayjs";
+import { formatDateOnly } from "@/lib/time";
 import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
 import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
-import { formatDateOnly } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 interface MonitorsSectionProps {
@@ -24,6 +25,7 @@ interface MonitorsSectionProps {
 	}>;
 	totalMonitors: number;
 	activeMonitors: number;
+	hasAccess: boolean;
 	isLoading: boolean;
 	onCreateMonitorAction?: () => void;
 }
@@ -183,10 +185,39 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 	);
 }
 
+function LockedCard() {
+	return (
+		<div className="divide-y rounded border bg-card">
+			<div className="flex items-center justify-between px-4 py-3">
+				<div className="flex items-center gap-2">
+					<HeartbeatIcon className="size-4 text-primary" weight="duotone" />
+					<h3 className="font-semibold text-foreground text-sm">Monitors</h3>
+				</div>
+				<Badge variant="secondary">Coming soon</Badge>
+			</div>
+			<div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
+				<div className="flex size-10 items-center justify-center rounded border bg-secondary">
+					<LockIcon className="size-5 text-muted-foreground" weight="duotone" />
+				</div>
+				<div className="space-y-1 text-balance">
+					<p className="font-medium text-foreground text-sm">
+						Uptime Monitoring
+					</p>
+					<p className="text-muted-foreground text-xs">
+						Track availability and get alerts when your services go down. You
+						need an invite to access this feature.
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function MonitorsSection({
 	monitors,
 	totalMonitors,
 	activeMonitors,
+	hasAccess,
 	isLoading,
 	onCreateMonitorAction,
 }: MonitorsSectionProps) {
@@ -213,6 +244,10 @@ export function MonitorsSection({
 		);
 	}
 
+	if (!hasAccess) {
+		return <LockedCard />;
+	}
+
 	const hasIssues = activeMonitors < totalMonitors;
 
 	return (
@@ -222,7 +257,6 @@ export function MonitorsSection({
 				hasIssues && "border-amber-500/30"
 			)}
 		>
-			{/* Header - matches SmartInsightsSection */}
 			<div className="flex items-center justify-between px-4 py-3">
 				<div className="flex items-center gap-2">
 					<HeartbeatIcon className="size-4 text-primary" weight="duotone" />
@@ -245,7 +279,6 @@ export function MonitorsSection({
 				)}
 			</div>
 
-			{/* Content */}
 			{totalMonitors === 0 ? (
 				<EmptyState onAdd={handleAddMonitor} />
 			) : (

@@ -190,7 +190,7 @@ export function AnnotationsListRenderer({
 					<p className="text-muted-foreground text-xs">
 						Add annotations to mark important events on charts
 					</p>
-					<Button className="mt-2" size="sm" variant="secondary">
+					<Button className="mt-2" size="sm" variant="outline">
 						<PlusIcon className="size-4" />
 						Create Annotation
 					</Button>

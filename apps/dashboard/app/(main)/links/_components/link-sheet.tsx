@@ -373,7 +373,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 												onClick={handleCopyLink}
 												size="sm"
 												type="button"
-												variant="secondary"
+												variant="outline"
 											>
 												<CopyIcon size={16} />
 												Copy

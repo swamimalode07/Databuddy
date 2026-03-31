@@ -260,7 +260,7 @@ export function FiltersSection() {
 									setIsSaveDialogOpen(true);
 								}}
 								size="sm"
-								variant="secondary"
+								variant="outline"
 							>
 								<FloppyDiskIcon className="size-3.5" weight="duotone" />
 								Save

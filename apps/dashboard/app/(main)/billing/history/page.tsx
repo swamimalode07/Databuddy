@@ -176,7 +176,7 @@ const InvoiceRow = memo(function InvoiceRowComponent({
 							window.open(invoice.hostedInvoiceUrl ?? "", "_blank")
 						}
 						size="sm"
-						variant="secondary"
+						variant="outline"
 					>
 						<FileTextIcon size={14} weight="duotone" />
 						View

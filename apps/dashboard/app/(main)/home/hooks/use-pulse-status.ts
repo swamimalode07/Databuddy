@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 
 export interface PulseStatus {
@@ -20,11 +21,14 @@ export interface PulseStatus {
 }
 
 export function usePulseStatus() {
+	const { hasAccess, isLoading: isAccessLoading } =
+		useFeatureAccess("monitors");
 
 	const query = useQuery({
 		...orpc.uptime.listSchedules.queryOptions({
 			input: {},
 		}),
+		enabled: hasAccess,
 	});
 
 	type ScheduleRow = PulseStatus["monitors"][number];
@@ -55,7 +59,8 @@ export function usePulseStatus() {
 
 	return {
 		...status,
-		isLoading: query.isLoading,
+		hasAccess,
+		isLoading: isAccessLoading || query.isLoading,
 		isFetching: query.isFetching,
 		isError: query.isError,
 		refetch: query.refetch,

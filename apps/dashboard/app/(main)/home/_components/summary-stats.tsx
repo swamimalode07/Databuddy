@@ -3,12 +3,14 @@
 import {
 	EyeIcon,
 	HeartbeatIcon,
+	LockIcon,
 	MinusIcon,
 	TrendDownIcon,
 	TrendUpIcon,
 	UsersIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -22,6 +24,7 @@ interface SummaryStatsProps {
 	pulseHealthPercentage: number;
 	totalMonitors: number;
 	activeMonitors: number;
+	hasPulseAccess: boolean;
 	isLoading?: boolean;
 }
 
@@ -66,9 +69,9 @@ export function SummaryStats({
 	pulseHealthPercentage,
 	totalMonitors,
 	activeMonitors,
+	hasPulseAccess,
 	isLoading,
 }: SummaryStatsProps) {
-	// Show loading if explicitly loading OR if we don't have data yet
 	const showLoading =
 		isLoading ||
 		(websiteCount === 0 &&
@@ -223,19 +226,58 @@ export function SummaryStats({
 			</Link>
 
 			{/* Pulse Status */}
-			<Link className="group block" href="/monitors">
-				<Card className="h-full gap-0 overflow-hidden border bg-card py-0 transition-colors group-hover:border-primary/60">
+			{hasPulseAccess ? (
+				<Link className="group block" href="/monitors">
+					<Card className="h-full gap-0 overflow-hidden border bg-card py-0 transition-colors group-hover:border-primary/60">
+						<CardHeader className="dotted-bg relative gap-0! border-b bg-accent px-0 pt-4 pb-0!">
+							<div className="flex h-16 items-center justify-center gap-2">
+								{totalMonitors > 0 ? (
+									<span className="font-bold text-4xl text-foreground tabular-nums">
+										{activeMonitors}/{totalMonitors}
+									</span>
+								) : (
+									<span className="text-muted-foreground text-sm">
+										No monitors
+									</span>
+								)}
+							</div>
+						</CardHeader>
+						<CardContent className="px-4 py-3">
+							<div className="flex items-center gap-3">
+								<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent">
+									<HeartbeatIcon
+										className="size-4 text-muted-foreground"
+										weight="duotone"
+									/>
+								</div>
+								<div className="min-w-0 flex-1">
+									<p className="truncate font-medium text-foreground text-sm">
+										Pulse
+									</p>
+									<p className="truncate text-muted-foreground text-xs">
+										{totalMonitors > 0
+											? `${(pulseHealthPercentage == null || Number.isNaN(pulseHealthPercentage) ? 0 : pulseHealthPercentage).toFixed(0)}% healthy`
+											: "uptime monitoring"}
+									</p>
+								</div>
+								{totalMonitors > 0 && pulseHealthPercentage === 100 && (
+									<span className="flex size-2 rounded-full bg-success" />
+								)}
+								{totalMonitors > 0 && pulseHealthPercentage < 100 && (
+									<span className="flex size-2 rounded-full bg-amber-500" />
+								)}
+							</div>
+						</CardContent>
+					</Card>
+				</Link>
+			) : (
+				<Card className="h-full gap-0 overflow-hidden border bg-card py-0">
 					<CardHeader className="dotted-bg relative gap-0! border-b bg-accent px-0 pt-4 pb-0!">
-						<div className="flex h-16 items-center justify-center gap-2">
-							{totalMonitors > 0 ? (
-								<span className="font-bold text-4xl text-foreground tabular-nums">
-									{activeMonitors}/{totalMonitors}
-								</span>
-							) : (
-								<span className="text-muted-foreground text-sm">
-									No monitors
-								</span>
-							)}
+						<div className="flex h-16 items-center justify-center">
+							<LockIcon
+								className="size-6 text-muted-foreground"
+								weight="duotone"
+							/>
 						</div>
 					</CardHeader>
 					<CardContent className="px-4 py-3">
@@ -251,21 +293,14 @@ export function SummaryStats({
 									Pulse
 								</p>
 								<p className="truncate text-muted-foreground text-xs">
-									{totalMonitors > 0
-										? `${(pulseHealthPercentage == null || Number.isNaN(pulseHealthPercentage) ? 0 : pulseHealthPercentage).toFixed(0)}% healthy`
-										: "uptime monitoring"}
+									Coming soon
 								</p>
 							</div>
-							{totalMonitors > 0 && pulseHealthPercentage === 100 && (
-								<span className="flex size-2 rounded-full bg-success" />
-							)}
-							{totalMonitors > 0 && pulseHealthPercentage < 100 && (
-								<span className="flex size-2 rounded-full bg-amber-500" />
-							)}
+							<Badge variant="secondary">Invite-only</Badge>
 						</div>
 					</CardContent>
 				</Card>
-			</Link>
+			)}
 		</div>
 	);
 }

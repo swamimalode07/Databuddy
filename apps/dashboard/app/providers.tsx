@@ -36,7 +36,7 @@ const defaultQueryClientOptions = {
 	},
 };
 
-function isAuthError(error: unknown): boolean {
+function isSilencedError(error: unknown): boolean {
 	if (!error || typeof error !== "object") {
 		return false;
 	}
@@ -58,12 +58,24 @@ function isAuthError(error: unknown): boolean {
 		String(error)
 	).toLowerCase();
 
-	return (
+	if (
 		errorMessage.includes("authentication") ||
 		errorMessage.includes("unauthorized") ||
 		errorMessage.includes("unauthenticated") ||
 		errorMessage.includes("401")
-	);
+	) {
+		return true;
+	}
+
+	if (
+		errorCode === "FORBIDDEN" ||
+		errorMessage.includes("forbidden") ||
+		errorMessage.includes("invite-only")
+	) {
+		return true;
+	}
+
+	return false;
 }
 
 const queryClient = new QueryClient({
@@ -73,7 +85,7 @@ const queryClient = new QueryClient({
 			if (isAbortError(error)) {
 				return;
 			}
-			if (isAuthError(error)) {
+			if (isSilencedError(error)) {
 				return;
 			}
 			if (query.queryKey[0] === "og-preview") {
@@ -94,7 +106,7 @@ const queryClient = new QueryClient({
 			if (isAbortError(error)) {
 				return;
 			}
-			if (isAuthError(error)) {
+			if (isSilencedError(error)) {
 				return;
 			}
 

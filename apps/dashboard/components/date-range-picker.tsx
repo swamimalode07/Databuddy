@@ -202,7 +202,7 @@ export function DateRangePicker({
 							!value?.from && "text-muted-foreground"
 						)}
 						disabled={disabled}
-						variant="secondary"
+						variant="outline"
 					>
 						<CalendarDotsIcon className="size-4" weight="duotone" />
 						<span className="truncate">{formatDisplayRange(value)}</span>

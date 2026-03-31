@@ -560,13 +560,12 @@ export default function MonitorDetailsPage() {
 							aria-label="Refresh monitor data"
 							disabled={isRefreshing}
 							onClick={handleRefresh}
-							size="icon"
+							size="icon-sm"
 							type="button"
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowClockwiseIcon
 								className={isRefreshing ? "animate-spin" : ""}
-								size={16}
 							/>
 						</Button>
 						<Button

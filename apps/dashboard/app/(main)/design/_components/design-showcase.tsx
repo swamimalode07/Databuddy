@@ -452,7 +452,7 @@ export function DesignShowcase() {
 			>
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button type="button" variant="secondary">
+						<Button type="button" variant="outline">
 							Hover me
 						</Button>
 					</TooltipTrigger>

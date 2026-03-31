@@ -316,7 +316,7 @@ export function InsightsPageContent() {
 								onClick={() => refetch()}
 								size="icon"
 								type="button"
-								variant="secondary"
+								variant="outline"
 							>
 								<ArrowClockwiseIcon
 									aria-hidden
@@ -651,7 +651,7 @@ function NoMatchState({
 						onClick={onShowDismissedAction}
 						size="sm"
 						type="button"
-						variant="secondary"
+						variant="outline"
 					>
 						Show dismissed
 					</Button>

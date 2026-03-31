@@ -74,7 +74,7 @@ export default function WebsitesPage() {
 							disabled={isLoading || isFetching}
 							onClick={() => refetch()}
 							size="icon"
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowClockwiseIcon
 								aria-hidden

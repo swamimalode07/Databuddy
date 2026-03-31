@@ -385,7 +385,7 @@ export default function SecurityPage() {
 							<Button
 								onClick={initializeSettings}
 								size="sm"
-								variant="secondary"
+								variant="outline"
 							>
 								Cancel
 							</Button>

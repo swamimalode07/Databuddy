@@ -101,7 +101,7 @@ function CodeSnippet({
 			<div className="relative overflow-hidden rounded border border-white/10 bg-[#101010]">
 				<div
 					className={cn(
-						"overflow-x-auto text-[13px] leading-relaxed",
+						"overflow-x-auto font-mono text-[13px] leading-relaxed",
 						"[&>pre]:m-0 [&>pre]:overflow-visible [&>pre]:p-4 [&>pre]:leading-relaxed",
 						"[&>pre>code]:block [&>pre>code]:w-full",
 						"[&_.line]:min-h-5"

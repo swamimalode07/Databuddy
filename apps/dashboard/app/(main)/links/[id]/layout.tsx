@@ -225,7 +225,7 @@ export default function LinkStatsLayout({ children }: LinkStatsLayoutProps) {
 							className="size-8"
 							disabled={isRefreshing}
 							onClick={handleRefresh}
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowClockwiseIcon
 								aria-hidden="true"

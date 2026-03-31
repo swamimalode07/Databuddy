@@ -433,7 +433,7 @@ function RevenueSettingsSheet({
 											disabled={createWebhookMutation.isPending}
 											onClick={() => createWebhookMutation.mutate()}
 											size="sm"
-											variant="secondary"
+											variant="outline"
 										>
 											{createWebhookMutation.isPending ? (
 												<SpinnerIcon className="mr-2 size-4 animate-spin" />

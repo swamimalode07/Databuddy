@@ -75,6 +75,7 @@ export default function HomePage() {
 		totalMonitors,
 		activeMonitors,
 		healthPercentage,
+		hasAccess: hasPulseAccess,
 		isLoading: isPulseLoading,
 		isFetching: isPulseFetching,
 		refetch: refetchMonitors,
@@ -116,7 +117,7 @@ export default function HomePage() {
 							}
 							onClick={handleRefetch}
 							size="icon"
-							variant="secondary"
+							variant="outline"
 						>
 							<ArrowClockwiseIcon
 								aria-hidden
@@ -162,6 +163,7 @@ export default function HomePage() {
 				<SummaryStats
 					activeMonitors={activeMonitors}
 					averageTrend={averageTrend}
+					hasPulseAccess={hasPulseAccess}
 					isLoading={isLoading || isPulseLoading}
 					pulseHealthPercentage={healthPercentage}
 					totalActiveUsers={totalActiveUsers}
@@ -182,6 +184,7 @@ export default function HomePage() {
 					/>
 					<MonitorsSection
 						activeMonitors={activeMonitors}
+						hasAccess={hasPulseAccess}
 						isLoading={isPulseLoading}
 						monitors={monitors}
 						totalMonitors={totalMonitors}

@@ -273,7 +273,7 @@ function RegisterPageContent() {
 					onClick={() => handleSocialLogin("github")}
 					size="lg"
 					type="button"
-					variant="secondary"
+					variant="outline"
 				>
 					<GithubLogoIcon className="size-4" />
 					Sign up with GitHub
@@ -284,7 +284,7 @@ function RegisterPageContent() {
 					onClick={() => handleSocialLogin("google")}
 					size="lg"
 					type="button"
-					variant="secondary"
+					variant="outline"
 				>
 					<GoogleLogoIcon className="size-4" />
 					Sign up with Google

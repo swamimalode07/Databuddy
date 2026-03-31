@@ -5,6 +5,8 @@ import {
 	alarms,
 	analyticsInsights,
 	apikey,
+	featureAccessLog,
+	featureInvite,
 	flags,
 	flagsToTargetGroups,
 	funnelDefinitions,
@@ -248,6 +250,29 @@ export const alarmDestinationsRelations = relations(
 		alarm: one(alarms, {
 			fields: [alarmDestinations.alarmId],
 			references: [alarms.id],
+		}),
+	})
+);
+
+export const featureInviteRelations = relations(featureInvite, ({ one }) => ({
+	inviter: one(user, {
+		fields: [featureInvite.invitedById],
+		references: [user.id],
+		relationName: "inviter",
+	}),
+	redeemer: one(user, {
+		fields: [featureInvite.redeemedById],
+		references: [user.id],
+		relationName: "redeemer",
+	}),
+}));
+
+export const featureAccessLogRelations = relations(
+	featureAccessLog,
+	({ one }) => ({
+		organization: one(organization, {
+			fields: [featureAccessLog.organizationId],
+			references: [organization.id],
 		}),
 	})
 );

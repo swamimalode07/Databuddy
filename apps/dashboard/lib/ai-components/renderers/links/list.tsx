@@ -259,7 +259,7 @@ export function LinksListRenderer({ title, links, className }: LinksListProps) {
 						className="mt-2"
 						onClick={openCreate}
 						size="sm"
-						variant="secondary"
+						variant="outline"
 					>
 						<PlusIcon className="size-4" />
 						Create Link

@@ -157,7 +157,7 @@ export function LinkQrCode({
 				<>
 					{/* Download Actions */}
 					<div className="flex justify-center gap-2">
-						<Button onClick={copyQrCode} size="sm" variant="secondary">
+						<Button onClick={copyQrCode} size="sm" variant="outline">
 							<CopyIcon size={16} weight="duotone" />
 							Copy
 						</Button>

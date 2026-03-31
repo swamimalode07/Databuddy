@@ -68,7 +68,7 @@ export function LLMPageHeader() {
 						disabled={isFetching || !hasQueryId}
 						onClick={refresh}
 						size="icon"
-						variant="secondary"
+						variant="outline"
 					>
 						<ArrowClockwiseIcon
 							className={isFetching ? "animate-spin" : ""}

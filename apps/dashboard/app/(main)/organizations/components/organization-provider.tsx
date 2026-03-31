@@ -146,12 +146,11 @@ export function OrganizationProvider({
 					right={
 						actionButton && (
 							<Button
-								className="w-full rounded text-xs sm:w-auto sm:text-sm"
+								className="w-full sm:w-auto"
 								disabled={actionButton.disabled}
 								onClick={actionButton.action}
-								size="sm"
 							>
-								<actionButton.icon className="size-4" />
+								<actionButton.icon />
 								{actionButton.text}
 							</Button>
 						)
@@ -186,12 +185,11 @@ export function OrganizationProvider({
 				right={
 					actionButton && (
 						<Button
-							className="w-full rounded text-xs sm:w-auto sm:text-sm"
+							className="w-full sm:w-auto"
 							disabled={actionButton.disabled}
 							onClick={actionButton.action}
-							size="sm"
 						>
-							<actionButton.icon className="size-4" />
+							<actionButton.icon />
 							{actionButton.text}
 						</Button>
 					)

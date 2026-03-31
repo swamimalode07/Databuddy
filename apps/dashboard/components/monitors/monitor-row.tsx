@@ -4,12 +4,14 @@ import {
 	DotsThreeIcon,
 	GlobeIcon,
 	HeartbeatIcon,
-	PencilIcon,
+	PauseIcon,
+	PencilSimpleIcon,
+	PlayIcon,
 	TrashIcon,
 } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Badge } from "@/components/ui/badge";
@@ -18,20 +20,30 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
+import dayjs from "@/lib/dayjs";
+import { formatDateOnly } from "@/lib/time";
 import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
+import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
 
-const granularityLabels: Record<string, string> = {
-	minute: "Every minute",
-	five_minutes: "Every 5 minutes",
-	ten_minutes: "Every 10 minutes",
-	thirty_minutes: "Every 30 minutes",
-	hour: "Hourly",
-	six_hours: "Every 6 hours",
-	twelve_hours: "Every 12 hours",
-	day: "Daily",
+const GRANULARITY_LABELS: Record<string, string> = {
+	minute: "1 min",
+	five_minutes: "5 min",
+	ten_minutes: "10 min",
+	thirty_minutes: "30 min",
+	hour: "1 hr",
+	six_hours: "6 hrs",
+	twelve_hours: "12 hrs",
+	day: "24 hrs",
 };
+
+const HEATMAP_DAYS = 30;
 
 interface MonitorRowProps {
 	schedule: {
@@ -111,37 +123,164 @@ function MonitorActions({
 			<DropdownMenuTrigger asChild>
 				<Button
 					aria-label="Monitor actions"
-					className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+					className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
+					data-dropdown-trigger
 					size="icon"
 					variant="ghost"
 				>
-					<DotsThreeIcon className="size-4" weight="bold" />
+					<DotsThreeIcon className="size-5" weight="bold" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-40">
-				<DropdownMenuItem onClick={onEditAction}>
-					<PencilIcon className="size-4" weight="duotone" />
-					Edit
+			<DropdownMenuContent align="end" className="w-44">
+				<DropdownMenuItem className="gap-2" onClick={onEditAction}>
+					<PencilSimpleIcon className="size-4" weight="duotone" />
+					Edit Monitor
 				</DropdownMenuItem>
 				<DropdownMenuItem
+					className="gap-2"
 					disabled={
 						isPausing || pauseMutation.isPending || resumeMutation.isPending
 					}
 					onClick={handleTogglePause}
 				>
-					<HeartbeatIcon className="size-4" weight="duotone" />
+					{schedule.isPaused ? (
+						<PlayIcon className="size-4" weight="duotone" />
+					) : (
+						<PauseIcon className="size-4" weight="duotone" />
+					)}
 					{schedule.isPaused ? "Resume" : "Pause"}
 				</DropdownMenuItem>
+				<DropdownMenuSeparator />
 				<DropdownMenuItem
-					className="text-destructive focus:text-destructive"
+					className="gap-2 text-destructive focus:text-destructive"
 					disabled={deleteMutation.isPending}
 					onClick={handleDelete}
+					variant="destructive"
 				>
-					<TrashIcon className="size-4" weight="duotone" />
-					Delete
+					<TrashIcon className="size-4 fill-destructive" weight="duotone" />
+					Delete Monitor
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
+	);
+}
+
+function MiniHeatmap({
+	scheduleId,
+	websiteId,
+	isActive,
+}: {
+	scheduleId: string;
+	websiteId: string | null;
+	isActive: boolean;
+}) {
+	const heatmapDateRange = useMemo(
+		() => ({
+			start_date: dayjs()
+				.subtract(HEATMAP_DAYS - 1, "day")
+				.startOf("day")
+				.format("YYYY-MM-DD"),
+			end_date: dayjs().startOf("day").format("YYYY-MM-DD"),
+			granularity: "daily" as const,
+		}),
+		[],
+	);
+
+	const queryIdOptions = useMemo(
+		() => (websiteId ? { websiteId } : { scheduleId }),
+		[websiteId, scheduleId],
+	);
+
+	const heatmapQueries = useMemo(
+		() => [
+			{
+				id: "uptime-heatmap",
+				parameters: ["uptime_time_series"],
+				granularity: "daily" as const,
+			},
+		],
+		[],
+	);
+
+	const { getDataForQuery, isLoading } = useBatchDynamicQuery(
+		queryIdOptions,
+		heatmapDateRange,
+		heatmapQueries,
+		{ enabled: isActive },
+	);
+
+	const rawData =
+		(getDataForQuery("uptime-heatmap", "uptime_time_series") as Array<{
+			date: string;
+			uptime_percentage?: number;
+		}>) || [];
+
+	const heatmapData = useMemo(
+		() => buildUptimeHeatmapDays(rawData, HEATMAP_DAYS),
+		[rawData],
+	);
+
+	const uptimePercent = useMemo(() => {
+		const withData = heatmapData.filter((d) => d.hasData);
+		if (withData.length === 0) {
+			return null;
+		}
+		const total = withData.reduce((acc, d) => acc + d.uptime, 0);
+		return total / withData.length;
+	}, [heatmapData]);
+
+	if (!isActive) {
+		return (
+			<>
+				<div className="flex h-5 w-32 items-center gap-[1.5px] lg:w-44">
+					{Array.from({ length: HEATMAP_DAYS }).map((_, i) => (
+						<div
+							className="h-full flex-1 rounded-sm bg-muted"
+							key={`empty-${i + 1}`}
+						/>
+					))}
+				</div>
+				<span className="w-14 text-right text-muted-foreground text-xs tabular-nums">
+					—
+				</span>
+			</>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<>
+				<Skeleton className="h-5 w-32 rounded lg:w-44" />
+				<Skeleton className="h-4 w-14 rounded" />
+			</>
+		);
+	}
+
+	return (
+		<>
+			<UptimeHeatmapStrip
+				days={heatmapData}
+				emptyLabel="No data"
+				getDateLabel={(d) => formatDateOnly(d)}
+				interactive={false}
+				isActive={isActive}
+				stripClassName="flex h-5 w-32 items-end gap-[1.5px] lg:w-44"
+			/>
+			<span
+				className={cn(
+					"w-14 text-right font-semibold text-xs tabular-nums",
+					uptimePercent === null
+						? "text-muted-foreground"
+						: uptimePercent >= 99.9
+							? "text-emerald-600 dark:text-emerald-400"
+							: uptimePercent >= 95
+								? "text-amber-600 dark:text-amber-400"
+								: "text-red-600 dark:text-red-400",
+				)}
+			>
+				{uptimePercent === null ? "—" : `${uptimePercent.toFixed(1)}%`}
+			</span>
+		</>
 	);
 }
 
@@ -152,69 +291,99 @@ export function MonitorRow({
 	onRefetchAction,
 }: MonitorRowProps) {
 	const isWebsiteMonitor = !!schedule.websiteId;
+	const isActive = !schedule.isPaused;
 	const displayName = isWebsiteMonitor
 		? schedule.website?.name || schedule.website?.domain || "Unknown"
 		: schedule.name || schedule.url || "Unknown";
 	const displayUrl = isWebsiteMonitor ? schedule.website?.domain : schedule.url;
 
+	const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+		const target = e.target as HTMLElement;
+		if (
+			target.closest("[data-dropdown-trigger]") ||
+			target.closest("[data-radix-popper-content-wrapper]")
+		) {
+			e.preventDefault();
+		}
+	};
+
 	return (
 		<Link
-			className="group flex w-full items-center gap-3 border-b px-3 py-3 transition-colors hover:bg-accent/50 sm:gap-4 sm:px-4"
+			className={cn(
+				"group flex h-15 min-w-full items-center gap-4 border-b px-4 transition-colors hover:bg-accent/50",
+				!isActive && "opacity-50",
+			)}
 			href={`/monitors/${schedule.id}`}
+			onClick={handleClick}
 		>
-			<div className="flex size-9 shrink-0 items-center justify-center rounded border bg-card">
+			{/* Icon */}
+			<div
+				className={cn(
+					"flex size-8 shrink-0 items-center justify-center rounded",
+					isActive
+						? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+						: "bg-muted text-muted-foreground",
+				)}
+			>
 				{displayUrl ? (
 					<FaviconImage
 						altText={`${displayName} favicon`}
 						domain={displayUrl}
 						fallbackIcon={
-							<HeartbeatIcon
-								className="text-muted-foreground"
-								size={18}
-								weight="duotone"
-							/>
+							<HeartbeatIcon className="size-4" weight="duotone" />
 						}
-						size={18}
+						size={16}
 					/>
 				) : (
-					<HeartbeatIcon
-						className="text-muted-foreground"
-						size={18}
-						weight="duotone"
-					/>
+					<HeartbeatIcon className="size-4" weight="duotone" />
 				)}
 			</div>
 
-			<div className="min-w-0 flex-1">
-				<div className="flex items-center gap-2">
-					<span className="truncate font-medium text-sm">{displayName}</span>
-					<Badge
-						className="shrink-0 gap-1.5"
-						variant={schedule.isPaused ? "amber" : "green"}
-					>
-						<span
-							className={`size-1.5 rounded ${
-								schedule.isPaused ? "bg-amber-500" : "bg-green-500"
-							}`}
-						/>
-						{schedule.isPaused ? "Paused" : "Active"}
+			{/* Name */}
+			<p className="w-40 shrink-0 truncate font-medium text-foreground text-sm lg:w-52">
+				{displayName}
+			</p>
+
+			{/* URL */}
+			<p className="min-w-0 flex-1 truncate text-muted-foreground text-xs">
+				{displayUrl}
+			</p>
+
+			{/* Frequency */}
+			<span className="hidden w-14 shrink-0 text-muted-foreground text-xs tabular-nums md:block">
+				{GRANULARITY_LABELS[schedule.granularity] || schedule.granularity}
+			</span>
+
+			{/* Public */}
+			<div className="hidden w-16 shrink-0 md:block">
+				{schedule.isPublic ? (
+					<Badge className="gap-1" variant="outline">
+						<GlobeIcon className="size-3" weight="duotone" />
+						Public
 					</Badge>
-					{schedule.isPublic ? (
-						<Badge className="hidden gap-1 sm:flex" variant="outline">
-							<GlobeIcon className="size-3" weight="duotone" />
-							Public
-						</Badge>
-					) : null}
-				</div>
-				<div className="mt-0.5 flex items-center gap-1.5 text-xs">
-					<span className="truncate text-muted-foreground">{displayUrl}</span>
-					<span className="text-muted-foreground/30">•</span>
-					<span className="shrink-0 text-muted-foreground">
-						{granularityLabels[schedule.granularity] || schedule.granularity}
-					</span>
-				</div>
+				) : null}
 			</div>
 
+			{/* Heatmap + uptime % */}
+			<div className="hidden shrink-0 items-center gap-3 lg:flex">
+				<MiniHeatmap
+					isActive={isActive}
+					scheduleId={schedule.id}
+					websiteId={schedule.websiteId}
+				/>
+			</div>
+
+			{/* Status */}
+			<div className="w-16 shrink-0">
+				<Badge
+					className="shrink-0"
+					variant={isActive ? "green" : "amber"}
+				>
+					{isActive ? "Active" : "Paused"}
+				</Badge>
+			</div>
+
+			{/* Actions */}
 			<div
 				className="shrink-0"
 				onClick={(e) => {

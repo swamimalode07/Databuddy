@@ -261,7 +261,7 @@ export function FunnelsListRenderer({
 						className="mt-2"
 						onClick={openCreate}
 						size="sm"
-						variant="secondary"
+						variant="outline"
 					>
 						<PlusIcon className="size-4" />
 						Create Funnel

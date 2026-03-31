@@ -144,10 +144,10 @@ export function MobileSidebar({
 						...baseConfig,
 						navigationMap: {
 							...baseConfig.navigationMap,
-							home: isLoadingWebsites
+							home: (!hasMounted || isLoadingWebsites)
 								? createLoadingWebsitesNavigation()
 								: createWebsitesNavigation(websites),
-							monitors: isLoadingMonitors
+							monitors: (!hasMounted || isLoadingMonitors)
 								? createLoadingMonitorsNavigation()
 								: createMonitorsNavigation(monitors),
 						},

@@ -142,7 +142,7 @@ export function FeedbackPrompt() {
 				className="w-full"
 				onClick={handleDismissAction}
 				size="sm"
-				variant="secondary"
+				variant="outline"
 			>
 				<Link href="/feedback">Give Feedback</Link>
 			</Button>

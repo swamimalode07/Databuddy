@@ -5,7 +5,10 @@ import { z } from "zod";
 import { rpcError } from "../errors";
 import { logger } from "../lib/logger";
 import { protectedProcedure } from "../orpc";
+import { withFeatureAccess } from "../procedures/with-feature-access";
 import { withWorkspace } from "../procedures/with-workspace";
+
+const monitorsProcedure = protectedProcedure.use(withFeatureAccess("monitors"));
 
 const client = new Client({ token: process.env.UPSTASH_QSTASH_TOKEN });
 
@@ -120,7 +123,7 @@ const listScheduleItemSchema = getScheduleOutputSchema
 	.loose();
 
 export const uptimeRouter = {
-	getScheduleByWebsiteId: protectedProcedure
+	getScheduleByWebsiteId: monitorsProcedure
 		.route({
 			description: "Returns uptime schedule for a website.",
 			method: "POST",
@@ -147,7 +150,7 @@ export const uptimeRouter = {
 			return schedule ?? null;
 		}),
 
-	listSchedules: protectedProcedure
+	listSchedules: monitorsProcedure
 		.route({
 			description:
 				"Returns uptime schedules for organization or all user workspaces.",
@@ -184,7 +187,7 @@ export const uptimeRouter = {
 			});
 		}),
 
-	getSchedule: protectedProcedure
+	getSchedule: monitorsProcedure
 		.route({
 			description: "Returns schedule with QStash status.",
 			method: "POST",
@@ -219,7 +222,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	createSchedule: protectedProcedure
+	createSchedule: monitorsProcedure
 		.route({
 			description:
 				"Creates an uptime monitor. Requires workspace update permission.",
@@ -316,7 +319,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	updateSchedule: protectedProcedure
+	updateSchedule: monitorsProcedure
 		.route({
 			description: "Updates an uptime schedule. Requires update permission.",
 			method: "POST",
@@ -396,7 +399,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	deleteSchedule: protectedProcedure
+	deleteSchedule: monitorsProcedure
 		.route({
 			description: "Deletes an uptime schedule. Requires update permission.",
 			method: "POST",
@@ -420,7 +423,7 @@ export const uptimeRouter = {
 			return { success: true };
 		}),
 
-	togglePause: protectedProcedure
+	togglePause: monitorsProcedure
 		.route({
 			description: "Pauses or resumes an uptime schedule.",
 			method: "POST",
@@ -465,7 +468,7 @@ export const uptimeRouter = {
 			return { success: true, isPaused: input.pause };
 		}),
 
-	pauseSchedule: protectedProcedure
+	pauseSchedule: monitorsProcedure
 		.route({
 			description: "Pauses an uptime schedule. Legacy compatibility.",
 			method: "POST",
@@ -502,7 +505,7 @@ export const uptimeRouter = {
 			return { success: true, isPaused: true };
 		}),
 
-	resumeSchedule: protectedProcedure
+	resumeSchedule: monitorsProcedure
 		.route({
 			description: "Resumes an uptime schedule. Legacy compatibility.",
 			method: "POST",

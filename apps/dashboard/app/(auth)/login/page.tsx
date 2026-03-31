@@ -105,7 +105,7 @@ function LoginPage() {
 								onClick={() => handleSocialLogin("github")}
 								size="lg"
 								type="button"
-								variant="secondary"
+								variant="outline"
 							>
 								<GithubLogoIcon className="size-4" />
 								Sign in with GitHub
@@ -124,7 +124,7 @@ function LoginPage() {
 								onClick={() => handleSocialLogin("google")}
 								size="lg"
 								type="button"
-								variant="secondary"
+								variant="outline"
 							>
 								<GoogleLogoIcon className="size-4" />
 								Sign in with Google
@@ -144,7 +144,7 @@ function LoginPage() {
 									disabled={isLoading}
 									size="lg"
 									type="button"
-									variant="secondary"
+									variant="outline"
 								>
 									<Link href="/login/magic">
 										<SparkleIcon className="size-4" />

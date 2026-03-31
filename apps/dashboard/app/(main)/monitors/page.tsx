@@ -4,42 +4,49 @@ import {
 	ArrowClockwiseIcon,
 	HeartbeatIcon,
 	PlusIcon,
+	UserPlusIcon,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { FeatureAccessGate } from "@/components/feature-access-gate";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
+import { FeatureInviteDialog } from "@/components/organizations/feature-invite-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { type Monitor, MonitorsList } from "./_components/monitors-list";
 
 const MonitorsListSkeleton = () => (
-	<div>
+	<div className="w-full overflow-x-auto">
 		{Array.from({ length: 5 }).map((_, i) => (
 			<div
-				className="flex items-center gap-3 border-b px-3 py-3 sm:gap-4 sm:px-4"
+				className="flex h-15 items-center gap-4 border-b px-4"
 				key={`skeleton-${i + 1}`}
 			>
-				<Skeleton className="size-9 shrink-0 rounded" />
-				<div className="min-w-0 flex-1 space-y-1.5">
-					<div className="flex items-center gap-2">
-						<Skeleton className="h-4 w-32" />
-						<Skeleton className="h-4 w-14" />
-					</div>
-					<Skeleton className="h-3 w-48" />
-				</div>
-				<Skeleton className="size-7 shrink-0 rounded" />
+				<Skeleton className="size-8 shrink-0 rounded" />
+				<Skeleton className="h-4 w-40 shrink-0 lg:w-52" />
+				<Skeleton className="h-3 min-w-0 flex-1" />
+				<Skeleton className="hidden h-3 w-14 shrink-0 md:block" />
+				<Skeleton className="hidden h-5 w-16 shrink-0 md:block" />
+				<Skeleton className="hidden h-5 w-32 shrink-0 lg:block lg:w-44" />
+				<Skeleton className="hidden h-4 w-14 shrink-0 lg:block" />
+				<Skeleton className="h-5 w-16 shrink-0" />
+				<Skeleton className="size-8 shrink-0 rounded" />
 			</div>
 		))}
 	</div>
 );
 
 export default function MonitorsPage() {
+	const { hasAccess, isLoading: isAccessLoading } =
+		useFeatureAccess("monitors");
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const [showInviteDialog, setShowInviteDialog] = useState(false);
 	const [editingSchedule, setEditingSchedule] = useState<{
 		id: string;
 		url: string;
@@ -59,6 +66,7 @@ export default function MonitorsPage() {
 		isError,
 	} = useQuery({
 		...orpc.uptime.listSchedules.queryOptions({ input: {} }),
+		enabled: hasAccess,
 	});
 
 	const handleCreate = () => {
@@ -91,34 +99,44 @@ export default function MonitorsPage() {
 		<ErrorBoundary>
 			<div className="h-full overflow-y-auto">
 				<PageHeader
-					count={schedules?.length}
+					count={hasAccess ? schedules?.length : undefined}
 					description="View and manage all your uptime monitors"
 					icon={<HeartbeatIcon />}
 					right={
-						<>
-							<Button
-								disabled={isLoading || isFetching}
-								onClick={() => refetch()}
-								size="icon"
-								variant="secondary"
-							>
-								<ArrowClockwiseIcon
-									className={cn(
-										"size-4",
-										(isLoading || isFetching) && "animate-spin"
-									)}
-								/>
-							</Button>
-							<Button onClick={handleCreate}>
-								<PlusIcon className="mr-2 size-4" />
-								Create Monitor
-							</Button>
-						</>
+						hasAccess ? (
+							<>
+								<Button
+									onClick={() => setShowInviteDialog(true)}
+									variant="outline"
+								>
+									<UserPlusIcon weight="duotone" />
+									Invite
+								</Button>
+								<Button
+									aria-label="Refresh monitors"
+									disabled={isLoading || isFetching}
+									onClick={() => refetch()}
+									size="icon"
+									variant="outline"
+								>
+									<ArrowClockwiseIcon
+										className={cn((isLoading || isFetching) && "animate-spin")}
+									/>
+								</Button>
+								<Button onClick={handleCreate}>
+									<PlusIcon />
+									Create Monitor
+								</Button>
+							</>
+						) : undefined
 					}
 					title="Monitors"
 				/>
 
-				<Suspense fallback={<MonitorsListSkeleton />}>
+				<FeatureAccessGate
+					flagKey="monitors"
+					loadingFallback={<MonitorsListSkeleton />}
+				>
 					{isError ? (
 						<div className="flex h-full items-center justify-center py-16">
 							<EmptyState
@@ -131,7 +149,7 @@ export default function MonitorsPage() {
 						</div>
 					) : (
 						<MonitorsList
-							isLoading={isLoading}
+							isLoading={isAccessLoading || isLoading}
 							monitors={(schedules as unknown as Monitor[]) || []}
 							onCreateMonitorAction={handleCreate}
 							onDeleteMonitorAction={handleDelete}
@@ -139,7 +157,7 @@ export default function MonitorsPage() {
 							onRefetchAction={refetch}
 						/>
 					)}
-				</Suspense>
+				</FeatureAccessGate>
 
 				{isSheetOpen && (
 					<Suspense fallback={null}>
@@ -150,6 +168,13 @@ export default function MonitorsPage() {
 							schedule={editingSchedule}
 						/>
 					</Suspense>
+				)}
+				{showInviteDialog && (
+					<FeatureInviteDialog
+						flagKey="monitors"
+						onOpenChangeAction={setShowInviteDialog}
+						open={showInviteDialog}
+					/>
 				)}
 			</div>
 		</ErrorBoundary>

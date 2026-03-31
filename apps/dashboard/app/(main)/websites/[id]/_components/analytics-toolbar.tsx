@@ -174,7 +174,7 @@ export function AnalyticsToolbar({
 						className="size-8"
 						disabled={isRefreshing || isDisabled}
 						onClick={onRefreshAction}
-						variant="secondary"
+						variant="outline"
 					>
 						<ArrowClockwiseIcon
 							aria-hidden="true"

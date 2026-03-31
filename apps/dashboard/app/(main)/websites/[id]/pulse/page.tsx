@@ -16,7 +16,9 @@ import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
+import { FeatureAccessGate } from "@/components/feature-access-gate";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import {
 	AlertDialog,
@@ -32,6 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { useWebsite } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
 import { fromNow, localDayjs } from "@/lib/time";
@@ -78,6 +81,7 @@ export default function PulsePage() {
 	} | null>(null);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+	const { hasAccess } = useFeatureAccess("monitors");
 
 	const {
 		data: rawSchedule,
@@ -87,7 +91,7 @@ export default function PulsePage() {
 		...orpc.uptime.getScheduleByWebsiteId.queryOptions({
 			input: { websiteId: websiteId as string },
 		}),
-		enabled: !!websiteId,
+		enabled: !!websiteId && hasAccess,
 	});
 
 	const schedule = rawSchedule as Schedule | null | undefined;
@@ -402,92 +406,102 @@ export default function PulsePage() {
 				websiteId={websiteId as string}
 				websiteName={website?.name || undefined}
 			/>
-			<div className="flex-1 overflow-y-auto">
-				{isLoadingSchedule ? (
-					<div className="flex h-full items-center justify-center p-4">
-						<div className="text-muted-foreground text-sm">
-							Loading monitor...
-						</div>
+			<FeatureAccessGate
+				flagKey="monitors"
+				loadingFallback={
+					<div className="flex-1 space-y-4 overflow-y-auto p-4">
+						<Skeleton className="h-32 w-full rounded" />
+						<Skeleton className="h-64 w-full rounded" />
 					</div>
-				) : schedule ? (
-					<>
-						{schedule.isPublic && statusPageUrl ? (
-							<div className="flex h-10 items-center justify-between border-b bg-emerald-500/5 px-4 py-2.5">
-								<div className="flex items-center gap-2 overflow-hidden">
-									<GlobeIcon
-										className="size-4 shrink-0 text-emerald-600"
-										weight="duotone"
-									/>
-									<span className="truncate text-muted-foreground text-xs">
-										Visible on{" "}
-										<Link
-											className="font-medium text-foreground hover:underline"
-											href={statusPageUrl}
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											public status page
-										</Link>
-									</span>
-								</div>
-								<div className="flex shrink-0 items-center gap-1">
-									<Button
-										aria-label="Copy status page URL"
-										onClick={handleCopyStatusUrl}
-										size="sm"
-										variant="ghost"
-									>
-										<CopyIcon size={14} weight="duotone" />
-									</Button>
-									<Button
-										aria-label="Open status page"
-										asChild
-										size="sm"
-										variant="ghost"
-									>
-										<Link
-											href={statusPageUrl}
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											<ArrowSquareOutIcon size={14} weight="duotone" />
-										</Link>
-									</Button>
-								</div>
+				}
+			>
+				<div className="flex-1 overflow-y-auto">
+					{isLoadingSchedule ? (
+						<div className="flex h-full items-center justify-center p-4">
+							<div className="text-muted-foreground text-sm">
+								Loading monitor...
 							</div>
-						) : null}
+						</div>
+					) : schedule ? (
+						<>
+							{schedule.isPublic && statusPageUrl ? (
+								<div className="flex h-10 items-center justify-between border-b bg-emerald-500/5 px-4 py-2.5">
+									<div className="flex items-center gap-2 overflow-hidden">
+										<GlobeIcon
+											className="size-4 shrink-0 text-emerald-600"
+											weight="duotone"
+										/>
+										<span className="truncate text-muted-foreground text-xs">
+											Visible on{" "}
+											<Link
+												className="font-medium text-foreground hover:underline"
+												href={statusPageUrl}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												public status page
+											</Link>
+										</span>
+									</div>
+									<div className="flex shrink-0 items-center gap-1">
+										<Button
+											aria-label="Copy status page URL"
+											onClick={handleCopyStatusUrl}
+											size="sm"
+											variant="ghost"
+										>
+											<CopyIcon size={14} weight="duotone" />
+										</Button>
+										<Button
+											aria-label="Open status page"
+											asChild
+											size="sm"
+											variant="ghost"
+										>
+											<Link
+												href={statusPageUrl}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												<ArrowSquareOutIcon size={14} weight="duotone" />
+											</Link>
+										</Button>
+									</div>
+								</div>
+							) : null}
 
-						<div className="border-b bg-sidebar">
-							<UptimeHeatmap
-								data={heatmapData}
-								days={90}
-								isLoading={isLoadingHeatmap}
+							<div className="border-b bg-sidebar">
+								<UptimeHeatmap
+									data={heatmapData}
+									days={90}
+									isLoading={isLoadingHeatmap}
+								/>
+							</div>
+
+							<div className="bg-sidebar">
+								<RecentActivity
+									checks={recentChecks}
+									isLoading={isLoadingUptime}
+								/>
+							</div>
+						</>
+					) : (
+						<div className="flex h-full items-center justify-center p-4">
+							<EmptyState
+								action={{
+									label: "Create Monitor",
+									onClick: handleCreateMonitor,
+								}}
+								className="h-full py-0"
+								description="Set up uptime monitoring to track your website's availability and receive alerts when it goes down."
+								icon={<HeartbeatIcon weight="duotone" />}
+								title="No monitor configured"
+								variant="minimal"
 							/>
 						</div>
-
-						<div className="bg-sidebar">
-							<RecentActivity
-								checks={recentChecks}
-								isLoading={isLoadingUptime}
-							/>
-						</div>
-					</>
-				) : (
-					<div className="flex h-full items-center justify-center p-4">
-						<EmptyState
-							action={{
-								label: "Create Monitor",
-								onClick: handleCreateMonitor,
-							}}
-							className="h-full py-0"
-							description="Set up uptime monitoring to track your website's availability and receive alerts when it goes down."
-							icon={<HeartbeatIcon weight="duotone" />}
-							title="No monitor configured"
-							variant="minimal"
-						/>
-					</div>
-				)}
-			</div>
+					)}
+				</div>
+			</FeatureAccessGate>
 
 			<MonitorSheet
 				onCloseAction={setIsDialogOpen}

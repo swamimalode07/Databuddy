@@ -168,7 +168,7 @@ export function ApiKeyList({
 												}}
 												size="sm"
 												type="button"
-												variant="secondary"
+												variant="outline"
 											>
 												Manage
 											</Button>
