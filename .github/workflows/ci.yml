@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    timeout-minutes: 30
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/databuddy_test
+      REDIS_URL: redis://localhost:6379
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDPANDA_BROKER: localhost:9092
+      REDPANDA_USER: test-redpanda-user
+      REDPANDA_PASSWORD: test-redpanda-password
+      DATABUDDY_API_KEY: test-databuddy-api-key
+      DATABUDDY_WEBSITE_ID: test-databuddy-website-id
+      CLICKHOUSE_URL: http://localhost:8123
+      CLICKHOUSE_HOST: localhost
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: databuddy_test
+      BETTER_AUTH_SECRET: test-auth-secret-for-ci-testing-only
+      BETTER_AUTH_URL: http://localhost:3000
+      GITHUB_CLIENT_ID: test-github-client-id
+      GITHUB_CLIENT_SECRET: test-github-client-secret
+      GOOGLE_CLIENT_ID: test-google-client-id
+      GOOGLE_CLIENT_SECRET: test-google-client-secret
+      RESEND_API_KEY: test-resend-api-key
+      RECAPTCHA_SECRET_KEY: test-recaptcha-secret-key
+      VERCEL_CLIENT_ID: test-vercel-client-id
+      VERCEL_CLIENT_SECRET: test-vercel-client-secret
+      AUTUMN_SECRET_KEY: test-autumn-secret-key
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+      EMAIL_API_KEY: test-email-api-key
+      IP_HASH_SALT: test-ip-hash-salt
+      UPSTASH_QSTASH_TOKEN: test-upstash-qstash-token
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Test
+        env:
+          NODE_ENV: test
+        run: bun run test
