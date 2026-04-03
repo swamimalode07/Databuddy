@@ -9,13 +9,14 @@ import {
 interface AIComponentProps {
 	input: RawComponentInput;
 	className?: string;
+	streaming?: boolean;
 }
 
 /**
  * Renders an AI-generated component based on its type.
  * Looks up the component definition in the registry and renders it.
  */
-export function AIComponent({ input, className }: AIComponentProps) {
+export function AIComponent({ input, className, streaming }: AIComponentProps) {
 	if (!hasComponent(input.type)) {
 		return null;
 	}
@@ -32,5 +33,5 @@ export function AIComponent({ input, className }: AIComponentProps) {
 	const props = definition.transform(input);
 	const Component = definition.component;
 
-	return <Component {...props} className={className} />;
+	return <Component {...props} className={className} streaming={streaming} />;
 }

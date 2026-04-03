@@ -62,7 +62,7 @@ Here's your 30-day overview:
 
 **Key metrics:** 45,200 pageviews (up 12% vs prior period), 18,900 unique visitors, 42% bounce rate, 1m 15s avg session duration.
 
-{"type":"line-chart","title":"Traffic (last 30 days)","data":{"x":["Mar 4","Mar 11","Mar 18","Mar 25"],"pageviews":[9800,11200,12500,11700],"visitors":[4100,4600,5200,5000]}}
+{"type":"area-chart","title":"Traffic (last 30 days)","series":["pageviews","visitors"],"rows":[["Mar 4",9800,4100],["Mar 11",11200,4600],["Mar 18",12500,5200],["Mar 25",11700,5000]]}
 
 **Top sources:** Google (45%), Direct (28%), Twitter (12%). Google traffic grew 18% - your SEO improvements are working.
 
@@ -86,82 +86,48 @@ Want me to create this funnel?
 
 const ANALYTICS_CHART_RULES = `
 **Charts:**
-- When presenting time-series data, trends, comparisons, or distributions, include a chart using the JSON format below
-- Charts help visualize data patterns and make insights easier to understand
-- Use charts for: traffic over time, top pages comparison, device distribution, geographic breakdown, performance trends, error trends, etc.
+When presenting data visually, use the JSON chart format on its own line.
 
-To include a chart, use this exact JSON format on its own line:
+Chart type selection:
+- area-chart: DEFAULT for time-series data (traffic, pageviews, sessions over time). Use this unless another type fits better.
+- bar-chart: Use for categorical comparisons (top pages, top referrers by count)
+- stacked-bar-chart: Use for proportional breakdowns over time (traffic sources, device types by day)
+- line-chart: Use only for multi-metric overlays where filled areas would obscure each other
+- pie-chart/donut-chart: Use for part-of-whole distributions (device split, browser share). Prefer donut-chart.
 
-Time-series charts (line-chart, bar-chart, area-chart, stacked-bar-chart):
-{"type":"line-chart","title":"Traffic Over Time","data":{"x":["2024-01-01","2024-01-02"],"pageviews":[100,150],"visitors":[80,120]}}
-{"type":"bar-chart","title":"Top Pages","data":{"x":["/page1","/page2","/page3"],"views":[1000,800,600]}}
-{"type":"area-chart","title":"Sessions","data":{"x":["Mon","Tue","Wed"],"sessions":[500,600,550]}}
-{"type":"stacked-bar-chart","title":"Traffic by Source","data":{"x":["Mon","Tue","Wed"],"organic":[100,120,115],"paid":[50,60,55],"direct":[30,35,40]}}
+Time-series (area-chart, bar-chart, line-chart, stacked-bar-chart):
+{"type":"area-chart","title":"Traffic Over Time","series":["pageviews","visitors"],"rows":[["Mon",100,80],["Tue",150,110],["Wed",120,90]]}
+{"type":"bar-chart","title":"Top Pages","series":["views"],"rows":[["/page1",1000],["/page2",800],["/page3",600]]}
+{"type":"stacked-bar-chart","title":"Traffic by Source","series":["organic","paid","direct"],"rows":[["Mon",100,50,30],["Tue",120,60,35],["Wed",115,55,40]]}
 
-Distribution charts (pie-chart, donut-chart):
-{"type":"pie-chart","title":"Device Distribution","data":{"labels":["Desktop","Mobile","Tablet"],"values":[650,280,70]}}
-{"type":"donut-chart","title":"Traffic Sources","data":{"labels":["Organic","Direct","Referral"],"values":[450,300,150]}}
+Distribution (pie-chart, donut-chart):
+{"type":"pie-chart","title":"Device Distribution","rows":[["Desktop",650],["Mobile",280],["Tablet",70]]}
+{"type":"donut-chart","title":"Traffic Sources","rows":[["Organic",450],["Direct",300],["Referral",150]]}
 
-Data table (for tabular data with custom columns):
-{"type":"data-table","title":"Performance Metrics","description":"Page load times","columns":[{"key":"page","header":"Page"},{"key":"visitors","header":"Visitors","align":"right"},{"key":"avg_load","header":"Avg Load (ms)","align":"right"}],"rows":[{"page":"/home","visitors":1500,"avg_load":245},{"page":"/about","visitors":800,"avg_load":180}],"footer":"5 pages total"}
+Data table:
+{"type":"data-table","title":"Performance Metrics","columns":["Page","Visitors","Avg Load (ms)"],"align":["left","right","right"],"rows":[["/home",1500,245],["/about",800,180]]}
 
 Referrers list (traffic sources with favicons):
-{"type":"referrers-list","title":"Traffic Sources","referrers":[{"name":"Google","domain":"google.com","visitors":500,"percentage":45.5},{"name":"Twitter","domain":"twitter.com","visitors":200,"percentage":18.2},{"name":"Direct","visitors":300,"percentage":27.3}]}
+{"type":"referrers-list","title":"Traffic Sources","referrers":[{"name":"Google","domain":"google.com","visitors":500,"percentage":45.5},{"name":"Direct","visitors":300,"percentage":27.3}]}
 
 Mini map (geographic distribution):
-{"type":"mini-map","title":"Visitor Locations","countries":[{"name":"United States","country_code":"US","visitors":1200,"percentage":40},{"name":"Germany","country_code":"DE","visitors":500,"percentage":16.7},{"name":"United Kingdom","country_code":"GB","visitors":400,"percentage":13.3}]}
+{"type":"mini-map","title":"Visitor Locations","countries":[{"name":"United States","country_code":"US","visitors":1200,"percentage":40},{"name":"Germany","country_code":"DE","visitors":500,"percentage":16.7}]}
 
 Links list:
 {"type":"links-list","title":"Your Short Links","links":[{"id":"1","name":"Black Friday","slug":"bf24","targetUrl":"https://example.com/sale","createdAt":"2024-01-01T00:00:00Z","expiresAt":null}]}
 
-Link preview (for create/update/delete confirmation):
+Link preview (for confirmations):
 {"type":"link-preview","mode":"create","link":{"name":"Black Friday Sale","targetUrl":"https://example.com/sale","slug":"(auto-generated)","expiresAt":"Never"}}
-{"type":"link-preview","mode":"update","link":{"name":"Updated Name","targetUrl":"https://example.com/new","slug":"bf24"}}
-{"type":"link-preview","mode":"delete","link":{"name":"Old Link","targetUrl":"https://example.com","slug":"old"}}
 
-Funnels list:
-{"type":"funnels-list","title":"Your Funnels","funnels":[{"id":"1","name":"Sign Up Flow","description":"Track user registration","steps":[{"type":"PAGE_VIEW","target":"/","name":"Homepage"},{"type":"PAGE_VIEW","target":"/signup","name":"Sign Up Page"}],"isActive":true,"createdAt":"2024-01-01T00:00:00Z"}]}
+Funnel/goal/annotation list and preview components use the same format as before.
 
-Funnel preview (for create/update/delete confirmation):
-{"type":"funnel-preview","mode":"create","funnel":{"name":"Checkout Flow","description":"Track purchase journey","steps":[{"type":"PAGE_VIEW","target":"/cart","name":"Cart"},{"type":"PAGE_VIEW","target":"/checkout","name":"Checkout"},{"type":"EVENT","target":"purchase_complete","name":"Purchase Complete"}],"ignoreHistoricData":false}}
-{"type":"funnel-preview","mode":"update","funnel":{"name":"Updated Flow","steps":[{"type":"PAGE_VIEW","target":"/","name":"Home"}]}}
-{"type":"funnel-preview","mode":"delete","funnel":{"name":"Old Funnel","steps":[{"type":"PAGE_VIEW","target":"/old","name":"Old Step"}]}}
-
-Goals list:
-{"type":"goals-list","title":"Your Goals","goals":[{"id":"1","name":"Newsletter Signup","description":"Track newsletter signups","type":"EVENT","target":"newsletter_signup","isActive":true,"createdAt":"2024-01-01T00:00:00Z"}]}
-
-Goal preview (for create/update/delete confirmation):
-{"type":"goal-preview","mode":"create","goal":{"name":"Purchase Complete","description":"Track completed purchases","type":"EVENT","target":"purchase_complete","ignoreHistoricData":false}}
-{"type":"goal-preview","mode":"update","goal":{"name":"Updated Goal","type":"PAGE_VIEW","target":"/thank-you"}}
-{"type":"goal-preview","mode":"delete","goal":{"name":"Old Goal","type":"EVENT","target":"old_event"}}
-
-Annotations list:
-{"type":"annotations-list","title":"Chart Annotations","annotations":[{"id":"1","text":"Product launch","annotationType":"point","xValue":"2024-01-15T00:00:00Z","color":"#3B82F6","tags":["launch"],"isPublic":true,"createdAt":"2024-01-01T00:00:00Z"}]}
-
-Annotation preview (for create/update/delete confirmation):
-{"type":"annotation-preview","mode":"create","annotation":{"text":"Marketing campaign started","annotationType":"line","xValue":"2024-02-01T00:00:00Z","color":"#10B981","tags":["marketing"],"isPublic":false}}
-{"type":"annotation-preview","mode":"update","annotation":{"text":"Updated note","annotationType":"point","xValue":"2024-02-15T00:00:00Z"}}
-{"type":"annotation-preview","mode":"delete","annotation":{"text":"Old annotation","annotationType":"range","xValue":"2024-01-01T00:00:00Z","xEndValue":"2024-01-07T00:00:00Z"}}
-
-Rules:
-- For time-series: data has "x" (labels) and named number arrays for each series
-- For stacked-bar-chart: use when comparing proportions over time (e.g., traffic sources breakdown, device types by day)
-- For distribution: data has "labels" and "values" arrays
-- For data-table: use for tabular data with multiple columns, custom alignment. columns array has key, header, and optional align ("left"|"center"|"right"). Ideal for performance metrics, detailed breakdowns
-- For referrers-list: use when showing traffic sources - automatically displays favicons for domains. Include name, domain (for favicon), visitors, and percentage
-- For mini-map: use when showing geographic/country data - displays an interactive map with top countries overlay. Include name, country_code (ISO 2-letter), visitors, percentage
-- For links-list: ALWAYS include ALL of these fields for each link from the tool result: id, name, slug, targetUrl, createdAt, expiresAt, ogTitle, ogDescription, ogImageUrl, ogVideoUrl, iosUrl, androidUrl, expiredRedirectUrl, organizationId
-- For link-preview: Use mode "create" for new links, "update" for edits, "delete" for deletions. Show this component when a link tool returns preview=true
-- For funnels-list: Include all fields from list_funnels tool result: id, name, description, steps (with type, target, name), isActive, createdAt
-- For funnel-preview: Use mode "create" for new funnels, "update" for edits, "delete" for deletions. Show this when create_funnel returns preview=true
-- For goals-list: Include all fields from list_goals tool result: id, name, description, type, target, isActive, createdAt
-- For goal-preview: Use mode "create" for new goals, "update" for edits, "delete" for deletions. Show this when create_goal returns preview=true
-- For annotations-list: Include all fields from list_annotations tool result: id, text, annotationType, xValue, xEndValue, color, tags, isPublic, createdAt
-- For annotation-preview: Use mode "create" for new annotations, "update" for edits, "delete" for deletions. Show this when create_annotation returns preview=true
+Format rules:
+- For time-series: "series" lists the metric names, "rows" are [xLabel, value1, value2, ...] matching series order
+- For distribution: "rows" are [label, value] pairs
+- For data-table: "columns" are header strings, "align" is optional alignment per column, "rows" are positional arrays matching columns
+- For referrers-list, mini-map, links-list: use object-per-item format (unchanged)
 - JSON must be on its own line, separate from text
-- CRITICAL: When using a JSON component, do NOT also show a markdown table or repeat the same data in text
-- Pick ONE format: either JSON component OR markdown table - never both for the same data
-- After showing a component, you can add a brief follow-up question but don't repeat the data`;
+- Pick ONE format: either JSON component OR markdown table, never both for the same data`;
 
 /**
  * Analytics-specific rules for data analysis and presentation.

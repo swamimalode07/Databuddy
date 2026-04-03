@@ -6,12 +6,8 @@ export const timeSeriesSchema = z
 	.object({
 		type: z.string(),
 		title: z.string().optional(),
-		data: z
-			.object({
-				x: z.array(z.string()),
-			})
-			.catchall(z.union([z.array(z.string()), z.array(z.number())]))
-			.passthrough(),
+		series: z.array(z.string()),
+		rows: z.array(z.array(z.union([z.string(), z.number()]))),
 	})
 	.passthrough();
 
@@ -21,37 +17,20 @@ export const distributionSchema = z
 	.object({
 		type: z.string(),
 		title: z.string().optional(),
-		data: z
-			.object({
-				labels: z.array(z.string()),
-				values: z.array(z.number()),
-			})
-			.passthrough(),
+		rows: z.array(z.array(z.union([z.string(), z.number()]))),
 	})
 	.passthrough();
 
 // --- Data Table ---
-
-const dataTableColumnSchema = z
-	.object({
-		key: z.string(),
-		header: z.string(),
-		align: z.enum(["left", "center", "right"]).optional(),
-	})
-	.passthrough();
 
 export const dataTableSchema = z
 	.object({
 		type: z.literal("data-table"),
 		title: z.string().optional(),
 		description: z.string().optional(),
-		columns: z.array(dataTableColumnSchema),
-		rows: z.array(
-			z.record(
-				z.string(),
-				z.union([z.string(), z.number(), z.boolean(), z.null()]),
-			),
-		),
+		columns: z.array(z.string()),
+		align: z.array(z.enum(["left", "center", "right"])).optional(),
+		rows: z.array(z.array(z.union([z.string(), z.number(), z.boolean(), z.null()]))),
 		footer: z.string().optional(),
 	})
 	.passthrough();

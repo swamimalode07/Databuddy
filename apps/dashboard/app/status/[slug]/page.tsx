@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getStatusPageUrl } from "@/lib/app-url";
@@ -14,8 +15,17 @@ interface StatusPageProps {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const getStatusData = (slug: string, days: number) =>
-	publicRPCClient.statusPage.getBySlug({ slug, days }).catch(() => null);
+async function getStatusData(slug: string, days: number) {
+	return unstable_cache(
+		async () =>
+			publicRPCClient.statusPage.getBySlug({ slug, days }).catch(() => null),
+		["status-page", slug, String(days)],
+		{
+			revalidate: 60,
+			tags: ["status-page", `status-page-${slug}`],
+		},
+	)();
+}
 
 function slugify(text: string): string {
 	return text

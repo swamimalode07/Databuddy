@@ -11,7 +11,6 @@ export type {
 	ComponentRegistry,
 	ContentSegment,
 	CountryItem,
-	DataTableColumn,
 	DataTableInput,
 	DistributionInput,
 	LinksListInput,

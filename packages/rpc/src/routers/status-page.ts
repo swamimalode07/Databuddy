@@ -33,7 +33,7 @@ const monitorSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	domain: z.string().optional(),
-	currentStatus: z.enum(["up", "down", "unknown"]),
+	currentStatus: z.enum(["up", "down", "degraded", "unknown"]),
 	uptimePercentage: z.number().optional(),
 	dailyData: z.array(dailyUptimeSchema),
 	lastCheckedAt: z.string().nullable(),
@@ -374,6 +374,21 @@ export const statusPageRouter = {
 		.handler(async ({ context, input }) => {
 			const statusPage = await db.query.statusPages.findFirst({
 				where: eq(statusPages.id, input.statusPageId),
+				with: {
+					statusPageMonitors: {
+						with: {
+							uptimeSchedule: {
+								columns: {
+									id: true,
+									name: true,
+									url: true,
+									isPaused: true,
+								},
+							},
+						},
+						orderBy: (monitors, { asc }) => [asc(monitors.order)],
+					},
+				},
 			});
 
 			if (!statusPage) {
@@ -386,16 +401,10 @@ export const statusPageRouter = {
 				permissions: ["read"],
 			});
 
-			const monitors = await db.query.statusPageMonitors.findMany({
-				where: eq(statusPageMonitors.statusPageId, input.statusPageId),
-				with: {
-					uptimeSchedule: true,
-				},
-				orderBy: (monitors, { asc }) => [asc(monitors.order)],
-			});
+			const { statusPageMonitors: monitors, ...page } = statusPage;
 
 			return {
-				...statusPage,
+				...page,
 				monitors,
 			};
 		}),

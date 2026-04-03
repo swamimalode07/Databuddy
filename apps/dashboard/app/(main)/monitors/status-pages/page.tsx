@@ -89,7 +89,7 @@ export default function StatusPagesListPage() {
 		setEditingStatusPage(null);
 	};
 
-	const statusPages = statusPagesQuery.data as StatusPage[] | undefined;
+	const statusPages = statusPagesQuery.data;
 	const isLoading = isAccessLoading || statusPagesQuery.isLoading;
 	const isError = statusPagesQuery.isError;
 
