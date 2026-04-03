@@ -1,6 +1,7 @@
 // biome-ignore-all lint/a11y: OG image SVGs don't need alt text and it breaks the ui because it displays the alt text
-import { ImageResponse } from "next/og";
+
 import { publicRPCClient } from "@/lib/orpc-public";
+import { ImageResponse } from "next/og";
 
 export const revalidate = 60;
 export const contentType = "image/png";
@@ -77,8 +78,8 @@ export default async function OGImage({
 		.getBySlug({ slug, days: BAR_DAYS })
 		.catch(() => null);
 
-	const orgName = data?.organization.name ?? "Status Page";
-	const status = (data?.overallStatus ?? "operational") as string;
+	const pageName = data?.statusPage.name || "Status Page";
+	const status = data?.overallStatus ?? "operational";
 	const banner = STATUS_BANNER[status] ?? STATUS_BANNER.operational;
 	const monitors = data?.monitors.slice(0, MAX_MONITORS) ?? [];
 	const totalMonitors = data?.monitors.length ?? 0;
@@ -158,14 +159,14 @@ export default async function OGImage({
 			<span
 				style={{
 					color: THEME.foreground,
-					fontSize: orgName.length > 30 ? "36px" : "44px",
+					fontSize: pageName.length > 30 ? "36px" : "44px",
 					fontWeight: 700,
 					lineHeight: 1.15,
 					letterSpacing: "-0.03em",
 					marginBottom: "20px",
 				}}
 			>
-				{orgName}
+				{pageName}
 			</span>
 
 			<div
@@ -329,7 +330,7 @@ export default async function OGImage({
 											fontFamily: "monospace",
 										}}
 									>
-										{monitor.uptimePercentage.toFixed(2)}%
+										{monitor.uptimePercentage?.toFixed(2) ?? "0.00"}%
 									</span>
 								</div>
 
@@ -345,7 +346,9 @@ export default async function OGImage({
 											key={i}
 											style={{
 												flex: 1,
-												backgroundColor: getBarColor(day.uptime_percentage),
+												backgroundColor: getBarColor(
+													day.uptime_percentage ?? 0
+												),
 												borderRadius: "2px",
 											}}
 										/>
@@ -398,7 +401,7 @@ export default async function OGImage({
 						fontFamily: "monospace",
 					}}
 				>
-					databuddy.cc/status
+					app.databuddy.cc/status/{slug}
 				</span>
 			</div>
 		</div>,
