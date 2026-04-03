@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.9-slim AS pruner
+FROM oven/bun:1.3.4-slim AS pruner
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN bunx turbo prune @databuddy/api --docker
 
-FROM oven/bun:1.3.9-slim AS builder
+FROM oven/bun:1.3.4-slim AS builder
 
 WORKDIR /app
 
