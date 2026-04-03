@@ -1,3 +1,10 @@
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -5,7 +12,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-databuddy}
       POSTGRES_USER: ${POSTGRES_USER:-databuddy}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -18,6 +25,7 @@ services:
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   clickhouse:
     image: clickhouse/clickhouse-server:25.5.1-alpine
@@ -25,7 +33,7 @@ services:
     environment:
       CLICKHOUSE_DB: ${CLICKHOUSE_DB:-databuddy_analytics}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-changeme}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     ports:
       - "127.0.0.1:${CLICKHOUSE_PORT:-8123}:8123"
@@ -43,6 +51,7 @@ services:
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   redis:
     image: redis:7-alpine
@@ -51,23 +60,26 @@ services:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
     command: >
       redis-server
       --appendonly yes
       --maxmemory 512mb
       --maxmemory-policy noeviction
-      --requirepass ${REDIS_PASSWORD:-changeme}
+      --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   api:
-    image: ghcr.io/databuddy-analytics/databuddy-api:edge
+    image: ghcr.io/databuddy-analytics/databuddy-api:${IMAGE_TAG:-edge}
     container_name: databuddy-api
     ports:
       - "${API_PORT:-3001}:3001"
@@ -98,9 +110,10 @@ services:
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   basket:
-    image: ghcr.io/databuddy-analytics/databuddy-basket:edge
+    image: ghcr.io/databuddy-analytics/databuddy-basket:${IMAGE_TAG:-edge}
     container_name: databuddy-basket
     ports:
       - "${BASKET_PORT:-4000}:4000"
@@ -127,9 +140,10 @@ services:
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   links:
-    image: ghcr.io/databuddy-analytics/databuddy-links:edge
+    image: ghcr.io/databuddy-analytics/databuddy-links:${IMAGE_TAG:-edge}
     container_name: databuddy-links
     ports:
       - "${LINKS_PORT:-2500}:2500"
@@ -154,10 +168,11 @@ services:
     restart: unless-stopped
     networks:
       - databuddy
+    <<: *logging
 
   # Uncomment to enable uptime monitoring (requires Upstash QStash keys)
   # uptime:
-  #   image: ghcr.io/databuddy-analytics/databuddy-uptime:edge
+  #   image: ghcr.io/databuddy-analytics/databuddy-uptime:${IMAGE_TAG:-edge}
   #   container_name: databuddy-uptime
   #   ports:
   #     - "${UPTIME_PORT:-4001}:4000"
@@ -182,6 +197,7 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - databuddy
+  #   <<: *logging
 
 volumes:
   postgres_data:
