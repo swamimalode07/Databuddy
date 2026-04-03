@@ -32,14 +32,14 @@ export async function getExamplesDisplayStrategy(
 	});
 
 	// Wait for initialization (important in serverless)
-	await flagsManager.waitForInitialization();
+	await flagsManager.waitForInit();
 
 	try {
 		const result = await flagsManager.getFlag("flag-examples-display-strategy");
 
 		console.log("🚀 Flag result:", result);
 
-		const variantKey = result.payload?.variantKey || "unknown";
+		const variantKey = (result.payload?.variantKey as string) || "unknown";
 		const variantValue = result.value;
 		const exampleCount = typeof variantValue === "number" ? variantValue : 0;
 
@@ -76,7 +76,7 @@ export const getShouldShowExamples = async (
 		debug: process.env.NODE_ENV === "development",
 		environment,
 	});
-	await flagsManager.waitForInitialization();
+	await flagsManager.waitForInit();
 	const flag = await flagsManager.getFlag("enable-flag-examples");
 	return flag.value;
 };
