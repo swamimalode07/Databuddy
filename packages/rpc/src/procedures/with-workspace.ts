@@ -370,4 +370,5 @@ export const withWebsiteWrite = (
 	});
 
 export type { PermissionFor, ResourceType } from "@databuddy/auth";
-export type { PlanId, Website };
+export type { PlanId } from "@databuddy/shared/types/features";
+export type { Website };

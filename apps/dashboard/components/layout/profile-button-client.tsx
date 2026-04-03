@@ -26,12 +26,12 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export type ProfileButtonUser = {
+export interface ProfileButtonUser {
 	id?: string;
 	name?: string | null;
 	email?: string | null;
 	image?: string | null;
-};
+}
 
 interface ProfileButtonClientProps {
 	user: ProfileButtonUser | null;

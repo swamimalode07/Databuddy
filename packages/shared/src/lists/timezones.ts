@@ -1,4 +1,4 @@
-interface timezone {
+export interface timezone {
 	offset: string;
 	label: string;
 	region: string;

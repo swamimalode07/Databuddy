@@ -34,12 +34,12 @@ export function useAgentCommands() {
 		(value: string, cursorPosition: number) => {
 			setInput(value);
 
-			const textBeforeCursor = value.substring(0, cursorPosition);
+			const textBeforeCursor = value.slice(0, cursorPosition);
 			const lastSlashIndex = textBeforeCursor.lastIndexOf("/");
 			const isSlashAtStart = lastSlashIndex === 0;
 
 			if (lastSlashIndex !== -1 && isSlashAtStart) {
-				const query = textBeforeCursor.substring(lastSlashIndex + 1);
+				const query = textBeforeCursor.slice(lastSlashIndex + 1);
 				setLocalQuery(query);
 				setCommandQuery(query);
 				setShowCommands(true);

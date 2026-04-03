@@ -119,7 +119,7 @@ export interface RawSession {
 
 // Event icon and styling configuration
 export interface EventIconConfig {
-	icon: React.ReactNode;
+	icon: unknown;
 	color: string;
 	bgColor: string;
 	borderColor: string;

@@ -44,7 +44,7 @@ export class BaseTracker {
 	pageStartTime = Date.now();
 	pageEngagementStart = Date.now();
 
-	private cachedTimezone: string | undefined;
+	private readonly cachedTimezone: string | undefined;
 
 	private engagedTime = 0;
 	private engagementStartTime: number | null = null;

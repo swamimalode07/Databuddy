@@ -6,13 +6,13 @@ import {
 	githubRepoUrl,
 } from "./github-nav-mark";
 
-type NavbarGithubMobileLinkProps = {
+interface NavbarGithubMobileLinkProps {
 	stars?: number | null;
 	isMenuOpen: boolean;
 	transitionDelayMs: number;
 	onCloseAction: () => void;
 	density?: "default" | "compact";
-};
+}
 
 export function NavbarGithubMobileLink({
 	stars,

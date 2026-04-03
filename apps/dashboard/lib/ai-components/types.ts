@@ -11,18 +11,15 @@ export interface BaseComponentProps {
 }
 
 export interface ComponentDefinition<
-	TInput extends Record<string, unknown>,
-	TProps extends BaseComponentProps,
+	TInput = Record<string, unknown>,
+	TProps extends BaseComponentProps = BaseComponentProps,
 > {
 	validate: (input: RawComponentInput) => input is RawComponentInput & TInput;
 	transform: (input: TInput) => TProps;
 	component: ComponentType<TProps>;
 }
 
-export type ComponentRegistry = Record<
-	string,
-	ComponentDefinition<Record<string, unknown>, BaseComponentProps>
->;
+export type ComponentRegistry = Record<string, ComponentDefinition<any, any>>;
 
 export interface ParsedContent {
 	text: string;

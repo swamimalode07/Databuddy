@@ -177,7 +177,7 @@ export function useDeleteWebsite() {
 		...orpc.websites.delete.mutationOptions(),
 		onMutate: async ({ id }) => {
 			const getByIdKey = getWebsiteByIdKey(id);
-			const previousWebsite = queryClient.getQueryData<Website>(getByIdKey);
+			const _previousWebsite = queryClient.getQueryData<Website>(getByIdKey);
 
 			const listKey = getWebsitesListKey();
 

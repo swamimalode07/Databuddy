@@ -1,4 +1,4 @@
-import { PLAN_IDS, type PlanId } from "./features.js";
+import { PLAN_IDS, type PlanId } from "@databuddy/shared/types/features";
 
 /**
  * Pulse plan tiers - ordered from lowest to highest

@@ -221,7 +221,9 @@ export class Databuddy extends BaseTracker {
 		endpoint: string,
 		fallback: () => Promise<unknown>
 	): void {
-		if (queue.length === 0) return;
+		if (queue.length === 0) {
+			return;
+		}
 		if (this.sendBeacon(queue, endpoint)) {
 			queue.length = 0;
 		} else {
@@ -491,7 +493,7 @@ if (typeof window !== "undefined") {
 		window.databuddyDisabled = false;
 
 		// Reinitialize if tracker was a noop stub
-		if (window.databuddy && window.databuddy.options.disabled) {
+		if (window.databuddy?.options.disabled) {
 			window.databuddy = undefined;
 			window.db = undefined;
 			initializeDatabuddy();

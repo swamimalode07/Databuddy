@@ -36,7 +36,7 @@ const CustomTooltip = ({
 	}>;
 	label?: string;
 }) => {
-	if (!(active && payload && payload.length)) {
+	if (!(active && payload?.length)) {
 		return null;
 	}
 

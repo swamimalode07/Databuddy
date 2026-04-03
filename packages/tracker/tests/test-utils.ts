@@ -30,7 +30,7 @@ export async function waitForDebugScrollHook(page: Page): Promise<void> {
 		.toBeTruthy();
 }
 
-export async function readMaxScrollDepth(page: Page): Promise<number> {
+export function readMaxScrollDepth(page: Page): Promise<number> {
 	return page.evaluate(() =>
 		(
 			window as unknown as { db: { __getMaxScrollDepth: () => number } }
