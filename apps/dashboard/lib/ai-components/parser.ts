@@ -2,7 +2,6 @@ import { hasComponent } from "./registry";
 import { validateComponentJSON } from "./schemas";
 import type {
 	ContentSegment,
-	ParsedContent,
 	ParsedSegments,
 	RawComponentInput,
 } from "./types";
@@ -203,24 +202,3 @@ export function parseContentSegments(content: string): ParsedSegments {
 	return { segments };
 }
 
-/**
- * @deprecated Use parseContentSegments for ordered rendering
- * Parse component JSON objects from markdown content.
- * Extracts components in format: {"type":"..."}
- */
-export function parseComponents(content: string): ParsedContent {
-	const { segments } = parseContentSegments(content);
-
-	const text = segments
-		.filter((s): s is ContentSegment & { type: "text" } => s.type === "text")
-		.map((s) => s.content)
-		.join(" ");
-
-	const components = segments
-		.filter(
-			(s): s is ContentSegment & { type: "component" } => s.type === "component"
-		)
-		.map((s) => s.content);
-
-	return { text, components };
-}
