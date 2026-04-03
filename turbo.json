@@ -59,7 +59,9 @@
     "test": {
       "dependsOn": ["^build"]
     },
-    "check-types": {},
+    "check-types": {
+      "dependsOn": ["^build"]
+    },
     "clickhouse:init": {
       "cache": false,
       "persistent": false
