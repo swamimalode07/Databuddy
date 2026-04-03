@@ -26,7 +26,8 @@ export class Databuddy extends BaseTracker {
 			initWebVitalsTracking(this);
 		}
 		if (this.options.trackErrors) {
-			initErrorTracking(this);
+			const cleanup = initErrorTracking(this);
+			this.cleanupFns.push(cleanup);
 		}
 
 		if (!this.isServer()) {
@@ -96,9 +97,11 @@ export class Databuddy extends BaseTracker {
 		if (this.options.trackAttributes) {
 			this.trackAttributes();
 		}
-		initScrollDepthTracking(this);
+		const scrollCleanup = initScrollDepthTracking(this);
+		this.cleanupFns.push(scrollCleanup);
 		if (this.options.trackInteractions) {
-			initInteractionTracking(this);
+			const interactionCleanup = initInteractionTracking(this);
+			this.cleanupFns.push(interactionCleanup);
 		}
 	}
 
@@ -213,10 +216,29 @@ export class Databuddy extends BaseTracker {
 		});
 	}
 
+	private flushQueueViaBeacon(
+		queue: unknown[],
+		endpoint: string,
+		fallback: () => Promise<unknown>
+	): void {
+		if (queue.length === 0) return;
+		if (this.sendBeacon(queue, endpoint)) {
+			queue.length = 0;
+		} else {
+			fallback().catch(() => {});
+		}
+	}
+
 	private handlePageUnload() {
-		this.flushTrack().catch(() => {});
-		this.flushVitals().catch(() => {});
-		this.flushErrors().catch(() => {});
+		this.flushQueueViaBeacon(this.trackQueue, "/track", () =>
+			this.flushTrack()
+		);
+		this.flushQueueViaBeacon(this.vitalsQueue, "/vitals", () =>
+			this.flushVitals()
+		);
+		this.flushQueueViaBeacon(this.errorsQueue, "/errors", () =>
+			this.flushErrors()
+		);
 		this.pauseEngagement();
 		if (this.hasSentExitBeacon) {
 			return;
@@ -378,11 +400,41 @@ export class Databuddy extends BaseTracker {
 		}
 		this.cleanupFns = [];
 
+		// Flush all pending data via sendBeacon (with fetch fallback) before clearing
+		this.flushQueueViaBeacon(this.batchQueue, "/batch", () =>
+			this.flushBatch()
+		);
+		this.flushQueueViaBeacon(this.trackQueue, "/track", () =>
+			this.flushTrack()
+		);
+		this.flushQueueViaBeacon(this.vitalsQueue, "/vitals", () =>
+			this.flushVitals()
+		);
+		this.flushQueueViaBeacon(this.errorsQueue, "/errors", () =>
+			this.flushErrors()
+		);
+
 		if (this.batchTimer) {
 			clearTimeout(this.batchTimer);
 			this.batchTimer = null;
 		}
+		if (this.trackTimer) {
+			clearTimeout(this.trackTimer);
+			this.trackTimer = null;
+		}
+		if (this.vitalsTimer) {
+			clearTimeout(this.vitalsTimer);
+			this.vitalsTimer = null;
+		}
+		if (this.errorsTimer) {
+			clearTimeout(this.errorsTimer);
+			this.errorsTimer = null;
+		}
+
 		this.batchQueue = [];
+		this.trackQueue = [];
+		this.vitalsQueue = [];
+		this.errorsQueue = [];
 
 		if (typeof window !== "undefined") {
 			window.databuddy = undefined;
@@ -437,5 +489,12 @@ if (typeof window !== "undefined") {
 		} catch {}
 		window.databuddyOptedOut = false;
 		window.databuddyDisabled = false;
+
+		// Reinitialize if tracker was a noop stub
+		if (window.databuddy && window.databuddy.options.disabled) {
+			window.databuddy = undefined;
+			window.db = undefined;
+			initializeDatabuddy();
+		}
 	};
 }

@@ -44,6 +44,8 @@ export class BaseTracker {
 	pageStartTime = Date.now();
 	pageEngagementStart = Date.now();
 
+	private cachedTimezone: string | undefined;
+
 	private engagedTime = 0;
 	private engagementStartTime: number | null = null;
 	private isPageVisible = true;
@@ -113,6 +115,10 @@ export class BaseTracker {
 		if (this.isLikelyBot) {
 			logger.log("Bot detected, tracking might be filtered");
 		}
+
+		try {
+			this.cachedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		} catch {}
 
 		this.anonymousId = this.getOrCreateAnonymousId();
 		this.sessionId = this.getOrCreateSessionId();
@@ -356,11 +362,6 @@ export class BaseTracker {
 			height = undefined;
 		}
 
-		let timezone: string | undefined;
-		try {
-			timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		} catch {}
-
 		return {
 			path:
 				window.location.origin +
@@ -370,7 +371,7 @@ export class BaseTracker {
 			title: document.title,
 			referrer: document.referrer || "direct",
 			viewport_size: width && height ? `${width}x${height}` : undefined,
-			timezone,
+			timezone: this.cachedTimezone,
 			language: navigator.language,
 			...this.urlParams,
 		};
@@ -416,11 +417,14 @@ export class BaseTracker {
 	}
 
 	async flushBatch() {
+		if (this.isFlushing) {
+			return;
+		}
 		if (this.batchTimer) {
 			clearTimeout(this.batchTimer);
 			this.batchTimer = null;
 		}
-		if (this.batchQueue.length === 0 || this.isFlushing) {
+		if (this.batchQueue.length === 0) {
 			return;
 		}
 
@@ -467,11 +471,14 @@ export class BaseTracker {
 	}
 
 	async flushVitals() {
+		if (this.isFlushingVitals) {
+			return;
+		}
 		if (this.vitalsTimer) {
 			clearTimeout(this.vitalsTimer);
 			this.vitalsTimer = null;
 		}
-		if (this.vitalsQueue.length === 0 || this.isFlushingVitals) {
+		if (this.vitalsQueue.length === 0) {
 			return;
 		}
 
@@ -515,11 +522,14 @@ export class BaseTracker {
 	}
 
 	async flushErrors() {
+		if (this.isFlushingErrors) {
+			return;
+		}
 		if (this.errorsTimer) {
 			clearTimeout(this.errorsTimer);
 			this.errorsTimer = null;
 		}
-		if (this.errorsQueue.length === 0 || this.isFlushingErrors) {
+		if (this.errorsQueue.length === 0) {
 			return;
 		}
 
@@ -576,12 +586,14 @@ export class BaseTracker {
 	}
 
 	async flushTrack() {
+		if (this.isFlushingTrack) {
+			return;
+		}
 		if (this.trackTimer) {
 			clearTimeout(this.trackTimer);
 			this.trackTimer = null;
 		}
-
-		if (this.trackQueue.length === 0 || this.isFlushingTrack) {
+		if (this.trackQueue.length === 0) {
 			return;
 		}
 

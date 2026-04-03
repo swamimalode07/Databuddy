@@ -9,6 +9,10 @@ export function initOutgoingLinksTracking(tracker: BaseTracker): () => void {
 	const currentOrigin = window.location.origin;
 
 	const handler = (e: MouseEvent) => {
+		if (tracker.options.disabled || tracker.isLikelyBot) {
+			return;
+		}
+
 		const target = e.target as Element | null;
 		if (!target) {
 			return;

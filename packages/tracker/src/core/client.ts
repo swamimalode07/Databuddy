@@ -97,11 +97,14 @@ export class HttpClient {
 				);
 			}
 
+			const text = await response.text();
+			if (!text) {
+				return null;
+			}
 			try {
-				return await response.json();
-			} catch (_e) {
-				const text = await response.text();
-				return text ? JSON.parse(text) : null;
+				return JSON.parse(text);
+			} catch {
+				return null;
 			}
 		} catch (error) {
 			const isNetworkError =
