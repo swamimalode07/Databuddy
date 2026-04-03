@@ -1,14 +1,20 @@
+FROM oven/bun:1.3.9-slim AS pruner
+
+WORKDIR /app
+
+COPY . .
+
+RUN bunx turbo prune @databuddy/api --docker
+
 FROM oven/bun:1.3.9-slim AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lock turbo.json ./
-
-COPY apps/ ./apps/
-COPY packages/ ./packages/
-
+COPY --from=pruner /app/out/json/ .
 RUN bun install --ignore-scripts
 
+COPY --from=pruner /app/out/full/ .
+COPY turbo.json turbo.json
 RUN bunx turbo build --filter=@databuddy/api...
 
 FROM oven/bun:1.3.4-slim
