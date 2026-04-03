@@ -4,7 +4,7 @@ import { Databuddy } from "@databuddy/sdk/node";
 import type { CancelFeedback } from "../components/cancel-subscription-dialog";
 
 const client = new Databuddy({
-	clientId: process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID ?? "",
+	apiKey: process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID ?? "",
 	debug: process.env.NODE_ENV === "development",
 });
 
