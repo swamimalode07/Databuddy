@@ -1,11 +1,11 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	getComponent,
 	hasComponent,
 	type RawComponentInput,
 } from "@/lib/ai-components";
-import { Skeleton } from "@/components/ui/skeleton";
 import { chartSurfaceClassName } from "@/lib/chart-presentation";
 
 const SKELETON_LABELS: Record<string, string> = {
@@ -80,8 +80,8 @@ export function AIComponent({ input, className, streaming }: AIComponentProps) {
 		}
 		return (
 			<ComponentSkeleton
-				type={input.type}
 				title={typeof input.title === "string" ? input.title : undefined}
+				type={input.type}
 			/>
 		);
 	}

@@ -1,5 +1,18 @@
 "use client";
 
+import {
+	ArrowSquareOutIcon,
+	DotsThreeIcon,
+	HeartbeatIcon,
+	PauseIcon,
+	PencilSimpleIcon,
+	PlayIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -20,19 +33,6 @@ import { formatDateOnly } from "@/lib/time";
 import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
 import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
 import { cn } from "@/lib/utils";
-import {
-	ArrowSquareOutIcon,
-	DotsThreeIcon,
-	HeartbeatIcon,
-	PauseIcon,
-	PencilSimpleIcon,
-	PlayIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 const GRANULARITY_LABELS: Record<string, string> = {
 	minute: "1 min",

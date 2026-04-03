@@ -1,5 +1,13 @@
 "use client";
 
+import {
+	ArrowClockwiseIcon,
+	BrowserIcon,
+	PlusIcon,
+} from "@phosphor-icons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Suspense, useState } from "react";
+import { toast } from "sonner";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -17,14 +25,6 @@ import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import {
-	ArrowClockwiseIcon,
-	BrowserIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
-import { toast } from "sonner";
 
 export default function StatusPagesListPage() {
 	const { hasAccess, isLoading: isAccessLoading } =

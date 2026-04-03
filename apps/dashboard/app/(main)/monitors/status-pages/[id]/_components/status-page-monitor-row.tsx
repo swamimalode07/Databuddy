@@ -1,12 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
 import {
 	CheckIcon,
 	HeartbeatIcon,
@@ -18,6 +11,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { List } from "@/components/ui/composables/list";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
 
 type ToggleKey = "hideUrl" | "hideUptimePercentage" | "hideLatency";
 

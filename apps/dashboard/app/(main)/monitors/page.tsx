@@ -1,5 +1,13 @@
 "use client";
 
+import {
+	ArrowClockwiseIcon,
+	HeartbeatIcon,
+	PlusIcon,
+	UserPlusIcon,
+} from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { Suspense, useState } from "react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { FeatureAccessGate } from "@/components/feature-access-gate";
@@ -12,14 +20,6 @@ import { useFeatureAccess } from "@/hooks/use-feature-access";
 import type { ListQuerySlice } from "@/lib/list-query-outcome";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import {
-	ArrowClockwiseIcon,
-	HeartbeatIcon,
-	PlusIcon,
-	UserPlusIcon,
-} from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
 
 export interface Monitor {
 	id: string;

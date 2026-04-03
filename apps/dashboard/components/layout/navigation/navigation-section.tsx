@@ -1,5 +1,3 @@
-import { useBillingContext } from "@/components/providers/billing-provider";
-import type { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useFlags } from "@databuddy/sdk/react";
 import { FEATURE_METADATA } from "@databuddy/shared/types/features";
 import { CaretDownIcon } from "@phosphor-icons/react";
@@ -7,6 +5,8 @@ import clsx from "clsx";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { memo } from "react";
+import { useBillingContext } from "@/components/providers/billing-provider";
+import type { useAccordionStates } from "@/hooks/use-persistent-state";
 import { isNavItemActive } from "./nav-item-active";
 import { NavigationItem } from "./navigation-item";
 import type { NavigationSection as NavigationSectionType } from "./types";

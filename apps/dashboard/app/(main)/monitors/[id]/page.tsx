@@ -1,5 +1,22 @@
 "use client";
 
+import {
+	ArrowClockwiseIcon,
+	ArrowLeftIcon,
+	ArrowSquareOutIcon,
+	GlobeIcon,
+	HeartbeatIcon,
+	PauseIcon,
+	PencilIcon,
+	PlayIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { MonitorDetailLoading } from "@/app/(main)/monitors/_components/monitor-detail-loading";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { FaviconImage } from "@/components/analytics/favicon-image";
@@ -25,23 +42,6 @@ import { fromNow, localDayjs } from "@/lib/time";
 import { LatencyChartChunkPlaceholder } from "@/lib/uptime/latency-chart-chunk-placeholder";
 import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
 import { cn } from "@/lib/utils";
-import {
-	ArrowClockwiseIcon,
-	ArrowLeftIcon,
-	ArrowSquareOutIcon,
-	GlobeIcon,
-	HeartbeatIcon,
-	PauseIcon,
-	PencilIcon,
-	PlayIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import {
 	RecentActivity,
 	type RecentActivityCheck,

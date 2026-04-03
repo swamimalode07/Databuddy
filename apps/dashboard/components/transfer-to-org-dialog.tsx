@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowSquareOutIcon, WarningIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -18,8 +20,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
-import { ArrowSquareOutIcon, WarningIcon } from "@phosphor-icons/react";
-import { useState } from "react";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;

@@ -93,15 +93,15 @@ export function UptimeHeatmapStrip({
 							className={cn(uptimeHeatmapTooltipContentClassName)}
 							sideOffset={6}
 						>
-						<UptimeHeatmapDayTooltipBody
-							dateLabel={getDateLabel(day.date)}
-							downtimeSeconds={day.downtimeSeconds}
-							emptyLabel={emptyLabel}
-							hasData={showDataInTooltip}
-							successfulChecks={day.successfulChecks}
-							totalChecks={day.totalChecks}
-							uptimePercent={day.uptime}
-						/>
+							<UptimeHeatmapDayTooltipBody
+								dateLabel={getDateLabel(day.date)}
+								downtimeSeconds={day.downtimeSeconds}
+								emptyLabel={emptyLabel}
+								hasData={showDataInTooltip}
+								successfulChecks={day.successfulChecks}
+								totalChecks={day.totalChecks}
+								uptimePercent={day.uptime}
+							/>
 						</TooltipContent>
 					</Tooltip>
 				);

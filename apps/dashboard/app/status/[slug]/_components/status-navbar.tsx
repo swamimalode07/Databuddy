@@ -1,6 +1,6 @@
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LifebuoyIcon } from "@phosphor-icons/react/ssr";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 interface StatusNavbarProps {
 	name?: string;

@@ -1,5 +1,18 @@
 "use client";
 
+import {
+	ArrowSquareOutIcon,
+	BrowserIcon,
+	CopyIcon,
+	DotsThreeIcon,
+	HeartbeatIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,19 +30,6 @@ import { Switch } from "@/components/ui/switch";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import {
-	ArrowSquareOutIcon,
-	BrowserIcon,
-	CopyIcon,
-	DotsThreeIcon,
-	HeartbeatIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
 
 export interface StatusPage {
 	id: string;

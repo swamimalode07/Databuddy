@@ -70,17 +70,23 @@ export function markFeedbackSubmitted() {
 }
 
 function isEligible(state: PromptState, pathname: string): boolean {
-	if (pathname.startsWith("/feedback")) return false;
+	if (pathname.startsWith("/feedback")) {
+		return false;
+	}
 
 	const now = Date.now();
 
-	if (now - state.firstSeenAt < GRACE_PERIOD) return false;
+	if (now - state.firstSeenAt < GRACE_PERIOD) {
+		return false;
+	}
 
 	if (state.lastDismissedAt > 0) {
 		const cooldown = state.hasSubmittedFeedback
 			? COOLDOWN_ENGAGED
 			: COOLDOWN_DEFAULT;
-		if (now - state.lastDismissedAt < cooldown) return false;
+		if (now - state.lastDismissedAt < cooldown) {
+			return false;
+		}
 	}
 
 	return true;
@@ -95,7 +101,9 @@ export function FeedbackPrompt() {
 		const state = readState();
 		stateRef.current = state;
 
-		if (!isEligible(state, pathname)) return;
+		if (!isEligible(state, pathname)) {
+			return;
+		}
 
 		const timer = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
 		return () => clearTimeout(timer);
@@ -109,7 +117,9 @@ export function FeedbackPrompt() {
 		});
 	}, []);
 
-	if (!visible) return null;
+	if (!visible) {
+		return null;
+	}
 
 	const prompt =
 		PROMPTS[(stateRef.current?.dismissCount ?? 0) % PROMPTS.length];

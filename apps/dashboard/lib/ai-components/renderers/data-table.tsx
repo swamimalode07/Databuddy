@@ -109,7 +109,9 @@ export function DataTableRenderer({
 							<tr
 								className={cn(
 									"border-b transition-colors last:border-b-0 hover:bg-muted/50",
-									streaming && rowIdx === rows.length - 1 && "animate-in fade-in duration-300"
+									streaming &&
+										rowIdx === rows.length - 1 &&
+										"fade-in animate-in duration-300"
 								)}
 								key={rowIdx}
 							>

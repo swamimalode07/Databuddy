@@ -88,7 +88,9 @@ export default function FeedbackPage() {
 				<RedeemDialog
 					creditsRequired={REWARD_TIERS[redeemTier].creditsRequired}
 					onOpenChangeAction={(open) => {
-						if (!open) setRedeemTier(null);
+						if (!open) {
+							setRedeemTier(null);
+						}
 					}}
 					open
 					rewardAmount={REWARD_TIERS[redeemTier].rewardAmount}
