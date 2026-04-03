@@ -86,11 +86,6 @@ export function UptimeHeatmap({
 						stripClassName="flex h-16 w-full gap-[2px] sm:gap-1"
 					/>
 				)}
-
-				<div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-					<span>{days} days ago</span>
-					<span>Today</span>
-				</div>
 			</div>
 		</>
 	);

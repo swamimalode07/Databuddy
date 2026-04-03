@@ -85,7 +85,7 @@ export function MonitorRowInteractive({
 						isActive
 						stripClassName="flex h-8 w-full gap-px sm:gap-[2px]"
 					/>
-					<div className="relative mt-1.5 h-3.5">
+					<div className="relative mt-1.5 h-3.5 w-full">
 						{monthMarkers.map((marker) => (
 							<span
 								className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
@@ -95,9 +95,6 @@ export function MonitorRowInteractive({
 								{marker.label}
 							</span>
 						))}
-						<span className="absolute right-0 text-[10px] text-muted-foreground">
-							Today
-						</span>
 					</div>
 				</div>
 			) : null}
