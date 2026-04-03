@@ -64,9 +64,13 @@ function parseSSE(raw: string, latencyMs: number): ParsedAgentResponse {
 	const events: SSEEvent[] = [];
 
 	for (const line of lines) {
-		if (!line.startsWith("data: ")) continue;
+		if (!line.startsWith("data: ")) {
+			continue;
+		}
 		const payload = line.slice(6).trim();
-		if (payload === "[DONE]") break;
+		if (payload === "[DONE]") {
+			break;
+		}
 		try {
 			events.push(JSON.parse(payload) as SSEEvent);
 		} catch {
@@ -117,21 +121,24 @@ function parseSSE(raw: string, latencyMs: number): ParsedAgentResponse {
 	const rawJSONLeaks: string[] = [];
 
 	// Find JSON objects in the text by matching {"type":"...
-	const jsonPattern = /\{"type":"[\w-]+"[^]*?\n/g;
-	let match: RegExpExecArray | null;
+	const _jsonPattern = /\{"type":"[\w-]+"[^.]*?\n/g;
+	let _match: RegExpExecArray | null;
 
 	// Better approach: find all {"type":" starts, then brace-count to close
 	let searchIdx = 0;
 	while (searchIdx < textContent.length) {
 		const start = textContent.indexOf('{"type":"', searchIdx);
-		if (start === -1) break;
+		if (start === -1) {
+			break;
+		}
 
 		// Brace-count to find closing
 		let depth = 0;
 		let end = -1;
 		for (let i = start; i < textContent.length; i++) {
-			if (textContent[i] === "{") depth++;
-			else if (textContent[i] === "}") {
+			if (textContent[i] === "{") {
+				depth++;
+			} else if (textContent[i] === "}") {
 				depth--;
 				if (depth === 0) {
 					end = i;
@@ -140,9 +147,11 @@ function parseSSE(raw: string, latencyMs: number): ParsedAgentResponse {
 			}
 		}
 
-		if (end === -1) break;
+		if (end === -1) {
+			break;
+		}
 
-		const jsonStr = textContent.substring(start, end + 1);
+		const jsonStr = textContent.slice(start, end + 1);
 		try {
 			const parsed = JSON.parse(jsonStr) as Record<string, unknown>;
 			if (typeof parsed.type === "string") {

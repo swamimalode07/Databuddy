@@ -1,6 +1,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+declare const Bun: typeof globalThis.Bun;
+
 const PORT = Number(process.env.EVAL_UI_PORT ?? 3002);
 const RESULTS_DIR = join(import.meta.dir, "..", "results");
 const UI_DIR = import.meta.dir;

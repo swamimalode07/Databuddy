@@ -1,6 +1,8 @@
 import { createGateway, generateText } from "ai";
 import type { EvalCase, EvalConfig } from "./types";
 
+const JSON_OBJECT_RE = /\{[^}]+\}/;
+
 const JUDGE_PROMPT = `You are a brutally honest evaluator of an analytics AI agent. You have extremely high standards — you are a senior data analyst who has seen hundreds of reports and dashboards. You score like a tough professor: 90+ is exceptional work that would impress a VP, 70 is acceptable but unremarkable, 50 is mediocre, below 40 is bad.
 
 Score the response on 5 criteria (0-100 each). Be harsh. Most responses should score 40-70.
@@ -67,8 +69,12 @@ export async function judgeQuality(
 	responseText: string,
 	config: EvalConfig
 ): Promise<number> {
-	if (config.skipJudge) return -1;
-	if (!responseText.trim()) return -1;
+	if (config.skipJudge) {
+		return -1;
+	}
+	if (!responseText.trim()) {
+		return -1;
+	}
 
 	const model = config.judgeModel ?? "anthropic/claude-sonnet-4.6";
 
@@ -81,8 +87,10 @@ export async function judgeQuality(
 			temperature: 0,
 		});
 
-		const jsonMatch = result.text.match(/\{[^}]+\}/);
-		if (!jsonMatch) return -1;
+		const jsonMatch = result.text.match(JSON_OBJECT_RE);
+		if (!jsonMatch) {
+			return -1;
+		}
 
 		const parsed = JSON.parse(jsonMatch[0]) as {
 			data_grounding: number;

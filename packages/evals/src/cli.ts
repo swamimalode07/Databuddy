@@ -272,12 +272,11 @@ async function main() {
 	if (!opts.noSave) {
 		const resultsDir = join(import.meta.dir, "..", "results");
 		mkdirSync(resultsDir, { recursive: true });
-		const filename =
-			new Date()
-				.toISOString()
-				.replace(/[:.]/g, "")
-				.replace("T", "-")
-				.slice(0, 15) + ".json";
+		const filename = `${new Date()
+			.toISOString()
+			.replace(/[:.]/g, "")
+			.replace("T", "-")
+			.slice(0, 15)}.json`;
 		const filepath = join(resultsDir, filename);
 		writeFileSync(filepath, JSON.stringify(run, null, 2));
 		console.log(`Saved: ${filepath}`);
