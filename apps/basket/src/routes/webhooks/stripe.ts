@@ -88,7 +88,7 @@ interface WebhookEvent {
 	type: string;
 }
 
-function verifyStripeSignature(
+export function verifyStripeSignature(
 	payload: string,
 	header: string,
 	secret: string

@@ -1,8 +1,10 @@
 import type { AnalyticsEvent, CustomOutgoingLink } from "@databuddy/db";
 import {
+	analyticsEventSchema,
 	batchedCustomEventSpansSchema,
 	batchedErrorsSchema,
 	batchedVitalsSchema,
+	outgoingLinkSchema,
 } from "@databuddy/validation";
 import {
 	insertCustomEvents,
@@ -19,9 +21,9 @@ import {
 	basketErrors,
 	buildBasketErrorPayload,
 	createIngestSchemaValidationError,
+	rethrowOrWrap,
 } from "@lib/structured-errors";
 import { record } from "@lib/tracing";
-import { analyticsEventSchema, outgoingLinkSchema } from "@utils/event-schema";
 import { getGeo } from "@utils/ip-geo";
 import {
 	batchBotIgnoredItem,
@@ -41,7 +43,7 @@ import {
 } from "@utils/validation";
 import { randomUUIDv7 } from "bun";
 import { Elysia } from "elysia";
-import { createError, EvlogError } from "evlog";
+import { EvlogError } from "evlog";
 import { useLogger } from "evlog/elysia";
 
 function processTrackEventData(
@@ -277,17 +279,7 @@ const app = new Elysia()
 				}
 			);
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	})
 	.post("/errors", async (context) => {
@@ -343,17 +335,7 @@ const app = new Elysia()
 				}
 			);
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	})
 	.post("/events", async (context) => {
@@ -425,17 +407,7 @@ const app = new Elysia()
 				}
 			);
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	})
 	.post("/", async (context) => {
@@ -526,17 +498,7 @@ const app = new Elysia()
 			log.set({ rejected: "unknown_type" });
 			throw basketErrors.ingestUnknownEventType();
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	})
 	.post("/batch", async (context) => {
@@ -732,17 +694,7 @@ const app = new Elysia()
 				}
 			);
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	});
 

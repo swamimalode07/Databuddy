@@ -2,11 +2,10 @@ import { getWebsiteByIdV2, resolveApiKeyOwnerId } from "@hooks/auth";
 import { getApiKeyFromHeader, hasKeyScope } from "@lib/api-key";
 import { checkAutumnUsage } from "@lib/billing";
 import { insertCustomEvents } from "@lib/event-service";
-import { basketErrors } from "@lib/structured-errors";
+import { basketErrors, rethrowOrWrap } from "@lib/structured-errors";
 import { record } from "@lib/tracing";
 import { VALIDATION_LIMITS, validatePayloadSize } from "@utils/validation";
 import { Elysia } from "elysia";
-import { createError, EvlogError } from "evlog";
 import { useLogger } from "evlog/elysia";
 import { trackEventSchema } from "./track-event-schema";
 
@@ -187,17 +186,7 @@ export const trackRoute = new Elysia().post(
 				200
 			);
 		} catch (error) {
-			if (error instanceof EvlogError) {
-				throw error;
-			}
-			const err = error instanceof Error ? error : new Error(String(error));
-			log.error(err);
-			throw createError({
-				message: "Internal server error",
-				status: 500,
-				why: process.env.NODE_ENV === "development" ? err.message : undefined,
-				cause: err,
-			});
+			rethrowOrWrap(error, log);
 		}
 	}
 );
