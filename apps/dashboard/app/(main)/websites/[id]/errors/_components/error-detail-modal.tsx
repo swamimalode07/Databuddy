@@ -38,14 +38,10 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fromNow } from "@/lib/time";
+import { formatDateTime, fromNow } from "@/lib/time";
 import { getDeviceIcon, getErrorTypeIcon } from "./error-icons";
 import type { RecentError } from "./types";
-import {
-	formatDateTimeSeconds,
-	getErrorCategory,
-	getSeverityColor,
-} from "./utils";
+import { getErrorCategory, getSeverityColor } from "./utils";
 
 interface ErrorDetailModalProps {
 	error: RecentError;
@@ -151,7 +147,7 @@ Context:
 • URL: ${error.path}
 • Session: ${error.session_id || "Unknown"}
 • User: ${error.anonymous_id}
-• Time: ${formatDateTimeSeconds(error.timestamp)}
+• Time: ${formatDateTime(error.timestamp)}
 • Browser: ${error.browser_name || "Unknown"}
 • OS: ${error.os_name || "Unknown"}
 • Device: ${error.device_type || "Unknown"}
@@ -339,7 +335,7 @@ Context:
 								<span>{relativeTimeStr}</span>
 								<span className="text-muted-foreground/50">•</span>
 								<span className="font-mono">
-									{formatDateTimeSeconds(error.timestamp)}
+									{formatDateTime(error.timestamp)}
 								</span>
 							</SheetDescription>
 						</div>

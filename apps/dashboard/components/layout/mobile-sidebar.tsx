@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useCommandSearchOpenAction } from "@/components/ui/command-search";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import type { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
@@ -58,13 +58,13 @@ interface MobileSidebarProps {
 }
 
 const isNavigationSection = (
-	entry: NavigationEntry
+	entry: NavigationEntry,
 ): entry is NavigationSectionType => {
 	return "items" in entry;
 };
 
 const isNavigationItem = (
-	entry: NavigationEntry
+	entry: NavigationEntry,
 ): entry is NavigationItemType => {
 	return "href" in entry && !("items" in entry);
 };
@@ -87,7 +87,7 @@ function MobileThemeToggle() {
 						"flex h-7 flex-1 items-center justify-center gap-1.5 rounded text-xs transition-colors",
 						currentTheme === id
 							? "bg-background font-medium text-sidebar-accent-foreground shadow-sm"
-							: "text-sidebar-foreground/50 hover:text-sidebar-foreground"
+							: "text-sidebar-foreground/50 hover:text-sidebar-foreground",
 					)}
 					key={id}
 					onClick={() => setTheme(id)}
@@ -123,7 +123,7 @@ export function MobileSidebar({
 	const router = useRouter();
 	const openCommandSearchAction = useCommandSearchOpenAction();
 	const { getFlag } = useFlags();
-	const hasMounted = useHasMounted();
+	const isHydrated = useHydrated();
 
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
 		enabled: user !== null,
@@ -145,11 +145,11 @@ export function MobileSidebar({
 						navigationMap: {
 							...baseConfig.navigationMap,
 							home:
-								!hasMounted || isLoadingWebsites
+								!isHydrated || isLoadingWebsites
 									? createLoadingWebsitesNavigation()
 									: createWebsitesNavigation(websites),
 							monitors:
-								!hasMounted || isLoadingMonitors
+								!isHydrated || isLoadingMonitors
 									? createLoadingMonitorsNavigation()
 									: createMonitorsNavigation(monitors),
 						},
@@ -158,8 +158,8 @@ export function MobileSidebar({
 
 		return filterCategoriesByFlags(
 			filterCategoriesForRoute(config.categories, pathname),
-			hasMounted,
-			getFlag
+			isHydrated,
+			getFlag,
 		);
 	}, [
 		pathname,
@@ -167,13 +167,13 @@ export function MobileSidebar({
 		isLoadingWebsites,
 		monitors,
 		isLoadingMonitors,
-		hasMounted,
+		isHydrated,
 		getFlag,
 	]);
 
 	const defaultCategory = useMemo(
 		() => getDefaultCategory(pathname),
-		[pathname]
+		[pathname],
 	);
 	const activeCategory = selectedCategory || defaultCategory;
 
@@ -195,7 +195,7 @@ export function MobileSidebar({
 
 	const getInitials = (
 		name: string | null | undefined,
-		email: string | null | undefined
+		email: string | null | undefined,
 	) => {
 		if (name) {
 			return name
@@ -274,7 +274,7 @@ export function MobileSidebar({
 												"flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1.5 font-medium text-xs transition-colors",
 												isActive
 													? "bg-sidebar-accent text-sidebar-accent-foreground"
-													: "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+													: "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
 											)}
 											key={category.id}
 											onClick={() => onCategoryChangeAction(category.id)}
@@ -306,7 +306,7 @@ export function MobileSidebar({
 														? "border-b"
 														: idx !== 0 && navigation.length > 1
 															? "border-t"
-															: "border-transparent"
+															: "border-transparent",
 											)}
 											currentWebsiteId={currentWebsiteId}
 											flag={entry.flag}
@@ -338,7 +338,7 @@ export function MobileSidebar({
 													entry,
 													pathname,
 													searchParams,
-													currentWebsiteId
+													currentWebsiteId,
 												)}
 												isExternal={entry.external}
 												isLocked={false}

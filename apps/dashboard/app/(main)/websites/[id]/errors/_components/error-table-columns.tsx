@@ -6,8 +6,9 @@ import {
 } from "@phosphor-icons/react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { Badge } from "@/components/ui/badge";
+import { formatLocalTime } from "@/lib/time";
 import { getErrorTypeIcon } from "./error-icons";
-import { formatDateTime, getErrorCategory, getSeverityColor } from "./utils";
+import { getErrorCategory, getSeverityColor } from "./utils";
 
 interface CellInfo<T = unknown> {
 	getValue: () => T;
@@ -17,7 +18,7 @@ interface CellInfo<T = unknown> {
 export const createNameColumn = (
 	header: string,
 	renderIcon?: (name: string) => React.ReactNode,
-	formatText?: (name: string) => string
+	formatText?: (name: string) => string,
 ) => ({
 	id: "name",
 	accessorKey: "name",
@@ -161,11 +162,11 @@ export const createErrorTypeColumns = () => [
 		header: "Last Occurrence",
 		cell: (info: CellInfo<string>) => {
 			const lastSeen = info.getValue();
-			const formatted = formatDateTime(lastSeen);
+			const formatted = formatLocalTime(lastSeen, "MMM D, YYYY HH:mm");
 			const now = new Date();
 			const lastSeenDate = new Date(lastSeen);
 			const diffHours = Math.floor(
-				(now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60)
+				(now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60),
 			);
 
 			let timeAgo = "";

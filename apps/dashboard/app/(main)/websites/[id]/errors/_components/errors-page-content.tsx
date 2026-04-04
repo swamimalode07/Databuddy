@@ -7,7 +7,7 @@ import { use, useCallback } from "react";
 import { FeatureGate } from "@/components/feature-gate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDateFilters } from "@/hooks/use-date-filters";
-import { formatDateOnly } from "@/lib/formatters";
+import { formatDateOnly } from "@/lib/time";
 import {
 	type DynamicQueryFilter,
 	dynamicQueryFiltersAtom,
@@ -51,7 +51,7 @@ export const ErrorsPageContent = ({ params }: ErrorsPageContentProps) => {
 			const withoutSameField = filters.filter((f) => f.field !== field);
 			setFilters([...withoutSameField, newFilter]);
 		},
-		[filters, setFilters]
+		[filters, setFilters],
 	);
 
 	const {
@@ -86,7 +86,7 @@ export const ErrorsPageContent = ({ params }: ErrorsPageContentProps) => {
 			date: formatDateOnly(point.date),
 			"Total Errors": point.totalErrors || 0,
 			"Affected Users": point.affectedUsers || 0,
-		})
+		}),
 	);
 
 	if (error) {

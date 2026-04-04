@@ -1,17 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-
-/**
- * Hook to detect if we're running on the client side after hydration
- */
-function useIsClient() {
-	const [isClient, setIsClient] = useState(false);
-
-	useEffect(() => {
-		setIsClient(true);
-	}, []);
-
-	return isClient;
-}
+import { useHydrated } from "@/hooks/use-hydrated";
 
 /**
  * Custom hook for persisting state to localStorage with SSR compatibility.
@@ -19,9 +7,9 @@ function useIsClient() {
  */
 export function usePersistentState<T>(
 	key: string,
-	defaultValue: T
+	defaultValue: T,
 ): [T, (value: T | ((prev: T) => T)) => void] {
-	const isClient = useIsClient();
+	const isClient = useHydrated();
 
 	// Initialize state with localStorage value only on client, default on server
 	const [state, setState] = useState<T>(() => {
@@ -74,7 +62,7 @@ export function usePersistentState<T>(
 				console.error(`Error setting localStorage key "${key}":`, error);
 			}
 		},
-		[key, isClient]
+		[key, isClient],
 	);
 
 	return [state, setPersistentState];
@@ -99,13 +87,13 @@ export function useAccordionStates(storageKey = "sidebar-accordion-states") {
 				};
 			});
 		},
-		[setAccordionStates]
+		[setAccordionStates],
 	);
 
 	const getAccordionState = useCallback(
 		(sectionTitle: string, defaultState = true) =>
 			accordionStates[sectionTitle] ?? defaultState,
-		[accordionStates]
+		[accordionStates],
 	);
 
 	const setAccordionState = useCallback(
@@ -115,7 +103,7 @@ export function useAccordionStates(storageKey = "sidebar-accordion-states") {
 				[sectionTitle]: isExpanded,
 			}));
 		},
-		[setAccordionStates]
+		[setAccordionStates],
 	);
 
 	return {

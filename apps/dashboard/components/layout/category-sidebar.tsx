@@ -14,7 +14,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ const HelpDialog = dynamic(
 	{
 		ssr: false,
 		loading: () => null,
-	}
+	},
 );
 
 interface CategorySidebarProps {
@@ -63,7 +63,7 @@ export function CategorySidebar({
 	});
 	const [helpOpen, setHelpOpen] = useState(false);
 	const { getFlag } = useFlags();
-	const hasMounted = useHasMounted();
+	const isHydrated = useHydrated();
 	const openCommandSearchAction = useCommandSearchOpenAction();
 
 	const { categories, defaultCategory } = useMemo(() => {
@@ -75,11 +75,11 @@ export function CategorySidebar({
 						navigationMap: {
 							...baseConfig.navigationMap,
 							home:
-								!hasMounted || isLoadingWebsites
+								!isHydrated || isLoadingWebsites
 									? createLoadingWebsitesNavigation()
 									: createWebsitesNavigation(websites),
 							monitors:
-								!hasMounted || isLoadingMonitors
+								!isHydrated || isLoadingMonitors
 									? createLoadingMonitorsNavigation()
 									: createMonitorsNavigation(monitors),
 						},
@@ -89,8 +89,8 @@ export function CategorySidebar({
 		const defaultCat = getDefaultCategory(pathname);
 		const filteredCategories = filterCategoriesByFlags(
 			filterCategoriesForRoute(config.categories, pathname),
-			hasMounted,
-			getFlag
+			isHydrated,
+			getFlag,
 		);
 
 		return { categories: filteredCategories, defaultCategory: defaultCat };
@@ -100,7 +100,7 @@ export function CategorySidebar({
 		isLoadingWebsites,
 		monitors,
 		isLoadingMonitors,
-		hasMounted,
+		isHydrated,
 		getFlag,
 	]);
 
@@ -162,7 +162,7 @@ export function CategorySidebar({
 										"relative flex h-10 w-full cursor-pointer items-center justify-center",
 										"focus:outline-none",
 										hoverClass,
-										boxClass
+										boxClass,
 									)}
 									onClick={() => onCategoryChangeAction?.(category.id)}
 									type="button"
@@ -170,7 +170,7 @@ export function CategorySidebar({
 									{isActive ? (
 										<div
 											className={cn(
-												"absolute top-0 left-0 -z-10 h-full w-full bg-sidebar-accent-brighter"
+												"absolute top-0 left-0 -z-10 h-full w-full bg-sidebar-accent-brighter",
 											)}
 										/>
 									) : null}
@@ -179,7 +179,7 @@ export function CategorySidebar({
 											"size-5",
 											isActive
 												? "text-sidebar-ring"
-												: "text-sidebar-foreground/75"
+												: "text-sidebar-foreground/75",
 										)}
 										weight={isActive ? "fill" : "duotone"}
 									/>

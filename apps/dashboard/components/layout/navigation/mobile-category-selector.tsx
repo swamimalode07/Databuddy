@@ -12,7 +12,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import {
@@ -42,7 +42,7 @@ export function MobileCategorySelector({
 		enabled: user !== null,
 	});
 	const { getFlag } = useFlags();
-	const hasMounted = useHasMounted();
+	const isHydrated = useHydrated();
 
 	const { categories, defaultCategory } = useMemo(() => {
 		const baseConfig = getContextConfig(pathname);
@@ -62,12 +62,12 @@ export function MobileCategorySelector({
 		const defaultCat = getDefaultCategory(pathname);
 		const filteredCategories = filterCategoriesByFlags(
 			filterCategoriesForRoute(config.categories, pathname),
-			hasMounted,
-			getFlag
+			isHydrated,
+			getFlag,
 		);
 
 		return { categories: filteredCategories, defaultCategory: defaultCat };
-	}, [pathname, websites, isLoadingWebsites, hasMounted, getFlag]);
+	}, [pathname, websites, isLoadingWebsites, isHydrated, getFlag]);
 
 	const activeCategory = selectedCategory || defaultCategory;
 	const currentCategory = categories.find((cat) => cat.id === activeCategory);
@@ -105,7 +105,7 @@ export function MobileCategorySelector({
 									"flex cursor-pointer items-center gap-2",
 									isActive
 										? "bg-sidebar-accent text-sidebar-accent-foreground"
-										: ""
+										: "",
 								)}
 								key={category.id}
 								onClick={() => onCategoryChangeAction?.(category.id)}
@@ -113,7 +113,7 @@ export function MobileCategorySelector({
 								<Icon
 									className={cn(
 										"size-4",
-										isActive ? "text-sidebar-ring" : "text-muted-foreground"
+										isActive ? "text-sidebar-ring" : "text-muted-foreground",
 									)}
 									weight={isActive ? "fill" : "duotone"}
 								/>

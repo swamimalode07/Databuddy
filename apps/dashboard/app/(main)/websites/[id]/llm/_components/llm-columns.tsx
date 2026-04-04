@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { formatDateTime } from "@/lib/formatters";
+import { formatLocalTime } from "@/lib/time";
 import {
 	formatDurationMs,
 	formatPercent,
@@ -267,7 +267,8 @@ export const createSlowCallColumns = (): ColumnDef<LlmSlowCallRow>[] => [
 	{
 		accessorKey: "timestamp",
 		header: "Time",
-		cell: ({ row }) => formatDateTime(row.original.timestamp),
+		cell: ({ row }) =>
+			formatLocalTime(row.original.timestamp, "MMM D, YYYY HH:mm"),
 	},
 	{
 		accessorKey: "provider",
@@ -318,7 +319,8 @@ export const createRecentErrorColumns = (): ColumnDef<LlmRecentErrorRow>[] => [
 	{
 		accessorKey: "timestamp",
 		header: "Time",
-		cell: ({ row }) => formatDateTime(row.original.timestamp),
+		cell: ({ row }) =>
+			formatLocalTime(row.original.timestamp, "MMM D, YYYY HH:mm"),
 	},
 	{
 		accessorKey: "error_name",
@@ -407,7 +409,8 @@ export const createRecentCallColumns = (): ColumnDef<LlmRecentCallRow>[] => [
 	{
 		accessorKey: "timestamp",
 		header: "Time",
-		cell: ({ row }) => formatDateTime(row.original.timestamp),
+		cell: ({ row }) =>
+			formatLocalTime(row.original.timestamp, "MMM D, YYYY HH:mm"),
 	},
 	{
 		accessorKey: "trace_id",

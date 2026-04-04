@@ -5,7 +5,7 @@ import { useFlags } from "@databuddy/sdk/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useHasMounted } from "@/hooks/use-has-mounted";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
@@ -39,13 +39,13 @@ interface NavigationConfig {
 }
 
 const isNavigationSection = (
-	entry: NavigationEntry
+	entry: NavigationEntry,
 ): entry is NavigationSectionType => {
 	return "items" in entry;
 };
 
 const isNavigationItem = (
-	entry: NavigationEntry
+	entry: NavigationEntry,
 ): entry is NavigationItemType => {
 	return "href" in entry && !("items" in entry);
 };
@@ -57,7 +57,7 @@ export function Sidebar() {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
-		undefined
+		undefined,
 	);
 
 	const isDemo = pathname.startsWith("/demo");
@@ -70,16 +70,16 @@ export function Sidebar() {
 		enabled: user !== null,
 	});
 	const accordionStates = useAccordionStates();
-	const hasMounted = useHasMounted();
+	const isHydrated = useHydrated();
 
 	const websiteId = useMemo(
 		() => (isDemo || isWebsite ? pathname.split("/")[2] : null),
-		[isDemo, isWebsite, pathname]
+		[isDemo, isWebsite, pathname],
 	);
 
 	const currentWebsite = useMemo(
 		() => (websiteId ? websites?.find((site) => site.id === websiteId) : null),
-		[websiteId, websites]
+		[websiteId, websites],
 	);
 
 	const { getFlag } = useFlags();
@@ -94,11 +94,11 @@ export function Sidebar() {
 						navigationMap: {
 							...baseConfig.navigationMap,
 							home:
-								!hasMounted || isLoadingWebsites
+								!isHydrated || isLoadingWebsites
 									? createLoadingWebsitesNavigation()
 									: createWebsitesNavigation(websites),
 							monitors:
-								!hasMounted || isLoadingMonitors
+								!isHydrated || isLoadingMonitors
 									? createLoadingMonitorsNavigation()
 									: createMonitorsNavigation(monitors),
 						},
@@ -170,13 +170,13 @@ export function Sidebar() {
 		isLoadingWebsites,
 		monitors,
 		isLoadingMonitors,
-		hasMounted,
+		isHydrated,
 		getFlag,
 	]);
 
 	const defaultCategory = useMemo(
 		() => getDefaultCategory(pathname),
-		[pathname]
+		[pathname],
 	);
 	const previousDefaultCategoryRef = useRef<string | undefined>(undefined);
 
@@ -229,7 +229,7 @@ export function Sidebar() {
 														? "border-b"
 														: idx !== 0 && navigation.length > 1
 															? "border-t"
-															: "border-transparent"
+															: "border-transparent",
 											)}
 											currentWebsiteId={currentWebsiteId}
 											flag={entry.flag}
@@ -261,7 +261,7 @@ export function Sidebar() {
 													entry,
 													pathname,
 													searchParams,
-													currentWebsiteId
+													currentWebsiteId,
 												)}
 												isExternal={entry.external}
 												isLocked={false}

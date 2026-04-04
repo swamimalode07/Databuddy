@@ -10,10 +10,11 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import dayjs from "@/lib/dayjs";
+import { formatDateTime } from "@/lib/time";
 import { ErrorDetailModal } from "./error-detail-modal";
 import { getDeviceIcon, getErrorTypeIcon } from "./error-icons";
 import type { RecentError } from "./types";
-import { formatDateTimeSeconds, getErrorCategory } from "./utils";
+import { getErrorCategory } from "./utils";
 
 interface Props {
 	recentErrors: RecentError[];
@@ -216,7 +217,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				cell: (info: { getValue: () => unknown }) => {
 					const time = info.getValue() as string;
 					const relative = getRelativeTime(time);
-					const full = formatDateTimeSeconds(time);
+					const full = formatDateTime(time);
 
 					return (
 						<Tooltip skipProvider>
@@ -234,7 +235,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				},
 			},
 		],
-		[]
+		[],
 	);
 
 	return (
