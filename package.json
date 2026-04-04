@@ -94,7 +94,7 @@
       "@logtail/edge": "^0.5.4",
       "@logtail/js": "^0.5.5",
       "@logtail/pino": "^0.5.5",
-      "@biomejs/biome": "2.2.2",
+      "@biomejs/biome": "2.4.10",
       "@types/bun": "latest",
       "@types/react": "19.2.3",
       "@types/react-dom": "19.2.3",

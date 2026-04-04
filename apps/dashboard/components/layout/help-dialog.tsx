@@ -1,11 +1,3 @@
-import {
-	BookOpenIcon,
-	ChatCircleIcon,
-	KeyboardIcon,
-	PlayIcon,
-} from "@phosphor-icons/react";
-import Link from "next/link";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -16,6 +8,14 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcuts } from "@/components/ui/keyboard-shortcuts";
+import {
+	BookOpenIcon,
+	ChatCircleIcon,
+	KeyboardIcon,
+	PlayIcon,
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface HelpDialogProps {
 	onOpenChangeAction: (open: boolean) => void;

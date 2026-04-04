@@ -58,7 +58,7 @@ const mockLoggerSet = mock(() => {});
 
 mock.module("@databuddy/redis", () => ({
 	redis: { set: mockRedisSet },
-	cacheable: (fn: Function) => fn,
+	cacheable: (fn: () => Promise<any>) => fn,
 }));
 
 mock.module("evlog/elysia", () => ({
@@ -66,7 +66,8 @@ mock.module("evlog/elysia", () => ({
 }));
 
 mock.module("@lib/tracing", () => ({
-	record: (_name: string, fn: Function) => Promise.resolve().then(() => fn()),
+	record: (_name: string, fn: () => Promise<any>) =>
+		Promise.resolve().then(() => fn()),
 	captureError: mock(),
 }));
 

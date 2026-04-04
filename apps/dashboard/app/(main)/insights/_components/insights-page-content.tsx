@@ -1,19 +1,5 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	ArrowsDownUpIcon,
-	CaretDownIcon,
-	CheckCircleIcon,
-	FunnelIcon,
-	SparkleIcon,
-	TrashIcon,
-	WarningCircleIcon,
-	XIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import { useInsightsFeed } from "@/app/(main)/insights/hooks/use-insights-feed";
 import { useInsightsLocalState } from "@/app/(main)/insights/hooks/use-insights-local-state";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
@@ -45,6 +31,20 @@ import {
 import type { Insight, InsightSeverity } from "@/lib/insight-types";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import {
+	ArrowClockwiseIcon,
+	ArrowsDownUpIcon,
+	CaretDownIcon,
+	CheckCircleIcon,
+	FunnelIcon,
+	SparkleIcon,
+	TrashIcon,
+	WarningCircleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { InsightCard } from "./insight-card";
 
 type SeverityFilter = "all" | InsightSeverity;

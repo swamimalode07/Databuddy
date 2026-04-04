@@ -1,10 +1,5 @@
 "use client";
 
-import { authClient } from "@databuddy/auth/client";
-import { InfoIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useState } from "react";
 import { Branding } from "@/components/layout/logo";
 import { useCommandSearchOpenAction } from "@/components/ui/command-search";
 import {
@@ -13,6 +8,11 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { authClient } from "@databuddy/auth/client";
+import { InfoIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { PendingInvitationsButton } from "./pending-invitations-button";
 import { ProfileButtonClient } from "./profile-button-client";
