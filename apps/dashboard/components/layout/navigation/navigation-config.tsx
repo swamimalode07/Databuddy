@@ -1,58 +1,56 @@
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import {
-	ActivityIcon,
-	ArrowSquareOutIcon,
-	BellIcon,
-	BookOpenIcon,
-	BrowserIcon,
-	BugIcon,
-	BuildingsIcon,
-	CalendarIcon,
-	ChartBarIcon,
-	ChartLineUpIcon,
-	ChartPieIcon,
-	CodeIcon,
-	CreditCardIcon,
-	CurrencyDollarIcon,
-	EyeIcon,
-	FileArrowDownIcon,
-	FlagIcon,
-	FunnelIcon,
-	GearIcon,
-	GlobeIcon,
-	GlobeSimpleIcon,
-	HeartbeatIcon,
-	HouseIcon,
-	IdentificationCardIcon,
-	KeyIcon,
-	LightningIcon,
-	LinkIcon,
-	LockIcon,
-	MapPinIcon,
-	PlayIcon,
-	PlugIcon,
-	PlusIcon,
-	ReceiptIcon,
-	RoadHorizonIcon,
-	RobotIcon,
-	ShieldCheckIcon,
-	SparkleIcon,
-	SpeakerHighIcon,
-	SquaresFourIcon,
-	TargetIcon,
-	TrendUpIcon,
-	UserGearIcon,
-	UserIcon,
-	UsersThreeIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
+import { ActivityIcon } from "@phosphor-icons/react/dist/ssr/Activity";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
+import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr/BookOpen";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr/Browser";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
+import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr/ChartLineUp";
+import { ChartPieIcon } from "@phosphor-icons/react/dist/ssr/ChartPie";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
+import { CreditCardIcon } from "@phosphor-icons/react/dist/ssr/CreditCard";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { FileArrowDownIcon } from "@phosphor-icons/react/dist/ssr/FileArrowDown";
+import { FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
+import { GlobeSimpleIcon } from "@phosphor-icons/react/dist/ssr/GlobeSimple";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
+import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import { IdentificationCardIcon } from "@phosphor-icons/react/dist/ssr/IdentificationCard";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
+import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
+import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
+import { PlugIcon } from "@phosphor-icons/react/dist/ssr/Plug";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr/Receipt";
+import { RoadHorizonIcon } from "@phosphor-icons/react/dist/ssr/RoadHorizon";
+import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { SpeakerHighIcon } from "@phosphor-icons/react/dist/ssr/SpeakerHigh";
+import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
+import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
+import { UserGearIcon } from "@phosphor-icons/react/dist/ssr/UserGear";
+import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr/UsersThree";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import type { Category, NavigationEntry, NavigationSection } from "./types";
 
 const createNavItem = (
 	name: string,
 	icon: any,
 	href: string,
-	options: Record<string, any> = {}
+	options: Record<string, any> = {},
 ) => ({
 	name,
 	icon,
@@ -65,7 +63,7 @@ const createNavSection = (
 	title: string,
 	icon: any,
 	items: NavigationSection["items"],
-	options: Partial<NavigationSection> = {}
+	options: Partial<NavigationSection> = {},
 ): NavigationSection => ({
 	title,
 	icon,
@@ -75,7 +73,7 @@ const createNavSection = (
 
 export const filterCategoriesForRoute = (
 	categories: Category[],
-	pathname: string
+	pathname: string,
 ) => {
 	const isDemo = pathname.startsWith("/demo");
 	return categories.filter((category) => !(category.hideFromDemo && isDemo));
@@ -89,7 +87,7 @@ export const filterCategoriesForRoute = (
 export function filterCategoriesByFlags(
 	categories: Category[],
 	hasMounted: boolean,
-	getFlag: (key: string) => { status: string; on: boolean }
+	getFlag: (key: string) => { status: string; on: boolean },
 ): Category[] {
 	return categories.filter((category) => {
 		if (!category.flag) {
@@ -112,7 +110,7 @@ const createDynamicNavigation = <T extends { id: string; name: string | null }>(
 	itemIcon: any,
 	itemHrefPrefix: string,
 	emptyText: string,
-	extraProps?: (item: T) => Record<string, any>
+	extraProps?: (item: T) => Record<string, any>,
 ): NavigationSection[] => [
 	createNavSection(title, titleIcon, [
 		createNavItem(overviewName, ChartBarIcon, overviewHref, {
@@ -127,8 +125,8 @@ const createDynamicNavigation = <T extends { id: string; name: string | null }>(
 						{
 							highlight: true,
 							...(extraProps?.(item) || {}),
-						}
-					)
+						},
+					),
 				)
 			: [
 					createNavItem(emptyText, PlusIcon, overviewHref, {
@@ -140,7 +138,7 @@ const createDynamicNavigation = <T extends { id: string; name: string | null }>(
 ];
 
 export const createWebsitesNavigation = (
-	websites: Array<{ id: string; name: string | null; domain: string }>
+	websites: Array<{ id: string; name: string | null; domain: string }>,
 ): NavigationEntry[] => [
 	createNavSection("Overview", SquaresFourIcon, [
 		createNavItem("Home", HouseIcon, "/home", {
@@ -160,7 +158,7 @@ export const createWebsitesNavigation = (
 		GlobeIcon,
 		"/websites",
 		"Add Your First Website",
-		(website) => ({ domain: website.domain })
+		(website) => ({ domain: website.domain }),
 	),
 	createNavSection("Observability", ActivityIcon, [
 		createNavItem("Links", LinkIcon, "/links", {
@@ -189,7 +187,7 @@ export const personalNavigation: NavigationSection[] = [
 			{
 				disabled: true,
 				tag: "soon",
-			}
+			},
 		),
 		createNavItem("Feature Access", FlagIcon, "/settings/features", {
 			disabled: true,
@@ -216,19 +214,19 @@ export const resourcesNavigation: NavigationSection[] = [
 			"Video Guides",
 			PlayIcon,
 			"https://youtube.com/@trydatabuddy",
-			{ external: true, highlight: true }
+			{ external: true, highlight: true },
 		),
 		createNavItem(
 			"Roadmap",
 			RoadHorizonIcon,
 			"https://trello.com/b/SOUXD4wE/databuddy",
-			{ external: true, highlight: true }
+			{ external: true, highlight: true },
 		),
 		createNavItem(
 			"Feedback",
 			SpeakerHighIcon,
 			"https://databuddy.featurebase.app/",
-			{ external: true, highlight: true }
+			{ external: true, highlight: true },
 		),
 	]),
 ];
@@ -246,7 +244,7 @@ export const organizationNavigation: NavigationSection[] = [
 		createNavItem(
 			"Website Access",
 			GlobeSimpleIcon,
-			"/organizations/settings/websites"
+			"/organizations/settings/websites",
 		),
 		createNavItem("API Keys", KeyIcon, "/organizations/settings/api-keys"),
 		createNavItem("Danger Zone", WarningIcon, "/organizations/settings/danger"),
@@ -264,7 +262,7 @@ export const billingNavigation: NavigationSection[] = [
 			"/billing/cost-breakdown",
 			{
 				badge: { text: "Experimental", variant: "purple" as const },
-			}
+			},
 		),
 		createNavItem("Feedback & Credits", SpeakerHighIcon, "/feedback"),
 	]),
@@ -281,7 +279,7 @@ export const createMonitorsNavigation = (
 		url: string | null;
 		websiteId: string | null;
 		website: { id: string; name: string | null; domain: string } | null;
-	}>
+	}>,
 ): NavigationSection[] => [
 	...createDynamicNavigation(
 		monitors.map((m) => ({
@@ -296,7 +294,7 @@ export const createMonitorsNavigation = (
 		HeartbeatIcon,
 		"/monitors",
 		"Add Your First Monitor",
-		(monitor) => ({ domain: monitor.domain })
+		(monitor) => ({ domain: monitor.domain }),
 	),
 	statusPagesSection,
 ];
@@ -308,7 +306,7 @@ export const createLoadingMonitorsNavigation = (): NavigationSection[] => [
 		"All Monitors",
 		"/monitors",
 		"Loading monitors...",
-		HeartbeatIcon
+		HeartbeatIcon,
 	),
 	statusPagesSection,
 ];
@@ -390,7 +388,7 @@ export const websiteSettingsNavigation: NavigationSection[] = [
 			"Transfer Website",
 			ArrowSquareOutIcon,
 			"/settings/transfer",
-			{ rootLevel: false }
+			{ rootLevel: false },
 		),
 		createNavItem("Data Export", FileArrowDownIcon, "/settings/export", {
 			rootLevel: false,
@@ -404,7 +402,7 @@ export const websiteSettingsNavigation: NavigationSection[] = [
 const createCategoryConfig = (
 	categories: Category[],
 	defaultCategory: string,
-	navigationMap: Record<string, NavigationEntry[]>
+	navigationMap: Record<string, NavigationEntry[]>,
 ) => ({ categories, defaultCategory, navigationMap });
 
 export const categoryConfig = {
@@ -457,7 +455,7 @@ export const categoryConfig = {
 			billing: billingNavigation,
 			settings: personalNavigation,
 			resources: resourcesNavigation,
-		}
+		},
 	),
 	website: createCategoryConfig(
 		[
@@ -479,7 +477,7 @@ export const categoryConfig = {
 		{
 			analytics: websiteNavigation,
 			settings: websiteSettingsNavigation,
-		}
+		},
 	),
 };
 
@@ -519,7 +517,7 @@ const createLoadingNavigation = (
 	overviewName: string,
 	overviewHref: string,
 	loadingName: string,
-	loadingIcon: any
+	loadingIcon: any,
 ): NavigationSection[] => [
 	createNavSection(title, titleIcon, [
 		createNavItem(overviewName, ChartBarIcon, overviewHref, {
@@ -548,7 +546,7 @@ export const createLoadingWebsitesNavigation = (): NavigationEntry[] => [
 		"Website Overview",
 		"/websites",
 		"Loading websites...",
-		GlobeIcon
+		GlobeIcon,
 	),
 	createNavSection("Observability", ActivityIcon, [
 		createNavItem("Links", LinkIcon, "/links", {
