@@ -3,7 +3,6 @@ import { ActivityIcon } from "@phosphor-icons/react";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { BellIcon } from "@phosphor-icons/react";
 import { BookOpenIcon } from "@phosphor-icons/react";
-import { BrowserIcon } from "@phosphor-icons/react";
 import { BugIcon } from "@phosphor-icons/react";
 import { BuildingsIcon } from "@phosphor-icons/react";
 import { CalendarIcon } from "@phosphor-icons/react";
@@ -221,17 +220,15 @@ export const billingNavigation: NavigationSection[] = [
 	]),
 ];
 
-const statusPagesSection = createNavSection("Status Pages", BrowserIcon, [
-	createNavItem("All Pages", GlobeSimpleIcon, "/monitors/status-pages"),
-]);
-
 export const monitorsNavigation: NavigationSection[] = [
 	createNavSection("Monitoring", HeartbeatIcon, [
 		createNavItem("All Monitors", HeartbeatIcon, "/monitors", {
 			highlight: true,
 		}),
+		createNavItem("Status Pages", GlobeSimpleIcon, "/monitors/status-pages", {
+			highlight: true,
+		}),
 	]),
-	statusPagesSection,
 ];
 
 export const websiteNavigation: NavigationSection[] = [
