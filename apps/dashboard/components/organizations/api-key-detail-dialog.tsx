@@ -2,15 +2,13 @@
 
 import { API_SCOPES, type ApiScope } from "@databuddy/api-keys/scopes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	ArrowsClockwiseIcon,
-	CheckCircleIcon,
-	CheckIcon,
-	CopyIcon,
-	KeyIcon,
-	ProhibitIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
+import { ProhibitIcon } from "@phosphor-icons/react/dist/ssr/Prohibit";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";

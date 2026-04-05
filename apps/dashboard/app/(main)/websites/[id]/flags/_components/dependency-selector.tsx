@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	CheckCircleIcon,
-	CircleIcon,
-	PlusIcon,
-	XIcon,
-} from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { CircleIcon } from "@phosphor-icons/react/dist/ssr/Circle";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

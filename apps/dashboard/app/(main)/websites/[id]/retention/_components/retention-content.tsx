@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	ChartLineIcon,
-	TableIcon,
-	UserPlusIcon,
-	UsersIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
+import { TableIcon } from "@phosphor-icons/react/dist/ssr/Table";
+import { UserPlusIcon } from "@phosphor-icons/react/dist/ssr/UserPlus";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { useMemo, useState } from "react";
 import { StatCard } from "@/components/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

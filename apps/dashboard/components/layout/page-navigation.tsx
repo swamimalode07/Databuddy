@@ -1,7 +1,7 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";

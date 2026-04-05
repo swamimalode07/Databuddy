@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowSquareOutIcon, FunnelIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import { useAtom } from "jotai";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";

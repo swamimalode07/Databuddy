@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	LightningIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";

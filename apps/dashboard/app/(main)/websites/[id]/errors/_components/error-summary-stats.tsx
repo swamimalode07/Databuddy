@@ -1,9 +1,7 @@
-import {
-	ActivityIcon,
-	TrendUpIcon,
-	UsersIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { PulseIcon as ActivityIcon } from "@phosphor-icons/react/dist/ssr/Pulse";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { ErrorSummary } from "./types";

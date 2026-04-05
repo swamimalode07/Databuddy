@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	TrendUpIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import { Button } from "@/components/ui/button";
 
 /**

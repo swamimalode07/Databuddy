@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 

@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	CaretRightIcon,
-	GlobeIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";

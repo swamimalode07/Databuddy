@@ -1,13 +1,11 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	CaretRightIcon,
-	GearIcon,
-	PlusIcon,
-	SignOutIcon,
-	SpinnerGapIcon,
-} from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
+import { SpinnerGapIcon } from "@phosphor-icons/react/dist/ssr/SpinnerGap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

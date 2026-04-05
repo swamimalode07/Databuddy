@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	ChartBarIcon,
-	ChartLineUpIcon,
-	LightningIcon,
-	ListBulletsIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr/ChartLineUp";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
 import { useCallback, useMemo, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";
 import { useDynamicDasharray } from "@/components/charts/use-dynamic-dasharray";

@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	AndroidLogoIcon,
-	AppleLogoIcon,
-	CalendarIcon,
-	DeviceMobileIcon,
-	ImageIcon,
-	LinkSimpleIcon,
-} from "@phosphor-icons/react";
+import { AndroidLogoIcon } from "@phosphor-icons/react/dist/ssr/AndroidLogo";
+import { AppleLogoIcon } from "@phosphor-icons/react/dist/ssr/AppleLogo";
+import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
+import { DeviceMobileIcon } from "@phosphor-icons/react/dist/ssr/DeviceMobile";
+import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
+import { LinkSimpleIcon } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 import type { UseFormReturn } from "react-hook-form";
 import {
 	FormControl,

@@ -1,6 +1,9 @@
 "use client";
 
-import { EyeIcon, EyeSlashIcon, NoteIcon, XIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+import { NoteIcon } from "@phosphor-icons/react/dist/ssr/Note";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
 import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";

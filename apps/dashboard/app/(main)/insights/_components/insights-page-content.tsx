@@ -31,17 +31,15 @@ import {
 import type { Insight, InsightSeverity } from "@/lib/insight-types";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import {
-	ArrowClockwiseIcon,
-	ArrowsDownUpIcon,
-	CaretDownIcon,
-	CheckCircleIcon,
-	FunnelIcon,
-	SparkleIcon,
-	TrashIcon,
-	WarningCircleIcon,
-	XIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";

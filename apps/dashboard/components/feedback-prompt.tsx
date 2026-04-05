@@ -1,6 +1,7 @@
 "use client";
 
-import { ChatTextIcon, XIcon } from "@phosphor-icons/react";
+import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

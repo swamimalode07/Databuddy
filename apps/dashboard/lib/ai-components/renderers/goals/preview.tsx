@@ -1,15 +1,13 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CheckIcon,
-	CircleNotchIcon,
-	EyeIcon,
-	MouseMiddleClickIcon,
-	PencilSimpleIcon,
-	TargetIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { MouseMiddleClickIcon } from "@phosphor-icons/react/dist/ssr/MouseMiddleClick";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";

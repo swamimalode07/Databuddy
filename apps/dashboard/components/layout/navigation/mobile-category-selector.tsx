@@ -1,8 +1,8 @@
 "use client";
 
-import { authClient } from "@databuddy/auth/client";
+import { useSession } from "@/hooks/use-session";
 import { useFlags } from "@databuddy/sdk/react";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export function MobileCategorySelector({
 	onCategoryChangeAction,
 	selectedCategory,
 }: MobileCategorySelectorProps) {
-	const { data: session } = authClient.useSession();
+	const { data: session } = useSession();
 	const user = session?.user ?? null;
 
 	const pathname = usePathname();

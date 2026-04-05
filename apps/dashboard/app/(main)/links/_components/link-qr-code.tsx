@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	CopyIcon,
-	DownloadSimpleIcon,
-	ImageIcon,
-	XIcon,
-} from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
+import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useCallback, useRef, useState } from "react";
 import { QRCode } from "react-qrcode-logo";
 import { toast } from "sonner";

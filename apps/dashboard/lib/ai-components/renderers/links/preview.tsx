@@ -1,15 +1,13 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CalendarIcon,
-	CheckIcon,
-	CircleNotchIcon,
-	ImageIcon,
-	LinkIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useState } from "react";
 import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
 import { Button } from "@/components/ui/button";

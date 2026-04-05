@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	ChartBarIcon,
-	ListBulletsIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/empty-state";

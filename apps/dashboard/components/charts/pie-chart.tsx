@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartPieIcon } from "@phosphor-icons/react";
+import { ChartPieIcon } from "@phosphor-icons/react/dist/ssr/ChartPie";
 import { memo, useCallback, useState } from "react";
 import { ChartErrorBoundary } from "@/components/chart-error-boundary";
 import { Card } from "@/components/ui/card";

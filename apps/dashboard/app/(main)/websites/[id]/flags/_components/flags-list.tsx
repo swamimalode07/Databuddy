@@ -1,16 +1,14 @@
 "use client";
 
-import {
-	ArchiveIcon,
-	DotsThreeIcon,
-	FlagIcon,
-	FlaskIcon,
-	GaugeIcon,
-	LinkIcon,
-	PencilSimpleIcon,
-	ShareNetworkIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { ArchiveIcon } from "@phosphor-icons/react/dist/ssr/Archive";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
+import { FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag";
+import { FlaskIcon } from "@phosphor-icons/react/dist/ssr/Flask";
+import { GaugeIcon } from "@phosphor-icons/react/dist/ssr/Gauge";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";

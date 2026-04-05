@@ -1,4 +1,4 @@
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import { cn } from "@/lib/utils";
 
 interface CollapsibleSectionProps {

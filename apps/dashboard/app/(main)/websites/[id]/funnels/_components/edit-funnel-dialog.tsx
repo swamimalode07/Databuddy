@@ -7,12 +7,10 @@ import {
 	Droppable,
 	type DropResult,
 } from "@hello-pangea/dnd";
-import {
-	DotsNineIcon,
-	FunnelIcon,
-	PlusIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { DotsNineIcon } from "@phosphor-icons/react/dist/ssr/DotsNine";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";

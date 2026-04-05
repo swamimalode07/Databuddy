@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	ArrowRightIcon,
-	CheckIcon,
-	CodeIcon,
-	GlobeIcon,
-	type Icon,
-	SparkleIcon,
-} from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";

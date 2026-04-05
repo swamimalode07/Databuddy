@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	ChartBarIcon,
-	ClockIcon,
-	DatabaseIcon,
-	GiftIcon,
-	LightningIcon,
-	UsersIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
+import { DatabaseIcon } from "@phosphor-icons/react/dist/ssr/Database";
+import { GiftIcon } from "@phosphor-icons/react/dist/ssr/Gift";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import Link from "next/link";
 import { memo } from "react";
 import { Badge } from "@/components/ui/badge";

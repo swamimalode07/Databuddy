@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowClockwiseIcon, XCircleIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

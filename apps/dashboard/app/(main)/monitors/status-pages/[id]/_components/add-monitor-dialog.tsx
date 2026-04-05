@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { HeartbeatIcon, ListIcon, PlusIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
+import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

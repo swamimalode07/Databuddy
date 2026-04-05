@@ -1,6 +1,8 @@
 "use client";
 
-import { MonitorIcon, MoonIcon, SunIcon } from "@phosphor-icons/react";
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor";
+import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {

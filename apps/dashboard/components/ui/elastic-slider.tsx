@@ -1,6 +1,7 @@
 "use client";
 
-import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
+import { MinusIcon } from "@phosphor-icons/react/dist/ssr/Minus";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import {
 	motion,
 	useMotionValue,

@@ -1,12 +1,10 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	BuildingsIcon,
-	CaretRightIcon,
-	CheckCircleIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

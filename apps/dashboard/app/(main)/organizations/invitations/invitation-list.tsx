@@ -1,6 +1,7 @@
 "use client";
 
-import { EnvelopeIcon, TrashIcon } from "@phosphor-icons/react";
+import { EnvelopeIcon } from "@phosphor-icons/react/dist/ssr/Envelope";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

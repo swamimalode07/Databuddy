@@ -18,13 +18,8 @@ const isItem = (entry: NavigationEntry): entry is NavigationItemType =>
 	"href" in entry && !("items" in entry);
 
 export function NavigationRenderer({ className }: { className?: string }) {
-	const {
-		navigation,
-		currentWebsiteId,
-		pathname,
-		searchParams,
-		accordionStates,
-	} = useSidebarNavigation();
+	const { navigation, currentWebsiteId, pathname, accordionStates } =
+		useSidebarNavigation();
 
 	return (
 		<nav
@@ -51,7 +46,6 @@ export function NavigationRenderer({ className }: { className?: string }) {
 							items={entry.items}
 							key={entry.title}
 							pathname={pathname}
-							searchParams={searchParams}
 							title={entry.title}
 						/>
 					);
@@ -68,12 +62,7 @@ export function NavigationRenderer({ className }: { className?: string }) {
 								domain={entry.domain}
 								href={entry.href}
 								icon={entry.icon}
-								isActive={isNavItemActive(
-									entry,
-									pathname,
-									searchParams,
-									currentWebsiteId
-								)}
+								isActive={isNavItemActive(entry, pathname, currentWebsiteId)}
 								isExternal={entry.external}
 								isLocked={false}
 								isRootLevel={!!entry.rootLevel}

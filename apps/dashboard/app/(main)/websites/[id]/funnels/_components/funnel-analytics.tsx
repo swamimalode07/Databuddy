@@ -1,15 +1,13 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	ArrowSquareOutIcon,
-	BugIcon,
-	ClockIcon,
-	TargetIcon,
-	TrendDownIcon,
-	UsersIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
+import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target";
+import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { StatCard } from "@/components/analytics/stat-card";

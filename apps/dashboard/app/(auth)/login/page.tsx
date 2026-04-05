@@ -1,14 +1,12 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	EyeIcon,
-	EyeSlashIcon,
-	GithubLogoIcon,
-	GoogleLogoIcon,
-	SparkleIcon,
-	SpinnerIcon,
-} from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr/GithubLogo";
+import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr/GoogleLogo";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";

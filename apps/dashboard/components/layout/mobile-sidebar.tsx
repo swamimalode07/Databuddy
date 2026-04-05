@@ -7,14 +7,13 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import {
-	ListIcon,
-	MagnifyingGlassIcon,
-	MonitorIcon,
-	MoonIcon,
-	SignOutIcon,
-	SunIcon,
-} from "@phosphor-icons/react";
+import { useSession } from "@/hooks/use-session";
+import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor";
+import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
+import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -77,7 +76,7 @@ const getInitials = (
 };
 
 export function MobileSidebar() {
-	const { data: session } = authClient.useSession();
+	const { data: session } = useSession();
 	const user = session?.user ?? null;
 
 	const { header, categories, activeCategory, setCategory, pathname } =

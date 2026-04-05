@@ -1,16 +1,14 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	CaretDownIcon,
-	CheckCircleIcon,
-	CircleNotchIcon,
-	CopyIcon,
-	DeviceMobileIcon,
-	KeyIcon,
-	ShieldCheckIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { DeviceMobileIcon } from "@phosphor-icons/react/dist/ssr/DeviceMobile";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import { useMutation } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { useCallback, useEffect, useMemo, useState } from "react";

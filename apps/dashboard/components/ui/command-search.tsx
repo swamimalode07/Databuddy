@@ -1,11 +1,9 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	ArrowSquareOutIcon,
-	CommandIcon,
-	MagnifyingGlassIcon,
-} from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { CommandIcon } from "@phosphor-icons/react/dist/ssr/Command";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { Command as CommandPrimitive } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
@@ -152,7 +150,7 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const router = useRouter();
 	const pathname = usePathname();
-	const { websites } = useWebsites();
+	const { websites } = useWebsites({ enabled: open });
 
 	const currentWebsiteId = pathname.startsWith("/websites/")
 		? pathname.split("/")[2]

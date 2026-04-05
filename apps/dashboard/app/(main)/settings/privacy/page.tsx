@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheckIcon } from "@phosphor-icons/react";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
 

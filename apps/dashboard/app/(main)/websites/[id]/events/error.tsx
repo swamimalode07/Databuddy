@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	ArrowLeftIcon,
-	LightningIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 

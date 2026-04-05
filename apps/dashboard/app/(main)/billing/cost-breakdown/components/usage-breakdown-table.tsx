@@ -1,14 +1,12 @@
 "use client";
 
 import type { UsageResponse } from "@databuddy/shared/types/billing";
-import {
-	BugIcon,
-	ChartBarIcon,
-	LightningIcon,
-	LinkIcon,
-	SparkleIcon,
-	TableIcon,
-} from "@phosphor-icons/react";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { TableIcon } from "@phosphor-icons/react/dist/ssr/Table";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";

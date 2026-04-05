@@ -1,6 +1,8 @@
 "use client";
 
-import { ClockIcon, CodeIcon, GlobeIcon } from "@phosphor-icons/react";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
 import { useCallback, useMemo, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";

@@ -1,21 +1,19 @@
 "use client";
 
-import {
-	CalendarBlankIcon,
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineIcon,
-	ClockIcon,
-	CursorClickIcon,
-	DesktopIcon,
-	FunnelIcon,
-	MoonIcon,
-	PresentationChartIcon,
-	SquaresFourIcon,
-	StackIcon,
-	SunIcon,
-	UsersIcon,
-} from "@phosphor-icons/react";
+import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
+import { CursorClickIcon } from "@phosphor-icons/react/dist/ssr/CursorClick";
+import { DesktopIcon } from "@phosphor-icons/react/dist/ssr/Desktop";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
+import { PresentationChartIcon } from "@phosphor-icons/react/dist/ssr/PresentationChart";
+import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
+import { StackIcon } from "@phosphor-icons/react/dist/ssr/Stack";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { StatCard } from "@/components/analytics/stat-card";

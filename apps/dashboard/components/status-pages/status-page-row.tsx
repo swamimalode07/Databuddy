@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	ArrowSquareOutIcon,
-	BrowserIcon,
-	CopyIcon,
-	DotsThreeIcon,
-	HeartbeatIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr/Browser";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCallback, useState } from "react";

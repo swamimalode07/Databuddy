@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	LightningIcon,
-	TagIcon,
-	TrendUpIcon,
-	UserIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/empty-state";

@@ -1,15 +1,13 @@
 "use client";
 
-import {
-	CheckIcon,
-	ClockIcon,
-	CodeIcon,
-	CopyIcon,
-	RobotIcon,
-	StackIcon,
-	TimerIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
+import { StackIcon } from "@phosphor-icons/react/dist/ssr/Stack";
+import { TimerIcon } from "@phosphor-icons/react/dist/ssr/Timer";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import { useState } from "react";
 import { toast } from "sonner";
 import {

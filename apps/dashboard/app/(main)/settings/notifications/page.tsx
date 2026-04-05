@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	BellIcon,
-	CircleNotchIcon,
-	DotsThreeIcon,
-	PencilIcon,
-	PlusIcon,
-	TestTubeIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
+import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { TestTubeIcon } from "@phosphor-icons/react/dist/ssr/TestTube";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";

@@ -2,7 +2,6 @@ import { useFlags } from "@databuddy/sdk/react";
 import { FEATURE_METADATA } from "@databuddy/shared/types/features";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import clsx from "clsx";
-import type { ReadonlyURLSearchParams } from "next/navigation";
 import { memo } from "react";
 import { useBillingContext } from "@/components/providers/billing-provider";
 import type { useAccordionStates } from "@/hooks/use-persistent-state";
@@ -31,7 +30,6 @@ interface NavigationSectionProps {
 	icon: NavigationSectionType["icon"];
 	items: NavigationSectionType["items"];
 	pathname: string;
-	searchParams: ReadonlyURLSearchParams;
 	title: string;
 }
 
@@ -40,7 +38,6 @@ export const NavigationSection = memo(function NavigationSectionComponent({
 	icon: Icon,
 	items,
 	pathname,
-	searchParams,
 	currentWebsiteId,
 	accordionStates,
 	className,
@@ -140,12 +137,7 @@ export const NavigationSection = memo(function NavigationSectionComponent({
 									domain={item.domain}
 									href={item.href}
 									icon={item.icon}
-									isActive={isNavItemActive(
-										item,
-										pathname,
-										searchParams,
-										currentWebsiteId
-									)}
+									isActive={isNavItemActive(item, pathname, currentWebsiteId)}
 									isExternal={item.external}
 									isLocked={state?.isLocked ?? false}
 									isRootLevel={!!item.rootLevel}

@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	DotsThreeIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

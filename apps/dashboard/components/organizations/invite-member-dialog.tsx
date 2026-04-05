@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlusIcon } from "@phosphor-icons/react";
+import { UserPlusIcon } from "@phosphor-icons/react/dist/ssr/UserPlus";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import {

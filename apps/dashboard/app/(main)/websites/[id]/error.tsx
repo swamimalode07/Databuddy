@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	HouseIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { BuildingsIcon } from "@phosphor-icons/react";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

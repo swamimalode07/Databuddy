@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	CheckIcon,
-	PlusIcon,
-	UsersThreeIcon,
-	XIcon,
-} from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr/UsersThree";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

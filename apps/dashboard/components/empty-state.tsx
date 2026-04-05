@@ -1,6 +1,7 @@
 "use client";
 
-import { type IconProps, PlusIcon } from "@phosphor-icons/react";
+import type { IconProps } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { cloneElement, memo, type ReactElement, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
 import { useMemo } from "react";
 import {
 	Chart,

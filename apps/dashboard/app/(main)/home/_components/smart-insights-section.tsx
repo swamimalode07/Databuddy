@@ -1,19 +1,17 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	ArrowRightIcon,
-	BugIcon,
-	CaretDownIcon,
-	CheckCircleIcon,
-	GaugeIcon,
-	LightningIcon,
-	RocketIcon,
-	SparkleIcon,
-	TrendDownIcon,
-	TrendUpIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { GaugeIcon } from "@phosphor-icons/react/dist/ssr/Gauge";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { RocketIcon } from "@phosphor-icons/react/dist/ssr/Rocket";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import Link from "next/link";
 import { type ReactNode, useMemo, useState } from "react";
 import { InsightMetrics } from "@/components/insight-metrics";

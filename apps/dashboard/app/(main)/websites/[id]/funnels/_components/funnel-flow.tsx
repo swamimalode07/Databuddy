@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	ArrowSquareOutIcon,
-	CaretDownIcon,
-	CheckCircleIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";

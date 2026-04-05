@@ -1,9 +1,7 @@
-import {
-	BugIcon,
-	MonitorIcon,
-	PhoneIcon,
-	TableIcon,
-} from "@phosphor-icons/react";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor";
+import { PhoneIcon } from "@phosphor-icons/react/dist/ssr/Phone";
+import { TableIcon } from "@phosphor-icons/react/dist/ssr/Table";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { Badge } from "@/components/ui/badge";
 import { formatLocalTime } from "@/lib/time";

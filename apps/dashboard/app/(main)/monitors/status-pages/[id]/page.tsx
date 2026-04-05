@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	ArrowSquareOutIcon,
-	BrowserIcon,
-	HeartbeatIcon,
-	PlusIcon,
-	SirenIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr/Browser";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { SirenIcon } from "@phosphor-icons/react/dist/ssr/Siren";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";

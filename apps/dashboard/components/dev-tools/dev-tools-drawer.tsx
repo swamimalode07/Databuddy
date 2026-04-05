@@ -1,31 +1,29 @@
 "use client";
 
-import {
-	BugIcon,
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineIcon,
-	CheckCircleIcon,
-	ClipboardIcon,
-	CopyIcon,
-	DatabaseIcon,
-	DesktopIcon,
-	FunnelIcon,
-	GearIcon,
-	InfoIcon,
-	LightningIcon,
-	MonitorIcon,
-	MoonIcon,
-	PresentationChartIcon,
-	SpinnerIcon,
-	SquaresFourIcon,
-	StackIcon,
-	SunIcon,
-	TrashIcon,
-	UsersIcon,
-	WarningCircleIcon,
-	XIcon,
-} from "@phosphor-icons/react";
+import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { DatabaseIcon } from "@phosphor-icons/react/dist/ssr/Database";
+import { DesktopIcon } from "@phosphor-icons/react/dist/ssr/Desktop";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor";
+import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
+import { PresentationChartIcon } from "@phosphor-icons/react/dist/ssr/PresentationChart";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
+import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
+import { StackIcon } from "@phosphor-icons/react/dist/ssr/Stack";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";

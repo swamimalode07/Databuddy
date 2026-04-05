@@ -2,15 +2,13 @@
 
 import { authClient } from "@databuddy/auth/client";
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CircleNotchIcon,
-	GithubLogoIcon,
-	GoogleLogoIcon,
-	KeyIcon,
-	LinkBreakIcon,
-	LinkIcon,
-	ShieldCheckIcon,
-} from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr/GithubLogo";
+import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr/GoogleLogo";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
+import { LinkBreakIcon } from "@phosphor-icons/react/dist/ssr/LinkBreak";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

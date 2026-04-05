@@ -1,6 +1,6 @@
 "use client";
 
-import { ClockIcon } from "@phosphor-icons/react";
+import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useInterval } from "@/hooks/use-interval";

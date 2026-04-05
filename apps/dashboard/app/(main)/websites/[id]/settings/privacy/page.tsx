@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	CheckIcon,
-	ClipboardIcon,
-	InfoIcon,
-	ShareIcon,
-} from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
+import { ShareIcon } from "@phosphor-icons/react/dist/ssr/Share";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback } from "react";

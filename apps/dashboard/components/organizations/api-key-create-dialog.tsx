@@ -2,14 +2,12 @@
 
 import type { ApiScope } from "@databuddy/api-keys/scopes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	CheckCircleIcon,
-	CheckIcon,
-	CopyIcon,
-	KeyIcon,
-	PlusIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

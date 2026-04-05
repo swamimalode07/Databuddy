@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	CalendarBlankIcon,
-	LightningIcon,
-	TagIcon,
-	UserIcon,
-	UsersIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
+import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { useAtom } from "jotai";
 import { use, useCallback, useMemo } from "react";
 import { StatCard } from "@/components/analytics";

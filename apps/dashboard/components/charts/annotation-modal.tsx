@@ -1,6 +1,9 @@
 "use client";
 
-import { EyeIcon, EyeSlashIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { SpinnerGapIcon } from "@phosphor-icons/react/dist/ssr/SpinnerGap";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";

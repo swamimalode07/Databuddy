@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotchIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import type { PreviewAttachResponse } from "autumn-js";
 import type React from "react";
 import { useState } from "react";

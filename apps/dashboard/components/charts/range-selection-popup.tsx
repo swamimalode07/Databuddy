@@ -1,6 +1,7 @@
 "use client";
 
-import { MagnifyingGlassPlusIcon, NoteIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassPlusIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus";
+import { NoteIcon } from "@phosphor-icons/react/dist/ssr/Note";
 import { useHotkeys } from "react-hotkeys-hook";
 
 interface RangeSelectionPopupProps {

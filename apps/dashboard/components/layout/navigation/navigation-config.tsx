@@ -1,5 +1,5 @@
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { ActivityIcon } from "@phosphor-icons/react";
+import { PulseIcon as ActivityIcon } from "@phosphor-icons/react/dist/ssr/Pulse";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr/BookOpen";

@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	GlobeIcon,
-	HouseIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
+import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import Link from "next/link";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";

@@ -1,6 +1,8 @@
 "use client";
 
-import { LockIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
+import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

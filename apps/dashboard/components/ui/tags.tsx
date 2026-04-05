@@ -1,6 +1,7 @@
 "use client";
 
-import { PlusIcon, XCircleIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

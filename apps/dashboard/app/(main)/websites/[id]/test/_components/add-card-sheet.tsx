@@ -4,22 +4,20 @@ import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { CustomQueryConfig } from "@databuddy/shared/types/custom-query";
 import type { QueryOutputField } from "@databuddy/shared/types/query";
-import {
-	CalendarDotsIcon,
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineUpIcon,
-	CheckIcon,
-	CodeIcon,
-	FunnelIcon,
-	GaugeIcon,
-	PencilSimpleIcon,
-	PlusIcon,
-	SpinnerGapIcon,
-	SquaresFourIcon,
-	TextTIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr/CalendarDots";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
+import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr/ChartLineUp";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { GaugeIcon } from "@phosphor-icons/react/dist/ssr/Gauge";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { SpinnerGapIcon } from "@phosphor-icons/react/dist/ssr/SpinnerGap";
+import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
+import { TextTIcon } from "@phosphor-icons/react/dist/ssr/TextT";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { StatCardDisplayMode } from "@/components/analytics/stat-card";
 import { StatCard } from "@/components/analytics/stat-card";

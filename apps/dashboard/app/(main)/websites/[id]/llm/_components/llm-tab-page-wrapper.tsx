@@ -2,13 +2,11 @@
 
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { DynamicQueryRequest } from "@databuddy/shared/types/api";
-import {
-	ChartLineIcon,
-	CurrencyDollarIcon,
-	LightningIcon,
-	RobotIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
+import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics/stat-card";

@@ -1,12 +1,7 @@
 "use client";
 
-import { authClient } from "@databuddy/auth/client";
 import { useFlags } from "@databuddy/sdk/react";
-import {
-	type ReadonlyURLSearchParams,
-	usePathname,
-	useSearchParams,
-} from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
 	createContext,
 	type ReactNode,
@@ -17,6 +12,7 @@ import {
 	useState,
 } from "react";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useSession } from "@/hooks/use-session";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
@@ -43,7 +39,6 @@ interface SidebarNavigationContextValue {
 	header: ReactNode;
 	navigation: NavigationEntry[];
 	pathname: string;
-	searchParams: ReadonlyURLSearchParams;
 	setCategory: (id: string) => void;
 }
 
@@ -65,11 +60,10 @@ export function SidebarNavigationProvider({
 }: {
 	children: ReactNode;
 }) {
-	const { data: session } = authClient.useSession();
+	const { data: session } = useSession();
 	const user = session?.user ?? null;
 
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
 	const { getFlag } = useFlags();
 	const isHydrated = useHydrated();
 	const accordionStates = useAccordionStates();
@@ -208,7 +202,6 @@ export function SidebarNavigationProvider({
 			header,
 			currentWebsiteId,
 			pathname,
-			searchParams,
 			accordionStates,
 		}),
 		[
@@ -218,7 +211,6 @@ export function SidebarNavigationProvider({
 			header,
 			currentWebsiteId,
 			pathname,
-			searchParams,
 			accordionStates,
 		]
 	);
