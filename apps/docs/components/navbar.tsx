@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandContextMenu } from "@/components/brand-context-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "./logo";
@@ -20,10 +20,28 @@ export interface NavbarProps {
 
 export const Navbar = ({ stars }: NavbarProps) => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isScrolled, setIsScrolled] = useState(false);
+
+	useEffect(() => {
+		const onScroll = () => {
+			setIsScrolled(window.scrollY > 8);
+		};
+
+		onScroll();
+		window.addEventListener("scroll", onScroll, { passive: true });
+
+		return () => {
+			window.removeEventListener("scroll", onScroll);
+		};
+	}, []);
 
 	return (
 		<>
-			<header className="fixed inset-x-0 top-0 z-40 flex flex-col bg-background pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
+			<header
+				className={`fixed inset-x-0 top-0 z-40 flex flex-col pt-[env(safe-area-inset-top,0px)] transition-colors duration-200 ${
+					isScrolled ? "bg-background" : "bg-transparent"
+				}`}
+			>
 				<nav>
 					<div className="mx-auto w-full px-2 md:px-6 lg:px-8">
 						<div className="relative flex h-20 items-center">
@@ -131,10 +149,10 @@ export const Navbar = ({ stars }: NavbarProps) => {
 					</div>
 				</div>
 			</header>
-			<div
+			{/* <div
 				aria-hidden
 				className="h-[calc(4rem+env(safe-area-inset-top,0px))] shrink-0"
-			/>
+			/> */}
 		</>
 	);
 };

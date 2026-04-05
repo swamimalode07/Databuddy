@@ -3,15 +3,9 @@
 import { ArrowsOutSimpleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { cn } from "@/lib/utils";
+import BackgroundFlow from "./backgroundFlow";
 import { SciFiButton } from "./scifi-btn";
-import { Spotlight } from "./spotlight";
 
 const tabs = [
 	{ id: "overview", label: "Overview", path: "" },
@@ -87,49 +81,15 @@ export default function Hero({
 	};
 
 	return (
-		<section className="relative flex w-full flex-col items-center overflow-hidden">
-			<Spotlight transform="translateX(-60%) translateY(-50%)" />
-
-			<div className="mx-auto w-full max-w-7xl px-4 pt-16 pb-8 sm:px-6 sm:pt-20 lg:px-8 lg:pt-24">
-				<div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
-					<h1 className="text-balance font-bold text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-						Privacy-first analytics.{" "}
-						<span className="text-muted-foreground">
-							One script,{" "}
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<button
-										className="cursor-help border-0 bg-transparent p-0 font-inherit text-inherit underline decoration-muted-foreground/70 decoration-dotted underline-offset-[0.15em] hover:decoration-foreground/60"
-										type="button"
-									>
-										no cookies,
-									</button>
-								</TooltipTrigger>
-								<TooltipContent
-									className="max-w-72 text-pretty text-left text-xs leading-relaxed sm:max-w-sm"
-									side="bottom"
-									sideOffset={8}
-								>
-									<span className="block">
-										Cookieless by design. No fingerprints, no consent banner.
-										B2B research on 1.2M+ interactions found 68.9% of cookie
-										banners closed or ignored.{" "}
-										<a
-											className="font-medium underline underline-offset-2 hover:text-primary-foreground/90"
-											href="https://www.advance-metrics.com/en/blog/cookie-behaviour-study/"
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											Advance Metrics
-										</a>
-									</span>
-								</TooltipContent>
-							</Tooltip>
-							no consent banners.
-						</span>
+		<section className="relative mx-auto flex w-full max-w-400 flex-col items-center overflow-hidden">
+			{/* <Spotlight transform="translateX(-60%) translateY(-50%)" /> */}
+			<BackgroundFlow />
+			<div className="mx-auto w-full max-w-400 px-4 pt-16 pb-8 sm:px-6 sm:pt-20 lg:px-8 lg:pt-38">
+				<div className="mx-auto flex max-w-360 flex-col items-start space-y-2 text-left">
+					<h1 className="z-10 text-balance font-semibold text-4xl leading-[1.1] tracking-normal sm:text-5xl md:text-6xl lg:text-6xl">
+						Privacy-first analytics. One script, no cookies ,no consent banners.
 					</h1>
-
-					<p className="max-w-2xl text-pretty font-medium text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
+					<p className="z-10 max-w-2xl text-pretty font-medium text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
 						Web analytics, error tracking, and feature flags in a single script
 						under 30 KB. GDPR compliant out of the box.{" "}
 						<Link
@@ -143,7 +103,7 @@ export default function Hero({
 						.
 					</p>
 
-					<p className="max-w-2xl text-pretty text-muted-foreground text-xs leading-relaxed sm:text-sm">
+					{/* <p className="max-w-2xl text-pretty text-muted-foreground text-xs leading-relaxed sm:text-sm">
 						<a
 							className="underline underline-offset-2 hover:text-foreground"
 							href="https://www.advance-metrics.com/en/blog/cookie-behaviour-study/"
@@ -160,9 +120,9 @@ export default function Hero({
 							Model the opportunity cost
 						</Link>{" "}
 						for your traffic.
-					</p>
+					</p> */}
 
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-3 pt-2">
 						<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
 							<a href="https://app.databuddy.cc/login">Start free</a>
 						</SciFiButton>
@@ -171,7 +131,7 @@ export default function Hero({
 						</SciFiButton>
 					</div>
 
-					<p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+					{/* <p className="flex flex-wrap items-center justify-start gap-x-4 gap-y-1 text-muted-foreground text-sm">
 						<span>Used by 400+ teams</span>
 						<span className="text-border">·</span>
 						{stars ? (
@@ -181,12 +141,12 @@ export default function Hero({
 							</>
 						) : null}
 						<span>Open source</span>
-					</p>
+					</p> */}
 				</div>
 
-				<div className="mt-8 space-y-8">
+				<div className="z-10 mt-5 space-y-0">
 					<div className="flex justify-center">
-						<div className="relative flex items-center gap-0 border-border border-b">
+						<div className="relative flex items-center gap-0 rounded-t-lg border-border border-b bg-background">
 							{tabs.map((tab) => {
 								const isActive = activeTab === tab.id;
 								return (
@@ -211,7 +171,7 @@ export default function Hero({
 						</div>
 					</div>
 
-					<div className="group relative rounded border border-border/50 bg-card/30 p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
+					<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
 						<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">
 							{tabs.map((tab) => {
 								const isActive = activeTab === tab.id;
