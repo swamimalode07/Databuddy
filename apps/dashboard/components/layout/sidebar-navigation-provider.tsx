@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@databuddy/auth/client";
 import { useFlags } from "@databuddy/sdk/react";
 import { usePathname } from "next/navigation";
 import {
@@ -12,7 +13,6 @@ import {
 	useState,
 } from "react";
 import { useHydrated } from "@/hooks/use-hydrated";
-import { useSession } from "@/hooks/use-session";
 import { useMonitorsLight } from "@/hooks/use-monitors";
 import { useAccordionStates } from "@/hooks/use-persistent-state";
 import { useWebsitesLight } from "@/hooks/use-websites";
@@ -60,7 +60,7 @@ export function SidebarNavigationProvider({
 }: {
 	children: ReactNode;
 }) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const user = session?.user ?? null;
 
 	const pathname = usePathname();
@@ -73,10 +73,10 @@ export function SidebarNavigationProvider({
 	);
 
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
-		enabled: isHydrated && user !== null,
+		enabled: user !== null,
 	});
 	const { monitors, isLoading: isLoadingMonitors } = useMonitorsLight({
-		enabled: isHydrated && user !== null,
+		enabled: user !== null,
 	});
 
 	const isDemo = pathname.startsWith("/demo");

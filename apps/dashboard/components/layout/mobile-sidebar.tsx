@@ -7,7 +7,6 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import { useSession } from "@/hooks/use-session";
 import { ListIcon } from "@phosphor-icons/react";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { MonitorIcon } from "@phosphor-icons/react";
@@ -76,7 +75,7 @@ const getInitials = (
 };
 
 export function MobileSidebar() {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const user = session?.user ?? null;
 
 	const { header, categories, activeCategory, setCategory, pathname } =

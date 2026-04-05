@@ -8,7 +8,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useSession } from "@/hooks/use-session";
+import { authClient } from "@databuddy/auth/client";
 import { InfoIcon } from "@phosphor-icons/react";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
@@ -29,7 +29,7 @@ const HelpDialog = dynamic(
 );
 
 export function CategorySidebar() {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const user = session?.user ?? null;
 
 	const { categories, activeCategory, setCategory } = useSidebarNavigation();

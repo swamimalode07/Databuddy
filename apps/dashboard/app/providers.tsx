@@ -2,9 +2,9 @@
 
 import { OrganizationsProvider } from "@/components/providers/organizations-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useSession } from "@/hooks/use-session";
 import { useToastTracking } from "@/hooks/toast-hooks";
 import { isAbortError } from "@/lib/is-abort-error";
+import { authClient } from "@databuddy/auth/client";
 import { trackError } from "@databuddy/sdk";
 import { FlagsProvider } from "@databuddy/sdk/react";
 import {
@@ -141,7 +141,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 }
 
 function FlagsProviderWrapper({ children }: { children: React.ReactNode }) {
-	const { data: session, isPending } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 	const clientId =
