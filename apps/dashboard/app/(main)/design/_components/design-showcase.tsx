@@ -1,10 +1,10 @@
 "use client";
 
-import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
-import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/csr/ChartBar";
+import { ListIcon } from "@phosphor-icons/react/dist/csr/List";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {

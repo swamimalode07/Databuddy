@@ -1,11 +1,11 @@
 "use client";
 
 import type { DynamicQueryRequest } from "@databuddy/shared/types/api";
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/csr/ChartLine";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/csr/CurrencyDollar";
+import { LightningIcon } from "@phosphor-icons/react/dist/csr/Lightning";
+import { RobotIcon } from "@phosphor-icons/react/dist/csr/Robot";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics/stat-card";

@@ -1,9 +1,9 @@
 "use client";
 
-import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/csr/DotsThree";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/csr/Heartbeat";
+import { PencilIcon } from "@phosphor-icons/react/dist/csr/Pencil";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";

@@ -1,10 +1,10 @@
 "use client";
 
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
-import { NoteIcon } from "@phosphor-icons/react/dist/ssr/Note";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { CalendarIcon } from "@phosphor-icons/react/dist/csr/Calendar";
+import { NoteIcon } from "@phosphor-icons/react/dist/csr/Note";
+import { PencilIcon } from "@phosphor-icons/react/dist/csr/Pencil";
+import { TagIcon } from "@phosphor-icons/react/dist/csr/Tag";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

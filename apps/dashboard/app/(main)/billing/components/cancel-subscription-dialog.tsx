@@ -1,14 +1,14 @@
 "use client";
 
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question";
-import { SmileyIcon } from "@phosphor-icons/react/dist/ssr/Smiley";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
+import { CalendarIcon } from "@phosphor-icons/react/dist/csr/Calendar";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/csr/CircleNotch";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/csr/CurrencyDollar";
+import { GearIcon } from "@phosphor-icons/react/dist/csr/Gear";
+import { LightningIcon } from "@phosphor-icons/react/dist/csr/Lightning";
+import { QuestionIcon } from "@phosphor-icons/react/dist/csr/Question";
+import { SmileyIcon } from "@phosphor-icons/react/dist/csr/Smiley";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

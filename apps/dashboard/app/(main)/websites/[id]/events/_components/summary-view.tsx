@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/csr/ArrowClockwise";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/csr/ArrowRight";
+import { ChartBarIcon } from "@phosphor-icons/react/dist/csr/ChartBar";
+import { FunnelIcon } from "@phosphor-icons/react/dist/csr/Funnel";
+import { ListBulletsIcon } from "@phosphor-icons/react/dist/csr/ListBullets";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";

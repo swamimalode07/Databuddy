@@ -1,6 +1,6 @@
 "use client";
 
-import { PlugIcon } from "@phosphor-icons/react/dist/ssr/Plug";
+import { PlugIcon } from "@phosphor-icons/react/dist/csr/Plug";
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
 

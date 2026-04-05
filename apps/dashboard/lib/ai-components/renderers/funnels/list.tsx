@@ -1,11 +1,11 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
-import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/csr/CaretRight";
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/csr/DotsThree";
+import { FunnelIcon } from "@phosphor-icons/react/dist/csr/Funnel";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/csr/PencilSimple";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";

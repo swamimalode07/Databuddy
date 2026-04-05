@@ -1,12 +1,12 @@
 "use client";
 
-import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr/ChartLineUp";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { CpuIcon } from "@phosphor-icons/react/dist/ssr/Cpu";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
-import { WrenchIcon } from "@phosphor-icons/react/dist/ssr/Wrench";
+import { ChartLineUpIcon } from "@phosphor-icons/react/dist/csr/ChartLineUp";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { CpuIcon } from "@phosphor-icons/react/dist/csr/Cpu";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/csr/CurrencyDollar";
+import { LightningIcon } from "@phosphor-icons/react/dist/csr/Lightning";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
+import { WrenchIcon } from "@phosphor-icons/react/dist/csr/Wrench";
 import { StatCard } from "@/components/analytics/stat-card";
 import {
 	formatCurrency,

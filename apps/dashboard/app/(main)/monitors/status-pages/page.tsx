@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { BrowserIcon } from "@phosphor-icons/react/dist/ssr/Browser";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/csr/ArrowClockwise";
+import { BrowserIcon } from "@phosphor-icons/react/dist/csr/Browser";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";

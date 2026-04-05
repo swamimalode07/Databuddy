@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { CommandIcon } from "@phosphor-icons/react/dist/ssr/Command";
-import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
-import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
+import { CommandIcon } from "@phosphor-icons/react/dist/csr/Command";
+import { HouseIcon } from "@phosphor-icons/react/dist/csr/House";
+import { LockIcon } from "@phosphor-icons/react/dist/csr/Lock";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { Command as CommandPrimitive } from "cmdk";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

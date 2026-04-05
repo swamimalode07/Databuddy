@@ -1,9 +1,9 @@
 "use client";
 
-import { ClockCountdownIcon } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
-import { PaperPlaneRightIcon } from "@phosphor-icons/react/dist/ssr/PaperPlaneRight";
-import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { ClockCountdownIcon } from "@phosphor-icons/react/dist/csr/ClockCountdown";
+import { PaperPlaneRightIcon } from "@phosphor-icons/react/dist/csr/PaperPlaneRight";
+import { StopIcon } from "@phosphor-icons/react/dist/csr/Stop";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import type { UIMessage } from "ai";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";

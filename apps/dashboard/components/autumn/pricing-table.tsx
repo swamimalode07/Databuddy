@@ -9,14 +9,14 @@ import {
 	PLAN_IDS,
 	type PlanId,
 } from "@databuddy/shared/types/features";
-import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { CrownIcon } from "@phosphor-icons/react/dist/ssr/Crown";
-import { RocketLaunchIcon } from "@phosphor-icons/react/dist/ssr/RocketLaunch";
-import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
-import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/csr/ArrowDown";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/csr/CircleNotch";
+import { CrownIcon } from "@phosphor-icons/react/dist/csr/Crown";
+import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
+import { SparkleIcon } from "@phosphor-icons/react/dist/csr/Sparkle";
+import { StarIcon } from "@phosphor-icons/react/dist/csr/Star";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { useCustomer, useListPlans } from "autumn-js/react";
 import { createContext, useContext, useState } from "react";
 import { PricingTiersTooltip } from "@/app/(main)/billing/components/pricing-tiers-tooltip";

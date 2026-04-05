@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/csr/ArrowRight";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/csr/ArrowSquareOut";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/csr/Buildings";
+import { InfoIcon } from "@phosphor-icons/react/dist/csr/Info";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
 import { toast } from "sonner";

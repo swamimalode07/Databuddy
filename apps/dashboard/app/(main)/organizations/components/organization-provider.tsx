@@ -1,13 +1,13 @@
 "use client";
 
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
-import { EnvelopeIcon } from "@phosphor-icons/react/dist/ssr/Envelope";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/csr/Buildings";
+import { EnvelopeIcon } from "@phosphor-icons/react/dist/csr/Envelope";
+import { GearIcon } from "@phosphor-icons/react/dist/csr/Gear";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { KeyIcon } from "@phosphor-icons/react/dist/csr/Key";
+import { UsersIcon } from "@phosphor-icons/react/dist/csr/Users";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";

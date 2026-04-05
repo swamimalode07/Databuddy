@@ -6,11 +6,11 @@ import {
 	isWithinLimit,
 } from "@databuddy/shared/types/features";
 import type { IconProps } from "@phosphor-icons/react";
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { BookIcon } from "@phosphor-icons/react/dist/ssr/Book";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/csr/ArrowClockwise";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
+import { BookIcon } from "@phosphor-icons/react/dist/csr/Book";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import Link from "next/link";
 import { cloneElement, type ReactNode } from "react";
 import { useBillingContext } from "@/components/providers/billing-provider";

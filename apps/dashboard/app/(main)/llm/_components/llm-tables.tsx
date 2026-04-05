@@ -1,7 +1,7 @@
 "use client";
 
-import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
-import { WrenchIcon } from "@phosphor-icons/react/dist/ssr/Wrench";
+import { RobotIcon } from "@phosphor-icons/react/dist/csr/Robot";
+import { WrenchIcon } from "@phosphor-icons/react/dist/csr/Wrench";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { DataTable } from "@/components/table/data-table";

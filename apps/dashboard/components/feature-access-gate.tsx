@@ -1,6 +1,6 @@
 "use client";
 
-import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
+import { LockIcon } from "@phosphor-icons/react/dist/csr/Lock";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useFeatureAccess } from "@/hooks/use-feature-access";

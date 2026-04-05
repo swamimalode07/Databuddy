@@ -1,8 +1,8 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { CrownIcon } from "@phosphor-icons/react/dist/ssr/Crown";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { CrownIcon } from "@phosphor-icons/react/dist/csr/Crown";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

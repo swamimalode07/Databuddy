@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 

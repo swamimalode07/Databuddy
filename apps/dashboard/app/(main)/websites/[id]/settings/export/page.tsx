@@ -1,11 +1,11 @@
 "use client";
 
 import type { ExportFormat } from "@databuddy/rpc";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { DownloadIcon } from "@phosphor-icons/react/dist/ssr/Download";
-import { FileCodeIcon } from "@phosphor-icons/react/dist/ssr/FileCode";
-import { FileTextIcon } from "@phosphor-icons/react/dist/ssr/FileText";
-import { TableIcon } from "@phosphor-icons/react/dist/ssr/Table";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { DownloadIcon } from "@phosphor-icons/react/dist/csr/Download";
+import { FileCodeIcon } from "@phosphor-icons/react/dist/csr/FileCode";
+import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
+import { TableIcon } from "@phosphor-icons/react/dist/csr/Table";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";

@@ -1,12 +1,12 @@
 "use client";
 
-import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
-import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
-import { BugIcon } from "@phosphor-icons/react/dist/ssr/Bug";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/csr/ArrowDown";
+import { ArrowUpIcon } from "@phosphor-icons/react/dist/csr/ArrowUp";
+import { BugIcon } from "@phosphor-icons/react/dist/csr/Bug";
+import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { LightningIcon } from "@phosphor-icons/react/dist/csr/Lightning";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import type { ElementType } from "react";
 import { Badge } from "@/components/ui/badge";
 import { List } from "@/components/ui/composables/list";

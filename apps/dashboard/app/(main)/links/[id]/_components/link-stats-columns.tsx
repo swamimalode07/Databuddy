@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
+import { MapPinIcon } from "@phosphor-icons/react/dist/csr/MapPin";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { DeviceTypeCell } from "@/components/analytics";
 import { ReferrerSourceCell } from "@/components/atomic/ReferrerSourceCell";

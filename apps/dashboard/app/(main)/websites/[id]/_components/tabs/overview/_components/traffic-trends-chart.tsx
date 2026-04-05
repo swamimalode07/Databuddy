@@ -1,12 +1,12 @@
 "use client";
 
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
-import { NoteIcon } from "@phosphor-icons/react/dist/ssr/Note";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/csr/EyeSlash";
+import { NoteIcon } from "@phosphor-icons/react/dist/csr/Note";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/csr/ChartLine";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";

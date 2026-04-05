@@ -1,7 +1,7 @@
 "use client";
 
-import { CreditCardIcon } from "@phosphor-icons/react/dist/ssr/CreditCard";
-import { WifiHighIcon } from "@phosphor-icons/react/dist/ssr/WifiHigh";
+import { CreditCardIcon } from "@phosphor-icons/react/dist/csr/CreditCard";
+import { WifiHighIcon } from "@phosphor-icons/react/dist/csr/WifiHigh";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import { cn } from "@/lib/utils";
 import type { CustomerWithPaymentMethod } from "../types/billing";

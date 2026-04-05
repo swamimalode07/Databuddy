@@ -1,12 +1,12 @@
 "use client";
 
-import { DesktopIcon } from "@phosphor-icons/react/dist/ssr/Desktop";
-import { DeviceMobileIcon } from "@phosphor-icons/react/dist/ssr/DeviceMobile";
-import { DeviceTabletIcon } from "@phosphor-icons/react/dist/ssr/DeviceTablet";
-import { LaptopIcon } from "@phosphor-icons/react/dist/ssr/Laptop";
-import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor";
-import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question";
-import { WatchIcon } from "@phosphor-icons/react/dist/ssr/Watch";
+import { DesktopIcon } from "@phosphor-icons/react/dist/csr/Desktop";
+import { DeviceMobileIcon } from "@phosphor-icons/react/dist/csr/DeviceMobile";
+import { DeviceTabletIcon } from "@phosphor-icons/react/dist/csr/DeviceTablet";
+import { LaptopIcon } from "@phosphor-icons/react/dist/csr/Laptop";
+import { MonitorIcon } from "@phosphor-icons/react/dist/csr/Monitor";
+import { QuestionIcon } from "@phosphor-icons/react/dist/csr/Question";
+import { WatchIcon } from "@phosphor-icons/react/dist/csr/Watch";
 
 const deviceTypeIconMap: Record<string, React.ElementType> = {
 	mobile: DeviceMobileIcon,

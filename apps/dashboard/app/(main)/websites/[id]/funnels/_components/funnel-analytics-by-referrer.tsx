@@ -1,9 +1,9 @@
 "use client";
 
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { TargetIcon } from "@phosphor-icons/react/dist/csr/Target";
+import { UsersIcon } from "@phosphor-icons/react/dist/csr/Users";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { useMemo, useRef, useState } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Skeleton } from "@/components/ui/skeleton";

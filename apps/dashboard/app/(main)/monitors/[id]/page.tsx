@@ -1,14 +1,14 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { PauseIcon } from "@phosphor-icons/react/dist/ssr/Pause";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/csr/ArrowClockwise";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/csr/ArrowSquareOut";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/csr/Heartbeat";
+import { PauseIcon } from "@phosphor-icons/react/dist/csr/Pause";
+import { PencilIcon } from "@phosphor-icons/react/dist/csr/Pencil";
+import { PlayIcon } from "@phosphor-icons/react/dist/csr/Play";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";

@@ -1,8 +1,8 @@
 "use client";
 
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/csr/Heartbeat";
+import { LockIcon } from "@phosphor-icons/react/dist/csr/Lock";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";

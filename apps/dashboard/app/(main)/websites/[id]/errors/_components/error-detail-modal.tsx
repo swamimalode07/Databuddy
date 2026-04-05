@@ -1,15 +1,15 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { HashIcon } from "@phosphor-icons/react/dist/ssr/Hash";
-import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
-import { StackIcon } from "@phosphor-icons/react/dist/ssr/Stack";
-import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/csr/ArrowSquareOut";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { CodeIcon } from "@phosphor-icons/react/dist/csr/Code";
+import { CopyIcon } from "@phosphor-icons/react/dist/csr/Copy";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { HashIcon } from "@phosphor-icons/react/dist/csr/Hash";
+import { LinkIcon } from "@phosphor-icons/react/dist/csr/Link";
+import { StackIcon } from "@phosphor-icons/react/dist/csr/Stack";
+import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { toast } from "sonner";

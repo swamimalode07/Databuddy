@@ -1,10 +1,10 @@
 "use client";
 
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { PauseIcon } from "@phosphor-icons/react/dist/ssr/Pause";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/csr/Heartbeat";
+import { PauseIcon } from "@phosphor-icons/react/dist/csr/Pause";
+import { PencilIcon } from "@phosphor-icons/react/dist/csr/Pencil";
+import { PlayIcon } from "@phosphor-icons/react/dist/csr/Play";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";

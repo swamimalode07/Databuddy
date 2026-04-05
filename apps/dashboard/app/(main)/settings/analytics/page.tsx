@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/csr/ChartLine";
 import { RightSidebar } from "@/components/right-sidebar";
 import { SettingsSection } from "../_components/settings-section";
 

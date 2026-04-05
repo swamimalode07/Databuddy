@@ -1,8 +1,8 @@
 "use client";
 
-import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
+import { KeyIcon } from "@phosphor-icons/react/dist/csr/Key";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/csr/ShieldCheck";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";

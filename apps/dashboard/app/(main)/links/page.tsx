@@ -6,7 +6,7 @@ import {
 	PlusIcon,
 	TrendDownIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
+import { LinkIcon } from "@phosphor-icons/react/dist/csr/Link";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";

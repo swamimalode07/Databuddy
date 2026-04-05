@@ -2,13 +2,13 @@
 
 import { authClient } from "@databuddy/auth/client";
 import { track } from "@databuddy/sdk";
-import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
-import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr/GithubLogo";
-import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr/GoogleLogo";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/csr/CaretLeft";
+import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/csr/EyeSlash";
+import { GithubLogoIcon } from "@phosphor-icons/react/dist/csr/GithubLogo";
+import { GoogleLogoIcon } from "@phosphor-icons/react/dist/csr/GoogleLogo";
+import { InfoIcon } from "@phosphor-icons/react/dist/csr/Info";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/csr/Spinner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";

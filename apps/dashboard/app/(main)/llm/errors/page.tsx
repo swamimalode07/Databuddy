@@ -1,8 +1,8 @@
 "use client";
 
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { RobotIcon } from "@phosphor-icons/react/dist/ssr/Robot";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { RobotIcon } from "@phosphor-icons/react/dist/csr/Robot";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
 import { SimpleMetricsChart } from "@/components/charts/simple-metrics-chart";

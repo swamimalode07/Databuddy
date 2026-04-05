@@ -2,11 +2,11 @@
 
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
-import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { BookmarkIcon } from "@phosphor-icons/react/dist/csr/Bookmark";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { CopyIcon } from "@phosphor-icons/react/dist/csr/Copy";
+import { PencilIcon } from "@phosphor-icons/react/dist/csr/Pencil";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {

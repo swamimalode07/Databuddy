@@ -1,13 +1,13 @@
 "use client";
 
 import { DATE_FORMATS, formatDate } from "@lib/formatters";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calendar";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { PowerIcon } from "@phosphor-icons/react/dist/ssr/Power";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { CalendarIcon } from "@phosphor-icons/react/dist/csr/Calendar";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { LightningIcon } from "@phosphor-icons/react/dist/csr/Lightning";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { PowerIcon } from "@phosphor-icons/react/dist/csr/Power";
+import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";

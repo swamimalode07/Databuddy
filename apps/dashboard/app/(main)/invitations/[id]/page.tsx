@@ -1,13 +1,13 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr/Buildings";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { SpinnerGapIcon } from "@phosphor-icons/react/dist/ssr/SpinnerGap";
-import { UserPlusIcon } from "@phosphor-icons/react/dist/ssr/UserPlus";
-import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/csr/ArrowRight";
+import { BuildingsIcon } from "@phosphor-icons/react/dist/csr/Buildings";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { SpinnerGapIcon } from "@phosphor-icons/react/dist/csr/SpinnerGap";
+import { UserPlusIcon } from "@phosphor-icons/react/dist/csr/UserPlus";
+import { XCircleIcon } from "@phosphor-icons/react/dist/csr/XCircle";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";

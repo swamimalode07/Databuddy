@@ -2,15 +2,15 @@
 
 import { getCountryCode } from "@databuddy/shared/country-codes";
 import type { Session } from "@databuddy/shared/types/sessions";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { CursorClickIcon } from "@phosphor-icons/react/dist/ssr/CursorClick";
-import { DevicesIcon } from "@phosphor-icons/react/dist/ssr/Devices";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
+import { ChartLineIcon } from "@phosphor-icons/react/dist/csr/ChartLine";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { CursorClickIcon } from "@phosphor-icons/react/dist/csr/CursorClick";
+import { DevicesIcon } from "@phosphor-icons/react/dist/csr/Devices";
+import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/csr/Spinner";
+import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";

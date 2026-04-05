@@ -1,8 +1,8 @@
 "use client";
 
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
-import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { InfoIcon } from "@phosphor-icons/react/dist/csr/Info";
+import { TrendDownIcon } from "@phosphor-icons/react/dist/csr/TrendDown";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/csr/TrendUp";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

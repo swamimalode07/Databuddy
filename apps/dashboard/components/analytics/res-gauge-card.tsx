@@ -1,10 +1,10 @@
 "use client";
 
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
+import { TrendDownIcon } from "@phosphor-icons/react/dist/csr/TrendDown";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/csr/TrendUp";
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { memo, useMemo } from "react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
 import { Card, CardContent } from "@/components/ui/card";

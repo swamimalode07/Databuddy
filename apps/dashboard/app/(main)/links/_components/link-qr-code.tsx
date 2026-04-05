@@ -1,9 +1,9 @@
 "use client";
 
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
-import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { CopyIcon } from "@phosphor-icons/react/dist/csr/Copy";
+import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/csr/DownloadSimple";
+import { ImageIcon } from "@phosphor-icons/react/dist/csr/Image";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useCallback, useRef, useState } from "react";
 import { QRCode } from "react-qrcode-logo";
 import { toast } from "sonner";

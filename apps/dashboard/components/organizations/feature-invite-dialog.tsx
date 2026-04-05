@@ -1,8 +1,8 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { CopyIcon } from "@phosphor-icons/react/dist/csr/Copy";
+import { HeartbeatIcon } from "@phosphor-icons/react/dist/csr/Heartbeat";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";

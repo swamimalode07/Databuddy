@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr/Clock";
-import { FileTextIcon } from "@phosphor-icons/react/dist/ssr/FileText";
-import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr/Receipt";
-import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/csr/ArrowSquareOut";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
+import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
+import { ReceiptIcon } from "@phosphor-icons/react/dist/csr/Receipt";
+import { XCircleIcon } from "@phosphor-icons/react/dist/csr/XCircle";
 import type { Invoice } from "autumn-js";
 import { memo, useMemo } from "react";
 import { EmptyState } from "@/components/empty-state";

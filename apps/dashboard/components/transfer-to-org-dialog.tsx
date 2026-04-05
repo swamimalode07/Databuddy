@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/csr/ArrowSquareOut";
+import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
