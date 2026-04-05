@@ -63,7 +63,7 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 			});
 			toast.success("Website created!");
 			try {
-				track("onboarding_website_created", { domain: formData.domain });
+				track("onboarding_website_created");
 			} catch {}
 			onComplete(result.id);
 		} catch (error: unknown) {
