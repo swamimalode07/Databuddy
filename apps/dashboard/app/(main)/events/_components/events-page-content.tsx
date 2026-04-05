@@ -37,7 +37,13 @@ export function EventsPageContent() {
 	const { dateRange, isLoadingOrg, query } = useEventsPageContext();
 	const { chartType, chartStepType } = useChartPreferences("events");
 
-	const { results: eventsResults, isLoading, isFetching, error } = query;
+	const {
+		results: eventsResults,
+		isLoading,
+		isFetching,
+		error,
+		isPropertiesLoading,
+	} = query;
 
 	const getRawData = <T,>(id: string): T[] =>
 		(eventsResults?.find((r) => r.queryId === id)?.data?.[id] as T[]) ?? [];
@@ -314,7 +320,7 @@ export function EventsPageContent() {
 							<SummaryView
 								events={classifiedEvents}
 								isFetching={isFetching}
-								isLoading={isPageLoading}
+								isLoading={isPageLoading || isPropertiesLoading}
 							/>
 						</div>
 					</div>

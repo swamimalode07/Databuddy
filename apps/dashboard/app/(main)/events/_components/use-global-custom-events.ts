@@ -18,7 +18,7 @@ export function useGlobalCustomEventsData(
 	filters: DynamicQueryFilter[] = [],
 	options?: Partial<UseQueryOptions<BatchQueryResponse>>
 ) {
-	const queries = useMemo(
+	const essentialQueries = useMemo(
 		() => [
 			{
 				id: "custom_events_summary",
@@ -42,6 +42,12 @@ export function useGlobalCustomEventsData(
 				limit: 5000,
 				filters,
 			},
+		],
+		[filters]
+	);
+
+	const propertyQueries = useMemo(
+		() => [
 			{
 				id: "custom_events_property_classification",
 				parameters: ["custom_events_property_classification"],
@@ -64,5 +70,37 @@ export function useGlobalCustomEventsData(
 		[filters]
 	);
 
-	return useBatchDynamicQuery(queryOptions, dateRange, queries, options);
+	const essential = useBatchDynamicQuery(
+		queryOptions,
+		dateRange,
+		essentialQueries,
+		options
+	);
+
+	const properties = useBatchDynamicQuery(
+		queryOptions,
+		dateRange,
+		propertyQueries,
+		options
+	);
+
+	// Merge results so downstream consumers see a single list
+	const mergedResults = useMemo(() => {
+		const all = [...(essential.results ?? []), ...(properties.results ?? [])];
+		return all.length > 0 ? all : [];
+	}, [essential.results, properties.results]);
+
+	return {
+		results: mergedResults,
+		isLoading: essential.isLoading,
+		isFetching: essential.isFetching || properties.isFetching,
+		isPending: essential.isPending,
+		isError: essential.isError || properties.isError,
+		error: essential.error ?? properties.error,
+		refetch: () => {
+			essential.refetch();
+			properties.refetch();
+		},
+		isPropertiesLoading: properties.isLoading,
+	};
 }
