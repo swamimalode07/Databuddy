@@ -80,10 +80,11 @@ export function EventsPageProvider({
 		if (isSpecificWebsite) {
 			return { websiteId: websiteFilterMode };
 		}
-		// Org scope: `/v1/query` resolves active org from the session cookie when
-		// organization_id is omitted.
+		if (activeOrganizationId) {
+			return { organizationId: activeOrganizationId };
+		}
 		return {};
-	}, [isSpecificWebsite, websiteFilterMode]);
+	}, [isSpecificWebsite, websiteFilterMode, activeOrganizationId]);
 
 	const websiteFilters = useMemo<DynamicQueryFilter[]>(() => {
 		if (websiteFilterMode === "no-website") {
