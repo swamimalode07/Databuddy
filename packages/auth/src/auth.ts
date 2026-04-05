@@ -100,10 +100,7 @@ export const auth = betterAuth({
 		customStorage: {
 			get: async (key) => {
 				const value = await getRedisCache().get(key);
-				if (!value) {
-					return null;
-				}
-				return JSON.parse(value);
+				return value ? JSON.parse(value) : null;
 			},
 			set: async (key, value) => {
 				await getRedisCache().set(key, JSON.stringify(value), "EX", 300);
@@ -291,7 +288,6 @@ export const auth = betterAuth({
 			},
 		}),
 		emailOTP({
-			// biome-ignore lint/suspicious/useAwait: we don't want to await here
 			async sendVerificationOTP({ email, otp, type }) {
 				const { success } = await rateLimit(`otp:${email}`, 3, 900);
 				if (!success) {
