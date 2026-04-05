@@ -8,11 +8,11 @@ import {
 } from "./shared";
 import type {
 	FlagResult,
-	FlagState,
 	FlagsConfig,
 	FlagsManager,
 	FlagsManagerOptions,
 	FlagsSnapshot,
+	FlagState,
 	StorageInterface,
 	UserContext,
 } from "./types";
