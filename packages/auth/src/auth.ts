@@ -17,7 +17,7 @@ import {
 	type NotificationResult,
 	sendSlackWebhook,
 } from "@databuddy/notifications";
-import { rateLimit, getRedisCache } from "@databuddy/redis";
+import { getRedisCache, rateLimit } from "@databuddy/redis";
 import { createId } from "@databuddy/shared/utils/ids";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
@@ -100,7 +100,10 @@ export const auth = betterAuth({
 		customStorage: {
 			get: async (key) => {
 				const value = await getRedisCache().get(key);
-				return value ?? null;
+				if (!value) {
+					return null;
+				}
+				return JSON.parse(value);
 			},
 			set: async (key, value) => {
 				await getRedisCache().set(key, JSON.stringify(value), "EX", 300);
