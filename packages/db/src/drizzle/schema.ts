@@ -1544,3 +1544,44 @@ export const alarmDestinationTypeValues = [
 ] as const;
 export type AlarmDestinationTypeValue =
 	(typeof alarmDestinationTypeValues)[number];
+
+// Agent install telemetry — tracks AI-assisted SDK installations from onboarding
+export const agentInstallStatus = pgEnum("agent_install_status", [
+	"success",
+	"partial",
+	"failed",
+]);
+
+export const agentInstallTelemetry = pgTable(
+	"agent_install_telemetry",
+	{
+		id: text().primaryKey().notNull(),
+		websiteId: text("website_id").notNull(),
+		agent: text().notNull(),
+		status: agentInstallStatus().notNull(),
+		framework: text(),
+		installMethod: text("install_method"),
+		durationMs: integer("duration_ms"),
+		stepsCompleted: jsonb("steps_completed"),
+		issues: jsonb(),
+		errorMessage: text("error_message"),
+		metadata: jsonb(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(table) => [
+		index("agent_install_telemetry_website_id_idx").using(
+			"btree",
+			table.websiteId.asc().nullsLast().op("text_ops")
+		),
+		index("agent_install_telemetry_status_idx").using(
+			"btree",
+			table.status.asc().nullsLast()
+		),
+		index("agent_install_telemetry_created_at_idx").using(
+			"btree",
+			table.createdAt.asc().nullsLast()
+		),
+	]
+);
