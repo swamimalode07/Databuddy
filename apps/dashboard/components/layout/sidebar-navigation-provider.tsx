@@ -73,10 +73,10 @@ export function SidebarNavigationProvider({
 	);
 
 	const { websites, isLoading: isLoadingWebsites } = useWebsitesLight({
-		enabled: user !== null,
+		enabled: isHydrated && user !== null,
 	});
 	const { monitors, isLoading: isLoadingMonitors } = useMonitorsLight({
-		enabled: user !== null,
+		enabled: isHydrated && user !== null,
 	});
 
 	const isDemo = pathname.startsWith("/demo");
