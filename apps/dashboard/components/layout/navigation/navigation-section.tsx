@@ -1,8 +1,7 @@
 import { useFlags } from "@databuddy/sdk/react";
 import { FEATURE_METADATA } from "@databuddy/shared/types/features";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import clsx from "clsx";
-import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { memo } from "react";
 import { useBillingContext } from "@/components/providers/billing-provider";
@@ -121,53 +120,47 @@ export const NavigationSection = memo(function NavigationSectionComponent({
 				/>
 			</button>
 
-			<MotionConfig
-				transition={{ duration: 0.2, type: "tween", ease: "easeOut" }}
+			<div
+				className="grid transition-[grid-template-rows,opacity] duration-200 ease-out"
+				style={{
+					gridTemplateRows: isExpanded ? "1fr" : "0fr",
+					opacity: isExpanded ? 1 : 0,
+				}}
 			>
-				<AnimatePresence initial={false}>
-					{isExpanded ? (
-						<motion.div
-							animate={{ opacity: 1, height: "auto" }}
-							className="overflow-hidden"
-							exit={{ opacity: 0, height: 0 }}
-							initial={{ opacity: 0, height: 0 }}
-						>
-							<motion.div className="text-sm">
-								{visibleItems.map((item) => {
-									const state = featureStates[navItemKey(title, item)];
-									return (
-										<div key={navItemKey(title, item)}>
-											<NavigationItem
-												alpha={item.alpha}
-												badge={item.badge}
-												currentWebsiteId={currentWebsiteId}
-												disabled={item.disabled}
-												domain={item.domain}
-												href={item.href}
-												icon={item.icon}
-												isActive={isNavItemActive(
-													item,
-													pathname,
-													searchParams,
-													currentWebsiteId
-												)}
-												isExternal={item.external}
-												isLocked={state?.isLocked ?? false}
-												isRootLevel={!!item.rootLevel}
-												lockedPlanName={state?.lockedPlanName ?? null}
-												name={item.name}
-												production={item.production}
-												sectionName={title}
-												tag={item.tag}
-											/>
-										</div>
-									);
-								})}
-							</motion.div>
-						</motion.div>
-					) : null}
-				</AnimatePresence>
-			</MotionConfig>
+				<div className="overflow-hidden text-sm">
+					{visibleItems.map((item) => {
+						const state = featureStates[navItemKey(title, item)];
+						return (
+							<div key={navItemKey(title, item)}>
+								<NavigationItem
+									alpha={item.alpha}
+									badge={item.badge}
+									currentWebsiteId={currentWebsiteId}
+									disabled={item.disabled}
+									domain={item.domain}
+									href={item.href}
+									icon={item.icon}
+									isActive={isNavItemActive(
+										item,
+										pathname,
+										searchParams,
+										currentWebsiteId
+									)}
+									isExternal={item.external}
+									isLocked={state?.isLocked ?? false}
+									isRootLevel={!!item.rootLevel}
+									lockedPlanName={state?.lockedPlanName ?? null}
+									name={item.name}
+									pathname={pathname}
+									production={item.production}
+									sectionName={title}
+									tag={item.tag}
+								/>
+							</div>
+						);
+					})}
+				</div>
+			</div>
 		</>
 	);
 });

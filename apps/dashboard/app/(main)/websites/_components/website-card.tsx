@@ -14,8 +14,14 @@ import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
 import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+const WebsiteDialog = dynamic(
+	() => import("@/components/website-dialog").then((mod) => mod.WebsiteDialog),
+	{ ssr: false }
+);
 import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
@@ -35,7 +41,6 @@ import {
 } from "@/components/ui/context-menu";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WebsiteDialog } from "@/components/website-dialog";
 import { useDeleteWebsite } from "@/hooks/use-websites";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
 import MiniChart from "./mini-chart";

@@ -1,5 +1,9 @@
 "use client";
 
+import { OrganizationsProvider } from "@/components/providers/organizations-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useToastTracking } from "@/hooks/toast-hooks";
+import { isAbortError } from "@/lib/is-abort-error";
 import { authClient } from "@databuddy/auth/client";
 import { trackError } from "@databuddy/sdk";
 import { FlagsProvider } from "@databuddy/sdk/react";
@@ -13,10 +17,6 @@ import {
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { toast } from "sonner";
-import { OrganizationsProvider } from "@/components/providers/organizations-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { useToastTracking } from "@/hooks/toast-hooks";
-import { isAbortError } from "@/lib/is-abort-error";
 
 const defaultQueryClientOptions = {
 	defaultOptions: {

@@ -10,7 +10,7 @@ import {
 	TrashIcon,
 	XIcon,
 } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { FormField, FormItem } from "@/components/ui/form";

@@ -1,12 +1,10 @@
-import { AutumnProvider } from "autumn-js/react";
-import { Suspense } from "react";
 import { FeedbackPrompt } from "@/components/feedback-prompt";
 import { Sidebar } from "@/components/layout/sidebar";
 import { SidebarNavigationProvider } from "@/components/layout/sidebar-navigation-provider";
 import { BillingProvider } from "@/components/providers/billing-provider";
 import { CommandSearchProvider } from "@/components/ui/command-search";
-
-export const dynamic = "force-dynamic";
+import { AutumnProvider } from "autumn-js/react";
+import { Suspense } from "react";
 
 export default function MainLayout({
 	children,

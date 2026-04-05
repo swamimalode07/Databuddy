@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { forwardRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -94,22 +93,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 						</span>
 					)}
 					{showFocusIndicator && (
-						<motion.span
-							animate={{
-								scaleX: isFocused ? 1 : 0,
-								opacity: isFocused ? 1 : 0,
-							}}
+						<span
 							className={cn(
-								"pointer-events-none absolute inset-x-1 bottom-0 h-[2px] rounded-full",
-								hasError ? "bg-destructive" : "bg-brand-purple"
+								"pointer-events-none absolute inset-x-1 bottom-0 h-[2px] origin-center rounded-full transition-[transform,opacity] duration-200 ease-out",
+								hasError ? "bg-destructive" : "bg-brand-purple",
+								isFocused ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
 							)}
-							initial={false}
-							style={{ originX: 0.5 }}
-							transition={{
-								type: "spring",
-								stiffness: 500,
-								damping: 35,
-							}}
 						/>
 					)}
 				</div>
@@ -135,22 +124,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 					{...props}
 				/>
 				{showFocusIndicator && (
-					<motion.span
-						animate={{
-							scaleX: isFocused ? 1 : 0,
-							opacity: isFocused ? 1 : 0,
-						}}
+					<span
 						className={cn(
-							"pointer-events-none absolute inset-x-1 bottom-0 h-[2px] rounded-full",
-							hasError ? "bg-destructive" : "bg-brand-purple"
+							"pointer-events-none absolute inset-x-1 bottom-0 h-[2px] origin-center rounded-full transition-[transform,opacity] duration-200 ease-out",
+							hasError ? "bg-destructive" : "bg-brand-purple",
+							isFocused ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
 						)}
-						initial={false}
-						style={{ originX: 0.5 }}
-						transition={{
-							type: "spring",
-							stiffness: 500,
-							damping: 35,
-						}}
 					/>
 				)}
 			</div>

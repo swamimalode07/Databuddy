@@ -1,6 +1,6 @@
-import { ArrowSquareOutIcon, LockSimpleIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
+import { LockSimpleIcon } from "@phosphor-icons/react/dist/ssr/LockSimple";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ interface NavigationItemProps extends Omit<NavigationItemType, "icon"> {
 	isLocked?: boolean;
 	isRootLevel: boolean;
 	lockedPlanName?: string | null;
+	pathname: string;
 	sectionName?: string;
 }
 
@@ -34,9 +35,8 @@ export function NavigationItem({
 	badge,
 	isLocked = false,
 	lockedPlanName,
+	pathname,
 }: NavigationItemProps) {
-	const pathname = usePathname();
-
 	const fullPath = useMemo(() => {
 		if (isRootLevel) {
 			return href;

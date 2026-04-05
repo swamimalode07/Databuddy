@@ -79,6 +79,7 @@ export function NavigationRenderer({ className }: { className?: string }) {
 								isRootLevel={!!entry.rootLevel}
 								lockedPlanName={null}
 								name={entry.name}
+								pathname={pathname}
 								production={entry.production}
 								sectionName="main"
 								tag={entry.tag}

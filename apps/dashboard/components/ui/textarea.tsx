@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ComponentProps } from "react";
 import { forwardRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
@@ -55,22 +54,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 					{...props}
 				/>
 				{showFocusIndicator && (
-					<motion.span
-						animate={{
-							scaleX: isFocused ? 1 : 0,
-							opacity: isFocused ? 1 : 0,
-						}}
+					<span
 						className={cn(
-							"pointer-events-none absolute right-1 bottom-0 left-1 h-[2px] rounded-full",
-							hasError ? "bg-destructive" : "bg-brand-purple"
+							"pointer-events-none absolute right-1 bottom-0 left-1 h-[2px] origin-center rounded-full transition-[transform,opacity] duration-200 ease-out",
+							hasError ? "bg-destructive" : "bg-brand-purple",
+							isFocused ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
 						)}
-						initial={false}
-						style={{ originX: 0.5 }}
-						transition={{
-							type: "spring",
-							stiffness: 500,
-							damping: 35,
-						}}
 					/>
 				)}
 			</div>
