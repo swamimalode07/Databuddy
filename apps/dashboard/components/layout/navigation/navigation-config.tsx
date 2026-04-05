@@ -105,14 +105,12 @@ export const homeNavigation: NavigationEntry[] = [
 		createNavItem("Home", HouseIcon, "/home", {
 			highlight: true,
 		}),
+		createNavItem("Websites", GlobeIcon, "/websites", {
+			highlight: true,
+		}),
 		createNavItem("Insights", SparkleIcon, "/insights", {
 			highlight: true,
 			flag: "insights",
-		}),
-	]),
-	createNavSection("Websites", GlobeSimpleIcon, [
-		createNavItem("All Websites", GlobeIcon, "/websites", {
-			highlight: true,
 		}),
 	]),
 	createNavSection("Observability", ActivityIcon, [
