@@ -6,7 +6,7 @@ import { captureError, mergeWideEvent } from "./lib/tracing";
 import type { ActionResult, UptimeData } from "./types";
 import { MonitorStatus } from "./types";
 
-const DEFAULT_TIMEOUT = 30_000;
+const DEFAULT_TIMEOUT = 60_000;
 const MAX_REDIRECTS = 10;
 
 const CONFIG = {
@@ -245,15 +245,6 @@ async function fetchWithRedirects(
 	}
 }
 
-function isEncodingFailure(message: string): boolean {
-	return (
-		message.includes("unexpected end") ||
-		message.includes("incorrect header check") ||
-		message.includes("invalid stored block") ||
-		message.includes("incomplete")
-	);
-}
-
 async function pingWebsite(
 	originalUrl: string,
 	options: { cacheBust?: boolean; timeout?: number } = {}
@@ -263,38 +254,8 @@ async function pingWebsite(
 	const cacheBust = options.cacheBust ?? false;
 
 	try {
-		const result = await fetchWithRedirects(
-			url,
-			timeout,
-			"gzip, deflate, br",
-			cacheBust
-		);
-
-		if (!result.ok && isEncodingFailure(result.error)) {
-			return fetchWithRedirects(url, timeout, "gzip, deflate", cacheBust);
-		}
-
-		return result;
+		return await fetchWithRedirects(url, timeout, "gzip, deflate", cacheBust);
 	} catch (error) {
-		if (error instanceof Error && isEncodingFailure(error.message)) {
-			try {
-				return await fetchWithRedirects(
-					url,
-					timeout,
-					"gzip, deflate",
-					cacheBust
-				);
-			} catch {
-				return {
-					ok: false as const,
-					statusCode: 0,
-					ttfb: 0,
-					total: 0,
-					error: error.message,
-				};
-			}
-		}
-
 		return {
 			ok: false as const,
 			statusCode: 0,
