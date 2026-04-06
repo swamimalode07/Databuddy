@@ -13,7 +13,7 @@ import {
 	chartSurfaceClassName,
 	chartTooltipSingleShellClassName,
 } from "@/lib/chart-presentation";
-import { formatMetricNumber } from "@/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { ChartComponentProps } from "../../types";
 
@@ -118,7 +118,7 @@ export function DistributionRenderer({
 													{item.name}
 												</p>
 												<p className="text-muted-foreground text-xs tabular-nums">
-													{formatMetricNumber(item.value)} ({pct.toFixed(1)}%)
+													{formatNumber(item.value)} ({pct.toFixed(1)}%)
 												</p>
 											</div>
 										);

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "@/lib/dayjs";
-import { formatMetricNumber } from "@/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 interface MiniChartDataPoint {
@@ -65,7 +65,7 @@ const formatTrendValue = (
 		}
 		const safeValue = value == null || Number.isNaN(value) ? 0 : value;
 		return Number.isInteger(safeValue)
-			? formatMetricNumber(safeValue)
+			? formatNumber(safeValue)
 			: safeValue.toFixed(1);
 	}
 	return value;
@@ -227,7 +227,7 @@ export function StatCard({
 		(typeof value === "string" && (value.endsWith("%") || isTimeValue)) ||
 		typeof value !== "number"
 			? value.toString()
-			: formatMetricNumber(value);
+			: formatNumber(value);
 
 	const cardContent = (
 		<Chart

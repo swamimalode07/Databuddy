@@ -4,6 +4,7 @@ import { QuestionIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
 
 export interface RevenueEntry {
 	country_code?: string;
@@ -14,16 +15,6 @@ export interface RevenueEntry {
 	revenue: number;
 	transactions: number;
 }
-
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 const formatCurrency = (amount: number, currency = "USD"): string => {
 	return new Intl.NumberFormat("en-US", {

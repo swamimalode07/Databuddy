@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import dayjs from "@/lib/dayjs";
+import { formatNumber } from "@/lib/formatters";
 import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
@@ -36,16 +37,6 @@ import type {
 interface EventsPageContentProps {
 	params: Promise<{ id: string }>;
 }
-
-const formatNumber = (value: number | null | undefined): string => {
-	if (value === null || value === undefined || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 const formatDateByGranularity = (
 	dateStr: string,

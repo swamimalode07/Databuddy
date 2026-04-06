@@ -63,7 +63,7 @@ import type {
 import { chartQueryOutcomeFromQuery } from "@/lib/chart-query-outcome";
 import dayjs from "@/lib/dayjs";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
-import { formatMetricNumber } from "@/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 // ── Tooltip primitives ──────────────────────────────────────────────────
@@ -380,7 +380,7 @@ export function createRechartsSingleValueTooltip(
 				singleValue={{
 					formattedValue: params.formatValue
 						? params.formatValue(raw)
-						: formatMetricNumber(raw),
+						: formatNumber(raw),
 					label: params.valueSuffixLabel,
 					value: raw,
 				}}

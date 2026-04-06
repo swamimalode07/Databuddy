@@ -14,6 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type {
 	FunnelAnalyticsData,
@@ -44,16 +45,6 @@ interface FunnelItemProps {
 	onDelete: (funnelId: string) => void;
 	onEdit: (funnel: FunnelItemData) => void;
 	onToggle: (funnelId: string) => void;
-}
-
-function formatNumber(num: number): string {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toLocaleString();
 }
 
 function MiniFunnelPreview({

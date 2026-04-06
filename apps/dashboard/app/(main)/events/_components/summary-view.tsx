@@ -13,8 +13,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { formatNumber } from "@/lib/formatters";
 import { getPropertyTypeLabel } from "./classify-properties";
-import { formatCompactNumber } from "./events-utils";
 import type {
 	ClassifiedEvent,
 	ClassifiedProperty,
@@ -78,7 +78,7 @@ export function SummaryView({
 								<span className="flex items-center gap-2">
 									<span>{event.name}</span>
 									<span className="text-muted-foreground tabular-nums">
-										({formatCompactNumber(event.total_events)})
+										({formatNumber(event.total_events)})
 									</span>
 								</span>
 							</SelectItem>
@@ -176,7 +176,7 @@ function PropertyCard({ property }: PropertyCardProps) {
 								</span>
 								<div className="flex shrink-0 items-center gap-2">
 									<span className="text-muted-foreground text-xs tabular-nums">
-										{formatCompactNumber(count)}
+										{formatNumber(count)}
 									</span>
 									<span className="w-10 text-right text-muted-foreground/60 text-xs tabular-nums">
 										{safePercentage.toFixed(0)}%

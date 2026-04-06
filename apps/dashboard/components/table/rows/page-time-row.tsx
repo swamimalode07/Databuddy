@@ -1,5 +1,6 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
 
 export interface PageTimeEntry {
 	median_time_on_page: number;
@@ -8,16 +9,6 @@ export interface PageTimeEntry {
 	sessions_with_time: number;
 	visitors: number;
 }
-
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 const formatTimeSeconds = (seconds: number): string => {
 	if (seconds < 60) {

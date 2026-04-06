@@ -2,8 +2,8 @@
 
 import { LightningIcon } from "@phosphor-icons/react";
 import { TableEmptyState } from "@/components/table/table-empty-state";
+import { formatNumber } from "@/lib/formatters";
 import { EVENT_COLORS } from "./events-trend-chart";
-import { formatCompactNumber } from "./events-utils";
 import type { CustomEventItem } from "./types";
 
 interface EventsListProps {
@@ -97,10 +97,10 @@ export function EventsList({
 								</span>
 							</div>
 							<span className="relative z-10 w-20 text-right font-medium text-foreground text-sm tabular-nums">
-								{formatCompactNumber(event.total_events)}
+								{formatNumber(event.total_events)}
 							</span>
 							<span className="relative z-10 w-20 text-right text-muted-foreground text-sm tabular-nums">
-								{formatCompactNumber(event.unique_users)}
+								{formatNumber(event.unique_users)}
 							</span>
 							<span className="relative z-10 w-16 text-right">
 								<span className="inline-flex items-center rounded bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs tabular-nums">

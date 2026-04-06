@@ -10,6 +10,7 @@ import { StatCard } from "@/components/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
+import { formatNumber } from "@/lib/formatters";
 import { useDynamicQuery } from "@/hooks/use-dynamic-query";
 import dayjs from "@/lib/dayjs";
 import { RetentionCohortsGrid } from "./retention-cohorts-grid";
@@ -141,16 +142,6 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 		}),
 		[rates]
 	);
-
-	const formatNumber = (num: number) => {
-		if (num >= 1_000_000) {
-			return `${(num / 1_000_000).toFixed(1)}M`;
-		}
-		if (num >= 1000) {
-			return `${(num / 1000).toFixed(1)}K`;
-		}
-		return num.toLocaleString();
-	};
 
 	return (
 		<div className="flex h-full min-h-0 flex-col gap-4">

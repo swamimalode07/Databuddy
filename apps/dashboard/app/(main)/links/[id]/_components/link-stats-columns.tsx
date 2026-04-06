@@ -6,6 +6,7 @@ import { DeviceTypeCell } from "@/components/analytics";
 import { ReferrerSourceCell } from "@/components/atomic/ReferrerSourceCell";
 import { CountryFlag } from "@/components/icon";
 import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
 
 export interface SourceEntry {
 	clicks: number;
@@ -39,16 +40,6 @@ function extractDomain(referrer: string | undefined): string | undefined {
 	} catch {
 		return undefined;
 	}
-}
-
-function formatNumber(value: number): string {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
 }
 
 export function createReferrerColumns(): ColumnDef<SourceEntry>[] {

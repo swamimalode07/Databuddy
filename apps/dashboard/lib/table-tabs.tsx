@@ -1,6 +1,7 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { PercentageBadge } from "@/app/(main)/websites/[id]/_components/utils/technology-helpers";
+import { formatNumber } from "@/lib/formatters";
 
 // Generic data item that all tab data should extend
 export interface BaseTabItem {
@@ -39,17 +40,6 @@ export function addPercentages<T extends BaseTabItem>(data: T[]): T[] {
 			totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0,
 	}));
 }
-
-// Utility for compact number formatting
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 // Generic function to create columns for any tab data
 export function createTabColumns<T extends BaseTabItem>(

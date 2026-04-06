@@ -42,6 +42,7 @@ import {
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteWebsite } from "@/hooks/use-websites";
+import { formatNumber } from "@/lib/formatters";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
 import MiniChart from "./mini-chart";
 import { TransferWebsiteDialog } from "./transfer-website-dialog";
@@ -91,16 +92,6 @@ function TrendStat({
 		</div>
 	);
 }
-
-const formatNumber = (num: number) => {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toString();
-};
 
 export const WebsiteCard = memo(
 	({ website, chartData, activeUsers, isLoadingChart }: WebsiteCardProps) => {

@@ -6,6 +6,7 @@ import { TrendUpIcon as TrendUp } from "@phosphor-icons/react";
 import { UsersIcon as Users } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatNumber } from "@/lib/formatters";
 
 interface GoalAnalyticsProps {
 	data: any;
@@ -80,16 +81,6 @@ export function GoalAnalytics({
 			</Card>
 		);
 	}
-
-	const formatNumber = (num: number) => {
-		if (num >= 1_000_000) {
-			return `${(num / 1_000_000).toFixed(1)}M`;
-		}
-		if (num >= 1000) {
-			return `${(num / 1000).toFixed(1)}K`;
-		}
-		return num.toLocaleString();
-	};
 
 	const formatPercentage = (num: number) => `${num.toFixed(1)}%`;
 

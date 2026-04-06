@@ -15,8 +15,8 @@ import { classifyEventProperties } from "./classify-properties";
 import { EventsList } from "./events-list";
 import { useEventsPageContext } from "./events-page-context";
 import { EVENT_COLORS, EventsTrendChart } from "./events-trend-chart";
+import { formatNumber } from "@/lib/formatters";
 import {
-	formatCompactNumber,
 	formatDateLabel,
 	generateDateRange,
 	normalizeDateKey,
@@ -247,13 +247,13 @@ export function EventsPageContent() {
 							chartData={isPageLoading ? undefined : miniChartData.total_events}
 							chartStepType={chartStepType}
 							chartType={chartType}
-							description={`${formatCompactNumber(todayEvents)} today`}
+							description={`${formatNumber(todayEvents)} today`}
 							icon={LightningIcon}
 							id="events-total"
 							isLoading={isPageLoading}
 							showChart
 							title="Total Events"
-							value={formatCompactNumber(summary.total_events)}
+							value={formatNumber(summary.total_events)}
 						/>
 						<StatCard
 							chartData={
@@ -266,19 +266,19 @@ export function EventsPageContent() {
 							isLoading={isPageLoading}
 							showChart
 							title="Event Types"
-							value={formatCompactNumber(summary.unique_event_types)}
+							value={formatNumber(summary.unique_event_types)}
 						/>
 						<StatCard
 							chartData={isPageLoading ? undefined : miniChartData.unique_users}
 							chartStepType={chartStepType}
 							chartType={chartType}
-							description={`${formatCompactNumber(todayUsers)} today`}
+							description={`${formatNumber(todayUsers)} today`}
 							icon={UserIcon}
 							id="events-users"
 							isLoading={isPageLoading}
 							showChart
 							title="Unique Users"
-							value={formatCompactNumber(summary.unique_users)}
+							value={formatNumber(summary.unique_users)}
 						/>
 						<StatCard
 							chartData={isPageLoading ? undefined : miniChartData.total_events}
@@ -290,7 +290,7 @@ export function EventsPageContent() {
 							isLoading={isPageLoading}
 							showChart
 							title="Events Today"
-							value={formatCompactNumber(todayEvents)}
+							value={formatNumber(todayEvents)}
 						/>
 					</div>
 

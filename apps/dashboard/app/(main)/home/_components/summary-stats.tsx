@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 interface SummaryStatsProps {
@@ -24,16 +25,6 @@ interface SummaryStatsProps {
 	totalViews: number;
 	trendDirection: "up" | "down" | "neutral";
 	websiteCount: number;
-}
-
-function formatNumber(num: number) {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toString();
 }
 
 function StatCardSkeleton() {

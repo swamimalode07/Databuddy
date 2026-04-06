@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Goal } from "@/hooks/use-goals";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 interface GoalItemProps {
@@ -28,16 +29,6 @@ interface GoalItemProps {
 	isLoadingAnalytics?: boolean;
 	onDelete: (goalId: string) => void;
 	onEdit: (goal: Goal) => void;
-}
-
-function formatNumber(num: number): string {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toLocaleString();
 }
 
 const GOAL_TYPE_CONFIG = {

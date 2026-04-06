@@ -7,6 +7,7 @@ import { MonitorIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { formatNumber } from "@/lib/formatters";
 import { BrowserIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
 import {
@@ -40,16 +41,6 @@ interface ScreenResolutionEntry {
 	percentage?: number;
 	visitors: number;
 }
-
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 const getGradientConfig = (percentage: number) => {
 	if (percentage >= 40) {

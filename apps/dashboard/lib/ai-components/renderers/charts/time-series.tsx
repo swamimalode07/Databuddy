@@ -17,7 +17,7 @@ import {
 	chartTooltipSingleShellClassName,
 } from "@/lib/chart-presentation";
 import dayjs from "@/lib/dayjs";
-import { formatMetricNumber } from "@/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { ChartComponentProps } from "../../types";
 
@@ -109,7 +109,7 @@ export function TimeSeriesRenderer({
 							className="font-semibold text-foreground text-sm tabular-nums"
 							key={entry.dataKey}
 						>
-							{formatMetricNumber(entry.value ?? 0)}{" "}
+							{formatNumber(entry.value ?? 0)}{" "}
 							<span className="font-normal text-muted-foreground">
 								{entry.dataKey}
 							</span>
@@ -142,7 +142,7 @@ export function TimeSeriesRenderer({
 		const yAxisProps = {
 			...axisProps,
 			width: chartAxisYWidthCompact,
-			tickFormatter: (v: number) => formatMetricNumber(v),
+			tickFormatter: (v: number) => formatNumber(v),
 		};
 
 		if (variant === "bar" || variant === "stacked-bar") {

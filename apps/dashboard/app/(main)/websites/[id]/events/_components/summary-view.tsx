@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { formatNumber } from "@/lib/formatters";
 import {
 	Select,
 	SelectContent,
@@ -243,13 +244,6 @@ function isPropertyDistribution(
 	value: PropertyTopValue | PropertyDistribution
 ): value is PropertyDistribution {
 	return "cardinality" in value;
-}
-
-function formatNumber(value: number): string {
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
 }
 
 function SummaryViewSkeleton() {

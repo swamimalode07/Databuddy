@@ -7,10 +7,8 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag } from "@/components/icon";
 import { WebVitalsMetricCell } from "../_components/tabs/performance/_components/web-vitals-metric-cell";
-import {
-	formatNumber,
-	formatPerformanceTime,
-} from "../_components/tabs/performance/_utils/performance-utils";
+import { formatNumber } from "@/lib/formatters";
+import { formatPerformanceTime } from "../_components/tabs/performance/_utils/performance-utils";
 
 export interface VitalsBreakdownData {
 	cls?: number;

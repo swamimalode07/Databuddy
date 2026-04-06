@@ -9,6 +9,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo } from "react";
+import { formatNumber } from "@/lib/formatters";
 import {
 	DeviceTypeCell,
 	EventLimitIndicator,
@@ -503,19 +504,6 @@ export function WebsiteOverviewTab({
 		);
 	};
 
-	const formatNumber = useCallback(
-		(value: number | null | undefined): string => {
-			if (value === null || value === undefined || Number.isNaN(value)) {
-				return "0";
-			}
-			return Intl.NumberFormat(undefined, {
-				notation: "compact",
-				maximumFractionDigits: 1,
-			}).format(value);
-		},
-		[]
-	);
-
 	const pagesTabs = useMemo(
 		() => [
 			{
@@ -595,7 +583,7 @@ export function WebsiteOverviewTab({
 				cell: createPercentageCell(),
 			},
 		],
-		[formatNumber]
+		[]
 	);
 
 	const browserColumns = useMemo(
@@ -635,7 +623,7 @@ export function WebsiteOverviewTab({
 				cell: createPercentageCell(),
 			},
 		],
-		[formatNumber]
+		[]
 	);
 
 	const osColumns = useMemo(
@@ -675,7 +663,7 @@ export function WebsiteOverviewTab({
 				cell: createPercentageCell(),
 			},
 		],
-		[formatNumber]
+		[]
 	);
 
 	const todayDate = dayjs().format("YYYY-MM-DD");
