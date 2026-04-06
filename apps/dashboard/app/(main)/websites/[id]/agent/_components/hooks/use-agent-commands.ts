@@ -2,17 +2,12 @@ import { useAtom, useSetAtom } from "jotai";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useChat } from "@/contexts/chat-context";
 import type { AgentCommand } from "../agent-atoms";
-import {
-	agentInputAtom,
-	commandQueryAtom,
-	showCommandsAtom,
-} from "../agent-atoms";
+import { agentInputAtom, showCommandsAtom } from "../agent-atoms";
 import { filterCommands } from "../agent-commands";
 
 export function useAgentCommands() {
 	const setInput = useSetAtom(agentInputAtom);
 	const [showCommands, setShowCommands] = useAtom(showCommandsAtom);
-	const setCommandQuery = useSetAtom(commandQueryAtom);
 	const [localQuery, setLocalQuery] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -26,9 +21,8 @@ export function useAgentCommands() {
 	const hideCommands = useCallback(() => {
 		setShowCommands(false);
 		setLocalQuery("");
-		setCommandQuery("");
 		inputRef.current?.focus();
-	}, [setCommandQuery, setShowCommands]);
+	}, [setShowCommands]);
 
 	const handleInputChange = useCallback(
 		(value: string, cursorPosition: number) => {
@@ -41,21 +35,17 @@ export function useAgentCommands() {
 			if (lastSlashIndex !== -1 && isSlashAtStart) {
 				const query = textBeforeCursor.slice(lastSlashIndex + 1);
 				setLocalQuery(query);
-				setCommandQuery(query);
 				setShowCommands(true);
 			} else {
 				hideCommands();
 			}
 		},
-		[setInput, setCommandQuery, setShowCommands, hideCommands]
+		[setInput, setShowCommands, hideCommands]
 	);
 
 	const executeCommand = useCallback(
 		(command: AgentCommand) => {
-			sendMessage({
-				text: command.title,
-				metadata: { toolChoice: command.toolName },
-			});
+			sendMessage({ text: command.title });
 			setInput("");
 			hideCommands();
 		},

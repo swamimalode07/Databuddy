@@ -1,8 +1,14 @@
 "use client";
 
-import { BrainIcon } from "@phosphor-icons/react";
+import {
+	ArrowRightIcon,
+	ArrowsClockwiseIcon,
+	BrainIcon,
+	CheckIcon,
+	CopyIcon,
+} from "@phosphor-icons/react";
 import type { UIMessage } from "ai";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { AIComponent } from "@/components/ai-elements/ai-component";
 import { ToolStep } from "@/components/ai-elements/chain-of-thought";
 import {
@@ -16,12 +22,12 @@ import {
 	ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { Button } from "@/components/ui/button";
 import { useChat } from "@/contexts/chat-context";
 import { parseContentSegments } from "@/lib/ai-components";
 import { formatToolLabel } from "@/lib/tool-display";
 import { cn } from "@/lib/utils";
 import { AgentErrorMessage } from "./agent-error-message";
-import { useChatStatus } from "./hooks/use-chat-status";
 
 type MessagePart = UIMessage["parts"][number];
 
@@ -32,27 +38,30 @@ type ToolMessagePart = MessagePart & {
 	state?: string;
 };
 
-function isToolPart(part: MessagePart): part is ToolMessagePart {
-	return part.type?.startsWith("tool-") ?? false;
-}
-
 const TOOL_PREFIX_REGEX = /^tool-/;
+
+function isToolPart(part: MessagePart): part is ToolMessagePart {
+	return part.type.startsWith("tool-");
+}
 
 function getToolName(part: ToolMessagePart): string {
 	return part.type.replace(TOOL_PREFIX_REGEX, "");
 }
 
-function getReasoningText(part: MessagePart): string {
-	const reasoning = part as {
-		text?: string;
-		content?: string;
-	};
+function getMessageText(message: UIMessage): string {
+	return message.parts
+		.flatMap((p) => (p.type === "text" ? [p.text] : []))
+		.join("\n\n")
+		.trim();
+}
 
-	return (
-		reasoning.text ||
-		reasoning.content ||
-		JSON.stringify(part, null, 2) ||
-		"Thinking through the request."
+function getFollowups(message: UIMessage | undefined): string[] {
+	const meta = message?.metadata as { followups?: unknown } | undefined;
+	if (!Array.isArray(meta?.followups)) {
+		return [];
+	}
+	return meta.followups.filter(
+		(s): s is string => typeof s === "string" && s.trim().length > 0
 	);
 }
 
@@ -60,23 +69,13 @@ function ReasoningMessage({
 	part,
 	isStreaming,
 }: {
-	part: MessagePart;
+	part: Extract<MessagePart, { type: "reasoning" }>;
 	isStreaming: boolean;
 }) {
-	const [hasBeenStreaming, setHasBeenStreaming] = useState(false);
-	useEffect(() => {
-		if (isStreaming) {
-			setHasBeenStreaming(true);
-		}
-	}, [isStreaming]);
-
 	return (
-		<Reasoning
-			defaultOpen={isStreaming || hasBeenStreaming}
-			isStreaming={isStreaming}
-		>
+		<Reasoning defaultOpen={isStreaming} isStreaming={isStreaming}>
 			<ReasoningTrigger />
-			<ReasoningContent>{getReasoningText(part)}</ReasoningContent>
+			<ReasoningContent>{part.text}</ReasoningContent>
 		</Reasoning>
 	);
 }
@@ -87,13 +86,11 @@ function mergeConsecutiveToolStepsForDisplay(
 ): Array<{ repeatCount: number; tool: ToolMessagePart }> {
 	const merged: Array<{ repeatCount: number; tool: ToolMessagePart }> = [];
 	for (const tool of tools) {
-		const toolName = getToolName(tool);
-		const label = formatToolLabel(toolName, tool.input ?? {});
+		const label = formatToolLabel(getToolName(tool), tool.input ?? {});
 		const last = merged.at(-1);
-		if (
-			last &&
-			formatToolLabel(getToolName(last.tool), last.tool.input ?? {}) === label
-		) {
+		const lastLabel =
+			last && formatToolLabel(getToolName(last.tool), last.tool.input ?? {});
+		if (last && lastLabel === label) {
 			last.repeatCount += 1;
 			last.tool = tool;
 		} else {
@@ -110,13 +107,13 @@ function collectToolGroups(parts: MessagePart[]) {
 	for (const part of parts) {
 		if (isToolPart(part)) {
 			toolBuffer.push(part);
-		} else {
-			if (toolBuffer.length > 0) {
-				result.push(toolBuffer);
-				toolBuffer = [];
-			}
-			result.push(part);
+			continue;
 		}
+		if (toolBuffer.length > 0) {
+			result.push(toolBuffer);
+			toolBuffer = [];
+		}
+		result.push(part);
 	}
 
 	if (toolBuffer.length > 0) {
@@ -137,12 +134,13 @@ function renderToolGroup(
 	return (
 		<div className="space-y-0 py-1" key={key}>
 			{merged.map((entry, idx) => {
-				const toolName = getToolName(entry.tool);
-				const toolInput = entry.tool.input ?? {};
 				const isLast = idx === merged.length - 1;
 				const isActive =
 					isLastGroup && isStreaming && isLast && !entry.tool.output;
-				const baseLabel = formatToolLabel(toolName, toolInput);
+				const baseLabel = formatToolLabel(
+					getToolName(entry.tool),
+					entry.tool.input ?? {}
+				);
 				const label =
 					entry.repeatCount > 1
 						? `${baseLabel} · ${entry.repeatCount}×`
@@ -187,12 +185,11 @@ function renderMessagePart(
 	}
 
 	if (part.type === "text") {
-		const textPart = part as { text: string };
-		if (!textPart.text?.trim()) {
+		if (!part.text.trim()) {
 			return null;
 		}
 
-		const { segments } = parseContentSegments(textPart.text);
+		const { segments } = parseContentSegments(part.text);
 		if (segments.length === 0) {
 			return null;
 		}
@@ -211,7 +208,6 @@ function renderMessagePart(
 							</MessageResponse>
 						);
 					}
-					// Both complete and streaming components render via AIComponent
 					return (
 						<AIComponent
 							input={segment.content}
@@ -225,13 +221,11 @@ function renderMessagePart(
 	}
 
 	if (isToolPart(part)) {
-		const toolName = getToolName(part as ToolMessagePart);
-		const toolInput = (part as ToolMessagePart).input ?? {};
-		const isActive = isCurrentlyStreaming && !(part as ToolMessagePart).output;
+		const isActive = isCurrentlyStreaming && !part.output;
 		return (
 			<div className="py-1" key={key}>
 				<ToolStep
-					label={formatToolLabel(toolName, toolInput)}
+					label={formatToolLabel(getToolName(part), part.input ?? {})}
 					status={isActive ? "active" : "complete"}
 				/>
 			</div>
@@ -241,39 +235,108 @@ function renderMessagePart(
 	return null;
 }
 
-function AgentChatErrorPanel({
-	clearError,
-	error,
-	onRetryAction,
+function FollowupSuggestions({
+	suggestions,
+	onSelect,
 }: {
-	clearError: () => void;
-	error: Error | undefined;
-	onRetryAction: () => Promise<void>;
+	suggestions: string[];
+	onSelect: (text: string) => void;
 }) {
+	if (suggestions.length === 0) {
+		return null;
+	}
 	return (
-		<AgentErrorMessage
-			error={error}
-			onDismissAction={clearError}
-			onRetryAction={onRetryAction}
-		/>
+		<div className="flex flex-col gap-1.5 pt-2">
+			<p className="px-1 text-muted-foreground text-xs">Suggested next</p>
+			<div className="flex flex-col gap-1">
+				{suggestions.map((suggestion) => (
+					<button
+						className="group flex items-center justify-between gap-2 rounded border border-border/60 bg-card px-3 py-2 text-left text-sm transition-colors hover:border-border hover:bg-accent/40"
+						key={suggestion}
+						onClick={() => onSelect(suggestion)}
+						type="button"
+					>
+						<span className="line-clamp-2 text-foreground/85">
+							{suggestion}
+						</span>
+						<ArrowRightIcon
+							className="size-3.5 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-foreground"
+							weight="bold"
+						/>
+					</button>
+				))}
+			</div>
+		</div>
 	);
 }
 
-function getTextFromUserMessage(message: UIMessage): string {
-	if (!message.parts?.length) {
-		return "";
+function AssistantActions({
+	message,
+	isLast,
+	canRegenerate,
+	onRegenerate,
+}: {
+	message: UIMessage;
+	isLast: boolean;
+	canRegenerate: boolean;
+	onRegenerate: () => void;
+}) {
+	const [copied, setCopied] = useState(false);
+	const text = getMessageText(message);
+
+	const handleCopy = useCallback(async () => {
+		if (!text) {
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(text);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		} catch {
+			// Clipboard unavailable — silent failure.
+		}
+	}, [text]);
+
+	if (!text) {
+		return null;
 	}
-	return message.parts
-		.filter((p): p is { type: "text"; text: string } => p.type === "text")
-		.map((p) => p.text)
-		.join("");
+
+	return (
+		<div className="-ml-1.5 flex items-center gap-0.5 pt-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/message:opacity-100">
+			<Button
+				aria-label={copied ? "Copied" : "Copy response"}
+				className="size-7 text-muted-foreground hover:text-foreground"
+				onClick={handleCopy}
+				size="icon"
+				type="button"
+				variant="ghost"
+			>
+				{copied ? (
+					<CheckIcon className="size-3.5" weight="bold" />
+				) : (
+					<CopyIcon className="size-3.5" weight="duotone" />
+				)}
+			</Button>
+			{isLast && canRegenerate ? (
+				<Button
+					aria-label="Regenerate response"
+					className="size-7 text-muted-foreground hover:text-foreground"
+					onClick={onRegenerate}
+					size="icon"
+					type="button"
+					variant="ghost"
+				>
+					<ArrowsClockwiseIcon className="size-3.5" weight="duotone" />
+				</Button>
+			) : null}
+		</div>
+	);
 }
 
 export function AgentMessages() {
 	const { status, messages, error, regenerate, clearError, sendMessage } =
 		useChat();
 	const hasError = status === "error";
-	const chatStatus = useChatStatus(messages, status);
 	const isStreaming = status === "streaming" || status === "submitted";
 	const lastMessage = messages.at(-1);
 	const errorAfterUser =
@@ -286,8 +349,8 @@ export function AgentMessages() {
 	const retry = async () => {
 		const last = messages.at(-1);
 		if (last?.role === "user") {
-			const text = getTextFromUserMessage(last);
-			if (text.trim()) {
+			const text = getMessageText(last);
+			if (text) {
 				await sendMessage({ messageId: last.id, text });
 				return;
 			}
@@ -299,18 +362,18 @@ export function AgentMessages() {
 		<>
 			{messages.map((message, index) => {
 				const isLastMessage = index === messages.length - 1;
-				const showError =
-					isLastMessage && hasError && message.role === "assistant";
-
-				const groupedParts = message.parts
-					? collectToolGroups(message.parts)
-					: [];
+				const isAssistant = message.role === "assistant";
+				const showError = isLastMessage && hasError && isAssistant;
+				const showActions = isAssistant && !(isLastMessage && isStreaming);
+				const groupedParts = collectToolGroups(message.parts);
 
 				return (
-					<Message from={message.role} key={message.id}>
-						<MessageContent
-							className={cn(message.role === "assistant" ? "w-full" : "")}
-						>
+					<Message
+						className="group/message"
+						from={message.role}
+						key={message.id}
+					>
+						<MessageContent className={cn(isAssistant ? "w-full" : "")}>
 							{groupedParts.map((part, partIndex) =>
 								renderMessagePart(
 									part,
@@ -323,10 +386,21 @@ export function AgentMessages() {
 							)}
 
 							{showError ? (
-								<AgentChatErrorPanel
-									clearError={clearError}
+								<AgentErrorMessage
 									error={error}
+									onDismissAction={clearError}
 									onRetryAction={retry}
+								/>
+							) : null}
+
+							{showActions ? (
+								<AssistantActions
+									canRegenerate={!hasError}
+									isLast={isLastMessage}
+									message={message}
+									onRegenerate={() => {
+										regenerate().catch(() => undefined);
+									}}
 								/>
 							) : null}
 						</MessageContent>
@@ -337,22 +411,50 @@ export function AgentMessages() {
 			{errorAfterUser ? (
 				<Message from="assistant">
 					<MessageContent className="w-full">
-						<AgentChatErrorPanel
-							clearError={clearError}
+						<AgentErrorMessage
 							error={error}
+							onDismissAction={clearError}
 							onRetryAction={retry}
 						/>
 					</MessageContent>
 				</Message>
 			) : null}
 
-			{isStreaming &&
-			!chatStatus.hasTextContent &&
-			chatStatus.displayMessage == null ? (
+			{!(isStreaming || hasError) &&
+			lastMessage?.role === "assistant" &&
+			getFollowups(lastMessage).length > 0 ? (
+				<FollowupSuggestions
+					onSelect={(text) => {
+						sendMessage({ text }).catch(() => undefined);
+					}}
+					suggestions={getFollowups(lastMessage)}
+				/>
+			) : null}
+
+			{showTailIndicator(isStreaming, lastMessage) ? (
 				<StreamingIndicator />
 			) : null}
 		</>
 	);
+}
+
+/**
+ * The tail "Thinking" indicator only fills the gap before the assistant
+ * has produced ANY part. Once a reasoning, tool, or text part exists,
+ * those parts render their own inline progress, so we suppress the tail
+ * to avoid duplicate "Thinking" labels stacking on screen.
+ */
+function showTailIndicator(
+	isStreaming: boolean,
+	lastMessage: UIMessage | undefined
+): boolean {
+	if (!isStreaming) {
+		return false;
+	}
+	if (!lastMessage || lastMessage.role !== "assistant") {
+		return true;
+	}
+	return lastMessage.parts.length === 0;
 }
 
 function StreamingIndicator() {

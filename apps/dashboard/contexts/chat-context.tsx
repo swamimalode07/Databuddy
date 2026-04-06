@@ -1,30 +1,22 @@
 "use client";
 
 import { useChat as useAiSdkChat } from "@ai-sdk/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UIMessage } from "ai";
 import {
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from "react";
 import { useAgentChatTransport } from "@/app/(main)/websites/[id]/agent/_components/hooks/use-agent-chat";
-import {
-	getMessagesFromLocal,
-	saveMessagesToLocal,
-} from "@/app/(main)/websites/[id]/agent/_components/hooks/use-chat-db";
+import { orpc } from "@/lib/orpc";
 
 type ChatApi = ReturnType<typeof useAiSdkChat<UIMessage>>;
 type SendArg = Parameters<ChatApi["sendMessage"]>[0];
-
-interface PendingEntry {
-	metadata?: unknown;
-	text: string;
-}
 
 interface PendingQueueValue {
 	messages: string[];
@@ -37,13 +29,17 @@ const PendingQueueContext = createContext<PendingQueueValue>({
 	removeAction: () => {},
 });
 
+const isBusy = (c: ChatApi) =>
+	c.status === "submitted" || c.status === "streaming";
+
 /**
  * Queue-strategy wrapper around AI SDK's useChat.
  *
- * When the model is streaming/submitted and the user sends another text
- * message, we enqueue it. When the run finishes, only the latest queued
- * message is dispatched (Chat SDK "queue" strategy). All queued messages
- * are exposed for visual display.
+ * - Restores prior messages from the server (`agentChats.get`) on mount.
+ * - Persists messages on the server via the agent route's onFinish handler.
+ * - When the model is streaming/submitted and the user sends another text
+ *   message, the wrapper enqueues it and dispatches the next one once the
+ *   run finishes (Chat SDK "queue" strategy).
  */
 export function ChatProvider({
 	chatId,
@@ -55,10 +51,11 @@ export function ChatProvider({
 	children: React.ReactNode;
 }) {
 	const transport = useAgentChatTransport(chatId);
+	const queryClient = useQueryClient();
 	/** Set synchronously after `useChat`; used by the send queue. */
 	const chatRef = useRef<ChatApi>(null as unknown as ChatApi);
 
-	/** Empty on server and first client render so SSR HTML matches hydration; restored in useLayoutEffect. */
+	/** Empty initial state — restored from the server below once the query lands. */
 	const chat = useAiSdkChat<UIMessage>({
 		id: chatId,
 		messages: [],
@@ -67,92 +64,108 @@ export function ChatProvider({
 
 	chatRef.current = chat;
 
-	const [hasRestoredFromLocal, setHasRestoredFromLocal] = useState(false);
+	const { data: storedChat, isFetched } = useQuery({
+		...orpc.agentChats.get.queryOptions({ input: { id: chatId } }),
+		// The streaming response is the source of truth; never refetch on focus.
+		refetchOnWindowFocus: false,
+		staleTime: Number.POSITIVE_INFINITY,
+	});
 
-	useLayoutEffect(() => {
-		const stored = getMessagesFromLocal(websiteId, chatId);
-		if (stored.length > 0) {
-			chatRef.current.setMessages(stored);
+	const [hasRestored, setHasRestored] = useState(false);
+
+	useEffect(() => {
+		if (hasRestored || !isFetched) {
+			return;
 		}
-		setHasRestoredFromLocal(true);
-	}, [websiteId, chatId]);
+		if (storedChat?.messages && storedChat.messages.length > 0) {
+			chatRef.current.setMessages(storedChat.messages as UIMessage[]);
+		}
+		setHasRestored(true);
+	}, [hasRestored, isFetched, storedChat]);
 
+	const pendingRef = useRef<string[]>([]);
 	const [pendingTexts, setPendingTexts] = useState<string[]>([]);
-	const pendingRef = useRef<PendingEntry[]>([]);
 	const prevStatusRef = useRef(chat.status);
 
-	const syncState = useCallback(() => {
-		setPendingTexts(pendingRef.current.map((p) => p.text));
+	const syncQueue = useCallback(() => {
+		setPendingTexts([...pendingRef.current]);
 	}, []);
-
-	const isBusy = (c: ChatApi) =>
-		c.status === "submitted" || c.status === "streaming";
 
 	const sendMessage = useCallback(
 		(message?: SendArg) => {
 			const c = chatRef.current;
 			if (
-				message != null &&
+				message &&
 				typeof message === "object" &&
 				"text" in message &&
+				typeof message.text === "string" &&
 				isBusy(c)
 			) {
-				const m = message as PendingEntry;
-				pendingRef.current = [
-					...pendingRef.current,
-					{ text: m.text, metadata: m.metadata },
-				];
-				syncState();
+				pendingRef.current = [...pendingRef.current, message.text];
+				syncQueue();
 				return Promise.resolve();
 			}
 			return c.sendMessage(message);
 		},
-		[syncState]
+		[syncQueue]
 	);
 
-	const clearQueue = useCallback(() => {
-		pendingRef.current = [];
-		syncState();
-	}, [syncState]);
-
 	const stop = useCallback(() => {
-		clearQueue();
+		pendingRef.current = [];
+		syncQueue();
 		return chatRef.current.stop();
-	}, [clearQueue]);
+	}, [syncQueue]);
 
 	const removeAction = useCallback(
 		(index: number) => {
 			pendingRef.current = pendingRef.current.filter((_, i) => i !== index);
-			syncState();
+			syncQueue();
 		},
-		[syncState]
+		[syncQueue]
 	);
 
 	useEffect(() => {
 		const prev = prevStatusRef.current;
 		prevStatusRef.current = chat.status;
 
-		if (
-			(prev !== "streaming" && prev !== "submitted") ||
-			(chat.status !== "ready" && chat.status !== "error")
-		) {
+		const justFinished =
+			(prev === "streaming" || prev === "submitted") &&
+			(chat.status === "ready" || chat.status === "error");
+
+		if (!justFinished) {
 			return;
 		}
-		const pending = pendingRef.current;
-		if (pending.length === 0) {
-			return;
+
+		// Refresh the sidebar list (new chat appears, title updates).
+		queryClient.invalidateQueries({
+			queryKey: orpc.agentChats.list.key({ input: { websiteId } }),
+		});
+
+		// Pull the just-finished chat back from the server after a short
+		// delay so any post-stream metadata (followup suggestions, polished
+		// titles) lands on the in-memory message list.
+		const syncTimer = setTimeout(async () => {
+			try {
+				const fresh = await queryClient.fetchQuery(
+					orpc.agentChats.get.queryOptions({ input: { id: chatId } })
+				);
+				if (fresh?.messages && fresh.messages.length > 0) {
+					chatRef.current.setMessages(fresh.messages as UIMessage[]);
+				}
+			} catch {
+				// Best-effort sync — failures don't affect the chat itself.
+			}
+		}, 1500);
+
+		const [next, ...rest] = pendingRef.current;
+		if (next === undefined) {
+			return () => clearTimeout(syncTimer);
 		}
-		const [next, ...rest] = pending;
 		pendingRef.current = rest;
-		syncState();
-		chat
-			.sendMessage(
-				next.metadata === undefined
-					? { text: next.text }
-					: { text: next.text, metadata: next.metadata }
-			)
-			.catch(() => undefined);
-	}, [chat.status, chat, syncState]);
+		syncQueue();
+		chat.sendMessage({ text: next }).catch(() => undefined);
+		return () => clearTimeout(syncTimer);
+	}, [chat.status, chat, syncQueue, queryClient, websiteId, chatId]);
 
 	const chatValue = useMemo(
 		(): ChatApi => ({ ...chat, sendMessage, stop }),
@@ -163,13 +176,6 @@ export function ChatProvider({
 		(): PendingQueueValue => ({ messages: pendingTexts, removeAction }),
 		[pendingTexts, removeAction]
 	);
-
-	useEffect(() => {
-		if (!hasRestoredFromLocal) {
-			return;
-		}
-		saveMessagesToLocal(websiteId, chatId, chat.messages);
-	}, [websiteId, chatId, chat.messages, hasRestoredFromLocal]);
 
 	return (
 		<ChatContext.Provider value={chatValue}>
@@ -186,11 +192,6 @@ export function useChat() {
 		throw new Error("useChat must be used within a `ChatProvider`");
 	}
 	return chat;
-}
-
-export function useChatStatus() {
-	const { status } = useChat();
-	return status;
 }
 
 /** Returns the queued messages and a remove callback. */

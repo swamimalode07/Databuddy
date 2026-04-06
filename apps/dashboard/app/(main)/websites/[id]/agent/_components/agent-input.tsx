@@ -4,9 +4,8 @@ import { ClockCountdownIcon } from "@phosphor-icons/react";
 import { PaperPlaneRightIcon } from "@phosphor-icons/react";
 import { StopIcon } from "@phosphor-icons/react";
 import { XIcon } from "@phosphor-icons/react";
-import type { UIMessage } from "ai";
 import { useAtom } from "jotai";
-import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import {
 	Queue,
 	QueueItem,
@@ -25,55 +24,41 @@ import { Textarea } from "@/components/ui/textarea";
 import { useChat, usePendingQueue } from "@/contexts/chat-context";
 import { cn } from "@/lib/utils";
 import { agentInputAtom } from "./agent-atoms";
-import { useAgentChatId, useSetAgentChatId } from "./agent-chat-context";
 import { AgentCommandMenu } from "./agent-command-menu";
 import { useAgentCommands } from "./hooks/use-agent-commands";
-import { useChatList } from "./hooks/use-chat-db";
 import { useEnterSubmit } from "./hooks/use-enter-submit";
 
-function getChatTitle(messages: UIMessage[], currentInput: string): string {
-	const firstUserMsg = messages.find((m) => m.role === "user");
-	if (firstUserMsg) {
-		const text = firstUserMsg.parts
-			.filter(
-				(p): p is Extract<UIMessage["parts"][number], { type: "text" }> =>
-					p.type === "text"
-			)
-			.map((p) => p.text)
-			.join(" ")
-			.trim();
-		return text.slice(0, 100) || "New conversation";
-	}
-	return currentInput.slice(0, 100) || "New conversation";
-}
-
 export function AgentInput() {
-	const { sendMessage, stop, status, messages } = useChat();
+	const { sendMessage, stop, status } = useChat();
 	const { messages: pendingMessages, removeAction } = usePendingQueue();
 	const isLoading = status === "streaming" || status === "submitted";
 	const [input, setInput] = useAtom(agentInputAtom);
 	const agentCommands = useAgentCommands();
-	const currentChatId = useAgentChatId();
-	const setChatId = useSetAgentChatId();
 	const { formRef, onKeyDown } = useEnterSubmit();
-	const params = useParams();
-	const websiteId = params.id as string;
-	const { saveChat } = useChatList(websiteId);
+
+	// Esc-to-abort: while a generation is running, hitting Escape stops it.
+	// Skipped if the user is mid-IME composition or focused inside the
+	// command menu/popovers (those have their own Escape handling).
+	useEffect(() => {
+		if (!isLoading) {
+			return;
+		}
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key !== "Escape" || e.defaultPrevented) {
+				return;
+			}
+			stop();
+		};
+		document.addEventListener("keydown", handleEscape);
+		return () => document.removeEventListener("keydown", handleEscape);
+	}, [isLoading, stop]);
 
 	const handleSubmit = (e?: React.FormEvent) => {
 		e?.preventDefault();
 		if (!input.trim()) {
 			return;
 		}
-		if (currentChatId) {
-			setChatId(currentChatId);
-		}
-
-		const text = input.trim();
-		const title = getChatTitle(messages, text);
-		saveChat({ id: currentChatId, websiteId, title });
-
-		sendMessage({ text });
+		sendMessage({ text: input.trim() });
 		setInput("");
 	};
 
@@ -84,91 +69,108 @@ export function AgentInput() {
 		);
 	};
 
-	const handleStop = (e: React.MouseEvent) => {
-		e.preventDefault();
-		stop();
-	};
-
 	return (
-		<div className="shrink-0 border-t">
-			<div className="mx-auto max-w-4xl px-4 pt-3 pb-4">
-				{pendingMessages.length > 0 ? (
-					<PendingQueue
-						messages={pendingMessages}
-						onClear={stop}
-						onRemove={removeAction}
+		<form
+			className="sticky z-10 mt-auto"
+			onSubmit={handleSubmit}
+			ref={formRef}
+			style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+		>
+			{pendingMessages.length > 0 ? (
+				<PendingQueue
+					messages={pendingMessages}
+					onClear={stop}
+					onRemove={removeAction}
+				/>
+			) : null}
+
+			<div className="relative">
+				<AgentCommandMenu {...agentCommands} />
+
+				<div
+					className={cn(
+						"rounded border border-border bg-background shadow-xs transition-colors",
+						"focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50"
+					)}
+				>
+					<Textarea
+						className={cn(
+							"min-h-0 resize-none border-0 bg-transparent px-3 pt-3 pb-2 text-sm shadow-none",
+							"focus-visible:border-0 focus-visible:bg-transparent focus-visible:shadow-none focus-visible:ring-0"
+						)}
+						maxRows={8}
+						minRows={1}
+						onChange={handleChange}
+						onKeyDown={onKeyDown}
+						placeholder="Ask Databunny anything about your analytics…"
+						ref={agentCommands.inputRef}
+						showFocusIndicator={false}
+						value={input}
 					/>
-				) : null}
 
-				<div className="relative">
-					<AgentCommandMenu {...agentCommands} />
+					<div className="flex items-center justify-between gap-3 rounded-b border-border/60 border-t bg-muted/30 px-3 py-1.5">
+						<KeyboardHints isLoading={isLoading} />
 
-					<form onSubmit={handleSubmit} ref={formRef}>
-						<div
-							className={cn(
-								"rounded border border-border bg-background shadow-xs transition-all",
-								"focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50"
-							)}
-						>
-							<Textarea
-								className={cn(
-									"min-h-0 resize-none border-0 bg-transparent px-3 pt-3 pb-3 text-base shadow-none",
-									"focus-visible:border-0 focus-visible:bg-transparent focus-visible:shadow-none focus-visible:ring-0"
-								)}
-								maxRows={6}
-								minRows={1}
-								onChange={handleChange}
-								onKeyDown={onKeyDown}
-								placeholder="Ask anything about your analytics..."
-								ref={agentCommands.inputRef}
-								showFocusIndicator={false}
-								value={input}
-							/>
-
-							<div className="flex items-center justify-between rounded-b bg-muted/50 px-3 py-1.5">
-								<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-									<kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-										Enter
-									</kbd>
-									<span>send</span>
-									<span className="mx-0.5 text-border">·</span>
-									<kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-										/
-									</kbd>
-									<span>commands</span>
-								</div>
-
-								<div className="flex items-center gap-1">
-									{isLoading ? (
-										<Button
-											aria-label="Stop generation"
-											className="size-8"
-											onClick={handleStop}
-											size="icon"
-											type="button"
-											variant="ghost"
-										>
-											<StopIcon className="size-4" weight="fill" />
-										</Button>
-									) : null}
-									<Button
-										aria-label={isLoading ? "Queue message" : "Send message"}
-										className="size-8"
-										disabled={!input.trim()}
-										size="icon"
-										type="submit"
-									>
-										<PaperPlaneRightIcon
-											className="size-4"
-											weight={input.trim() ? "fill" : "duotone"}
-										/>
-									</Button>
-								</div>
-							</div>
+						<div className="flex shrink-0 items-center gap-1">
+							{isLoading ? (
+								<Button
+									aria-label="Stop generation (Esc)"
+									className="size-7"
+									onClick={stop}
+									size="icon"
+									type="button"
+									variant="ghost"
+								>
+									<StopIcon className="size-3.5" weight="fill" />
+								</Button>
+							) : null}
+							<Button
+								aria-label={isLoading ? "Queue message" : "Send message"}
+								className="size-7"
+								disabled={!input.trim()}
+								size="icon"
+								type="submit"
+							>
+								<PaperPlaneRightIcon
+									className="size-3.5"
+									weight={input.trim() ? "fill" : "duotone"}
+								/>
+							</Button>
 						</div>
-					</form>
+					</div>
 				</div>
 			</div>
+		</form>
+	);
+}
+
+function Kbd({ children }: { children: React.ReactNode }) {
+	return (
+		<kbd className="rounded border border-border bg-background px-1 font-mono text-[10px] text-muted-foreground">
+			{children}
+		</kbd>
+	);
+}
+
+function KeyboardHints({ isLoading }: { isLoading: boolean }) {
+	if (isLoading) {
+		return (
+			<div className="flex min-w-0 items-center gap-1.5 text-muted-foreground text-xs">
+				<Kbd>Esc</Kbd>
+				<span className="truncate">stop generating</span>
+			</div>
+		);
+	}
+	return (
+		<div className="flex min-w-0 items-center gap-1.5 text-muted-foreground text-xs">
+			<Kbd>Enter</Kbd>
+			<span>send</span>
+			<span className="hidden text-border sm:inline">·</span>
+			<Kbd>⇧Enter</Kbd>
+			<span className="hidden sm:inline">newline</span>
+			<span className="hidden text-border sm:inline">·</span>
+			<Kbd>/</Kbd>
+			<span className="hidden sm:inline">commands</span>
 		</div>
 	);
 }
