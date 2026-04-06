@@ -25,6 +25,7 @@ import {
 	useState,
 } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -81,6 +82,10 @@ const hasPropertiesOptions = [
 	{ value: "without", label: "Without properties" },
 ] as const;
 
+const FILTER_TRIGGER_CLASS =
+	"h-7 gap-1 border-transparent bg-transparent px-2 text-xs shadow-none";
+const FILTER_ACTIVE_CLASS = "border-primary/30 text-primary";
+
 function SkeletonRow() {
 	return (
 		<TableRow className="h-[65px]">
@@ -135,29 +140,32 @@ function ActiveFiltersDisplay({ filters }: { filters: ActiveFilter[] }) {
 
 	return (
 		<div className="flex flex-wrap items-center gap-1.5">
-			<span className="font-medium text-foreground/60 text-xs uppercase">
+			<span className="font-medium text-muted-foreground text-xs uppercase">
 				Active:
 			</span>
 			{filters.map((filter) => (
-				<div
-					className="group flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 py-1 pr-1 pl-2.5 text-xs transition-colors hover:border-primary/30 hover:bg-primary/10"
+				<Badge
+					className="gap-1 pr-1"
 					key={`${filter.type}-${filter.value}`}
+					variant="outline"
 				>
-					<span className="text-primary/70">{getFilterIcon(filter.type)}</span>
-					<span className="font-medium text-foreground">{filter.label}</span>
-					<span className="text-foreground/60">=</span>
-					<span className="max-w-[100px] truncate font-medium text-primary">
+					<span className="text-muted-foreground">
+						{getFilterIcon(filter.type)}
+					</span>
+					<span className="text-muted-foreground">{filter.label}</span>
+					<span className="text-muted-foreground/60">=</span>
+					<span className="max-w-[100px] truncate text-foreground">
 						{filter.value}
 					</span>
 					<button
 						aria-label={`Remove ${filter.label} filter`}
-						className="flex size-4 items-center justify-center rounded-full text-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive"
+						className="flex size-4 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
 						onClick={filter.onRemoveAction}
 						type="button"
 					>
 						<XIcon className="size-3" weight="bold" />
 					</button>
-				</div>
+				</Badge>
 			))}
 		</div>
 	);
@@ -596,27 +604,27 @@ export function EventsStreamContent({
 	if (isPageLoading || (isLoading && isInitialLoad)) {
 		return (
 			<div className="flex h-full flex-col">
-				<div className="space-y-2.5 border-b bg-muted/30 px-4 py-3">
-					<div className="flex flex-wrap items-center gap-2">
+				<div className="shrink-0 border-b px-2 py-1.5">
+					<div className="flex flex-wrap items-center gap-1.5">
 						<Skeleton className="size-4 rounded" />
-						<Skeleton className="h-8 w-[140px]" />
-						<div className="h-5 w-px bg-border/60" />
+						<Skeleton className="h-7 w-[140px]" />
+						<div className="h-4 w-px bg-border/60" />
 						<Skeleton className="size-4 rounded" />
-						<Skeleton className="h-8 w-[140px]" />
-						<div className="h-5 w-px bg-border/60" />
+						<Skeleton className="h-7 w-[140px]" />
+						<div className="h-4 w-px bg-border/60" />
 						<Skeleton className="size-4 rounded" />
-						<Skeleton className="h-8 w-[135px]" />
-						<Skeleton className="h-8 w-[130px]" />
-						<div className="h-5 w-px bg-border/60" />
-						<Skeleton className="h-8 w-[160px]" />
+						<Skeleton className="h-7 w-[135px]" />
+						<Skeleton className="h-7 w-[130px]" />
+						<div className="h-4 w-px bg-border/60" />
+						<Skeleton className="h-7 w-[160px]" />
 						<div className="flex-1" />
-						<Skeleton className="h-6 w-20 rounded-full" />
+						<Skeleton className="h-5 w-20 rounded" />
 					</div>
 				</div>
 				<div className="flex-1 overflow-auto">
 					<Table>
 						<TableHeader className="sticky top-0 z-10 bg-accent backdrop-blur-sm">
-							<TableRow className="bg-accent shadow-[0_0_0_0.5px_var(--border)]">
+							<TableRow className="border-b bg-accent">
 								{columns.map((column) => (
 									<TableHead
 										className="h-[39px]"
@@ -680,11 +688,11 @@ export function EventsStreamContent({
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="space-y-2.5 border-b bg-muted/30 px-4 py-3">
-				<div className="flex flex-wrap items-center gap-2">
+			<div className="shrink-0 space-y-1.5 border-b px-2 py-1.5">
+				<div className="flex flex-wrap items-center gap-1.5">
 					<div className="flex items-center gap-1.5">
 						<LightningIcon
-							className="size-4 text-foreground/70"
+							className="size-4 text-muted-foreground"
 							weight="duotone"
 						/>
 						<Select
@@ -693,9 +701,9 @@ export function EventsStreamContent({
 						>
 							<SelectTrigger
 								className={cn(
-									"h-8 w-[140px] border-border/60 bg-background shadow-sm",
-									selectedEventType !== "all" &&
-										"border-primary/40 bg-primary/5 text-primary"
+									FILTER_TRIGGER_CLASS,
+									"w-[140px]",
+									selectedEventType !== "all" && FILTER_ACTIVE_CLASS
 								)}
 							>
 								<SelectValue placeholder="Event type" />
@@ -711,16 +719,16 @@ export function EventsStreamContent({
 						</Select>
 					</div>
 
-					<div className="h-5 w-px bg-border/60" />
+					<div className="h-4 w-px bg-border/60" />
 
 					<div className="flex items-center gap-1.5">
-						<LinkIcon className="size-4 text-foreground/70" />
+						<LinkIcon className="size-4 text-muted-foreground" />
 						<Select onValueChange={setSelectedPath} value={selectedPath}>
 							<SelectTrigger
 								className={cn(
-									"h-8 w-[140px] border-border/60 bg-background shadow-sm",
-									selectedPath !== "all" &&
-										"border-primary/40 bg-primary/5 text-primary"
+									FILTER_TRIGGER_CLASS,
+									"w-[140px]",
+									selectedPath !== "all" && FILTER_ACTIVE_CLASS
 								)}
 							>
 								<SelectValue placeholder="Page" />
@@ -736,19 +744,22 @@ export function EventsStreamContent({
 						</Select>
 					</div>
 
-					<div className="h-5 w-px bg-border/60" />
+					<div className="h-4 w-px bg-border/60" />
 
 					<div className="flex items-center gap-1.5">
-						<TagIcon className="size-4 text-foreground/70" weight="duotone" />
+						<TagIcon
+							className="size-4 text-muted-foreground"
+							weight="duotone"
+						/>
 						<Select
 							onValueChange={(v) => setHasProperties(v as HasPropertiesFilter)}
 							value={hasProperties}
 						>
 							<SelectTrigger
 								className={cn(
-									"h-8 w-[135px] border-border/60 bg-background shadow-sm",
-									hasProperties !== "all" &&
-										"border-primary/40 bg-primary/5 text-primary"
+									FILTER_TRIGGER_CLASS,
+									"w-[135px]",
+									hasProperties !== "all" && FILTER_ACTIVE_CLASS
 								)}
 							>
 								<SelectValue placeholder="Properties" />
@@ -769,9 +780,9 @@ export function EventsStreamContent({
 							>
 								<SelectTrigger
 									className={cn(
-										"h-8 w-[130px] border-border/60 bg-background shadow-sm",
-										selectedPropertyKey !== "all" &&
-											"border-primary/40 bg-primary/5 text-primary"
+										FILTER_TRIGGER_CLASS,
+										"w-[130px]",
+										selectedPropertyKey !== "all" && FILTER_ACTIVE_CLASS
 									)}
 								>
 									<SelectValue placeholder="Key" />
@@ -789,16 +800,16 @@ export function EventsStreamContent({
 
 						{selectedPropertyKey !== "all" && propertyValues.length > 0 && (
 							<>
-								<span className="text-foreground/40">=</span>
+								<span className="text-muted-foreground">=</span>
 								<Select
 									onValueChange={setSelectedPropertyValue}
 									value={selectedPropertyValue}
 								>
 									<SelectTrigger
 										className={cn(
-											"h-8 w-[120px] border-border/60 bg-background shadow-sm",
-											selectedPropertyValue !== "all" &&
-												"border-primary/40 bg-primary/5 text-primary"
+											FILTER_TRIGGER_CLASS,
+											"w-[120px]",
+											selectedPropertyValue !== "all" && FILTER_ACTIVE_CLASS
 										)}
 									>
 										<SelectValue placeholder="Value" />
@@ -816,36 +827,49 @@ export function EventsStreamContent({
 						)}
 					</div>
 
-					<div className="h-5 w-px bg-border/60" />
+					<div className="h-4 w-px bg-border/60" />
 
-					<div className="relative">
-						<MagnifyingGlassIcon className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/50" />
+					<div className="relative w-[180px] flex-none">
+						<MagnifyingGlassIcon
+							className="absolute top-1/2 left-2.5 z-10 size-3.5 -translate-y-1/2 text-muted-foreground"
+							weight="bold"
+						/>
 						<Input
 							className={cn(
-								"h-8 w-[160px] border-border/60 bg-background pl-8 text-sm shadow-sm",
-								searchQuery.trim() &&
-									"border-primary/40 bg-primary/5 text-primary"
+								"h-7 border-transparent bg-transparent pr-7 pl-8 text-sm shadow-none placeholder:text-muted-foreground/50 focus-visible:border-border focus-visible:bg-background",
+								searchQuery.trim() && FILTER_ACTIVE_CLASS
 							)}
 							onChange={(e) => handleSearchInputChange(e.target.value)}
 							placeholder="Search…"
+							showFocusIndicator={false}
 							value={searchInput}
 						/>
+						{searchInput && (
+							<button
+								aria-label="Clear search"
+								className="absolute top-1/2 right-2 z-10 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+								onClick={() => handleSearchInputChange("")}
+								type="button"
+							>
+								<XIcon className="size-3.5" />
+							</button>
+						)}
 					</div>
 
 					<div className="flex-1" />
 
-					<div className="flex items-center gap-3">
-						<span className="rounded-full bg-foreground/5 px-2.5 py-1 font-medium text-foreground text-xs tabular-nums">
+					<div className="flex items-center gap-1.5">
+						<Badge className="tabular-nums" variant="gray">
 							{filteredEvents.length.toLocaleString()} event
 							{filteredEvents.length === 1 ? "" : "s"}
-						</span>
+						</Badge>
 
 						{hasActiveFilters && (
 							<Button
-								className="h-7 gap-1 px-2 text-xs"
+								className="h-7 gap-1 px-2 text-xs shadow-none"
 								onClick={clearAllFilters}
 								size="sm"
-								variant="outline"
+								variant="ghost"
 							>
 								<XIcon className="size-3" />
 								Clear
@@ -863,10 +887,7 @@ export function EventsStreamContent({
 				<Table>
 					<TableHeader className="sticky top-0 z-10 bg-accent backdrop-blur-sm">
 						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow
-								className="bg-accent shadow-[0_0_0_0.5px_var(--border)]"
-								key={headerGroup.id}
-							>
+							<TableRow className="border-b bg-accent" key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
 									<TableHead
 										className="h-[39px]"
