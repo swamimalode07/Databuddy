@@ -69,7 +69,6 @@ const ossSchema = z.object({
 
 type OssFormValues = z.infer<typeof ossSchema>;
 
-// Shared rounding to match Input (`rounded`) for consistent field corners.
 const FIELD_RADIUS = "rounded";
 
 function FormField({
