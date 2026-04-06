@@ -1585,3 +1585,52 @@ export const agentInstallTelemetry = pgTable(
 		),
 	]
 );
+
+// Agent chats — persisted Databunny conversations.
+// `messages` stores the full UIMessage[] array as JSONB; written atomically
+// via onFinish in the agent stream response.
+export const agentChats = pgTable(
+	"agent_chats",
+	{
+		id: text().primaryKey().notNull(),
+		websiteId: text("website_id").notNull(),
+		userId: text("user_id").notNull(),
+		organizationId: text("organization_id"),
+		title: text().notNull().default(""),
+		messages: jsonb().notNull().default([]).$type<unknown[]>(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(table) => [
+		index("agent_chats_website_user_updated_idx").using(
+			"btree",
+			table.websiteId.asc().nullsLast().op("text_ops"),
+			table.userId.asc().nullsLast().op("text_ops"),
+			table.updatedAt.desc().nullsLast()
+		),
+		index("agent_chats_user_updated_idx").using(
+			"btree",
+			table.userId.asc().nullsLast().op("text_ops"),
+			table.updatedAt.desc().nullsLast()
+		),
+		foreignKey({
+			columns: [table.websiteId],
+			foreignColumns: [websites.id],
+			name: "agent_chats_website_id_fkey",
+		}).onDelete("cascade"),
+		foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "agent_chats_user_id_fkey",
+		}).onDelete("cascade"),
+		foreignKey({
+			columns: [table.organizationId],
+			foreignColumns: [organization.id],
+			name: "agent_chats_organization_id_fkey",
+		}).onDelete("set null"),
+	]
+);
