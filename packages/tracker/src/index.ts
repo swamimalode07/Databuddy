@@ -84,10 +84,6 @@ export class Databuddy extends BaseTracker {
 		this.trackScreenViews();
 		this.setupPageLifecycle();
 
-		if (document.visibilityState === "visible") {
-			this.startEngagement();
-		}
-
 		setTimeout(() => this.screenView(), 0);
 
 		if (this.options.trackOutgoingLinks) {
@@ -188,17 +184,9 @@ export class Databuddy extends BaseTracker {
 
 	private setupPageLifecycle() {
 		const handleUnload = () => this.handlePageUnload();
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === "hidden") {
-				this.pauseEngagement();
-			} else {
-				this.startEngagement();
-			}
-		};
 
 		window.addEventListener("beforeunload", handleUnload);
 		window.addEventListener("pagehide", handleUnload);
-		document.addEventListener("visibilitychange", handleVisibilityChange);
 
 		const pageshowHandler = (event: PageTransitionEvent) => {
 			if (!event.persisted) {
@@ -211,7 +199,6 @@ export class Databuddy extends BaseTracker {
 		this.cleanupFns.push(() => {
 			window.removeEventListener("beforeunload", handleUnload);
 			window.removeEventListener("pagehide", handleUnload);
-			document.removeEventListener("visibilitychange", handleVisibilityChange);
 			window.removeEventListener("pageshow", pageshowHandler);
 		});
 	}
@@ -241,7 +228,6 @@ export class Databuddy extends BaseTracker {
 		this.flushQueueViaBeacon(this.errorsQueue, "/errors", () =>
 			this.flushErrors()
 		);
-		this.pauseEngagement();
 		if (this.hasSentExitBeacon) {
 			return;
 		}
@@ -267,8 +253,6 @@ export class Databuddy extends BaseTracker {
 
 	private handleBfCacheRestore() {
 		this.hasSentExitBeacon = false;
-		this.resetEngagement();
-		this.startEngagement();
 
 		const sessionTimestamp = sessionStorage.getItem("did_session_timestamp");
 		if (sessionTimestamp) {
@@ -301,10 +285,6 @@ export class Databuddy extends BaseTracker {
 		this.pageStartTime = Date.now();
 		this.interactionCount = 0;
 		this.maxScrollDepth = 0;
-		this.resetEngagement();
-		if (document.visibilityState === "visible") {
-			this.startEngagement();
-		}
 	}
 
 	trackAttributes() {
@@ -402,7 +382,9 @@ export class Databuddy extends BaseTracker {
 		}
 		this.cleanupFns = [];
 
-		// Flush all pending data via sendBeacon (with fetch fallback) before clearing
+		// Flush all pending data via sendBeacon (with fetch fallback) before clearing.
+		// flushQueueViaBeacon empties the array in-place on success; on failure it
+		// kicks off the fetch fallback which also clears the array via _flushQueue.
 		this.flushQueueViaBeacon(this.batchQueue, "/batch", () =>
 			this.flushBatch()
 		);
@@ -416,27 +398,13 @@ export class Databuddy extends BaseTracker {
 			this.flushErrors()
 		);
 
-		if (this.batchTimer) {
-			clearTimeout(this.batchTimer);
-			this.batchTimer = null;
+		// Cancel any pending flush timers that beacon-success paths left behind.
+		for (const meta of Object.values(this._meta)) {
+			if (meta.timer) {
+				clearTimeout(meta.timer);
+				meta.timer = null;
+			}
 		}
-		if (this.trackTimer) {
-			clearTimeout(this.trackTimer);
-			this.trackTimer = null;
-		}
-		if (this.vitalsTimer) {
-			clearTimeout(this.vitalsTimer);
-			this.vitalsTimer = null;
-		}
-		if (this.errorsTimer) {
-			clearTimeout(this.errorsTimer);
-			this.errorsTimer = null;
-		}
-
-		this.batchQueue = [];
-		this.trackQueue = [];
-		this.vitalsQueue = [];
-		this.errorsQueue = [];
 
 		if (typeof window !== "undefined") {
 			window.databuddy = undefined;

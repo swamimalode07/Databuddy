@@ -32,12 +32,6 @@ export const generateUUIDv4 = () => {
 	});
 };
 
-export function toCamelCase(str: string): string {
-	return str.replace(/([-_][a-z])/gi, (e) =>
-		e.toUpperCase().replace("-", "").replace("_", "")
-	);
-}
-
 export function isOptedOut(): boolean {
 	if (typeof window === "undefined") {
 		return false;

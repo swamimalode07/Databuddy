@@ -56,10 +56,6 @@ export type BaseEvent = {
 	[key: string]: any;
 };
 
-export type TrackEvent = BaseEvent & {
-	name: string;
-};
-
 export type WebVitalMetricName = "FCP" | "LCP" | "CLS" | "INP" | "TTFB" | "FPS";
 
 export type WebVitalEvent = {
