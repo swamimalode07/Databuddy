@@ -20,6 +20,7 @@ import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
 export interface Monitor {
+	cacheBust: boolean;
 	createdAt: Date | string;
 	cron: string;
 	granularity: string;
@@ -30,6 +31,7 @@ export interface Monitor {
 	} | null;
 	name: string | null;
 	organizationId: string;
+	timeout: number | null;
 	updatedAt: Date | string;
 	url: string | null;
 	website: {
@@ -50,6 +52,8 @@ export default function MonitorsPage() {
 		url: string;
 		name?: string | null;
 		granularity: string;
+		timeout?: number | null;
+		cacheBust?: boolean;
 		jsonParsingConfig?: {
 			enabled: boolean;
 		} | null;
@@ -71,6 +75,8 @@ export default function MonitorsPage() {
 			url: schedule.url ?? "",
 			name: schedule.name,
 			granularity: schedule.granularity,
+			timeout: schedule.timeout,
+			cacheBust: schedule.cacheBust,
 			jsonParsingConfig: schedule.jsonParsingConfig,
 		});
 		setIsSheetOpen(true);

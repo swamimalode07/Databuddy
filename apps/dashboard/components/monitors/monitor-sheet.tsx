@@ -172,6 +172,7 @@ export function MonitorSheet({
 			if (isEditing && schedule) {
 				await updateMutation.mutateAsync({
 					scheduleId: schedule.id,
+					name: data.name?.trim() ? data.name.trim() : null,
 					granularity: data.granularity,
 					timeout: data.timeout,
 					cacheBust: data.cacheBust,

@@ -329,6 +329,7 @@ export const uptimeRouter = {
 		.input(
 			z.object({
 				scheduleId: z.string(),
+				name: z.string().nullish(),
 				granularity: granularityEnum.optional(),
 				timeout: z.number().int().min(1000).max(120_000).nullish(),
 				cacheBust: z.boolean().optional(),
@@ -344,6 +345,7 @@ export const uptimeRouter = {
 			await getScheduleAndAuthorize(input.scheduleId, context);
 
 			const updateData: {
+				name?: string | null;
 				granularity?: string;
 				cron?: string;
 				timeout?: number | null;
@@ -353,6 +355,11 @@ export const uptimeRouter = {
 			} = {
 				updatedAt: new Date(),
 			};
+
+			if (input.name !== undefined) {
+				const trimmed = input.name?.trim();
+				updateData.name = trimmed ? trimmed : null;
+			}
 
 			if (input.granularity) {
 				await client.schedules.delete(input.scheduleId);
@@ -386,6 +393,7 @@ export const uptimeRouter = {
 
 			return {
 				scheduleId: input.scheduleId,
+				name: schedule?.name ?? null,
 				granularity: schedule?.granularity,
 				cron: schedule?.cron,
 				jsonParsingConfig: schedule?.jsonParsingConfig ?? null,

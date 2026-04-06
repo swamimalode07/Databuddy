@@ -72,6 +72,7 @@ const granularityLabels: Record<string, string> = {
 };
 
 interface ScheduleData {
+	cacheBust: boolean;
 	cron: string;
 	granularity: string;
 	id: string;
@@ -81,6 +82,7 @@ interface ScheduleData {
 	name: string | null;
 	organizationId: string;
 	qstashStatus: string;
+	timeout: number | null;
 	url: string;
 	website?: {
 		id: string;
@@ -160,7 +162,8 @@ export default function MonitorDetailsPage() {
 		url: string;
 		name?: string | null;
 		granularity: string;
-		isPublic?: boolean;
+		timeout?: number | null;
+		cacheBust?: boolean;
 		jsonParsingConfig?: { enabled: boolean } | null;
 	} | null>(null);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -412,7 +415,8 @@ export default function MonitorDetailsPage() {
 			url: schedule.url,
 			name: schedule.name,
 			granularity: schedule.granularity,
-			isPublic: schedule.isPublic,
+			timeout: schedule.timeout,
+			cacheBust: schedule.cacheBust,
 			jsonParsingConfig: schedule.jsonParsingConfig as {
 				enabled: boolean;
 			} | null,
