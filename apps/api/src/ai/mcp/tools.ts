@@ -1,12 +1,10 @@
 import dayjs from "dayjs";
 import { z } from "zod";
-import { getAccessibleWebsites } from "../../lib/accessible-websites";
 import {
 	isMemoryEnabled,
 	searchMemories,
 	storeConversation as storeMemory,
 } from "../../lib/supermemory";
-import { getWebsiteDomain } from "../../lib/website-utils";
 import { executeBatch } from "../../query";
 import { callRPCProcedure } from "../tools/utils";
 import {
@@ -20,7 +18,7 @@ import {
 	type McpToolFactory,
 	type RegisteredMcpTool,
 } from "./define-tool";
-import { INSIGHT_TOOL_FACTORIES, INSIGHT_TOOL_NAMES } from "./insights-tools";
+import { INSIGHT_TOOL_FACTORIES } from "./insights-tools";
 import {
 	buildBatchQueryRequests,
 	CLICKHOUSE_SCHEMA_DOCS,
@@ -34,8 +32,11 @@ import { runMcpAgent } from "./run-agent";
 import {
 	buildRpcContext,
 	coerceQueriesArray,
+	getCachedAccessibleWebsites,
 	getOrganizationId,
 } from "./tool-context";
+
+const MEMORY_ENABLED = isMemoryEnabled();
 
 const TIME_UNIT = ["minute", "hour", "day", "week", "month"] as const;
 
@@ -72,6 +73,29 @@ const QueryItemSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Shared output schemas
+// ---------------------------------------------------------------------------
+
+const WebsiteSummarySchema = z.object({
+	id: z.string(),
+	name: z.string().nullable(),
+	domain: z.string().nullable(),
+	isPublic: z.boolean().nullable(),
+});
+
+const LinkRowOutputSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	slug: z.string(),
+	targetUrl: z.string(),
+	externalId: z.string().nullable(),
+	expiresAt: z.string().nullable().optional(),
+	createdAt: z.string().optional(),
+	ogTitle: z.string().nullable().optional(),
+	ogDescription: z.string().nullable().optional(),
+});
+
+// ---------------------------------------------------------------------------
 // ask
 // ---------------------------------------------------------------------------
 
@@ -96,6 +120,10 @@ const askTool = defineMcpTool(
 				.string()
 				.optional()
 				.describe("IANA timezone (e.g. 'America/New_York'). Defaults to UTC."),
+		}),
+		outputSchema: z.object({
+			answer: z.string(),
+			conversationId: z.string(),
 		}),
 		rateLimit: { limit: 10, windowSec: 60 },
 	},
@@ -150,13 +178,14 @@ const listWebsitesTool = defineMcpTool(
 		description:
 			"List websites the caller can access. Use first to discover websiteIds before any tool that needs one.",
 		inputSchema: z.object({}),
+		outputSchema: z.object({
+			websites: z.array(WebsiteSummarySchema),
+			total: z.number(),
+		}),
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	async (_input, ctx) => {
-		const list = await getAccessibleWebsites({
-			user: ctx.userId ? { id: ctx.userId } : null,
-			apiKey: ctx.apiKey,
-		});
+		const list = await getCachedAccessibleWebsites(ctx);
 
 		return {
 			websites: list.map((w) => ({
@@ -243,6 +272,26 @@ const getDataTool = defineMcpTool(
 				.optional()
 				.describe("IANA timezone. Defaults to UTC."),
 		}),
+		outputSchema: z.object({
+			// Single-query shape
+			data: z.array(z.record(z.string(), z.unknown())).optional(),
+			rowCount: z.number().optional(),
+			type: z.string().optional(),
+			// Batch shape
+			batch: z.boolean().optional(),
+			results: z
+				.array(
+					z.object({
+						type: z.string(),
+						data: z.array(z.record(z.string(), z.unknown())),
+						rowCount: z.number(),
+						error: z.string().optional(),
+					})
+				)
+				.optional(),
+			// Shared
+			error: z.string().optional(),
+		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 30, windowSec: 60 },
 	},
@@ -289,8 +338,8 @@ const getDataTool = defineMcpTool(
 		const requests = buildResult.requests;
 		const isBatch = requests.length > 1;
 
-		const websiteDomain =
-			ctx.websiteDomain ?? (await getWebsiteDomain(websiteId)) ?? "unknown";
+		// ctx.websiteDomain is guaranteed set by defineMcpTool when resolveWebsite is true
+		const websiteDomain = ctx.websiteDomain ?? "unknown";
 		const results = await executeBatch(requests, {
 			websiteDomain,
 			timezone,
@@ -331,6 +380,7 @@ const getSchemaTool = defineMcpTool(
 		description:
 			"Return the ClickHouse analytics schema. Use only when writing custom SQL or when you need exact column names — query types in capabilities are usually enough.",
 		inputSchema: z.object({}),
+		outputSchema: z.object({ schema: z.string() }),
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	() => ({ schema: CLICKHOUSE_SCHEMA_DOCS })
@@ -354,6 +404,15 @@ const capabilitiesTool = defineMcpTool(
 					"'summary' returns type descriptions only; 'full' includes allowedFilters per type"
 				),
 		}),
+		outputSchema: z.object({
+			queryTypes: z.record(z.string(), z.unknown()),
+			schemaSummary: z.string(),
+			datePresets: z.array(z.string()).readonly(),
+			dateFormat: z.string(),
+			maxLimit: z.number(),
+			availableTools: z.array(z.string()).readonly(),
+			hints: z.array(z.string()),
+		}),
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	(input) => {
@@ -361,21 +420,6 @@ const capabilitiesTool = defineMcpTool(
 		const queryTypes = useFull
 			? getQueryTypeDetails()
 			: getQueryTypeDescriptions();
-		const availableTools = [
-			"ask",
-			"list_websites",
-			"get_data",
-			"get_schema",
-			"capabilities",
-			"list_funnels",
-			"get_funnel_analytics",
-			"list_goals",
-			"get_goal_analytics",
-			"list_links",
-			"search_links",
-			...INSIGHT_TOOL_NAMES,
-			...(isMemoryEnabled() ? ["search_memory", "save_memory"] : []),
-		];
 
 		return {
 			queryTypes,
@@ -383,26 +427,20 @@ const capabilitiesTool = defineMcpTool(
 			datePresets: MCP_DATE_PRESETS,
 			dateFormat: "YYYY-MM-DD",
 			maxLimit: 1000,
-			availableTools,
+			availableTools: getRegisteredToolNames(),
 			hints: [
 				"get_data accepts websiteId, websiteName, or websiteDomain — no need to call list_websites first if you know the name or domain",
-				"list_websites returns ids, names, and domains — use it when you need to discover available websites",
-				"get_data batch: pass queries array (2-10 items, each with type + preset or from/to)",
-				"get_data single: pass type + preset (e.g. last_30d) OR type + from + to (YYYY-MM-DD)",
-				"get_data defaults to last_7d when preset/from/to omitted",
-				"get_schema returns full ClickHouse schema — only needed for custom SQL, not for query builders",
+				"get_data batch: pass queries array (2-10 items, each with type + preset or from/to). Single: type + preset OR from+to. Defaults to last_7d.",
+				"get_schema returns the full ClickHouse schema — only needed for custom SQL",
 				"capabilities with detail='full' shows allowedFilters per query type",
-				"ask accepts optional timezone (IANA format) and returns conversationId for follow-ups",
-				"list_funnels, list_goals, list_links are direct tools — no LLM cost, fast",
-				"summarize_insights — fastest 'how are we doing' check; org-wide by default, returns counts + top 3 priorities",
-				"list_insights — full insight rows with filtering; org-wide by default, pass websiteId/Name/Domain to scope",
+				"ask accepts timezone (IANA) and returns conversationId for follow-ups",
+				"summarize_insights — fastest 'how are we doing' check; counts + top 3 priorities",
 				"compare_metric — week-over-week diff for visitors/sessions/pageviews/bounce_rate/session_duration/events; replaces 2 manual get_data calls",
 				"top_movers — top pages/referrers/countries/browsers/os that changed the most between two periods",
-				"detect_anomalies — z-score check on daily summary metrics for the last 7-60 days; finds spikes without needing pre-computed insights",
-				"Use ask for complex questions; use direct tools for simple CRUD lookups",
-				"Custom events: use custom_events_discovery to get events + properties + top values in one call",
-				"Custom events: use filters [{field:'event_name',op:'eq',value:'your-event'}] to scope property queries to a specific event",
-				"Custom events: use filters [{field:'property_key',op:'eq',value:'your-key'}] to scope property_top_values/distribution to a specific property",
+				"detect_anomalies — z-score check on daily metrics; finds spikes without pre-computed insights",
+				"Use ask for open-ended questions; use direct tools for simple lookups",
+				"Custom events: filter by event name with [{field:'event_name',op:'eq',value:'your-event'}]",
+				"Custom events: filter by property key with [{field:'property_key',op:'eq',value:'your-key'}] for property_top_values/distribution",
 			],
 		};
 	}
@@ -419,6 +457,11 @@ const listFunnelsTool = defineMcpTool(
 			"List funnels for a website with their steps and filters. Use before get_funnel_analytics or to enumerate available funnels.",
 		inputSchema: z.object({
 			websiteId: z.string().describe("Website ID from list_websites"),
+		}),
+		outputSchema: z.object({
+			funnels: z.array(z.record(z.string(), z.unknown())),
+			count: z.number(),
+			hint: z.string().optional(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -462,19 +505,17 @@ const getFunnelAnalyticsTool = defineMcpTool(
 				.string()
 				.optional()
 				.describe("End date YYYY-MM-DD (defaults to today)"),
-			startDate: z.string().optional().describe("Deprecated: use 'from'."),
-			endDate: z.string().optional().describe("Deprecated: use 'to'."),
 		}),
+		// Passthrough from RPC — shape varies by funnel. Permissive by design.
+		outputSchema: z.record(z.string(), z.unknown()),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	async (input, ctx) => {
-		const startDate = input.from ?? input.startDate;
-		const endDate = input.to ?? input.endDate;
-		if (startDate && !dayjs(startDate).isValid()) {
+		if (input.from && !dayjs(input.from).isValid()) {
 			throw new McpToolError("invalid_input", "from must be YYYY-MM-DD");
 		}
-		if (endDate && !dayjs(endDate).isValid()) {
+		if (input.to && !dayjs(input.to).isValid()) {
 			throw new McpToolError("invalid_input", "to must be YYYY-MM-DD");
 		}
 		return await callRPCProcedure(
@@ -483,8 +524,8 @@ const getFunnelAnalyticsTool = defineMcpTool(
 			{
 				funnelId: input.funnelId,
 				websiteId: input.websiteId,
-				startDate,
-				endDate,
+				startDate: input.from,
+				endDate: input.to,
 			},
 			buildRpcContext(ctx)
 		);
@@ -502,6 +543,11 @@ const listGoalsTool = defineMcpTool(
 			"List conversion goals for a website with their type, target, and filters. Use before get_goal_analytics.",
 		inputSchema: z.object({
 			websiteId: z.string().describe("Website ID from list_websites"),
+		}),
+		outputSchema: z.object({
+			goals: z.array(z.record(z.string(), z.unknown())),
+			count: z.number(),
+			hint: z.string().optional(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -545,19 +591,17 @@ const getGoalAnalyticsTool = defineMcpTool(
 				.string()
 				.optional()
 				.describe("End date YYYY-MM-DD (defaults to today)"),
-			startDate: z.string().optional().describe("Deprecated: use 'from'."),
-			endDate: z.string().optional().describe("Deprecated: use 'to'."),
 		}),
+		// Passthrough from RPC — shape varies by goal. Permissive by design.
+		outputSchema: z.record(z.string(), z.unknown()),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	async (input, ctx) => {
-		const startDate = input.from ?? input.startDate;
-		const endDate = input.to ?? input.endDate;
-		if (startDate && !dayjs(startDate).isValid()) {
+		if (input.from && !dayjs(input.from).isValid()) {
 			throw new McpToolError("invalid_input", "from must be YYYY-MM-DD");
 		}
-		if (endDate && !dayjs(endDate).isValid()) {
+		if (input.to && !dayjs(input.to).isValid()) {
 			throw new McpToolError("invalid_input", "to must be YYYY-MM-DD");
 		}
 		return await callRPCProcedure(
@@ -566,8 +610,8 @@ const getGoalAnalyticsTool = defineMcpTool(
 			{
 				goalId: input.goalId,
 				websiteId: input.websiteId,
-				startDate,
-				endDate,
+				startDate: input.from,
+				endDate: input.to,
 			},
 			buildRpcContext(ctx)
 		);
@@ -597,6 +641,11 @@ const listLinksTool = defineMcpTool(
 			"List short links for the website's organization. Use to enumerate all links before referencing one.",
 		inputSchema: z.object({
 			websiteId: z.string().describe("Website ID from list_websites"),
+		}),
+		outputSchema: z.object({
+			links: z.array(LinkRowOutputSchema),
+			count: z.number(),
+			hint: z.string().optional(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -652,6 +701,18 @@ const searchLinksTool = defineMcpTool(
 				.string()
 				.min(1)
 				.describe("Search query (matches name, slug, URL, or external ID)"),
+		}),
+		outputSchema: z.object({
+			links: z.array(
+				z.object({
+					id: z.string(),
+					name: z.string(),
+					slug: z.string(),
+					targetUrl: z.string(),
+					externalId: z.string().nullable(),
+				})
+			),
+			count: z.number(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -711,6 +772,18 @@ const searchMemoryTool = defineMcpTool(
 				.optional()
 				.describe("Max memories to return (default 5)"),
 		}),
+		outputSchema: z.object({
+			found: z.boolean(),
+			memories: z
+				.array(
+					z.object({
+						content: z.string(),
+						relevance: z.number(),
+					})
+				)
+				.optional(),
+			message: z.string().optional(),
+		}),
 		rateLimit: { limit: 30, windowSec: 60 },
 	},
 	async (input, ctx) => {
@@ -750,17 +823,19 @@ const saveMemoryTool = defineMcpTool(
 				.optional()
 				.describe("Category (default: insight)"),
 		}),
+		outputSchema: z.object({ queued: z.boolean() }),
 		rateLimit: { limit: 30, windowSec: 60 },
 	},
 	(input, ctx) => {
 		const apiKeyId = ctx.apiKey ? (ctx.apiKey as { id: string }).id : null;
+		// storeMemory is intentionally fire-and-forget (see supermemory.ts)
 		storeMemory(
 			[{ role: "assistant", content: input.content }],
 			ctx.userId,
 			apiKeyId,
 			{ category: input.category ?? "insight" }
 		);
-		return { saved: true };
+		return { queued: true };
 	}
 );
 
@@ -768,7 +843,7 @@ const saveMemoryTool = defineMcpTool(
 // Registry
 // ---------------------------------------------------------------------------
 
-const CORE_TOOL_FACTORIES: McpToolFactory[] = [
+const ALL_TOOL_FACTORIES: McpToolFactory[] = [
 	askTool,
 	listWebsitesTool,
 	getDataTool,
@@ -781,12 +856,18 @@ const CORE_TOOL_FACTORIES: McpToolFactory[] = [
 	listLinksTool,
 	searchLinksTool,
 	...INSIGHT_TOOL_FACTORIES,
+	...(MEMORY_ENABLED ? [searchMemoryTool, saveMemoryTool] : []),
 ];
 
+// Cache tool names once — used by capabilities. Avoids drift with the registry.
+const REGISTERED_TOOL_NAMES: readonly string[] = ALL_TOOL_FACTORIES.map(
+	(f) => f.toolName
+);
+
+function getRegisteredToolNames(): readonly string[] {
+	return REGISTERED_TOOL_NAMES;
+}
+
 export function createMcpTools(ctx: McpRequestContext): RegisteredMcpTool[] {
-	const factories = [...CORE_TOOL_FACTORIES];
-	if (isMemoryEnabled()) {
-		factories.push(searchMemoryTool, saveMemoryTool);
-	}
-	return factories.map((factory) => factory(ctx));
+	return ALL_TOOL_FACTORIES.map((factory) => factory(ctx));
 }

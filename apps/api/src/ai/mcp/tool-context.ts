@@ -1,6 +1,10 @@
 import { auth, websitesApi } from "@databuddy/auth";
 import { db, eq, member } from "@databuddy/db";
-import { getAccessibleWebsites } from "../../lib/accessible-websites";
+import { getRedisCache } from "@databuddy/redis";
+import {
+	getAccessibleWebsites,
+	type WebsiteSummary,
+} from "../../lib/accessible-websites";
 import {
 	type ApiKeyRow,
 	getAccessibleWebsiteIds,
@@ -12,6 +16,8 @@ import { getCachedWebsite, validateWebsite } from "../../lib/website-utils";
 import type { AppContext } from "../config/context";
 
 const PROTOCOL_RE = /^https?:\/\//;
+const ACCESSIBLE_WEBSITES_TTL_SEC = 30;
+const ACCESSIBLE_WEBSITES_KEY_PREFIX = "mcp:accessible_websites:";
 
 export interface WebsiteSelectorInput {
 	websiteDomain?: string;
@@ -74,6 +80,63 @@ export async function ensureWebsiteAccess(
 	return { domain: website.domain ?? "unknown" };
 }
 
+/**
+ * Stable cache key for accessible websites, scoped by principal ID.
+ * Does NOT include the apiKey object itself — keeps secrets out of Redis keys.
+ */
+function accessibleWebsitesCacheKey(
+	principal: RequestPrincipal
+): string | null {
+	if (principal.apiKey) {
+		return `apikey:${(principal.apiKey as { id: string }).id}`;
+	}
+	if (principal.userId) {
+		return `user:${principal.userId}`;
+	}
+	return null;
+}
+
+/**
+ * Cached version of getAccessibleWebsites keyed by stable principal ID.
+ * Falls back to a direct fetch when Redis is unavailable or the principal
+ * is anonymous.
+ */
+export async function getCachedAccessibleWebsites(
+	principal: RequestPrincipal
+): Promise<WebsiteSummary[]> {
+	const authCtx = {
+		user: principal.userId ? { id: principal.userId } : null,
+		apiKey: principal.apiKey,
+	};
+	const cacheKey = accessibleWebsitesCacheKey(principal);
+	const redis = cacheKey ? getRedisCache() : null;
+	if (!(cacheKey && redis)) {
+		return getAccessibleWebsites(authCtx);
+	}
+
+	const redisKey = `${ACCESSIBLE_WEBSITES_KEY_PREFIX}${cacheKey}`;
+	try {
+		const cached = await redis.get(redisKey);
+		if (cached) {
+			return JSON.parse(cached) as WebsiteSummary[];
+		}
+	} catch {
+		// Cache read failure — fall through to DB
+	}
+
+	const result = await getAccessibleWebsites(authCtx);
+	try {
+		await redis.setex(
+			redisKey,
+			ACCESSIBLE_WEBSITES_TTL_SEC,
+			JSON.stringify(result)
+		);
+	} catch {
+		// Cache write failure — non-fatal
+	}
+	return result;
+}
+
 export async function resolveWebsiteId(
 	input: WebsiteSelectorInput,
 	principal: RequestPrincipal
@@ -82,11 +145,7 @@ export async function resolveWebsiteId(
 		return input.websiteId;
 	}
 
-	const authCtx = {
-		user: principal.userId ? { id: principal.userId } : null,
-		apiKey: principal.apiKey,
-	};
-	const list = await getAccessibleWebsites(authCtx);
+	const list = await getCachedAccessibleWebsites(principal);
 
 	if (input.websiteDomain) {
 		const domain = input.websiteDomain.toLowerCase().replace(PROTOCOL_RE, "");

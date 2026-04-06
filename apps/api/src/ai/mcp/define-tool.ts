@@ -54,6 +54,15 @@ export interface McpToolMeta<S extends z.ZodTypeAny = z.ZodTypeAny> {
 	description: string;
 	inputSchema: S;
 	name: string;
+	/**
+	 * Optional Zod schema describing the successful response shape.
+	 * When set, the MCP SDK validates handler output against it and exposes
+	 * it as `structuredContent` (MCP 2025-06-18 Tool Output Schemas), letting
+	 * clients consume native typed data instead of parsing JSON text.
+	 * The schema MUST validate an object — per MCP spec, `structuredContent`
+	 * is an object. Prefer `z.object({...})` or `z.record(...)`.
+	 */
+	outputSchema?: z.ZodType<Record<string, unknown>>;
 	rateLimit?: { limit: number; windowSec: number };
 	/**
 	 * Whether the wrapper should resolve and validate a websiteId from the input.
@@ -74,9 +83,13 @@ export interface RegisteredMcpTool {
 	handler: (rawInput: unknown) => Promise<CallToolResult>;
 	inputSchema: z.ZodTypeAny;
 	name: string;
+	outputSchema?: z.ZodTypeAny;
 }
 
-export type McpToolFactory = (ctx: McpRequestContext) => RegisteredMcpTool;
+export interface McpToolFactory {
+	readonly toolName: string;
+	(ctx: McpRequestContext): RegisteredMcpTool;
+}
 
 function toErrorResult(err: McpToolError): CallToolResult {
 	const errorPayload: Record<string, unknown> = {
@@ -93,23 +106,37 @@ function toErrorResult(err: McpToolError): CallToolResult {
 		content: [
 			{
 				type: "text" as const,
-				text: JSON.stringify({ error: errorPayload }, null, 2),
+				text: JSON.stringify({ error: errorPayload }),
 			},
 		],
 		isError: true,
 	};
 }
 
-function toSuccessResult(data: unknown): CallToolResult {
-	return {
-		content: [
-			{
-				type: "text" as const,
-				text: JSON.stringify(data, null, 2),
-			},
-		],
-		isError: false,
-	};
+function toSuccessResult(
+	data: unknown,
+	withStructured: boolean
+): CallToolResult {
+	const content = [
+		{
+			type: "text" as const,
+			text: JSON.stringify(data),
+		},
+	];
+	// structuredContent must be an object (not array / primitive) per MCP spec.
+	if (
+		withStructured &&
+		data !== null &&
+		typeof data === "object" &&
+		!Array.isArray(data)
+	) {
+		return {
+			content,
+			structuredContent: data as Record<string, unknown>,
+			isError: false,
+		};
+	}
+	return { content, isError: false };
 }
 
 function getAttribution(ctx: McpRequestContext): {
@@ -143,10 +170,13 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 		);
 	}
 
-	return (ctx: McpRequestContext): RegisteredMcpTool => ({
+	const hasOutputSchema = meta.outputSchema !== undefined;
+
+	const factory = (ctx: McpRequestContext): RegisteredMcpTool => ({
 		name: meta.name,
 		description: meta.description,
 		inputSchema: meta.inputSchema,
+		outputSchema: meta.outputSchema,
 		handler: async (rawInput: unknown): Promise<CallToolResult> => {
 			const start = Date.now();
 			const attribution = getAttribution(ctx);
@@ -231,7 +261,7 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 					mcp_duration_ms: Date.now() - start,
 				});
 
-				return toSuccessResult(result);
+				return toSuccessResult(result, hasOutputSchema);
 			} catch (err) {
 				const isToolError = err instanceof McpToolError;
 				const toolError = isToolError
@@ -262,4 +292,5 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 			}
 		},
 	});
+	return Object.assign(factory, { toolName: meta.name });
 }

@@ -91,6 +91,9 @@ export const mcp = new Elysia({ prefix: "/v1/mcp" })
 				{
 					description: tool.description,
 					inputSchema: tool.inputSchema as unknown as AnySchema,
+					...(tool.outputSchema && {
+						outputSchema: tool.outputSchema as unknown as AnySchema,
+					}),
 				},
 				tool.handler
 			);

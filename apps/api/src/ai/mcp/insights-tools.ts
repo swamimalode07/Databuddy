@@ -52,6 +52,38 @@ const SINCE_PRESETS = ["last_24h", "last_7d", "last_30d", "last_90d"] as const;
 const INSIGHTS_LIST_CACHE_TTL = 60;
 const INSIGHTS_LIST_FETCH_LIMIT = 200;
 
+// ---------------------------------------------------------------------------
+// Shared output schemas
+// ---------------------------------------------------------------------------
+
+const PeriodSchema = z.object({
+	from: z.string(),
+	to: z.string(),
+});
+
+const DirectionSchema = z.enum(["up", "down", "flat"]);
+
+const InsightRowOutputSchema = z.object({
+	id: z.string(),
+	type: z.string(),
+	severity: z.string(),
+	sentiment: z.string(),
+	priority: z.number(),
+	title: z.string(),
+	description: z.string(),
+	suggestion: z.string(),
+	changePercent: z.number().optional(),
+	metrics: z.array(z.unknown()),
+	currentPeriod: PeriodSchema,
+	previousPeriod: PeriodSchema,
+	websiteId: z.string(),
+	websiteName: z.string().nullable(),
+	websiteDomain: z.string(),
+	link: z.string(),
+	createdAt: z.string(),
+	timezone: z.string(),
+});
+
 type MetricFormat = "number" | "percent" | "duration_s";
 type BetterWhen = "higher" | "lower";
 
@@ -452,6 +484,12 @@ const listInsightsTool = defineMcpTool(
 				.default(20)
 				.describe("Max insights (1-100, default 20)"),
 		}),
+		outputSchema: z.object({
+			insights: z.array(InsightRowOutputSchema),
+			count: z.number(),
+			scope: z.enum(["website", "organization"]),
+			hint: z.string().optional(),
+		}),
 		resolveWebsite: "optional",
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
@@ -527,6 +565,32 @@ const summarizeInsightsTool = defineMcpTool(
 				.optional()
 				.default("last_7d")
 				.describe("How far back to look (default last_7d)"),
+		}),
+		outputSchema: z.object({
+			scope: z.enum(["website", "organization"]),
+			since: z.string(),
+			total: z.number(),
+			bySeverity: z.record(z.string(), z.number()),
+			bySentiment: z.record(z.string(), z.number()),
+			byType: z.record(z.string(), z.number()),
+			byWebsite: z.record(
+				z.string(),
+				z.object({
+					websiteName: z.string().nullable(),
+					websiteDomain: z.string(),
+					count: z.number(),
+				})
+			),
+			topPriorities: z.array(
+				z.object({
+					id: z.string(),
+					priority: z.number(),
+					severity: z.string(),
+					title: z.string(),
+					websiteDomain: z.string(),
+				})
+			),
+			hint: z.string().optional(),
 		}),
 		resolveWebsite: "optional",
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -641,6 +705,23 @@ const compareMetricTool = defineMcpTool(
 					"Custom comparison window. Defaults to the period immediately preceding 'current'."
 				),
 			timezone: z.string().optional().describe("IANA timezone (default UTC)"),
+		}),
+		outputSchema: z.object({
+			metric: z.string(),
+			label: z.string(),
+			format: z.enum(["number", "percent", "duration_s"]),
+			betterWhen: z.enum(["higher", "lower"]),
+			currentPeriod: PeriodSchema,
+			comparePeriod: PeriodSchema,
+			current: z.number(),
+			previous: z.number(),
+			delta: z.number(),
+			deltaPercent: z.number(),
+			direction: DirectionSchema,
+			isImprovement: z.boolean().nullable(),
+			headline: z.string(),
+			websiteId: z.string(),
+			websiteDomain: z.string(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
@@ -803,6 +884,29 @@ const topMoversTool = defineMcpTool(
 				.describe("Filter to gainers / losers / both"),
 			timezone: z.string().optional(),
 		}),
+		outputSchema: z.object({
+			dimension: z.string(),
+			dimensionLabel: z.string(),
+			metric: z.string(),
+			currentPeriod: PeriodSchema,
+			comparePeriod: PeriodSchema,
+			count: z.number(),
+			movers: z.array(
+				z.object({
+					name: z.string(),
+					current: z.number(),
+					previous: z.number(),
+					delta: z.number(),
+					deltaPercent: z.number(),
+					direction: DirectionSchema,
+					headline: z.string(),
+				})
+			),
+			truncated: z.boolean(),
+			hint: z.string().optional(),
+			websiteId: z.string(),
+			websiteDomain: z.string(),
+		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
@@ -928,6 +1032,17 @@ const topMoversTool = defineMcpTool(
 			.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
 			.slice(0, input.limit);
 
+		const fetchLimitHit =
+			currentRows.length >= TOP_MOVERS_FETCH_LIMIT ||
+			previousRows.length >= TOP_MOVERS_FETCH_LIMIT;
+
+		let hint: string | undefined;
+		if (movers.length === 0) {
+			hint = "No movers found. Try a longer period or a different dimension.";
+		} else if (fetchLimitHit) {
+			hint = `Per-period fetch capped at ${TOP_MOVERS_FETCH_LIMIT} rows; some long-tail movers may be missing.`;
+		}
+
 		return {
 			dimension: input.dimension,
 			dimensionLabel: def.label,
@@ -936,10 +1051,8 @@ const topMoversTool = defineMcpTool(
 			comparePeriod: compareRange,
 			count: movers.length,
 			movers,
-			hint:
-				movers.length === 0
-					? "No movers found. Try a longer period or a different dimension."
-					: undefined,
+			truncated: fetchLimitHit,
+			hint,
 			websiteId,
 			websiteDomain,
 		};
@@ -984,6 +1097,30 @@ const detectAnomaliesTool = defineMcpTool(
 				.default(2.0)
 				.describe("Absolute z-score threshold (1.0-5.0, default 2.0)"),
 			timezone: z.string().optional(),
+		}),
+		outputSchema: z.object({
+			websiteId: z.string(),
+			websiteDomain: z.string().optional(),
+			lookbackDays: z.number(),
+			threshold: z.number(),
+			latestDay: z.string().optional(),
+			baselineDays: z.number().optional(),
+			count: z.number(),
+			anomalies: z.array(
+				z.object({
+					metric: z.string(),
+					label: z.string(),
+					direction: DirectionSchema,
+					current: z.number(),
+					baseline: z.number(),
+					stddev: z.number(),
+					zScore: z.number(),
+					deltaPercent: z.number(),
+					format: z.enum(["number", "percent", "duration_s"]),
+					headline: z.string(),
+				})
+			),
+			hint: z.string().optional(),
 		}),
 		resolveWebsite: true,
 		rateLimit: { limit: 30, windowSec: 60 },
@@ -1112,11 +1249,3 @@ export const INSIGHT_TOOL_FACTORIES: McpToolFactory[] = [
 	topMoversTool,
 	detectAnomaliesTool,
 ];
-
-export const INSIGHT_TOOL_NAMES = [
-	"list_insights",
-	"summarize_insights",
-	"compare_metric",
-	"top_movers",
-	"detect_anomalies",
-] as const;
