@@ -1,7 +1,10 @@
 import { auth, websitesApi } from "@databuddy/auth";
+import { agentChats, db, eq } from "@databuddy/db";
+import { getRateLimitHeaders, rateLimit } from "@databuddy/redis/rate-limit";
 import {
 	convertToModelMessages,
 	generateId,
+	generateText,
 	pruneMessages,
 	safeValidateUIMessages,
 	smoothStream,
@@ -14,6 +17,7 @@ import { useLogger } from "evlog/elysia";
 import type { AgentConfig, AgentType } from "../ai/agents";
 import { createAgentConfig } from "../ai/agents";
 import { enrichAgentContext } from "../ai/config/enrich-context";
+import { models } from "../ai/config/models";
 import { ANTHROPIC_CACHE_1H } from "../ai/config/prompt-cache";
 import { AI_MODEL_MAX_RETRIES } from "../ai/config/retry";
 import {
@@ -68,6 +72,140 @@ function getLastMessagePreview(
 		.join("");
 }
 
+function getTextFromMessage(message: UIMessage | undefined): string {
+	if (!message?.parts) {
+		return "";
+	}
+	return message.parts
+		.filter((p): p is { type: "text"; text: string } => p.type === "text")
+		.map((p) => p.text)
+		.join(" ");
+}
+
+const TITLE_MAX_LEN = 60;
+const FOLLOWUP_MAX_LEN = 80;
+const MAX_FOLLOWUPS = 3;
+
+/**
+ * Generate a short, descriptive title from the first user/assistant exchange.
+ * Falls back to a truncated user message on any failure.
+ */
+async function generateChatTitle(
+	messages: UIMessage[]
+): Promise<string | null> {
+	const firstUser = messages.find((m) => m.role === "user");
+	const firstAssistant = messages.find((m) => m.role === "assistant");
+	const userText = getTextFromMessage(firstUser).trim();
+	if (!userText) {
+		return null;
+	}
+	const assistantText = getTextFromMessage(firstAssistant).trim().slice(0, 400);
+
+	try {
+		const result = await generateText({
+			model: models.triage,
+			temperature: 0.2,
+			maxOutputTokens: 32,
+			system:
+				"You generate concise chat titles. Output 3-6 words, Title Case, no quotes, no trailing punctuation. Describe what the user is trying to learn or do — never echo the question verbatim.",
+			prompt: `User asked: "${userText.slice(0, 300)}"${
+				assistantText ? `\nAssistant began: "${assistantText}"` : ""
+			}\n\nTitle:`,
+		});
+		const title = result.text.trim().replace(/^["']|["']$/g, "");
+		if (!title) {
+			return null;
+		}
+		return title.slice(0, TITLE_MAX_LEN);
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Generate up to 3 short follow-up prompts the user is likely to ask next,
+ * based on the most recent assistant turn. Returns [] on failure so the UI
+ * gracefully renders nothing.
+ */
+async function generateFollowups(messages: UIMessage[]): Promise<string[]> {
+	const lastUser = [...messages].reverse().find((m) => m.role === "user");
+	const lastAssistant = [...messages]
+		.reverse()
+		.find((m) => m.role === "assistant");
+	const userText = getTextFromMessage(lastUser).trim().slice(0, 400);
+	const assistantText = getTextFromMessage(lastAssistant).trim().slice(0, 800);
+	if (!(userText && assistantText)) {
+		return [];
+	}
+
+	try {
+		const result = await generateText({
+			model: models.triage,
+			temperature: 0.4,
+			maxOutputTokens: 200,
+			system:
+				"You suggest the next 3 questions a Databuddy analytics user is most likely to ask. Output ONLY a JSON array of 3 short strings (max 80 chars each). No prose, no markdown, no keys. Each string must be a question or actionable prompt the user can click to send. Be specific and useful — never generic.",
+			prompt: `User asked: "${userText}"\n\nAssistant answered: "${assistantText}"\n\nNext 3 questions:`,
+		});
+
+		const trimmed = result.text.trim();
+		const jsonStart = trimmed.indexOf("[");
+		const jsonEnd = trimmed.lastIndexOf("]");
+		if (jsonStart === -1 || jsonEnd === -1) {
+			return [];
+		}
+		const parsed: unknown = JSON.parse(trimmed.slice(jsonStart, jsonEnd + 1));
+		if (!Array.isArray(parsed)) {
+			return [];
+		}
+		return parsed
+			.filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+			.slice(0, MAX_FOLLOWUPS)
+			.map((s) => s.trim().slice(0, FOLLOWUP_MAX_LEN));
+	} catch {
+		return [];
+	}
+}
+
+interface AgentMessageMetadata {
+	followups?: string[];
+}
+
+/**
+ * Returns a copy of `messages` with `followups` attached to the metadata of
+ * the most recent assistant message. Used so suggestions persist with the
+ * messages array (no extra column / no extra fetch on the client).
+ */
+function attachFollowups(
+	messages: UIMessage[],
+	followups: string[]
+): UIMessage[] {
+	if (followups.length === 0) {
+		return messages;
+	}
+	const lastAssistantIdx = (() => {
+		for (let i = messages.length - 1; i >= 0; i--) {
+			if (messages[i]?.role === "assistant") {
+				return i;
+			}
+		}
+		return -1;
+	})();
+	if (lastAssistantIdx === -1) {
+		return messages;
+	}
+	return messages.map((m, i) => {
+		if (i !== lastAssistantIdx) {
+			return m;
+		}
+		const existingMetadata = (m.metadata ?? {}) as AgentMessageMetadata;
+		return {
+			...m,
+			metadata: { ...existingMetadata, followups },
+		};
+	});
+}
+
 const MAX_MESSAGES = 100;
 const MAX_PARTS_PER_MESSAGE = 50;
 const MAX_PROPERTIES_PER_PART = 20;
@@ -100,10 +238,10 @@ const AgentRequestSchema = t.Object({
 	messages: t.Array(UIMessageSchema, { maxItems: MAX_MESSAGES }),
 	id: t.Optional(t.String()),
 	timezone: t.Optional(t.String()),
-	model: t.Optional(
-		t.Union([t.Literal("basic"), t.Literal("agent"), t.Literal("agent-max")])
-	),
 });
+
+// Single canonical agent — no user-facing tiers.
+const AGENT_TYPE: AgentType = "analytics";
 
 /**
  * Create a ToolLoopAgent from AgentConfig.
@@ -141,12 +279,6 @@ function createToolLoopAgent(
 		},
 	});
 }
-
-const MODEL_TO_AGENT: Record<string, AgentType> = {
-	basic: "triage",
-	agent: "analytics",
-	"agent-max": "reflection-max",
-};
 
 export const agent = new Elysia({ prefix: "/v1/agent" })
 	.derive(async ({ request }) => {
@@ -226,16 +358,34 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 					const userId = user?.id ?? apiKeyOrg ?? "api-key";
 
-					const model = body.model ?? "agent";
-					const agentType: AgentType = MODEL_TO_AGENT[model] ?? "reflection";
+					// Rate limit: 40 chat turns per 10 minutes per user (LLM cost abuse guard).
+					const rl = await rateLimit(`agent-chat:${userId}`, 40, 600);
+					if (!rl.success) {
+						mergeWideEvent({ agent_rejected: "rate_limit" });
+						return new Response(
+							JSON.stringify({
+								success: false,
+								error:
+									"Rate limit exceeded. Please wait a moment before sending more messages.",
+								code: "RATE_LIMITED",
+							}),
+							{
+								status: 429,
+								headers: {
+									"Content-Type": "application/json",
+									...getRateLimitHeaders(rl),
+								},
+							}
+						);
+					}
+
 					const timezone = body.timezone ?? "UTC";
 					const domain = website.domain ?? "unknown";
 
 					trackAgentEvent("agent_activity", {
 						action: "chat_started",
 						source: "dashboard",
-						model,
-						agent_type: agentType,
+						agent_type: AGENT_TYPE,
 						website_id: body.websiteId,
 						organization_id: organizationId,
 						user_id: userId,
@@ -243,8 +393,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 					useLogger().info("Creating agent", {
 						agent: {
-							type: agentType,
-							model,
+							type: AGENT_TYPE,
 							websiteId: body.websiteId,
 							messageCount: body.messages.length,
 							lastMessage: getLastMessagePreview(body.messages),
@@ -255,7 +404,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 					const [config, memoryCtx, enrichment] = await Promise.all([
 						Promise.resolve(
-							createAgentConfig(agentType, {
+							createAgentConfig(AGENT_TYPE, {
 								userId,
 								websiteId: body.websiteId,
 								websiteDomain: domain,
@@ -317,8 +466,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						websiteId: body.websiteId,
 						websiteDomain: domain,
 						chatId,
-						agentType,
-						model,
+						agentType: AGENT_TYPE,
 						timezone,
 						"tcc.sessionId": chatId,
 						"tcc.conversational": "true",
@@ -329,7 +477,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 					const agent = createToolLoopAgent(config, {
 						isEnabled: true,
-						functionId: `databuddy.dashboard.agent.${agentType}`,
+						functionId: `databuddy.dashboard.agent.${AGENT_TYPE}`,
 						metadata: dashboardTelemetryMetadata,
 					});
 
@@ -351,8 +499,76 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						options: undefined,
 					});
 
+					// Capture for the persistence closure (avoid TDZ on the outer `user`).
+					const persistedUserId = user?.id;
+					const persistedOrgId = organizationId;
+					const fallbackTitle = lastMessage.slice(0, 60);
+					const isNewChat = validation.data.length <= 1;
+
+					// Ensure the stream completes (and onFinish runs) even if the
+					// client disconnects mid-response.
+					result.consumeStream();
+
 					return result.toUIMessageStreamResponse({
 						originalMessages: validation.data,
+						onFinish: async ({ messages }) => {
+							if (!persistedUserId) {
+								return;
+							}
+							try {
+								// Generate follow-up suggestions in parallel with the
+								// initial persist so the LLM call doesn't extend the
+								// total turn time. Result is attached as metadata on
+								// the most recent assistant message.
+								const followupsPromise = generateFollowups(messages);
+
+								await db
+									.insert(agentChats)
+									.values({
+										id: chatId,
+										websiteId: body.websiteId,
+										userId: persistedUserId,
+										organizationId: persistedOrgId,
+										title: fallbackTitle,
+										messages,
+										updatedAt: new Date(),
+									})
+									.onConflictDoUpdate({
+										target: agentChats.id,
+										set: {
+											messages,
+											updatedAt: new Date(),
+										},
+									});
+
+								const followups = await followupsPromise;
+								if (followups.length > 0) {
+									await db
+										.update(agentChats)
+										.set({ messages: attachFollowups(messages, followups) })
+										.where(eq(agentChats.id, chatId));
+								}
+
+								// First-turn title polish: generate a real title once we
+								// have an assistant response. Run after the upsert so a
+								// failed/slow LLM call never blocks message persistence.
+								if (isNewChat) {
+									const generatedTitle = await generateChatTitle(messages);
+									if (generatedTitle) {
+										await db
+											.update(agentChats)
+											.set({ title: generatedTitle })
+											.where(eq(agentChats.id, chatId));
+									}
+								}
+							} catch (persistError) {
+								captureError(persistError, {
+									agent_persist_error: true,
+									agent_chat_id: chatId,
+									agent_website_id: body.websiteId,
+								});
+							}
+						},
 					});
 				} catch (error) {
 					const parsed = parseError(error);
@@ -361,7 +577,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						useLogger().error(err, {
 							agent: {
 								chatId,
-								model: body.model ?? "agent",
+								agentType: AGENT_TYPE,
 								phase: "dashboard_chat_stream",
 								userId: user?.id ?? null,
 								websiteId: body.websiteId,
@@ -393,7 +609,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					trackAgentEvent("agent_activity", {
 						action: "chat_error",
 						source: "dashboard",
-						model: body.model ?? "agent",
+						agent_type: AGENT_TYPE,
 						error_type: getErrorName(error),
 						organization_id: organizationId,
 						user_id: user?.id ?? null,
@@ -401,7 +617,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					});
 					captureError(error, {
 						agent_error: true,
-						agent_model_type: body.model ?? "agent",
+						agent_type: AGENT_TYPE,
 						agent_chat_id: chatId,
 						agent_website_id: body.websiteId,
 						agent_user_id: user?.id ?? "unknown",
