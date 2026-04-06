@@ -77,11 +77,17 @@ export function useGlobalCustomEventsData(
 		options
 	);
 
+	// Property queries (classification/distribution/top_values) do
+	// arrayJoin(JSONExtractKeys(properties)) over every event row. On org-level
+	// scans this can take 30s+ and is the dominant cost on the All-websites view.
+	// Skip them when no specific website is selected — the SummaryView shows a
+	// "no properties" empty state which is acceptable for the cross-website view.
+	const isOrgLevel = !queryOptions.websiteId;
 	const properties = useBatchDynamicQuery(
 		queryOptions,
 		dateRange,
 		propertyQueries,
-		options
+		{ ...options, enabled: (options?.enabled ?? true) && !isOrgLevel }
 	);
 
 	// Merge results so downstream consumers see a single list
