@@ -17,7 +17,6 @@ export interface EvalCase {
 		confirmationFlow?: boolean;
 	};
 	id: string;
-	model?: "basic" | "agent" | "agent-max";
 	name: string;
 	query: string;
 	websiteId: string;

@@ -22,7 +22,6 @@ export async function runCase(
 
 	const body = JSON.stringify({
 		websiteId: evalCase.websiteId,
-		model: evalCase.model ?? "agent",
 		id: `eval-${evalCase.id}-${Date.now()}`,
 		timezone: "UTC",
 		messages: [
