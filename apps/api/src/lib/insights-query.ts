@@ -47,6 +47,7 @@ export interface InsightRow {
 export interface FetchInsightsOptions {
 	createdAfter?: Date;
 	createdBefore?: Date;
+	ids?: string[];
 	limit: number;
 	organizationIds: string[];
 	sentiments?: string[];
@@ -69,6 +70,9 @@ export async function fetchInsightsForOrgs(
 
 	if (opts.websiteId) {
 		conditions.push(eq(analyticsInsights.websiteId, opts.websiteId));
+	}
+	if (opts.ids && opts.ids.length > 0) {
+		conditions.push(inArray(analyticsInsights.id, opts.ids));
 	}
 	if (opts.types && opts.types.length > 0) {
 		conditions.push(inArray(analyticsInsights.type, opts.types));

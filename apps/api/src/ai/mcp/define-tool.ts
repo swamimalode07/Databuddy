@@ -12,6 +12,53 @@ import {
 
 const MAX_DESCRIPTION_LEN = 240;
 const TOOL_NAME_RE = /^[a-z][a-z0-9_]*$/;
+// biome-ignore lint/suspicious/noControlCharactersInRegex: intentional ANSI CSI match
+const ANSI_RE = /\u001B\[[0-?]*[ -/]*[@-~]/g;
+
+function stripAnsi(text: string): string {
+	return text.replace(ANSI_RE, "");
+}
+
+/**
+ * Coerce stringified booleans and JSON arrays/objects into their native shapes
+ * before Zod validation. Some MCP clients serialize every argument as a string
+ * regardless of the underlying type, which causes `z.boolean()` / `z.array(...)`
+ * schemas to reject otherwise-valid calls. Conservative by design: only
+ * coerces values that unambiguously look like the intended type, leaving real
+ * strings untouched.
+ */
+function coerceMcpInput(input: unknown): unknown {
+	if (!input || typeof input !== "object" || Array.isArray(input)) {
+		return input;
+	}
+	const out: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+		if (typeof value === "string") {
+			const trimmed = value.trim();
+			if (trimmed === "true") {
+				out[key] = true;
+				continue;
+			}
+			if (trimmed === "false") {
+				out[key] = false;
+				continue;
+			}
+			if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+				try {
+					const parsed = JSON.parse(trimmed);
+					if (typeof parsed === "object" && parsed !== null) {
+						out[key] = parsed;
+						continue;
+					}
+				} catch {
+					// Not valid JSON — fall through and keep as string
+				}
+			}
+		}
+		out[key] = value;
+	}
+	return out;
+}
 
 export type McpErrorCode =
 	| "invalid_input"
@@ -87,17 +134,17 @@ export interface RegisteredMcpTool {
 }
 
 export interface McpToolFactory {
+	readonly build: (ctx: McpRequestContext) => RegisteredMcpTool;
 	readonly toolName: string;
-	(ctx: McpRequestContext): RegisteredMcpTool;
 }
 
 function toErrorResult(err: McpToolError): CallToolResult {
 	const errorPayload: Record<string, unknown> = {
 		code: err.code,
-		message: err.message,
+		message: stripAnsi(err.message),
 	};
 	if (err.hint) {
-		errorPayload.hint = err.hint;
+		errorPayload.hint = stripAnsi(err.hint);
 	}
 	if (err.details) {
 		errorPayload.details = err.details;
@@ -172,7 +219,7 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 
 	const hasOutputSchema = meta.outputSchema !== undefined;
 
-	const factory = (ctx: McpRequestContext): RegisteredMcpTool => ({
+	const build = (ctx: McpRequestContext): RegisteredMcpTool => ({
 		name: meta.name,
 		description: meta.description,
 		inputSchema: meta.inputSchema,
@@ -187,7 +234,9 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 			});
 
 			try {
-				const parseResult = meta.inputSchema.safeParse(rawInput ?? {});
+				const parseResult = meta.inputSchema.safeParse(
+					coerceMcpInput(rawInput ?? {})
+				);
 				if (!parseResult.success) {
 					const issue = parseResult.error.issues[0];
 					const path = issue?.path.join(".") ?? "input";
@@ -292,5 +341,5 @@ export function defineMcpTool<S extends z.ZodTypeAny>(
 			}
 		},
 	});
-	return Object.assign(factory, { toolName: meta.name });
+	return { toolName: meta.name, build };
 }

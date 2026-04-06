@@ -6,6 +6,7 @@ import {
 	storeConversation as storeMemory,
 } from "../../lib/supermemory";
 import { executeBatch } from "../../query";
+import { isAiGatewayConfigured } from "../config/models";
 import { callRPCProcedure } from "../tools/utils";
 import {
 	appendToConversation,
@@ -21,12 +22,15 @@ import {
 import { INSIGHT_TOOL_FACTORIES } from "./insights-tools";
 import {
 	buildBatchQueryRequests,
-	CLICKHOUSE_SCHEMA_DOCS,
+	getFilteredQueryTypeDescriptions,
 	getQueryTypeDescriptions,
 	getQueryTypeDetails,
+	getSchemaDocumentation,
 	getSchemaSummary,
 	MCP_DATE_PRESETS,
 	type McpQueryItem,
+	QUERY_CATEGORY_KEYS,
+	SCHEMA_SECTIONS,
 } from "./mcp-utils";
 import { runMcpAgent } from "./run-agent";
 import {
@@ -37,6 +41,8 @@ import {
 } from "./tool-context";
 
 const MEMORY_ENABLED = isMemoryEnabled();
+
+const GATEWAY_AUTH_ERROR_RE = /Unauthenticated|AI Gateway|AI_GATEWAY_API_KEY/i;
 
 const TIME_UNIT = ["minute", "hour", "day", "week", "month"] as const;
 
@@ -66,7 +72,7 @@ const QueryItemSchema = z.object({
 	from: z.string().optional(),
 	to: z.string().optional(),
 	timeUnit: z.enum(TIME_UNIT).optional(),
-	limit: z.number().min(1).max(1000).optional(),
+	limit: z.coerce.number().int().min(1).max(1000).optional(),
 	filters: z.array(FilterSchema).optional(),
 	groupBy: z.array(z.string()).optional(),
 	orderBy: z.string().optional(),
@@ -128,6 +134,16 @@ const askTool = defineMcpTool(
 		rateLimit: { limit: 10, windowSec: 60 },
 	},
 	async (input, ctx) => {
+		if (!isAiGatewayConfigured) {
+			throw new McpToolError(
+				"internal",
+				"AI gateway is not configured on this server.",
+				{
+					hint: "Set AI_GATEWAY_API_KEY on the API process and restart. Meanwhile, use summarize_insights, compare_metric, top_movers, or get_data directly.",
+				}
+			);
+		}
+
 		const conversationId = input.conversationId ?? crypto.randomUUID();
 		const priorMessages = await getConversationHistory(
 			conversationId,
@@ -161,6 +177,17 @@ const askTool = defineMcpTool(
 				throw new McpToolError(
 					"upstream_timeout",
 					"Request timed out. Try a simpler question or use get_data for direct queries."
+				);
+			}
+			// Upstream AI gateway auth / config errors — rewrite to a clearer tool-level error.
+			const msg = err instanceof Error ? err.message : String(err);
+			if (GATEWAY_AUTH_ERROR_RE.test(msg)) {
+				throw new McpToolError(
+					"internal",
+					"AI gateway rejected the request (likely missing or invalid key).",
+					{
+						hint: "Check AI_GATEWAY_API_KEY on the API process. Use direct tools (summarize_insights, compare_metric, get_data) in the meantime.",
+					}
 				);
 			}
 			throw err;
@@ -245,8 +272,9 @@ const getDataTool = defineMcpTool(
 				.enum(TIME_UNIT)
 				.optional()
 				.describe("Time granularity for time-series data."),
-			limit: z
+			limit: z.coerce
 				.number()
+				.int()
 				.min(1)
 				.max(1000)
 				.optional()
@@ -327,7 +355,10 @@ const getDataTool = defineMcpTool(
 		if (items.length === 0) {
 			throw new McpToolError(
 				"invalid_input",
-				"Either 'type' (single query) or 'queries' array (batch, 2-10 items) is required"
+				"Either 'type' (single query) or 'queries' array (batch, 2-10 items) is required.",
+				{
+					hint: "Single: {type:'top_pages',preset:'last_7d'}. Batch: {queries:[{type:'summary',preset:'last_7d'},{type:'top_pages',preset:'last_7d'}]}",
+				}
 			);
 		}
 
@@ -378,71 +409,171 @@ const getSchemaTool = defineMcpTool(
 	{
 		name: "get_schema",
 		description:
-			"Return the ClickHouse analytics schema. Use only when writing custom SQL or when you need exact column names — query types in capabilities are usually enough.",
-		inputSchema: z.object({}),
-		outputSchema: z.object({ schema: z.string() }),
+			"Return the ClickHouse analytics schema. Filter by section ('events','errors','vitals','outgoing') and toggle examples/guidelines to slim the payload. Use only when writing custom SQL.",
+		inputSchema: z.object({
+			sections: z
+				.array(z.enum(SCHEMA_SECTIONS))
+				.optional()
+				.describe(
+					`Only return these schema sections. Default = all. Options: ${SCHEMA_SECTIONS.join(", ")}`
+				),
+			includeExamples: z
+				.boolean()
+				.optional()
+				.default(true)
+				.describe("Include SQL example patterns (default true)"),
+			includeGuidelines: z
+				.boolean()
+				.optional()
+				.default(true)
+				.describe("Include query guidelines block (default true)"),
+		}),
+		outputSchema: z.object({
+			schema: z.string(),
+			sections: z.array(z.string()),
+			bytes: z.number(),
+		}),
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
-	() => ({ schema: CLICKHOUSE_SCHEMA_DOCS })
+	(input) => {
+		const schema = getSchemaDocumentation({
+			sections: input.sections,
+			includeExamples: input.includeExamples,
+			includeGuidelines: input.includeGuidelines,
+		});
+		return {
+			schema,
+			sections:
+				input.sections && input.sections.length > 0
+					? [...input.sections]
+					: [...SCHEMA_SECTIONS],
+			bytes: schema.length,
+		};
+	}
 );
 
 // ---------------------------------------------------------------------------
 // capabilities
 // ---------------------------------------------------------------------------
 
+const CAPABILITY_SECTIONS = [
+	"hints",
+	"datePresets",
+	"schemaSummary",
+	"availableTools",
+	"categories",
+	"queryTypes",
+] as const;
+type CapabilitySection = (typeof CAPABILITY_SECTIONS)[number];
+const CAPABILITY_DEFAULTS: readonly CapabilitySection[] = [
+	"hints",
+	"datePresets",
+	"schemaSummary",
+	"availableTools",
+	"categories",
+];
+
+const HINTS: readonly string[] = [
+	"get_data accepts websiteId, websiteName, or websiteDomain — no need to call list_websites first if you know the name or domain",
+	"get_data batch: pass queries array (2-10 items, each with type + preset or from/to). Single: type + preset OR from+to. Defaults to last_7d.",
+	"capabilities is filterable: include=['hints'] for just hints, category='errors' to filter queryTypes, detail='full' for allowedFilters",
+	"get_schema is sectionable: sections=['events'] + includeExamples=false for the smallest useful payload",
+	"ask requires AI_GATEWAY_API_KEY on the API process; use summarize_insights/compare_metric/get_data as direct alternatives",
+	"summarize_insights with no websiteId returns ORG-WIDE counts + per-site breakdown. Set includeDetail=true for description/suggestion on top priorities.",
+	"compare_metric accepts 'metrics' (array) to batch multiple metrics in a single pair of DB queries",
+	"detect_anomalies runs BOTH z-score (spikes) and week-over-week (gradual drops) by default; use method='wow' for trend-only",
+	"top_movers supports minDeltaPercent to drop small changes, and direction='up'|'down'|'both'",
+	"list_insights supports 'ids' for direct drill-down and 'fields' to slim the response",
+	"Custom events: filter by event name with [{field:'event_name',op:'eq',value:'your-event'}]",
+	"Custom events: filter by property key with [{field:'property_key',op:'eq',value:'your-key'}] for property_top_values/distribution",
+];
+
 const capabilitiesTool = defineMcpTool(
 	{
 		name: "capabilities",
 		description:
-			"Return supported query types, allowed filters, date presets, and tool hints. Use first when unsure which tool or query type fits the question.",
+			"Return tool hints, date presets, categories, and (optionally) query types. Use 'include' to control response shape and 'category' to filter queryTypes — defaults OMIT queryTypes for a small payload.",
 		inputSchema: z.object({
+			include: z
+				.array(z.enum(CAPABILITY_SECTIONS))
+				.optional()
+				.describe(
+					`Sections to include. Default: ${CAPABILITY_DEFAULTS.join(", ")}. Pass ['queryTypes'] to request the heavy query-type list.`
+				),
+			category: z
+				.enum(QUERY_CATEGORY_KEYS as [string, ...string[]])
+				.optional()
+				.describe(
+					`Filter queryTypes to a category. Options: ${QUERY_CATEGORY_KEYS.join(", ")}`
+				),
+			contains: z
+				.string()
+				.optional()
+				.describe("Substring filter for queryTypes keys (case-insensitive)."),
 			detail: z
 				.enum(["summary", "full"])
 				.optional()
 				.default("summary")
 				.describe(
-					"'summary' returns type descriptions only; 'full' includes allowedFilters per type"
+					"'summary' returns descriptions only; 'full' includes allowedFilters per type. Only applied when queryTypes is included."
 				),
 		}),
 		outputSchema: z.object({
-			queryTypes: z.record(z.string(), z.unknown()),
-			schemaSummary: z.string(),
-			datePresets: z.array(z.string()).readonly(),
-			dateFormat: z.string(),
-			maxLimit: z.number(),
-			availableTools: z.array(z.string()).readonly(),
-			hints: z.array(z.string()),
+			schemaSummary: z.string().optional(),
+			datePresets: z.array(z.string()).optional(),
+			dateFormat: z.string().optional(),
+			maxLimit: z.number().optional(),
+			availableTools: z.array(z.string()).optional(),
+			categories: z.array(z.string()).optional(),
+			queryTypes: z.record(z.string(), z.unknown()).optional(),
+			hints: z.array(z.string()).optional(),
 		}),
 		rateLimit: { limit: 60, windowSec: 60 },
 	},
 	(input) => {
-		const useFull = input.detail === "full";
-		const queryTypes = useFull
-			? getQueryTypeDetails()
-			: getQueryTypeDescriptions();
+		const selected = new Set<CapabilitySection>(
+			input.include && input.include.length > 0
+				? input.include
+				: CAPABILITY_DEFAULTS
+		);
+		// If the caller passes category/contains, they clearly want queryTypes
+		// — auto-include that section even if they forgot to list it.
+		if ((input.category || input.contains) && !selected.has("queryTypes")) {
+			selected.add("queryTypes");
+		}
 
-		return {
-			queryTypes,
-			schemaSummary: getSchemaSummary(),
-			datePresets: MCP_DATE_PRESETS,
-			dateFormat: "YYYY-MM-DD",
-			maxLimit: 1000,
-			availableTools: getRegisteredToolNames(),
-			hints: [
-				"get_data accepts websiteId, websiteName, or websiteDomain — no need to call list_websites first if you know the name or domain",
-				"get_data batch: pass queries array (2-10 items, each with type + preset or from/to). Single: type + preset OR from+to. Defaults to last_7d.",
-				"get_schema returns the full ClickHouse schema — only needed for custom SQL",
-				"capabilities with detail='full' shows allowedFilters per query type",
-				"ask accepts timezone (IANA) and returns conversationId for follow-ups",
-				"summarize_insights — fastest 'how are we doing' check; counts + top 3 priorities",
-				"compare_metric — week-over-week diff for visitors/sessions/pageviews/bounce_rate/session_duration/events; replaces 2 manual get_data calls",
-				"top_movers — top pages/referrers/countries/browsers/os that changed the most between two periods",
-				"detect_anomalies — z-score check on daily metrics; finds spikes without pre-computed insights",
-				"Use ask for open-ended questions; use direct tools for simple lookups",
-				"Custom events: filter by event name with [{field:'event_name',op:'eq',value:'your-event'}]",
-				"Custom events: filter by property key with [{field:'property_key',op:'eq',value:'your-key'}] for property_top_values/distribution",
-			],
-		};
+		const out: Record<string, unknown> = {};
+		if (selected.has("hints")) {
+			out.hints = HINTS;
+		}
+		if (selected.has("datePresets")) {
+			out.datePresets = MCP_DATE_PRESETS;
+			out.dateFormat = "YYYY-MM-DD";
+			out.maxLimit = 1000;
+		}
+		if (selected.has("schemaSummary")) {
+			out.schemaSummary = getSchemaSummary();
+		}
+		if (selected.has("availableTools")) {
+			out.availableTools = getRegisteredToolNames();
+		}
+		if (selected.has("categories")) {
+			out.categories = QUERY_CATEGORY_KEYS;
+		}
+		if (selected.has("queryTypes")) {
+			if (input.category || input.contains) {
+				out.queryTypes = getFilteredQueryTypeDescriptions({
+					category: input.category,
+					contains: input.contains,
+				});
+			} else {
+				out.queryTypes =
+					input.detail === "full"
+						? getQueryTypeDetails()
+						: getQueryTypeDescriptions();
+			}
+		}
+		return out;
 	}
 );
 
@@ -860,8 +991,17 @@ const ALL_TOOL_FACTORIES: McpToolFactory[] = [
 ];
 
 // Cache tool names once — used by capabilities. Avoids drift with the registry.
-const REGISTERED_TOOL_NAMES: readonly string[] = ALL_TOOL_FACTORIES.map(
-	(f) => f.toolName
+// Fails loud at module load if a factory is missing its toolName, so the
+// availableTools "[null, null, ...]" bug can never ship again.
+const REGISTERED_TOOL_NAMES: readonly string[] = Object.freeze(
+	ALL_TOOL_FACTORIES.map((f, idx) => {
+		if (typeof f.toolName !== "string" || f.toolName.length === 0) {
+			throw new Error(
+				`MCP tool factory at index ${idx} is missing a toolName. Check defineMcpTool usage.`
+			);
+		}
+		return f.toolName;
+	})
 );
 
 function getRegisteredToolNames(): readonly string[] {
@@ -869,5 +1009,5 @@ function getRegisteredToolNames(): readonly string[] {
 }
 
 export function createMcpTools(ctx: McpRequestContext): RegisteredMcpTool[] {
-	return ALL_TOOL_FACTORIES.map((factory) => factory(ctx));
+	return ALL_TOOL_FACTORIES.map((factory) => factory.build(ctx));
 }

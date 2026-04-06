@@ -63,27 +63,6 @@ const PeriodSchema = z.object({
 
 const DirectionSchema = z.enum(["up", "down", "flat"]);
 
-const InsightRowOutputSchema = z.object({
-	id: z.string(),
-	type: z.string(),
-	severity: z.string(),
-	sentiment: z.string(),
-	priority: z.number(),
-	title: z.string(),
-	description: z.string(),
-	suggestion: z.string(),
-	changePercent: z.number().optional(),
-	metrics: z.array(z.unknown()),
-	currentPeriod: PeriodSchema,
-	previousPeriod: PeriodSchema,
-	websiteId: z.string(),
-	websiteName: z.string().nullable(),
-	websiteDomain: z.string(),
-	link: z.string(),
-	createdAt: z.string(),
-	timezone: z.string(),
-});
-
 type MetricFormat = "number" | "percent" | "duration_s";
 type BetterWhen = "higher" | "lower";
 
@@ -299,6 +278,15 @@ function formatMetricValue(value: number, format: MetricFormat): string {
 	return value.toFixed(1);
 }
 
+/** Round a numeric field to the precision appropriate for the metric format. */
+function roundForFormat(value: number, format: MetricFormat): number {
+	if (!Number.isFinite(value)) {
+		return 0;
+	}
+	const decimals = format === "percent" ? 2 : format === "duration_s" ? 1 : 0;
+	return Number(value.toFixed(decimals));
+}
+
 function safeDeltaPercent(current: number, previous: number): number {
 	if (previous === 0) {
 		return current === 0 ? 0 : 100;
@@ -446,15 +434,60 @@ const cachedFetchInsightsForOrgs = cacheable(fetchInsightsForOrgs, {
 // list_insights
 // ---------------------------------------------------------------------------
 
+const INSIGHT_FIELDS = [
+	"id",
+	"type",
+	"severity",
+	"sentiment",
+	"priority",
+	"title",
+	"description",
+	"suggestion",
+	"changePercent",
+	"metrics",
+	"currentPeriod",
+	"previousPeriod",
+	"websiteId",
+	"websiteName",
+	"websiteDomain",
+	"link",
+	"createdAt",
+	"timezone",
+] as const;
+type InsightField = (typeof INSIGHT_FIELDS)[number];
+
+/** Keep only the requested fields on each mapped row (default = all). */
+function pickInsightFields<T extends Record<string, unknown>>(
+	row: T,
+	fields: readonly InsightField[] | undefined
+): Record<string, unknown> {
+	if (!fields || fields.length === 0) {
+		return row;
+	}
+	const out: Record<string, unknown> = {};
+	for (const f of fields) {
+		if (f in row) {
+			out[f] = row[f];
+		}
+	}
+	return out;
+}
+
 const listInsightsTool = defineMcpTool(
 	{
 		name: "list_insights",
 		description:
-			"List recent AI-generated insights (anomalies, trends, top movers). Defaults to org-wide. Pass a websiteId/Name/Domain to scope. Use when the user asks 'what changed' or 'what's interesting'.",
+			"List recent AI-generated insights (anomalies, trends, top movers). Defaults to org-wide. Pass websiteId to scope, ids to fetch specific insights, or fields to slim the response.",
 		inputSchema: z.object({
 			websiteId: z.string().optional().describe("Optional. Scope to one site."),
 			websiteName: z.string().optional(),
 			websiteDomain: z.string().optional(),
+			ids: z
+				.array(z.string())
+				.min(1)
+				.max(100)
+				.optional()
+				.describe("Fetch specific insights by id (bypasses other filters)."),
 			type: z
 				.array(z.enum(INSIGHT_TYPES))
 				.optional()
@@ -475,7 +508,13 @@ const listInsightsTool = defineMcpTool(
 				.describe("Shorthand for createdAfter (overrides 'from' if provided)"),
 			from: z.string().optional().describe("YYYY-MM-DD"),
 			to: z.string().optional().describe("YYYY-MM-DD"),
-			limit: z
+			fields: z
+				.array(z.enum(INSIGHT_FIELDS))
+				.optional()
+				.describe(
+					"Subset of insight fields to return. Default returns all. Use ['id','title','severity','priority'] for slim output."
+				),
+			limit: z.coerce
 				.number()
 				.int()
 				.min(1)
@@ -485,7 +524,7 @@ const listInsightsTool = defineMcpTool(
 				.describe("Max insights (1-100, default 20)"),
 		}),
 		outputSchema: z.object({
-			insights: z.array(InsightRowOutputSchema),
+			insights: z.array(z.record(z.string(), z.unknown())),
 			count: z.number(),
 			scope: z.enum(["website", "organization"]),
 			hint: z.string().optional(),
@@ -522,6 +561,7 @@ const listInsightsTool = defineMcpTool(
 		const rows = await cachedFetchInsightsForOrgs({
 			organizationIds: [...orgIds].sort(),
 			websiteId: ctx.websiteId,
+			ids: input.ids,
 			types: input.type,
 			severities: input.severity,
 			sentiments: input.sentiment,
@@ -540,7 +580,9 @@ const listInsightsTool = defineMcpTool(
 		}
 
 		return {
-			insights: rows.map(mapInsightRow),
+			insights: rows.map((r) =>
+				pickInsightFields(mapInsightRow(r), input.fields)
+			),
 			count: rows.length,
 			scope: ctx.websiteId ? "website" : "organization",
 		};
@@ -555,7 +597,7 @@ const summarizeInsightsTool = defineMcpTool(
 	{
 		name: "summarize_insights",
 		description:
-			"Compact triage view: counts by severity/type/sentiment plus top 3 priorities. Defaults to org-wide. Use this before list_insights when you only need a quick status.",
+			"Compact triage view: counts by severity/type/sentiment plus top priorities. Defaults to org-wide. Set includeDetail=true to get description/suggestion on top priorities, or topN to tune how many.",
 		inputSchema: z.object({
 			websiteId: z.string().optional(),
 			websiteName: z.string().optional(),
@@ -565,31 +607,46 @@ const summarizeInsightsTool = defineMcpTool(
 				.optional()
 				.default("last_7d")
 				.describe("How far back to look (default last_7d)"),
+			topN: z.coerce
+				.number()
+				.int()
+				.min(0)
+				.max(20)
+				.optional()
+				.default(3)
+				.describe("How many top priorities to include (0-20, default 3)"),
+			includeDetail: z
+				.boolean()
+				.optional()
+				.default(false)
+				.describe(
+					"Include description + suggestion on topPriorities (larger payload)"
+				),
+			includeBreakdowns: z
+				.array(z.enum(["bySeverity", "bySentiment", "byType", "byWebsite"]))
+				.optional()
+				.describe(
+					"Which breakdowns to include. Omit to include all. Pass [] to skip all."
+				),
 		}),
 		outputSchema: z.object({
 			scope: z.enum(["website", "organization"]),
 			since: z.string(),
 			total: z.number(),
-			bySeverity: z.record(z.string(), z.number()),
-			bySentiment: z.record(z.string(), z.number()),
-			byType: z.record(z.string(), z.number()),
-			byWebsite: z.record(
-				z.string(),
-				z.object({
-					websiteName: z.string().nullable(),
-					websiteDomain: z.string(),
-					count: z.number(),
-				})
-			),
-			topPriorities: z.array(
-				z.object({
-					id: z.string(),
-					priority: z.number(),
-					severity: z.string(),
-					title: z.string(),
-					websiteDomain: z.string(),
-				})
-			),
+			bySeverity: z.record(z.string(), z.number()).optional(),
+			bySentiment: z.record(z.string(), z.number()).optional(),
+			byType: z.record(z.string(), z.number()).optional(),
+			byWebsite: z
+				.record(
+					z.string(),
+					z.object({
+						websiteName: z.string().nullable(),
+						websiteDomain: z.string(),
+						count: z.number(),
+					})
+				)
+				.optional(),
+			topPriorities: z.array(z.record(z.string(), z.unknown())),
 			hint: z.string().optional(),
 		}),
 		resolveWebsite: "optional",
@@ -609,6 +666,9 @@ const summarizeInsightsTool = defineMcpTool(
 			createdAfter,
 			limit: INSIGHTS_LIST_FETCH_LIMIT,
 		});
+
+		const want = (key: "bySeverity" | "bySentiment" | "byType" | "byWebsite") =>
+			!input.includeBreakdowns || input.includeBreakdowns.includes(key);
 
 		const bySeverity: Record<string, number> = {
 			critical: 0,
@@ -645,23 +705,33 @@ const summarizeInsightsTool = defineMcpTool(
 		const topPriorities = rows
 			.slice()
 			.sort((a, b) => b.priority - a.priority)
-			.slice(0, 3)
-			.map((r) => ({
-				id: r.id,
-				priority: r.priority,
-				severity: r.severity,
-				title: r.title,
-				websiteDomain: r.websiteDomain,
-			}));
+			.slice(0, input.topN)
+			.map((r) => {
+				const base: Record<string, unknown> = {
+					id: r.id,
+					priority: r.priority,
+					severity: r.severity,
+					type: r.type,
+					title: r.title,
+					websiteId: r.websiteId,
+					websiteDomain: r.websiteDomain,
+				};
+				if (input.includeDetail) {
+					base.description = r.description;
+					base.suggestion = r.suggestion;
+					base.changePercent = r.changePercent ?? undefined;
+				}
+				return base;
+			});
 
 		return {
 			scope: ctx.websiteId ? "website" : "organization",
 			since: input.since,
 			total: rows.length,
-			bySeverity,
-			bySentiment,
-			byType,
-			byWebsite,
+			...(want("bySeverity") && { bySeverity }),
+			...(want("bySentiment") && { bySentiment }),
+			...(want("byType") && { byType }),
+			...(want("byWebsite") && { byWebsite }),
 			topPriorities,
 			hint:
 				rows.length === 0
@@ -675,19 +745,40 @@ const summarizeInsightsTool = defineMcpTool(
 // compare_metric
 // ---------------------------------------------------------------------------
 
+const MetricEnum = z.enum(METRIC_KEYS);
+const MetricComparisonSchema = z.object({
+	metric: z.string(),
+	label: z.string(),
+	format: z.enum(["number", "percent", "duration_s"]),
+	betterWhen: z.enum(["higher", "lower"]),
+	current: z.number(),
+	previous: z.number(),
+	delta: z.number(),
+	deltaPercent: z.number(),
+	direction: DirectionSchema,
+	isImprovement: z.boolean().nullable(),
+	headline: z.string(),
+});
+
 const compareMetricTool = defineMcpTool(
 	{
 		name: "compare_metric",
 		description:
-			"Compare one metric (visitors, sessions, pageviews, bounce_rate, session_duration, events) across two periods for a website. Auto-computes delta and previous period. Use instead of two get_data calls.",
+			"Compare metric(s) across two periods. Pass a single metric (legacy shape) or an array of metrics (batched into one query per period). Auto-computes delta and previous period. Replaces 2 get_data calls.",
 		inputSchema: z.object({
 			websiteId: z.string().optional(),
 			websiteName: z.string().optional(),
 			websiteDomain: z.string().optional(),
-			metric: z
-				.enum(METRIC_KEYS)
+			metric: MetricEnum.optional().describe(
+				"Single metric to compare (legacy). Prefer 'metrics' for multi."
+			),
+			metrics: z
+				.array(MetricEnum)
+				.min(1)
+				.max(METRIC_KEYS.length)
+				.optional()
 				.describe(
-					"One of: visitors, sessions, pageviews, bounce_rate, session_duration, events"
+					`Metrics to compare in one call. Any subset of: ${METRIC_KEYS.join(", ")}`
 				),
 			period: z
 				.enum(PERIOD_PRESETS)
@@ -707,19 +798,9 @@ const compareMetricTool = defineMcpTool(
 			timezone: z.string().optional().describe("IANA timezone (default UTC)"),
 		}),
 		outputSchema: z.object({
-			metric: z.string(),
-			label: z.string(),
-			format: z.enum(["number", "percent", "duration_s"]),
-			betterWhen: z.enum(["higher", "lower"]),
 			currentPeriod: PeriodSchema,
 			comparePeriod: PeriodSchema,
-			current: z.number(),
-			previous: z.number(),
-			delta: z.number(),
-			deltaPercent: z.number(),
-			direction: DirectionSchema,
-			isImprovement: z.boolean().nullable(),
-			headline: z.string(),
+			comparisons: z.array(MetricComparisonSchema),
 			websiteId: z.string(),
 			websiteDomain: z.string(),
 		}),
@@ -731,11 +812,16 @@ const compareMetricTool = defineMcpTool(
 		const websiteDomain = ctx.websiteDomain ?? "unknown";
 		const timezone = input.timezone ?? "UTC";
 
-		const def = METRIC_REGISTRY[input.metric];
-		if (!def) {
+		const selectedMetrics =
+			input.metrics && input.metrics.length > 0
+				? [...new Set(input.metrics)]
+				: input.metric
+					? [input.metric]
+					: [];
+		if (selectedMetrics.length === 0) {
 			throw new McpToolError(
 				"invalid_input",
-				`Unknown metric: ${input.metric}. Valid: ${METRIC_KEYS.join(", ")}`
+				`Pass 'metric' (single) or 'metrics' (array). Valid: ${METRIC_KEYS.join(", ")}`
 			);
 		}
 
@@ -763,66 +849,82 @@ const compareMetricTool = defineMcpTool(
 			compareRange = computePreviousPeriod(currentRange);
 		}
 
-		const [currentRows, previousRows] = await Promise.all([
-			executeQuery(
-				{
-					projectId: websiteId,
-					type: def.queryType,
-					from: currentRange.from,
-					to: currentRange.to,
-					timezone,
-				},
-				websiteDomain,
-				timezone
-			),
-			executeQuery(
-				{
-					projectId: websiteId,
-					type: def.queryType,
-					from: compareRange.from,
-					to: compareRange.to,
-					timezone,
-				},
-				websiteDomain,
-				timezone
-			),
+		// All built-in metrics share the same queryType (summary_metrics), so we
+		// fan out one unique query per period regardless of how many metrics the
+		// caller asked for.
+		const selectedDefs = selectedMetrics.flatMap((k) => {
+			const def = METRIC_REGISTRY[k];
+			return def ? [[k, def] as const] : [];
+		});
+		const uniqueQueryTypes = [
+			...new Set(selectedDefs.map(([, d]) => d.queryType)),
+		];
+
+		const runPeriod = (range: { from: string; to: string }) =>
+			Promise.all(
+				uniqueQueryTypes.map((queryType) =>
+					executeQuery(
+						{
+							projectId: websiteId,
+							type: queryType,
+							from: range.from,
+							to: range.to,
+							timezone,
+						},
+						websiteDomain,
+						timezone
+					).then((rows) => [queryType, rows] as const)
+				)
+			).then((entries) => new Map(entries));
+
+		const [currentByType, previousByType] = await Promise.all([
+			runPeriod(currentRange),
+			runPeriod(compareRange),
 		]);
 
-		const currentValue = Number(
-			(currentRows[0] as Record<string, unknown> | undefined)?.[def.field] ?? 0
-		);
-		const previousValue = Number(
-			(previousRows[0] as Record<string, unknown> | undefined)?.[def.field] ?? 0
-		);
-
-		const direction = deltaDirection(currentValue, previousValue);
-		const deltaPct = safeDeltaPercent(currentValue, previousValue);
-		const isImprovement =
-			direction === "flat"
-				? null
-				: def.betterWhen === "higher"
-					? direction === "up"
-					: direction === "down";
+		const comparisons = selectedDefs.map(([metricKey, def]) => {
+			const currentRows = currentByType.get(def.queryType) ?? [];
+			const previousRows = previousByType.get(def.queryType) ?? [];
+			const currentValue = Number(
+				(currentRows[0] as Record<string, unknown> | undefined)?.[def.field] ??
+					0
+			);
+			const previousValue = Number(
+				(previousRows[0] as Record<string, unknown> | undefined)?.[def.field] ??
+					0
+			);
+			const direction = deltaDirection(currentValue, previousValue);
+			const deltaPct = safeDeltaPercent(currentValue, previousValue);
+			const isImprovement =
+				direction === "flat"
+					? null
+					: def.betterWhen === "higher"
+						? direction === "up"
+						: direction === "down";
+			return {
+				metric: metricKey,
+				label: def.label,
+				format: def.format,
+				betterWhen: def.betterWhen,
+				current: roundForFormat(currentValue, def.format),
+				previous: roundForFormat(previousValue, def.format),
+				delta: roundForFormat(currentValue - previousValue, def.format),
+				deltaPercent: Number(deltaPct.toFixed(2)),
+				direction,
+				isImprovement,
+				headline: buildMetricHeadline(
+					def.label,
+					currentValue,
+					previousValue,
+					def.format
+				),
+			};
+		});
 
 		return {
-			metric: input.metric,
-			label: def.label,
-			format: def.format,
-			betterWhen: def.betterWhen,
 			currentPeriod: currentRange,
 			comparePeriod: compareRange,
-			current: currentValue,
-			previous: previousValue,
-			delta: currentValue - previousValue,
-			deltaPercent: Number(deltaPct.toFixed(2)),
-			direction,
-			isImprovement,
-			headline: buildMetricHeadline(
-				def.label,
-				currentValue,
-				previousValue,
-				def.format
-			),
+			comparisons,
 			websiteId,
 			websiteDomain,
 		};
@@ -870,7 +972,7 @@ const topMoversTool = defineMcpTool(
 				.object({ from: z.string(), to: z.string() })
 				.optional()
 				.describe("Custom comparison window. Default = previous period."),
-			limit: z
+			limit: z.coerce
 				.number()
 				.int()
 				.min(1)
@@ -882,6 +984,13 @@ const topMoversTool = defineMcpTool(
 				.optional()
 				.default("both")
 				.describe("Filter to gainers / losers / both"),
+			minDeltaPercent: z.coerce
+				.number()
+				.min(0)
+				.optional()
+				.describe(
+					"Drop movers whose abs(deltaPercent) is below this threshold (e.g. 10 = only >= ±10% changes)"
+				),
 			timezone: z.string().optional(),
 		}),
 		outputSchema: z.object({
@@ -1001,13 +1110,14 @@ const topMoversTool = defineMcpTool(
 			}
 		}
 
+		const minDelta = input.minDeltaPercent ?? 0;
 		const movers = [...merged.values()]
 			.filter((m) => m.current !== 0 || m.previous !== 0)
 			.map((m) => ({
 				name: m.name,
-				current: m.current,
-				previous: m.previous,
-				delta: m.current - m.previous,
+				current: Number(m.current.toFixed(2)),
+				previous: Number(m.previous.toFixed(2)),
+				delta: Number((m.current - m.previous).toFixed(2)),
 				deltaPercent: Number(
 					safeDeltaPercent(m.current, m.previous).toFixed(2)
 				),
@@ -1029,6 +1139,7 @@ const topMoversTool = defineMcpTool(
 				}
 				return m.direction !== "flat";
 			})
+			.filter((m) => Math.abs(m.deltaPercent) >= minDelta)
 			.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
 			.slice(0, input.limit);
 
@@ -1072,49 +1183,81 @@ interface DailyRow {
 	visitors?: unknown;
 }
 
+const ANOMALY_METRIC_KEYS = ANOMALY_METRICS.map((m) => m.key) as [
+	string,
+	...string[],
+];
+
 const detectAnomaliesTool = defineMcpTool(
 	{
 		name: "detect_anomalies",
 		description:
-			"Find statistical anomalies in summary metrics over the last N days using z-scores. Returns metrics where the latest day deviates beyond the threshold from the rolling baseline.",
+			"Find anomalies in summary metrics. Two detection arms: 'zscore' (latest day vs rolling baseline) catches spikes; 'wow' (last N days vs prior N days) catches gradual drops. Default runs both.",
 		inputSchema: z.object({
 			websiteId: z.string().optional(),
 			websiteName: z.string().optional(),
 			websiteDomain: z.string().optional(),
-			lookbackDays: z
+			method: z
+				.enum(["zscore", "wow", "both"])
+				.optional()
+				.default("both")
+				.describe(
+					"Detection method. 'zscore' = latest-day outlier. 'wow' = period-over-period change. 'both' runs both (default)."
+				),
+			metrics: z
+				.array(z.enum(ANOMALY_METRIC_KEYS))
+				.optional()
+				.describe(
+					`Which metrics to check. Omit for all. Subset of: ${ANOMALY_METRIC_KEYS.join(", ")}`
+				),
+			lookbackDays: z.coerce
 				.number()
 				.int()
 				.min(7)
 				.max(60)
 				.optional()
 				.default(14)
-				.describe("Days of history to compute baseline (7-60, default 14)"),
-			threshold: z
+				.describe(
+					"Days of history (7-60, default 14). WoW splits this in half (e.g. 14 → last 7d vs prior 7d)."
+				),
+			threshold: z.coerce
 				.number()
 				.min(1.0)
 				.max(5.0)
 				.optional()
 				.default(2.0)
-				.describe("Absolute z-score threshold (1.0-5.0, default 2.0)"),
+				.describe("Absolute z-score threshold for zscore arm (default 2.0)"),
+			minDeltaPercent: z.coerce
+				.number()
+				.min(0)
+				.max(1000)
+				.optional()
+				.default(20)
+				.describe(
+					"Min abs(deltaPercent) for the WoW arm to flag a change (default 20)"
+				),
 			timezone: z.string().optional(),
 		}),
 		outputSchema: z.object({
 			websiteId: z.string(),
 			websiteDomain: z.string().optional(),
+			method: z.enum(["zscore", "wow", "both"]),
 			lookbackDays: z.number(),
 			threshold: z.number(),
+			minDeltaPercent: z.number(),
 			latestDay: z.string().optional(),
 			baselineDays: z.number().optional(),
 			count: z.number(),
 			anomalies: z.array(
 				z.object({
+					method: z.enum(["zscore", "wow"]),
 					metric: z.string(),
 					label: z.string(),
 					direction: DirectionSchema,
 					current: z.number(),
 					baseline: z.number(),
-					stddev: z.number(),
-					zScore: z.number(),
+					stddev: z.number().optional(),
+					zScore: z.number().optional(),
 					deltaPercent: z.number(),
 					format: z.enum(["number", "percent", "duration_s"]),
 					headline: z.string(),
@@ -1131,108 +1274,220 @@ const detectAnomaliesTool = defineMcpTool(
 		const timezone = input.timezone ?? "UTC";
 		const lookbackDays = input.lookbackDays;
 		const threshold = input.threshold;
+		const minDeltaPercent = input.minDeltaPercent;
+		const method = input.method;
+		const metricFilter =
+			input.metrics && input.metrics.length > 0 ? new Set(input.metrics) : null;
+		const activeMetrics = metricFilter
+			? ANOMALY_METRICS.filter((m) => metricFilter.has(m.key))
+			: ANOMALY_METRICS;
 
 		const today = dayjs();
-		const from = today.subtract(lookbackDays - 1, "day").format("YYYY-MM-DD");
-		const to = today.format("YYYY-MM-DD");
+		const dailyFrom = today
+			.subtract(lookbackDays - 1, "day")
+			.format("YYYY-MM-DD");
+		const dailyTo = today.format("YYYY-MM-DD");
 
-		const rows = (await executeQuery(
-			{
-				projectId: websiteId,
-				type: "events_by_date",
-				from,
-				to,
-				timezone,
-				timeUnit: "day",
-				limit: lookbackDays + 5,
-			},
-			websiteDomain,
-			timezone
-		)) as DailyRow[];
+		const runZscore = method === "zscore" || method === "both";
+		const runWow = method === "wow" || method === "both";
 
-		if (rows.length < 7) {
-			return {
-				websiteId,
-				lookbackDays,
-				threshold,
-				count: 0,
-				anomalies: [],
-				hint: `Insufficient data: need at least 7 days, got ${rows.length}.`,
-			};
+		interface AnomalyRow {
+			baseline: number;
+			current: number;
+			deltaPercent: number;
+			direction: "up" | "down" | "flat";
+			format: MetricFormat;
+			headline: string;
+			label: string;
+			method: "zscore" | "wow";
+			metric: string;
+			stddev?: number;
+			zScore?: number;
 		}
 
-		const sorted = [...rows].sort((a, b) =>
-			String(a.date ?? "").localeCompare(String(b.date ?? ""))
-		);
-		const latest = sorted.at(-1);
-		const baseline = sorted.slice(0, -1);
+		const anomalies: AnomalyRow[] = [];
+		let latestDay: string | undefined;
+		let baselineDayCount: number | undefined;
+		let insufficientDataHint: string | undefined;
 
-		if (!latest) {
-			return {
-				websiteId,
-				lookbackDays,
-				threshold,
-				count: 0,
-				anomalies: [],
-				hint: "No data available for the latest day.",
-			};
-		}
-
-		const anomalies = ANOMALY_METRICS.flatMap((metric) => {
-			const baselineValues = baseline
-				.map((r) => Number(r[metric.field as keyof DailyRow] ?? 0))
-				.filter((v) => Number.isFinite(v));
-			if (baselineValues.length < 6) {
-				return [];
-			}
-			const baselineMean = mean(baselineValues);
-			const baselineStddev = stddev(baselineValues);
-			if (baselineStddev === 0) {
-				return [];
-			}
-			const currentValue = Number(latest[metric.field as keyof DailyRow] ?? 0);
-			const zScore = (currentValue - baselineMean) / baselineStddev;
-			if (Math.abs(zScore) < threshold) {
-				return [];
-			}
-			const def = METRIC_REGISTRY[metric.key];
-			const format: MetricFormat = def?.format ?? "number";
-			return [
+		// ---- zscore arm ----
+		if (runZscore) {
+			const rows = (await executeQuery(
 				{
+					projectId: websiteId,
+					type: "events_by_date",
+					from: dailyFrom,
+					to: dailyTo,
+					timezone,
+					timeUnit: "day",
+					limit: lookbackDays + 5,
+				},
+				websiteDomain,
+				timezone
+			)) as DailyRow[];
+
+			if (rows.length < 7) {
+				insufficientDataHint = `Insufficient data for z-score: need at least 7 days, got ${rows.length}.`;
+			} else {
+				const sorted = [...rows].sort((a, b) =>
+					String(a.date ?? "").localeCompare(String(b.date ?? ""))
+				);
+				const latest = sorted.at(-1);
+				const baseline = sorted.slice(0, -1);
+
+				if (latest) {
+					latestDay = String(latest.date ?? "");
+					baselineDayCount = baseline.length;
+
+					for (const metric of activeMetrics) {
+						const baselineValues = baseline
+							.map((r) => Number(r[metric.field as keyof DailyRow] ?? 0))
+							.filter((v) => Number.isFinite(v));
+						if (baselineValues.length < 6) {
+							continue;
+						}
+						const baselineMean = mean(baselineValues);
+						const baselineStddev = stddev(baselineValues);
+						if (baselineStddev === 0) {
+							continue;
+						}
+						const currentValue = Number(
+							latest[metric.field as keyof DailyRow] ?? 0
+						);
+						const zScore = (currentValue - baselineMean) / baselineStddev;
+						if (Math.abs(zScore) < threshold) {
+							continue;
+						}
+						const def = METRIC_REGISTRY[metric.key];
+						const format: MetricFormat = def?.format ?? "number";
+						anomalies.push({
+							method: "zscore",
+							metric: metric.key,
+							label: metric.label,
+							direction: deltaDirection(currentValue, baselineMean),
+							current: roundForFormat(currentValue, format),
+							baseline: roundForFormat(baselineMean, format),
+							stddev: Number(baselineStddev.toFixed(2)),
+							zScore: Number(zScore.toFixed(2)),
+							deltaPercent: Number(
+								safeDeltaPercent(currentValue, baselineMean).toFixed(2)
+							),
+							format,
+							headline: buildAnomalyHeadline(
+								metric.label,
+								currentValue,
+								baselineMean,
+								zScore,
+								format
+							),
+						});
+					}
+				}
+			}
+		}
+
+		// ---- wow (period-over-period) arm ----
+		if (runWow) {
+			const windowDays = Math.max(3, Math.floor(lookbackDays / 2));
+			const currentFrom = today
+				.subtract(windowDays - 1, "day")
+				.format("YYYY-MM-DD");
+			const currentTo = today.format("YYYY-MM-DD");
+			const previousFrom = today
+				.subtract(windowDays * 2 - 1, "day")
+				.format("YYYY-MM-DD");
+			const previousTo = today.subtract(windowDays, "day").format("YYYY-MM-DD");
+
+			const [currentRows, previousRows] = await Promise.all([
+				executeQuery(
+					{
+						projectId: websiteId,
+						type: "summary_metrics",
+						from: currentFrom,
+						to: currentTo,
+						timezone,
+					},
+					websiteDomain,
+					timezone
+				),
+				executeQuery(
+					{
+						projectId: websiteId,
+						type: "summary_metrics",
+						from: previousFrom,
+						to: previousTo,
+						timezone,
+					},
+					websiteDomain,
+					timezone
+				),
+			]);
+			const currentRow = (currentRows[0] ?? {}) as Record<string, unknown>;
+			const previousRow = (previousRows[0] ?? {}) as Record<string, unknown>;
+
+			for (const metric of activeMetrics) {
+				const def = METRIC_REGISTRY[metric.key];
+				if (!def) {
+					continue;
+				}
+				const currentValue = Number(currentRow[def.field] ?? 0);
+				const previousValue = Number(previousRow[def.field] ?? 0);
+				if (previousValue === 0 && currentValue === 0) {
+					continue;
+				}
+				const pct = safeDeltaPercent(currentValue, previousValue);
+				if (Math.abs(pct) < minDeltaPercent) {
+					continue;
+				}
+				const format: MetricFormat = def.format;
+				anomalies.push({
+					method: "wow",
 					metric: metric.key,
 					label: metric.label,
-					direction: deltaDirection(currentValue, baselineMean),
-					current: currentValue,
-					baseline: Number(baselineMean.toFixed(2)),
-					stddev: Number(baselineStddev.toFixed(2)),
-					zScore: Number(zScore.toFixed(2)),
-					deltaPercent: Number(
-						safeDeltaPercent(currentValue, baselineMean).toFixed(2)
-					),
+					direction: deltaDirection(currentValue, previousValue),
+					current: roundForFormat(currentValue, format),
+					baseline: roundForFormat(previousValue, format),
+					deltaPercent: Number(pct.toFixed(2)),
 					format,
-					headline: buildAnomalyHeadline(
+					headline: buildMetricHeadline(
 						metric.label,
 						currentValue,
-						baselineMean,
-						zScore,
+						previousValue,
 						format
 					),
-				},
-			];
-		}).sort((a, b) => Math.abs(b.zScore) - Math.abs(a.zScore));
+				});
+			}
+		}
+
+		// Deduplicate: prefer the larger |deltaPercent| entry when both arms fire
+		// on the same metric.
+		const byMetric = new Map<string, AnomalyRow>();
+		for (const a of anomalies) {
+			const key = a.metric;
+			const prev = byMetric.get(key);
+			if (!prev || Math.abs(a.deltaPercent) > Math.abs(prev.deltaPercent)) {
+				byMetric.set(key, a);
+			}
+		}
+		const deduped = [...byMetric.values()].sort(
+			(a, b) => Math.abs(b.deltaPercent) - Math.abs(a.deltaPercent)
+		);
 
 		return {
 			websiteId,
 			websiteDomain,
+			method,
 			lookbackDays,
 			threshold,
-			latestDay: String(latest.date ?? ""),
-			baselineDays: baseline.length,
-			count: anomalies.length,
-			anomalies,
+			minDeltaPercent,
+			latestDay,
+			baselineDays: baselineDayCount,
+			count: deduped.length,
+			anomalies: deduped,
 			hint:
-				anomalies.length === 0
-					? `No metrics deviated beyond ${threshold}σ. Try lowering threshold or expanding lookbackDays.`
+				deduped.length === 0
+					? (insufficientDataHint ??
+						`No anomalies detected. Try lowering threshold (${threshold}) or minDeltaPercent (${minDeltaPercent}).`)
 					: undefined,
 		};
 	}

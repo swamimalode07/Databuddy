@@ -1,6 +1,17 @@
 import { createGateway } from "ai";
 
-const apiKey = process.env.AI_GATEWAY_API_KEY ?? process.env.AI_API_KEY ?? "";
+const rawApiKey =
+	process.env.AI_GATEWAY_API_KEY ?? process.env.AI_API_KEY ?? "";
+const apiKey = rawApiKey.trim();
+
+export const isAiGatewayConfigured = apiKey.length > 0;
+
+if (!isAiGatewayConfigured) {
+	// Log once at module load so misconfiguration is visible before the first call.
+	console.warn(
+		"[ai/config/models] AI_GATEWAY_API_KEY is not set — gateway-backed tools (ask, agents) will fail until configured."
+	);
+}
 
 const headers: Record<string, string> = {
 	"HTTP-Referer": "https://www.databuddy.cc/",
