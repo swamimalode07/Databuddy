@@ -70,12 +70,16 @@ export default function Iridescence({
 			return;
 		}
 		const ctn = ctnDom.current;
-		const renderer = new Renderer();
-		const gl = renderer.gl;
 
-		// Check if WebGL context was created successfully
+		// new Renderer() throws when WebGL is unavailable.
+		let renderer: Renderer;
+		try {
+			renderer = new Renderer();
+		} catch {
+			return;
+		}
+		const gl = renderer.gl;
 		if (!gl) {
-			console.error("WebGL context not available");
 			return;
 		}
 
