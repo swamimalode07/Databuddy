@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 const industryLeaders = [
 	{
@@ -47,81 +44,59 @@ const industryLeaders = [
 	},
 ];
 
-// const engineerCompanies = [{ name: "Vercel" }, { name: "Mintlify" }];
-
-function MarqueeItem({ company }: { company: (typeof industryLeaders)[0] }) {
-	return (
-		<a
-			className="group/item relative flex shrink-0 items-center justify-center px-8 opacity-60 transition-opacity duration-200 hover:opacity-100 sm:px-12"
-			href={`${company.url}?utm_source=databuddy&utm_medium=referral`}
-			rel="noopener"
-			target="_blank"
-		>
-			<Image
-				alt={company.name}
-				className={cn(
-					"h-6 w-auto sm:h-8",
-					company.logoClass,
-					company.invert && "dark:invert"
-				)}
-				height={32}
-				src={company.logo}
-				width={120}
-			/>
-			{company.description && (
-				<span className="absolute top-full left-1/2 mt-1 -translate-x-1/2 whitespace-nowrap text-center text-muted-foreground text-xs opacity-0 transition-opacity group-hover/item:opacity-100">
-					{company.description}
-				</span>
-			)}
-		</a>
-	);
+interface LogoGroupProps {
+	title: string;
 }
 
-export function TrustedBy() {
+const LogoGroup = ({ title }: LogoGroupProps) => {
 	return (
-		<div className="relative space-y-8 sm:space-y-10">
-			<div className="space-y-4">
-				<p className="text-balance text-center font-medium text-muted-foreground text-xs uppercase tracking-widest">
-					Trusted by developers at
-				</p>
+		<div className="flex flex-col items-center border border-border bg-background/50 p-4">
+			<h2 className="mb-4 text-center font-medium text-md text-muted-foreground">
+				{title}
+			</h2>
 
-				<div className="group relative overflow-hidden">
-					<div className="absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-background to-transparent sm:w-24" />
-					<div className="absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-background to-transparent sm:w-24" />
+			<div className="grid w-full max-w-80 grid-cols-2 gap-x-2 gap-y-3">
+				{industryLeaders.slice(0, 3).map((company, index) => (
+					<a
+						className="flex h-12 w-full items-center justify-center rounded-md"
+						href={company.url}
+						key={index}
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						<Image
+							alt={company.name}
+							className={`h-7 w-auto max-w-full object-contain ${
+								company.invert ? "dark:invert" : ""
+							}`}
+							height={32}
+							src={company.logo}
+							width={120}
+						/>
+					</a>
+				))}
 
-					<div className="flex py-4">
-						<div className="group-hover:pause flex shrink-0 animate-marquee items-center">
-							{industryLeaders.map((company) => (
-								<MarqueeItem company={company} key={company.name} />
-							))}
-						</div>
-						<div className="group-hover:pause flex shrink-0 animate-marquee items-center">
-							{industryLeaders.map((company) => (
-								<MarqueeItem company={company} key={`${company.name}-copy`} />
-							))}
-						</div>
-					</div>
+				{/* 4th slot — "+N more" */}
+				<div className="flex h-12 w-full items-center justify-center rounded-md px-2">
+					<span className="text-base text-muted-foreground">
+						+{industryLeaders.length - 3} more
+					</span>
 				</div>
 			</div>
-
-			{/* <div className="space-y-4">
-				<p className="text-balance text-center font-medium text-muted-foreground text-xs uppercase tracking-widest">
-					Trusted by engineers from
-				</p>
-
-				<div className="mx-auto grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 px-4 sm:grid-cols-4 sm:gap-x-12">
-					{engineerCompanies.map((company) => (
-						<div
-							className="flex items-center justify-center"
-							key={company.name}
-						>
-							<span className="font-medium text-muted-foreground/60 text-sm">
-								{company.name}
-							</span>
-						</div>
-					))}
-				</div>
-			</div> */}
 		</div>
 	);
-}
+};
+
+export const TrustedBy = () => {
+	return (
+		<div className="w-full">
+			<div className="grid grid-cols-1 sm:grid-cols-3">
+				<LogoGroup title="Customers from June" />
+				<LogoGroup title="Customers from Pendo, Mixpanel, Amplitude" />
+				<LogoGroup title="Migrated off others" />
+			</div>
+		</div>
+	);
+};
+
+export default TrustedBy;
