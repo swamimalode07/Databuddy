@@ -23,7 +23,7 @@ export const gateway = createGateway({
 	headers,
 });
 
-const modelNames = {
+export const modelNames = {
 	triage: "openai/gpt-oss-120b",
 	analytics: "anthropic/claude-sonnet-4.6",
 	advanced: "anthropic/claude-sonnet-4.6",

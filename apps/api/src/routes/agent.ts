@@ -17,7 +17,7 @@ import { useLogger } from "evlog/elysia";
 import type { AgentConfig, AgentType } from "../ai/agents";
 import { createAgentConfig } from "../ai/agents";
 import { enrichAgentContext } from "../ai/config/enrich-context";
-import { models } from "../ai/config/models";
+import { modelNames, models } from "../ai/config/models";
 import { ANTHROPIC_CACHE_1H } from "../ai/config/prompt-cache";
 import { AI_MODEL_MAX_RETRIES } from "../ai/config/retry";
 import {
@@ -26,6 +26,7 @@ import {
 	isApiKeyPresent,
 } from "../lib/api-key";
 import { trackAgentEvent } from "../lib/databuddy";
+import { summarizeAgentUsage } from "../lib/usage-telemetry";
 import {
 	formatMemoryForPrompt,
 	getMemoryContext,
@@ -173,7 +174,6 @@ function createToolLoopAgent(
 		stopWhen: config.stopWhen,
 		temperature: config.temperature,
 		maxRetries: AI_MODEL_MAX_RETRIES,
-		providerOptions: config.providerOptions,
 		experimental_context: config.experimental_context,
 		experimental_telemetry: experimentalTelemetry,
 		prepareStep({ messages }) {
@@ -422,6 +422,32 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					// Ensure the stream completes (and onFinish runs) even if the
 					// client disconnects mid-response.
 					result.consumeStream();
+
+					// Token + cost telemetry. Fire-and-forget side effect: awaiting
+					// `result.totalUsage` blocks until the stream finishes, so we
+					// resolve it in parallel with the response. Never blocks the
+					// chat flow.
+					Promise.resolve(result.totalUsage)
+						.then((usage) => {
+							const summary = summarizeAgentUsage(modelNames.analytics, usage);
+							mergeWideEvent(summary);
+							trackAgentEvent("agent_activity", {
+								action: "chat_usage",
+								source: "dashboard",
+								agent_type: AGENT_TYPE,
+								website_id: body.websiteId,
+								organization_id: organizationId,
+								user_id: persistedUserId ?? null,
+								...summary,
+							});
+						})
+						.catch((usageError) => {
+							captureError(usageError, {
+								agent_usage_telemetry_error: true,
+								agent_chat_id: chatId,
+								agent_website_id: body.websiteId,
+							});
+						});
 
 					return result.toUIMessageStreamResponse({
 						originalMessages: validation.data,
