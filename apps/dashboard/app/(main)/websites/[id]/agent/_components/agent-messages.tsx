@@ -1,16 +1,17 @@
 "use client";
 
 import {
-	ArrowRightIcon,
 	ArrowsClockwiseIcon,
 	BrainIcon,
+	CaretRightIcon,
+	CheckCircleIcon,
 	CheckIcon,
+	CircleNotchIcon,
 	CopyIcon,
 } from "@phosphor-icons/react";
 import type { UIMessage } from "ai";
 import { useCallback, useState } from "react";
 import { AIComponent } from "@/components/ai-elements/ai-component";
-import { ToolStep } from "@/components/ai-elements/chain-of-thought";
 import {
 	Message,
 	MessageContent,
@@ -23,6 +24,11 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Button } from "@/components/ui/button";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useChat } from "@/contexts/chat-context";
 import { parseContentSegments } from "@/lib/ai-components";
 import { formatToolLabel } from "@/lib/tool-display";
@@ -39,6 +45,8 @@ type ToolMessagePart = MessagePart & {
 };
 
 const TOOL_PREFIX_REGEX = /^tool-/;
+const PREVIEW_ROW_LIMIT = 5;
+const PREVIEW_VALUE_MAX_LEN = 120;
 
 function isToolPart(part: MessagePart): part is ToolMessagePart {
 	return part.type.startsWith("tool-");
@@ -55,14 +63,26 @@ function getMessageText(message: UIMessage): string {
 		.trim();
 }
 
-function getFollowups(message: UIMessage | undefined): string[] {
-	const meta = message?.metadata as { followups?: unknown } | undefined;
-	if (!Array.isArray(meta?.followups)) {
-		return [];
+/**
+ * Find the most recent tool part that has been started but not yet returned
+ * an output. Used to label the streaming "Thinking" indicator with the
+ * actual tool currently running.
+ */
+function findActiveToolLabel(message: UIMessage | undefined): string | null {
+	if (!message || message.role !== "assistant") {
+		return null;
 	}
-	return meta.followups.filter(
-		(s): s is string => typeof s === "string" && s.trim().length > 0
-	);
+	for (let i = message.parts.length - 1; i >= 0; i--) {
+		const part = message.parts[i];
+		if (!(part && isToolPart(part))) {
+			continue;
+		}
+		if (part.output != null) {
+			return null;
+		}
+		return formatToolLabel(getToolName(part), part.input ?? {});
+	}
+	return null;
 }
 
 function ReasoningMessage({
@@ -123,6 +143,192 @@ function collectToolGroups(parts: MessagePart[]) {
 	return result;
 }
 
+function truncateValue(value: unknown): string {
+	if (value === null || value === undefined) {
+		return "—";
+	}
+	if (typeof value === "string") {
+		return value.length > PREVIEW_VALUE_MAX_LEN
+			? `${value.slice(0, PREVIEW_VALUE_MAX_LEN)}…`
+			: value;
+	}
+	if (typeof value === "number" || typeof value === "boolean") {
+		return String(value);
+	}
+	const json = JSON.stringify(value);
+	return json.length > PREVIEW_VALUE_MAX_LEN
+		? `${json.slice(0, PREVIEW_VALUE_MAX_LEN)}…`
+		: json;
+}
+
+function ToolInputBlock({ input }: { input: Record<string, unknown> }) {
+	const entries = Object.entries(input);
+	if (entries.length === 0) {
+		return (
+			<p className="text-muted-foreground/70 text-xs italic">No parameters</p>
+		);
+	}
+	return (
+		<dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+			{entries.map(([key, value]) => (
+				<div className="contents" key={key}>
+					<dt className="font-mono text-muted-foreground">{key}</dt>
+					<dd className="break-words font-mono text-foreground/85">
+						{truncateValue(value)}
+					</dd>
+				</div>
+			))}
+		</dl>
+	);
+}
+
+function ToolOutputBlock({ output }: { output: unknown }) {
+	if (output === null || output === undefined) {
+		return <p className="text-muted-foreground/70 text-xs italic">No result</p>;
+	}
+
+	if (Array.isArray(output)) {
+		if (output.length === 0) {
+			return (
+				<p className="text-muted-foreground/70 text-xs italic">Empty array</p>
+			);
+		}
+		const preview = output.slice(0, PREVIEW_ROW_LIMIT);
+		const isObjectArray = preview.every(
+			(row): row is Record<string, unknown> =>
+				typeof row === "object" && row !== null && !Array.isArray(row)
+		);
+
+		if (isObjectArray) {
+			const columns = Array.from(
+				new Set(preview.flatMap((row) => Object.keys(row)))
+			).slice(0, 5);
+			return (
+				<div className="space-y-1.5">
+					<div className="overflow-x-auto rounded border border-border/60">
+						<table className="w-full font-mono text-xs">
+							<thead className="bg-muted/50 text-muted-foreground">
+								<tr>
+									{columns.map((col) => (
+										<th className="px-2 py-1 text-left font-medium" key={col}>
+											{col}
+										</th>
+									))}
+								</tr>
+							</thead>
+							<tbody>
+								{preview.map((row, rowIdx) => (
+									<tr
+										className="border-border/40 border-t"
+										key={`row-${rowIdx}`}
+									>
+										{columns.map((col) => (
+											<td
+												className="break-words px-2 py-1 text-foreground/80"
+												key={col}
+											>
+												{truncateValue(row[col])}
+											</td>
+										))}
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+					<p className="text-muted-foreground/70 text-xs">
+						{output.length === 1 ? "1 row" : `${output.length} rows`}
+						{output.length > PREVIEW_ROW_LIMIT
+							? ` · showing first ${PREVIEW_ROW_LIMIT}`
+							: ""}
+					</p>
+				</div>
+			);
+		}
+
+		return (
+			<pre className="overflow-x-auto rounded border border-border/60 bg-muted/30 p-2 font-mono text-foreground/85 text-xs">
+				{preview.map((item) => truncateValue(item)).join("\n")}
+			</pre>
+		);
+	}
+
+	if (typeof output === "object") {
+		return <ToolInputBlock input={output as Record<string, unknown>} />;
+	}
+
+	return (
+		<p className="break-words font-mono text-foreground/85 text-xs">
+			{truncateValue(output)}
+		</p>
+	);
+}
+
+function InspectableToolStep({
+	tool,
+	label,
+	repeatCount,
+	status,
+}: {
+	tool: ToolMessagePart;
+	label: string;
+	repeatCount: number;
+	status: "active" | "complete";
+}) {
+	const [open, setOpen] = useState(false);
+	const isActive = status === "active";
+	const displayLabel = repeatCount > 1 ? `${label} · ${repeatCount}×` : label;
+	const hasOutput = tool.output != null;
+
+	return (
+		<Collapsible onOpenChange={setOpen} open={open}>
+			<CollapsibleTrigger
+				className={cn(
+					"group flex w-full items-center gap-2 py-0.5 text-left text-muted-foreground text-xs transition-colors hover:text-foreground",
+					isActive && "text-foreground"
+				)}
+			>
+				{isActive ? (
+					<CircleNotchIcon
+						className="size-3 shrink-0 animate-spin"
+						weight="bold"
+					/>
+				) : (
+					<CheckCircleIcon
+						className="size-3 shrink-0 text-muted-foreground/60"
+						weight="fill"
+					/>
+				)}
+				<span className="truncate">{displayLabel}</span>
+				<CaretRightIcon
+					className={cn(
+						"size-3 shrink-0 text-muted-foreground/40 transition-transform",
+						open && "rotate-90"
+					)}
+					weight="bold"
+				/>
+			</CollapsibleTrigger>
+			<CollapsibleContent className="data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-1 data-[state=open]:animate-in">
+				<div className="mt-1 ml-5 space-y-3 rounded border border-border/60 bg-card/40 p-3">
+					<section className="space-y-1.5">
+						<p className="font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
+							Input
+						</p>
+						<ToolInputBlock input={tool.input ?? {}} />
+					</section>
+					{hasOutput || !isActive ? (
+						<section className="space-y-1.5">
+							<p className="font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
+								Result
+							</p>
+							<ToolOutputBlock output={tool.output} />
+						</section>
+					) : null}
+				</div>
+			</CollapsibleContent>
+		</Collapsible>
+	);
+}
+
 function renderToolGroup(
 	tools: ToolMessagePart[],
 	key: string,
@@ -141,15 +347,13 @@ function renderToolGroup(
 					getToolName(entry.tool),
 					entry.tool.input ?? {}
 				);
-				const label =
-					entry.repeatCount > 1
-						? `${baseLabel} · ${entry.repeatCount}×`
-						: baseLabel;
 				return (
-					<ToolStep
+					<InspectableToolStep
 						key={`${key}-${idx}`}
-						label={label}
+						label={baseLabel}
+						repeatCount={entry.repeatCount}
 						status={isActive ? "active" : "complete"}
+						tool={entry.tool}
 					/>
 				);
 			})}
@@ -222,52 +426,20 @@ function renderMessagePart(
 
 	if (isToolPart(part)) {
 		const isActive = isCurrentlyStreaming && !part.output;
+		const baseLabel = formatToolLabel(getToolName(part), part.input ?? {});
 		return (
 			<div className="py-1" key={key}>
-				<ToolStep
-					label={formatToolLabel(getToolName(part), part.input ?? {})}
+				<InspectableToolStep
+					label={baseLabel}
+					repeatCount={1}
 					status={isActive ? "active" : "complete"}
+					tool={part}
 				/>
 			</div>
 		);
 	}
 
 	return null;
-}
-
-function FollowupSuggestions({
-	suggestions,
-	onSelect,
-}: {
-	suggestions: string[];
-	onSelect: (text: string) => void;
-}) {
-	if (suggestions.length === 0) {
-		return null;
-	}
-	return (
-		<div className="flex flex-col gap-1.5 pt-2">
-			<p className="px-1 text-muted-foreground text-xs">Suggested next</p>
-			<div className="flex flex-col gap-1">
-				{suggestions.map((suggestion) => (
-					<button
-						className="group flex items-center justify-between gap-2 rounded border border-border/60 bg-card px-3 py-2 text-left text-sm transition-colors hover:border-border hover:bg-accent/40"
-						key={suggestion}
-						onClick={() => onSelect(suggestion)}
-						type="button"
-					>
-						<span className="line-clamp-2 text-foreground/85">
-							{suggestion}
-						</span>
-						<ArrowRightIcon
-							className="size-3.5 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-foreground"
-							weight="bold"
-						/>
-					</button>
-				))}
-			</div>
-		</div>
-	);
 }
 
 function AssistantActions({
@@ -302,7 +474,7 @@ function AssistantActions({
 	}
 
 	return (
-		<div className="-ml-1.5 flex items-center gap-0.5 pt-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/message:opacity-100">
+		<div className="-ml-1.5 flex items-center gap-0.5 pt-1 opacity-60 transition-opacity focus-within:opacity-100 group-hover/message:opacity-100">
 			<Button
 				aria-label={copied ? "Copied" : "Copy response"}
 				className="size-7 text-muted-foreground hover:text-foreground"
@@ -339,8 +511,6 @@ export function AgentMessages() {
 	const hasError = status === "error";
 	const isStreaming = status === "streaming" || status === "submitted";
 	const lastMessage = messages.at(-1);
-	const errorAfterUser =
-		hasError && lastMessage?.role === "user" && messages.length > 0;
 
 	if (messages.length === 0) {
 		return null;
@@ -363,7 +533,6 @@ export function AgentMessages() {
 			{messages.map((message, index) => {
 				const isLastMessage = index === messages.length - 1;
 				const isAssistant = message.role === "assistant";
-				const showError = isLastMessage && hasError && isAssistant;
 				const showActions = isAssistant && !(isLastMessage && isStreaming);
 				const groupedParts = collectToolGroups(message.parts);
 
@@ -385,14 +554,6 @@ export function AgentMessages() {
 								)
 							)}
 
-							{showError ? (
-								<AgentErrorMessage
-									error={error}
-									onDismissAction={clearError}
-									onRetryAction={retry}
-								/>
-							) : null}
-
 							{showActions ? (
 								<AssistantActions
 									canRegenerate={!hasError}
@@ -408,7 +569,7 @@ export function AgentMessages() {
 				);
 			})}
 
-			{errorAfterUser ? (
+			{hasError ? (
 				<Message from="assistant">
 					<MessageContent className="w-full">
 						<AgentErrorMessage
@@ -420,19 +581,8 @@ export function AgentMessages() {
 				</Message>
 			) : null}
 
-			{!(isStreaming || hasError) &&
-			lastMessage?.role === "assistant" &&
-			getFollowups(lastMessage).length > 0 ? (
-				<FollowupSuggestions
-					onSelect={(text) => {
-						sendMessage({ text }).catch(() => undefined);
-					}}
-					suggestions={getFollowups(lastMessage)}
-				/>
-			) : null}
-
 			{showTailIndicator(isStreaming, lastMessage) ? (
-				<StreamingIndicator />
+				<StreamingIndicator label={findActiveToolLabel(lastMessage)} />
 			) : null}
 		</>
 	);
@@ -457,7 +607,7 @@ function showTailIndicator(
 	return lastMessage.parts.length === 0;
 }
 
-function StreamingIndicator() {
+function StreamingIndicator({ label }: { label: string | null }) {
 	return (
 		<div
 			className="fade-in flex w-full animate-in items-center gap-2 duration-200"
@@ -468,7 +618,7 @@ function StreamingIndicator() {
 				weight="duotone"
 			/>
 			<Shimmer as="span" className="text-sm" duration={1} spread={4}>
-				Thinking
+				{label ?? "Thinking"}
 			</Shimmer>
 		</div>
 	);
