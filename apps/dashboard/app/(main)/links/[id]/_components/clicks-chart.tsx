@@ -28,10 +28,7 @@ export function ClicksChart({
 			>
 				<div className="flex flex-col items-center py-12 text-center">
 					<div className="relative flex size-12 items-center justify-center rounded bg-accent">
-						<ChartLineIcon
-							className="size-6 text-foreground"
-							weight="duotone"
-						/>
+						<ChartLineIcon className="size-6" weight="duotone" />
 					</div>
 					<p className="mt-6 text-balance font-medium text-foreground text-lg">
 						No click data available
