@@ -1,21 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { countEvents, findEvent, hasEvent } from "./test-utils";
+import { countEvents, expect, findEvent, hasEvent, test } from "./test-utils";
 
 test.describe("Sampling & Filtering", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
 
 	test.describe("samplingRate", () => {
 		test("sends all events when samplingRate is 1.0", async ({ page }) => {

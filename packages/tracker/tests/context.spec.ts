@@ -1,22 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { findEvent, hasEvent } from "./test-utils";
+import { expect, findEvent, hasEvent, test } from "./test-utils";
 
 test.describe("Event Context", () => {
-	test.beforeEach(async ({ page }) => {
-		// Disable sendBeacon for reliable route interception (WebKit issue)
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
 
 	test.describe("UTM Parameters", () => {
 		test("captures utm_source from URL", async ({ page }) => {

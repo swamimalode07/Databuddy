@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { countEvents, findEvent, hasEvent } from "./test-utils";
+import { countEvents, expect, findEvent, hasEvent, test } from "./test-utils";
 
 /** Flatten `properties` for /track payloads; batch events are already flat. */
 function eventPayloadForAssert(
@@ -15,21 +14,6 @@ function eventPayloadForAssert(
 }
 
 test.describe("API Methods", () => {
-	test.beforeEach(async ({ page }) => {
-		// Disable sendBeacon for reliable route interception (WebKit issue)
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/**", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
 
 	test.describe("setGlobalProperties", () => {
 		test("merges global properties into all events", async ({ page }) => {

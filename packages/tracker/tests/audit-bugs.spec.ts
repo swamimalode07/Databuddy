@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { hasEvent } from "./test-utils";
+import { expect, hasEvent, test } from "./test-utils";
 
 /**
  * Regression tests for bugs found during the tracker audit.
@@ -7,20 +6,6 @@ import { hasEvent } from "./test-utils";
  */
 
 test.describe("Audit: Outgoing links respect shouldSkipTracking", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
 
 	test("should NOT track outgoing links when tracker is disabled", async ({
 		page,
@@ -50,7 +35,7 @@ test.describe("Audit: Outgoing links respect shouldSkipTracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -67,21 +52,6 @@ test.describe("Audit: Outgoing links respect shouldSkipTracking", () => {
 });
 
 test.describe("Audit: Opt-in resumes tracking without reload", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
-
 	test("should resume tracking after optIn without requiring page reload", async ({
 		page,
 	}) => {
@@ -127,21 +97,6 @@ test.describe("Audit: Opt-in resumes tracking without reload", () => {
 });
 
 test.describe("Audit: Plugin event listeners cleaned up on destroy", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
-
 	test("interaction listeners should stop after destroy", async ({ page }) => {
 		await page.goto("/test");
 		await page.evaluate(() => {
@@ -261,12 +216,6 @@ test.describe("Audit: Plugin event listeners cleaned up on destroy", () => {
 });
 
 test.describe("Audit: destroy() flushes pending data", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-	});
-
 	test("should flush pending events before destroying", async ({
 		page,
 		browserName,
@@ -278,9 +227,14 @@ test.describe("Audit: destroy() flushes pending data", () => {
 
 		const sentEvents: string[] = [];
 
-		await page.route("**/basket.databuddy.cc/**", async (route) => {
+		// Observe requests without intercepting — the basket fixture handles
+		// fulfilment, and its strict allowlist still catches dead routes.
+		page.on("request", (req) => {
+			if (!req.url().includes("basket.databuddy.cc")) {
+				return;
+			}
 			try {
-				const data = JSON.parse(route.request().postData() ?? "[]");
+				const data = JSON.parse(req.postData() ?? "[]");
 				const events = Array.isArray(data) ? data : [data];
 				for (const e of events) {
 					if (e.name) {
@@ -288,10 +242,6 @@ test.describe("Audit: destroy() flushes pending data", () => {
 					}
 				}
 			} catch {}
-			await route.fulfill({
-				status: 200,
-				body: JSON.stringify({ success: true }),
-			});
 		});
 
 		await page.goto("/test");

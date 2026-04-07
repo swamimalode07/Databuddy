@@ -1,17 +1,15 @@
-import { expect, type Page, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { scrollDepthPercentFromScrollY } from "../src/plugins/scroll-depth-math";
 import {
+	expect,
 	findEvent,
 	readMaxScrollDepth,
 	requestHasNamedEvent,
-	setupBasketMock,
+	test,
 	waitForDebugScrollHook,
 } from "./test-utils";
 
 test.describe("scroll depth", () => {
-	test.beforeEach(async ({ page }) => {
-		await setupBasketMock(page);
-	});
 
 	async function boot(
 		page: Page,

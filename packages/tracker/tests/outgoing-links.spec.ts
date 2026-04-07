@@ -1,21 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { findEvent, hasEvent } from "./test-utils";
+import { expect, findEvent, hasEvent, test } from "./test-utils";
 
 test.describe("Outgoing Links Tracking", () => {
-	test.beforeEach(async ({ page }) => {
-		await page.addInitScript(() => {
-			Object.defineProperty(navigator, "sendBeacon", { value: undefined });
-		});
-
-		await page.route("**/basket.databuddy.cc/*", async (route) => {
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body: JSON.stringify({ success: true }),
-				headers: { "Access-Control-Allow-Origin": "*" },
-			});
-		});
-	});
 
 	test("tracks clicks on external links", async ({ page }) => {
 		await page.goto("/test");
@@ -40,10 +25,13 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) => e.href === "https://external-site.com/page")
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) =>
+					e.type === "outgoing_link" &&
+					e.href === "https://external-site.com/page"
+			)
 		);
 
 		await page.evaluate(() => {
@@ -53,8 +41,11 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#external-link");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) =>
-			Boolean(e.href === "https://external-site.com/page")
+		const outgoing = findEvent(
+			request,
+			(e) =>
+				e.type === "outgoing_link" &&
+				e.href === "https://external-site.com/page"
 		);
 		expect(outgoing).toBeTruthy();
 		expect(outgoing?.href).toBe("https://external-site.com/page");
@@ -86,7 +77,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -126,7 +117,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -166,7 +157,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -206,7 +197,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -246,10 +237,13 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) => e.href === "https://external-site.com/page")
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) =>
+					e.type === "outgoing_link" &&
+					e.href === "https://external-site.com/page"
+			)
 		);
 
 		await page.evaluate(() => {
@@ -259,8 +253,11 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#link-child");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) =>
-			Boolean(e.href === "https://external-site.com/page")
+		const outgoing = findEvent(
+			request,
+			(e) =>
+				e.type === "outgoing_link" &&
+				e.href === "https://external-site.com/page"
 		);
 		expect(outgoing).toBeTruthy();
 		expect(outgoing?.href).toBe("https://external-site.com/page");
@@ -290,10 +287,11 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) => e.text === "Link Title")
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) => e.type === "outgoing_link" && e.text === "Link Title"
+			)
 		);
 
 		await page.evaluate(() => {
@@ -303,7 +301,10 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#external-link");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) => e.text === "Link Title");
+		const outgoing = findEvent(
+			request,
+			(e) => e.type === "outgoing_link" && e.text === "Link Title"
+		);
 		expect(outgoing).toBeTruthy();
 		expect(outgoing?.text).toBe("Link Title");
 	});
@@ -337,7 +338,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -375,14 +376,14 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) =>
-					typeof e.href === "string"
-						? e.href.includes("external-site.com/page")
-						: false
-				)
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) =>
+					e.type === "outgoing_link" &&
+					typeof e.href === "string" &&
+					e.href.includes("external-site.com/page")
+			)
 		);
 
 		await page.evaluate(() => {
@@ -392,10 +393,12 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#protocol-relative-link");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) =>
-			typeof e.href === "string"
-				? e.href.includes("external-site.com/page")
-				: false
+		const outgoing = findEvent(
+			request,
+			(e) =>
+				e.type === "outgoing_link" &&
+				typeof e.href === "string" &&
+				e.href.includes("external-site.com/page")
 		);
 		expect(outgoing).toBeTruthy();
 		expect(String(outgoing?.href)).toContain("external-site.com/page");
@@ -426,7 +429,7 @@ test.describe("Outgoing Links Tracking", () => {
 			.toBeTruthy();
 
 		page.on("request", (req) => {
-			if (req.url().includes("/outgoing")) {
+			if (hasEvent(req, (e) => e.type === "outgoing_link")) {
 				outgoingTracked = true;
 			}
 		});
@@ -464,10 +467,13 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) => e.href === "https://subdomain.localhost/page")
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) =>
+					e.type === "outgoing_link" &&
+					e.href === "https://subdomain.localhost/page"
+			)
 		);
 
 		await page.evaluate(() => {
@@ -477,8 +483,11 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#subdomain-link");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) =>
-			Boolean(e.href === "https://subdomain.localhost/page")
+		const outgoing = findEvent(
+			request,
+			(e) =>
+				e.type === "outgoing_link" &&
+				e.href === "https://subdomain.localhost/page"
 		);
 		expect(outgoing).toBeTruthy();
 		expect(outgoing?.href).toBe("https://subdomain.localhost/page");
@@ -544,10 +553,13 @@ test.describe("Outgoing Links Tracking", () => {
 			.poll(async () => await page.evaluate(() => !!(window as any).db))
 			.toBeTruthy();
 
-		const requestPromise = page.waitForRequest(
-			(req) =>
-				req.url().includes("/outgoing") &&
-				hasEvent(req, (e) => e.href === "https://external-site.com/page")
+		const requestPromise = page.waitForRequest((req) =>
+			hasEvent(
+				req,
+				(e) =>
+					e.type === "outgoing_link" &&
+					e.href === "https://external-site.com/page"
+			)
 		);
 
 		await page.evaluate(() => {
@@ -557,8 +569,11 @@ test.describe("Outgoing Links Tracking", () => {
 		await page.click("#empty-link");
 
 		const request = await requestPromise;
-		const outgoing = findEvent(request, (e) =>
-			Boolean(e.href === "https://external-site.com/page")
+		const outgoing = findEvent(
+			request,
+			(e) =>
+				e.type === "outgoing_link" &&
+				e.href === "https://external-site.com/page"
 		);
 		expect(outgoing).toBeTruthy();
 		expect(outgoing?.href).toBe("https://external-site.com/page");
