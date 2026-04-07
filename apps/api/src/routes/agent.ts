@@ -423,10 +423,8 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					// client disconnects mid-response.
 					result.consumeStream();
 
-					// Token + cost telemetry. Fire-and-forget side effect: awaiting
-					// `result.totalUsage` blocks until the stream finishes, so we
-					// resolve it in parallel with the response. Never blocks the
-					// chat flow.
+					// `totalUsage` resolves once the stream finishes; run as a
+					// parallel side effect so it never blocks the response.
 					Promise.resolve(result.totalUsage)
 						.then((usage) => {
 							const summary = summarizeAgentUsage(modelNames.analytics, usage);

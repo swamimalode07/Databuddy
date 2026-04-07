@@ -194,15 +194,10 @@ export function useChat() {
 	return chat;
 }
 
-/** Returns the queued messages and a remove callback. */
 export function usePendingQueue() {
 	return useContext(PendingQueueContext);
 }
 
-/**
- * Returns transient loading flags for the current chat (initial restore +
- * post-stream metadata sync). Components use these to render skeletons.
- */
 export function useChatLoading() {
 	return useContext(ChatLoadingContext);
 }
