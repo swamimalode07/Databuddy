@@ -20,9 +20,7 @@ export function buildUptimeHeatmapDays(
 	}>,
 	days: number
 ): UptimeHeatmapDay[] {
-	const dataByDate = new Map(
-		data.map((d) => [localDayjs(d.date).format("YYYY-MM-DD"), d])
-	);
+	const dataByDate = new Map(data.map((d) => [d.date.slice(0, 10), d]));
 
 	const result: UptimeHeatmapDay[] = [];
 	const today = localDayjs().endOf("day");
