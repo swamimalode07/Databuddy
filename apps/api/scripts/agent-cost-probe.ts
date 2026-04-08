@@ -18,6 +18,7 @@
  * cache hits/misses are realistic.
  */
 
+import { AGENT_CREDIT_SCHEMA } from "@databuddy/shared/billing/credit-schema";
 import { randomUUIDv7 } from "bun";
 import { convertToModelMessages, ToolLoopAgent, type UIMessage } from "ai";
 import { createAgentConfig } from "../src/ai/agents";
@@ -58,24 +59,16 @@ if (!(websiteId && userId)) {
 	process.exit(1);
 }
 
-// Matches creditSchema in apps/dashboard/autumn.config.ts.
-// Keep in sync — if you change rates in one place, change them in the other.
-const CURRENT_SCHEMA = {
-	input: 0.000_72,
-	output: 0.0036,
-	cacheRead: 0.000_072,
-	cacheWrite: 0.001_44,
-};
-
 function computeCredits(
-	schema: typeof CURRENT_SCHEMA,
-	s: ReturnType<typeof summarizeAgentUsage>
+	s: ReturnType<typeof summarizeAgentUsage>,
+	webSearchCalls: number
 ): number {
 	return (
-		s.fresh_input_tokens * schema.input +
-		s.output_tokens * schema.output +
-		s.cache_read_tokens * schema.cacheRead +
-		s.cache_write_tokens * schema.cacheWrite
+		s.fresh_input_tokens * AGENT_CREDIT_SCHEMA.input +
+		s.output_tokens * AGENT_CREDIT_SCHEMA.output +
+		s.cache_read_tokens * AGENT_CREDIT_SCHEMA.cacheRead +
+		s.cache_write_tokens * AGENT_CREDIT_SCHEMA.cacheWrite +
+		webSearchCalls * AGENT_CREDIT_SCHEMA.webSearch
 	);
 }
 
@@ -117,6 +110,7 @@ async function main() {
 		read: 0,
 		write: 0,
 		output: 0,
+		webSearch: 0,
 	};
 
 	for (const [idx, message] of messages.entries()) {
@@ -143,11 +137,15 @@ async function main() {
 
 		let assistantText = "";
 		let toolCalls = 0;
+		let webSearchCalls = 0;
 		for await (const part of result.fullStream) {
 			if (part.type === "text-delta") {
 				assistantText += part.text ?? "";
 			} else if (part.type === "tool-call") {
 				toolCalls++;
+				if (part.toolName === "web_search") {
+					webSearchCalls++;
+				}
 				console.log(`  → tool call: ${part.toolName}`);
 			}
 		}
@@ -162,16 +160,18 @@ async function main() {
 		const steps = (await result.steps).length;
 		const elapsed = ((Date.now() - t0) / 1000).toFixed(2);
 		const summary = summarizeAgentUsage(modelNames.analytics, usage);
-		const credits = computeCredits(CURRENT_SCHEMA, summary);
+		const credits = computeCredits(summary, webSearchCalls);
 
 		totals.credits += credits;
 		totals.fresh += summary.fresh_input_tokens;
 		totals.read += summary.cache_read_tokens;
 		totals.write += summary.cache_write_tokens;
 		totals.output += summary.output_tokens;
+		totals.webSearch += webSearchCalls;
 
+		const webSearchNote = webSearchCalls > 0 ? ` · web ${webSearchCalls}` : "";
 		console.log(
-			`  ${elapsed}s · ${steps} steps · ${toolCalls} tools · fresh ${summary.fresh_input_tokens} · read ${summary.cache_read_tokens} · write ${summary.cache_write_tokens} · out ${summary.output_tokens}${
+			`  ${elapsed}s · ${steps} steps · ${toolCalls} tools${webSearchNote} · fresh ${summary.fresh_input_tokens} · read ${summary.cache_read_tokens} · write ${summary.cache_write_tokens} · out ${summary.output_tokens}${
 				summary.reasoning_tokens > 0
 					? ` (${summary.reasoning_tokens} reasoning)`
 					: ""
@@ -189,6 +189,9 @@ async function main() {
 	console.log(`  cache read   ${totals.read.toLocaleString().padStart(10)}`);
 	console.log(`  cache write  ${totals.write.toLocaleString().padStart(10)}`);
 	console.log(`  output       ${totals.output.toLocaleString().padStart(10)}`);
+	console.log(
+		`  web search   ${totals.webSearch.toLocaleString().padStart(10)}`
+	);
 	console.log(`  credits      ${totals.credits.toFixed(2).padStart(10)}`);
 	console.log();
 	console.log(

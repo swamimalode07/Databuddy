@@ -1,3 +1,4 @@
+import { AGENT_CREDIT_SCHEMA } from "@databuddy/shared/billing/credit-schema";
 import { feature, item, plan } from "atmn";
 
 /*
@@ -104,11 +105,26 @@ export const agent_credits = feature({
 	name: "Agent Credits",
 	type: "credit_system",
 	creditSchema: [
-		{ meteredFeatureId: "agent_input_tokens", creditCost: 0.000_72 },
-		{ meteredFeatureId: "agent_output_tokens", creditCost: 0.0036 },
-		{ meteredFeatureId: "agent_cache_read_tokens", creditCost: 0.000_072 },
-		{ meteredFeatureId: "agent_cache_write_tokens", creditCost: 0.001_44 },
-		{ meteredFeatureId: "agent_web_search_calls", creditCost: 5 },
+		{
+			meteredFeatureId: "agent_input_tokens",
+			creditCost: AGENT_CREDIT_SCHEMA.input,
+		},
+		{
+			meteredFeatureId: "agent_output_tokens",
+			creditCost: AGENT_CREDIT_SCHEMA.output,
+		},
+		{
+			meteredFeatureId: "agent_cache_read_tokens",
+			creditCost: AGENT_CREDIT_SCHEMA.cacheRead,
+		},
+		{
+			meteredFeatureId: "agent_cache_write_tokens",
+			creditCost: AGENT_CREDIT_SCHEMA.cacheWrite,
+		},
+		{
+			meteredFeatureId: "agent_web_search_calls",
+			creditCost: AGENT_CREDIT_SCHEMA.webSearch,
+		},
 	],
 });
 
