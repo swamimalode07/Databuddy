@@ -6,7 +6,7 @@ import { feature, item, plan } from "atmn";
 //
 // Conventions:
 // - Metered consumable: usage that gets consumed (events, agent tokens)
-// - Metered non-consumable: countable resources (monitors, status pages, seats)
+// - Metered non-consumable: countable resources (monitors, status pages)
 // - Boolean: feature flag — included or not, no quantity
 // - credit_system: visible pool that auto-deducts from underlying metered features
 //
@@ -68,13 +68,6 @@ export const error_tracking = feature({
 // -----------------------------------------------------------------------------
 // Team / collaboration
 // -----------------------------------------------------------------------------
-
-export const seats = feature({
-	id: "seats",
-	name: "Seats",
-	type: "metered",
-	consumable: false,
-});
 
 export const sso = feature({
 	id: "sso",
@@ -218,9 +211,6 @@ export const free = plan({
 		item({ featureId: goals.id, included: 2 }),
 		item({ featureId: feature_flags.id, included: 3 }),
 
-		// Team
-		item({ featureId: seats.id, included: 2 }),
-
 		// Agent
 		item({
 			featureId: agent_credits.id,
@@ -265,9 +255,6 @@ export const hobby = plan({
 		item({ featureId: target_groups.id, included: 5 }),
 		item({ featureId: retention_analytics.id }),
 		item({ featureId: error_tracking.id }),
-
-		// Team
-		item({ featureId: seats.id, included: 5 }),
 
 		// Agent
 		item({
@@ -317,7 +304,6 @@ export const pro = plan({
 		item({ featureId: error_tracking.id }),
 
 		// Team
-		item({ featureId: seats.id, included: 25 }),
 		item({ featureId: rbac.id }),
 
 		// Agent — with rollover and overage tiers
@@ -389,7 +375,6 @@ export const scale = plan({
 		item({ featureId: error_tracking.id }),
 
 		// Team
-		item({ featureId: seats.id, unlimited: true }),
 		item({ featureId: rbac.id }),
 
 		// Agent
