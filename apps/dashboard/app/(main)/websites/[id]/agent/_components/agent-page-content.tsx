@@ -17,8 +17,17 @@ import {
 	ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { FaviconImage } from "@/components/analytics/favicon-image";
+import {
+	useBillingContext,
+	useUsageFeature,
+} from "@/components/providers/billing-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useChat, useChatLoading } from "@/contexts/chat-context";
 import { useWebsite } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
@@ -123,6 +132,7 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 						) : null}
 					</div>
 					<div className="flex shrink-0 items-center gap-1">
+						<AgentCreditBalance />
 						<ChatHistory />
 						<NewChatButton />
 					</div>
@@ -243,6 +253,82 @@ function WelcomeState({
 						})}
 			</div>
 		</div>
+	);
+}
+
+function AgentCreditBalance() {
+	const { balance, limit, unlimited } = useUsageFeature("agent_credits");
+	const { refetch, isLoading } = useBillingContext();
+	const { status } = useChat();
+	const router = useRouter();
+	const prevStatusRef = useRef(status);
+
+	useEffect(() => {
+		const prev = prevStatusRef.current;
+		prevStatusRef.current = status;
+		const justFinished =
+			(prev === "streaming" || prev === "submitted") &&
+			(status === "ready" || status === "error");
+		if (!justFinished) {
+			return;
+		}
+		const timer = setTimeout(() => refetch(), 1500);
+		return () => clearTimeout(timer);
+	}, [status, refetch]);
+
+	if (isLoading) {
+		return <Skeleton className="h-6 w-20 rounded" />;
+	}
+
+	if (unlimited) {
+		return (
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<button
+						className="flex items-center gap-1 rounded border border-border/60 bg-card px-2 py-0.5 text-muted-foreground text-xs transition-colors hover:border-border hover:text-foreground"
+						onClick={() => router.push("/billing")}
+						type="button"
+					>
+						<SparkleIcon className="size-3" weight="duotone" />
+						<span className="font-medium tabular-nums">∞ credits</span>
+					</button>
+				</TooltipTrigger>
+				<TooltipContent>Unlimited agent credits on your plan</TooltipContent>
+			</Tooltip>
+		);
+	}
+
+	const isEmpty = balance <= 0;
+	const isLow = !isEmpty && limit > 0 && balance / limit < 0.2;
+
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<button
+					className={cn(
+						"flex items-center gap-1 rounded border px-2 py-0.5 text-xs transition-colors",
+						isEmpty &&
+							"border-destructive/40 bg-destructive/5 text-destructive hover:border-destructive/60",
+						isLow &&
+							"border-amber-500/40 bg-amber-500/5 text-amber-600 hover:border-amber-500/60 dark:text-amber-400",
+						!(isEmpty || isLow) &&
+							"border-border/60 bg-card text-muted-foreground hover:border-border hover:text-foreground"
+					)}
+					onClick={() => router.push("/billing")}
+					type="button"
+				>
+					<SparkleIcon className="size-3" weight="duotone" />
+					<span className="font-medium tabular-nums">
+						{balance.toLocaleString()} / {limit.toLocaleString()}
+					</span>
+				</button>
+			</TooltipTrigger>
+			<TooltipContent>
+				{isEmpty
+					? "Out of agent credits — click to upgrade"
+					: `${balance.toLocaleString()} of ${limit.toLocaleString()} agent credits remaining this month`}
+			</TooltipContent>
+		</Tooltip>
 	);
 }
 
