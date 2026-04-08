@@ -964,11 +964,15 @@ function buildDeterministicNarrative(
 	return `This ${word}: ${headline.title}${siteSuffix}, plus ${extra} more signal${extra === 1 ? "" : "s"} worth reviewing.`;
 }
 
+const RANGE_TO_DAYS = { "7d": 7, "30d": 30, "90d": 90 } as const;
+
 const generateNarrativeCached = cacheable(
 	async function generateNarrativeCached(
 		organizationId: string,
 		range: "7d" | "30d" | "90d"
 	): Promise<{ narrative: string }> {
+		const cutoff = dayjs().subtract(RANGE_TO_DAYS[range], "day").toDate();
+
 		const topInsights = await db
 			.select({
 				title: analyticsInsights.title,
@@ -979,7 +983,13 @@ const generateNarrativeCached = cacheable(
 			})
 			.from(analyticsInsights)
 			.innerJoin(websites, eq(analyticsInsights.websiteId, websites.id))
-			.where(eq(analyticsInsights.organizationId, organizationId))
+			.where(
+				and(
+					eq(analyticsInsights.organizationId, organizationId),
+					gte(analyticsInsights.createdAt, cutoff),
+					isNull(websites.deletedAt)
+				)
+			)
 			.orderBy(desc(analyticsInsights.priority))
 			.limit(NARRATIVE_INSIGHTS_LIMIT);
 

@@ -1,6 +1,7 @@
 import { getAutumn } from "@databuddy/rpc";
 import { generateText, tool } from "ai";
 import { z } from "zod";
+import { mergeWideEvent } from "../../lib/tracing";
 import type { AppContext } from "../config/context";
 import { models } from "../config/models";
 import { createToolLogger } from "./utils/logger";
@@ -76,6 +77,7 @@ export const webSearchTool = tool({
 						value: 1,
 					})
 					.catch((trackError) => {
+						mergeWideEvent({ web_search_billing_track_failed: true });
 						logger.error("Failed to track web search usage", {
 							error:
 								trackError instanceof Error

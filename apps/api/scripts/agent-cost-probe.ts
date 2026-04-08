@@ -58,6 +58,8 @@ if (!(websiteId && userId)) {
 	process.exit(1);
 }
 
+// Matches creditSchema in apps/dashboard/autumn.config.ts.
+// Keep in sync — if you change rates in one place, change them in the other.
 const CURRENT_SCHEMA = {
 	input: 0.000_72,
 	output: 0.0036,

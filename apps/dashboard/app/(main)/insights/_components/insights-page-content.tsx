@@ -27,6 +27,9 @@ import {
 	createGeoColumns,
 	createPageColumns,
 	createReferrerColumns,
+	type GeoEntry,
+	type PageEntry,
+	type ReferrerEntry,
 } from "@/components/table/rows";
 import {
 	AlertDialog,
@@ -230,14 +233,17 @@ export function InsightsPageContent() {
 		[])[0] as SummaryRow | undefined;
 	const eventsByDate = (getDataForQuery("cockpit-summary", "events_by_date") ??
 		[]) as Record<string, unknown>[];
-	const topPages = (getDataForQuery("cockpit-pages", "top_pages") ?? []) as {
-		name: string;
-	}[];
+	// DataTable requires name as a string or number, but ReferrerEntry inherits
+	// an optional name from ReferrerSourceCellData. The analytics pipeline
+	// always populates name, so narrow it here for the cockpit tables.
+	type CockpitReferrerEntry = ReferrerEntry & { name: string };
+
+	const topPages = (getDataForQuery("cockpit-pages", "top_pages") ??
+		[]) as PageEntry[];
 	const topReferrers = (getDataForQuery("cockpit-referrers", "top_referrers") ??
-		[]) as { name: string }[];
-	const topCountries = (getDataForQuery("cockpit-geo", "country") ?? []) as {
-		name: string;
-	}[];
+		[]) as CockpitReferrerEntry[];
+	const topCountries = (getDataForQuery("cockpit-geo", "country") ??
+		[]) as GeoEntry[];
 
 	const miniCharts = useMemo(() => {
 		const build = (field: string, transform?: (value: number) => number) =>
@@ -256,25 +262,13 @@ export function InsightsPageContent() {
 		};
 	}, [eventsByDate]);
 
-	const pageColumns = useMemo(
-		() =>
-			createPageColumns() as unknown as ColumnDef<{ name: string }, unknown>[],
-		[]
-	);
+	const pageColumns = useMemo(() => createPageColumns(), []);
 	const referrerColumns = useMemo(
-		() =>
-			createReferrerColumns() as unknown as ColumnDef<
-				{ name: string },
-				unknown
-			>[],
+		() => createReferrerColumns() as ColumnDef<CockpitReferrerEntry>[],
 		[]
 	);
 	const countryColumns = useMemo(
-		() =>
-			createGeoColumns({ type: "country" }) as unknown as ColumnDef<
-				{ name: string },
-				unknown
-			>[],
+		() => createGeoColumns({ type: "country" }),
 		[]
 	);
 
