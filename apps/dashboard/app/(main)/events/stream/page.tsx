@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import {
 	EventsStreamContent,
 	type RecentCustomEvent,
@@ -9,6 +9,14 @@ import { useEventsPageContext } from "../_components/events-page-context";
 import { useGlobalEventsStream } from "./use-global-events-stream";
 
 export default function EventsStreamPage() {
+	return (
+		<Suspense fallback={null}>
+			<EventsStreamView />
+		</Suspense>
+	);
+}
+
+function EventsStreamView() {
 	const { queryOptions, websiteFilters, dateRange, hasQueryId, isLoadingOrg } =
 		useEventsPageContext();
 
