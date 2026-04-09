@@ -19,32 +19,37 @@ import { generateText, Output, stepCountIs, ToolLoopAgent } from "ai";
 import dayjs from "dayjs";
 import { Elysia, t } from "elysia";
 import { useLogger } from "evlog/elysia";
+import {
+	fetchInsightDedupeKeyToIdMap,
+	insightDedupeKey,
+} from "../ai/insights/dedupe";
+import {
+	fetchWebPeriodData,
+	getWeekOverWeekPeriod,
+	hasWebInsightData,
+} from "../ai/insights/fetch-context";
+import { formatLegacyWebDataForPrompt } from "../ai/insights/normalize";
+import type {
+	InsightMetricRow,
+	WeekOverWeekPeriod,
+} from "../ai/insights/types";
 import { models } from "../ai/config/models";
 import type { ParsedInsight } from "../ai/schemas/smart-insights-output";
 import { insightsOutputSchema } from "../ai/schemas/smart-insights-output";
 import { createInsightsAgentTools } from "../ai/tools/insights-agent-tools";
 import { storeAnalyticsSummary } from "../lib/supermemory";
 import { captureError, mergeWideEvent } from "../lib/tracing";
-import { executeQuery } from "../query";
 
 const CACHE_TTL = 900;
 const CACHE_KEY_PREFIX = "ai-insights";
 const TIMEOUT_MS = 60_000;
 const INSIGHTS_AGENT_MAX_STEPS = 24;
 const INSIGHTS_AGENT_TIMEOUT_MS = 120_000;
-const QUERY_FETCH_TIMEOUT_MS = 45_000;
 const MAX_WEBSITES = 5;
 const CONCURRENCY = 3;
 const GENERATION_COOLDOWN_HOURS = 6;
 const RECENT_INSIGHTS_LOOKBACK_DAYS = 14;
 const RECENT_INSIGHTS_PROMPT_LIMIT = 12;
-
-const PATH_SEGMENT_ALNUM = /^[a-zA-Z0-9_-]+$/;
-const DIGIT_CLASS = /\d/;
-const LETTER_CLASS = /[a-zA-Z]/;
-const LOWER_CLASS = /[a-z]/;
-const UPPER_CLASS = /[A-Z]/;
-const DASH_UNDERSCORE_SPLIT = /[-_]/g;
 
 interface WebsiteInsight extends ParsedInsight {
 	id: string;
@@ -54,403 +59,15 @@ interface WebsiteInsight extends ParsedInsight {
 	websiteName: string | null;
 }
 
-interface InsightMetricRow {
-	current: number;
-	format: "number" | "percent" | "duration_ms" | "duration_s";
-	label: string;
-	previous?: number;
-}
-
 interface InsightsPayload {
 	insights: WebsiteInsight[];
 	source: "ai" | "fallback";
-}
-
-interface PeriodData {
-	browsers: Record<string, unknown>[];
-	countries: Record<string, unknown>[];
-	errorSummary: Record<string, unknown>[];
-	summary: Record<string, unknown>[];
-	topPages: Record<string, unknown>[];
-	topReferrers: Record<string, unknown>[];
-	vitalsOverview: Record<string, unknown>[];
-}
-
-interface WeekOverWeekPeriod {
-	current: { from: string; to: string };
-	previous: { from: string; to: string };
 }
 
 interface OrgWebsiteRow {
 	domain: string;
 	id: string;
 	name: string | null;
-}
-
-function humanizeMetricKey(key: string): string {
-	return key.replaceAll("_", " ").replaceAll(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function formatMetricValue(value: unknown): string {
-	if (value === null || value === undefined) {
-		return "";
-	}
-	if (typeof value === "number") {
-		return Number.isInteger(value) ? String(value) : value.toFixed(2);
-	}
-	if (typeof value === "boolean") {
-		return value ? "yes" : "no";
-	}
-	if (typeof value === "string") {
-		return value;
-	}
-	return JSON.stringify(value);
-}
-
-function formatObjectLine(record: Record<string, unknown>): string {
-	return Object.entries(record)
-		.filter(([, v]) => v !== null && v !== undefined)
-		.map(([k, v]) => `${humanizeMetricKey(k)}: ${formatMetricValue(v)}`)
-		.join(" | ");
-}
-
-function formatRowsBlock(
-	rows: Record<string, unknown>[],
-	sectionTitle: string
-): string {
-	if (rows.length === 0) {
-		return "";
-	}
-	const lines = rows.map((row) => formatObjectLine(row));
-	return `### ${sectionTitle}\n${lines.join("\n")}`;
-}
-
-function isOpaquePathSegment(segment: string): boolean {
-	if (segment.length < 8) {
-		return false;
-	}
-	if (!PATH_SEGMENT_ALNUM.test(segment)) {
-		return false;
-	}
-	const hasDigit = DIGIT_CLASS.test(segment);
-	const hasLetter = LETTER_CLASS.test(segment);
-	if (segment.length >= 16) {
-		return hasLetter || hasDigit;
-	}
-	return hasDigit || (LOWER_CLASS.test(segment) && UPPER_CLASS.test(segment));
-}
-
-function titleCasePathWords(segment: string): string {
-	return segment
-		.replaceAll(DASH_UNDERSCORE_SPLIT, " ")
-		.split(" ")
-		.filter(Boolean)
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-		.join(" ");
-}
-
-/** Readable page name for titles; raw path may still appear in data rows for accuracy. */
-function humanizePagePathForPrompt(rawPath: string): string {
-	const path = rawPath.trim() || "/";
-	if (path === "/" || path === "") {
-		return "Home";
-	}
-	const segments = path.split("/").filter(Boolean);
-	const last = segments.at(-1) ?? "";
-	if (isOpaquePathSegment(last) && segments.length >= 2) {
-		const parent = segments.at(-2) ?? "";
-		if (parent && !isOpaquePathSegment(parent)) {
-			return `${titleCasePathWords(parent)} page`;
-		}
-		return "Page";
-	}
-	if (isOpaquePathSegment(last)) {
-		return "Page";
-	}
-	return `${titleCasePathWords(last)} page`;
-}
-
-function formatTopPagesBlock(rows: Record<string, unknown>[]): string {
-	if (rows.length === 0) {
-		return "";
-	}
-	const lines = rows.map((row) => {
-		const rawName =
-			typeof row.name === "string" ? row.name : String(row.name ?? "");
-		const human = humanizePagePathForPrompt(rawName);
-		const base = formatObjectLine(row);
-		return `${base} | Human label (use in titles, not raw paths with IDs): ${human}`;
-	});
-	return `### Top Pages\n${lines.join("\n")}`;
-}
-
-function directionKeyFromParts(
-	changePercent: number | null | undefined,
-	sentiment: ParsedInsight["sentiment"]
-): "up" | "down" | "flat" {
-	if (
-		changePercent !== null &&
-		changePercent !== undefined &&
-		changePercent !== 0
-	) {
-		return changePercent > 0 ? "up" : "down";
-	}
-	if (sentiment === "positive") {
-		return "up";
-	}
-	if (sentiment === "negative") {
-		return "down";
-	}
-	return "flat";
-}
-
-function insightDedupeKey(
-	websiteId: string,
-	type: ParsedInsight["type"],
-	sentiment: ParsedInsight["sentiment"],
-	changePercent: number | null | undefined
-): string {
-	const dir = directionKeyFromParts(changePercent, sentiment);
-	return `${websiteId}|${type}|${dir}`;
-}
-
-async function fetchInsightDedupeKeyToIdMap(
-	organizationId: string
-): Promise<Map<string, string>> {
-	const cutoff = dayjs().subtract(GENERATION_COOLDOWN_HOURS, "hour").toDate();
-	const rows = await db
-		.select({
-			id: analyticsInsights.id,
-			websiteId: analyticsInsights.websiteId,
-			type: analyticsInsights.type,
-			sentiment: analyticsInsights.sentiment,
-			changePercent: analyticsInsights.changePercent,
-		})
-		.from(analyticsInsights)
-		.where(
-			and(
-				eq(analyticsInsights.organizationId, organizationId),
-				gte(analyticsInsights.createdAt, cutoff)
-			)
-		)
-		.orderBy(desc(analyticsInsights.createdAt));
-	const map = new Map<string, string>();
-	for (const r of rows) {
-		const key = insightDedupeKey(
-			r.websiteId,
-			r.type as ParsedInsight["type"],
-			r.sentiment as ParsedInsight["sentiment"],
-			r.changePercent
-		);
-		if (!map.has(key)) {
-			map.set(key, r.id);
-		}
-	}
-	return map;
-}
-
-function runQueryWithTimeout<T>(
-	label: string,
-	fn: () => Promise<T>
-): Promise<T> {
-	return Promise.race([
-		fn(),
-		new Promise<never>((_, reject) => {
-			setTimeout(() => {
-				reject(new Error(`${label} timed out`));
-			}, QUERY_FETCH_TIMEOUT_MS);
-		}),
-	]);
-}
-
-function getWeekOverWeekPeriod(): WeekOverWeekPeriod {
-	const now = dayjs();
-	return {
-		current: {
-			from: now.subtract(7, "day").format("YYYY-MM-DD"),
-			to: now.format("YYYY-MM-DD"),
-		},
-		previous: {
-			from: now.subtract(14, "day").format("YYYY-MM-DD"),
-			to: now.subtract(7, "day").format("YYYY-MM-DD"),
-		},
-	};
-}
-
-async function fetchPeriodData(
-	websiteId: string,
-	domain: string,
-	from: string,
-	to: string,
-	timezone: string
-): Promise<PeriodData> {
-	const base = { projectId: websiteId, from, to, timezone };
-
-	const safe = async (
-		label: string,
-		run: () => Promise<Record<string, unknown>[]>
-	): Promise<Record<string, unknown>[]> => {
-		try {
-			const value = await runQueryWithTimeout(label, run);
-			return Array.isArray(value) ? value : [];
-		} catch (error) {
-			useLogger().warn("Insights period query failed or timed out", {
-				insights: { websiteId, label, error },
-			});
-			return [];
-		}
-	};
-
-	const [
-		summary,
-		topPages,
-		errorSummary,
-		topReferrers,
-		countries,
-		browsers,
-		vitalsOverview,
-	] = await Promise.all([
-		safe("summary_metrics", () =>
-			executeQuery({ ...base, type: "summary_metrics" }, domain, timezone)
-		),
-		safe("top_pages", () =>
-			executeQuery({ ...base, type: "top_pages", limit: 10 }, domain, timezone)
-		),
-		safe("error_summary", () =>
-			executeQuery({ ...base, type: "error_summary" }, domain, timezone)
-		),
-		safe("top_referrers", () =>
-			executeQuery(
-				{ ...base, type: "top_referrers", limit: 10 },
-				domain,
-				timezone
-			)
-		),
-		safe("country", () =>
-			executeQuery({ ...base, type: "country", limit: 8 }, domain, timezone)
-		),
-		safe("browser_name", () =>
-			executeQuery(
-				{ ...base, type: "browser_name", limit: 8 },
-				domain,
-				timezone
-			)
-		),
-		safe("vitals_overview", () =>
-			executeQuery({ ...base, type: "vitals_overview" }, domain, timezone)
-		),
-	]);
-
-	return {
-		summary,
-		topPages,
-		errorSummary,
-		topReferrers,
-		countries,
-		browsers,
-		vitalsOverview,
-	};
-}
-
-async function checkHasInsightData(
-	websiteId: string,
-	domain: string,
-	from: string,
-	to: string,
-	timezone: string
-): Promise<boolean> {
-	const base = { projectId: websiteId, from, to, timezone };
-	const safe = async (
-		label: string,
-		run: () => Promise<Record<string, unknown>[]>
-	): Promise<Record<string, unknown>[]> => {
-		try {
-			const value = await runQueryWithTimeout(label, run);
-			return Array.isArray(value) ? value : [];
-		} catch {
-			return [];
-		}
-	};
-	const [summary, topPages] = await Promise.all([
-		safe("summary_metrics", () =>
-			executeQuery({ ...base, type: "summary_metrics" }, domain, timezone)
-		),
-		safe("top_pages", () =>
-			executeQuery({ ...base, type: "top_pages", limit: 1 }, domain, timezone)
-		),
-	]);
-	return summary.length > 0 || topPages.length > 0;
-}
-
-function formatDataForPrompt(
-	current: PeriodData,
-	previous: PeriodData,
-	currentRange: { from: string; to: string },
-	previousRange: { from: string; to: string }
-): string {
-	const sections: string[] = [];
-
-	sections.push(
-		`## Current Period (${currentRange.from} to ${currentRange.to})`
-	);
-	sections.push(formatRowsBlock(current.summary, "Summary"));
-	if (current.topPages.length > 0) {
-		sections.push(formatTopPagesBlock(current.topPages));
-	}
-	if (current.errorSummary.length > 0) {
-		sections.push(formatRowsBlock(current.errorSummary, "Errors"));
-	}
-	if (current.topReferrers.length > 0) {
-		sections.push(formatRowsBlock(current.topReferrers, "Top Referrers"));
-	}
-	if (current.countries.length > 0) {
-		sections.push(
-			formatRowsBlock(current.countries, "Countries (by visitors)")
-		);
-	}
-	if (current.browsers.length > 0) {
-		sections.push(formatRowsBlock(current.browsers, "Browsers (by visitors)"));
-	}
-	if (current.vitalsOverview.length > 0) {
-		sections.push(
-			formatRowsBlock(
-				current.vitalsOverview,
-				"Web Vitals (p75 and samples; use for performance insights when samples are meaningful)"
-			)
-		);
-	}
-
-	sections.push(
-		`\n## Previous Period (${previousRange.from} to ${previousRange.to})`
-	);
-	sections.push(formatRowsBlock(previous.summary, "Summary"));
-	if (previous.topPages.length > 0) {
-		sections.push(formatTopPagesBlock(previous.topPages));
-	}
-	if (previous.errorSummary.length > 0) {
-		sections.push(formatRowsBlock(previous.errorSummary, "Errors"));
-	}
-	if (previous.topReferrers.length > 0) {
-		sections.push(formatRowsBlock(previous.topReferrers, "Top Referrers"));
-	}
-	if (previous.countries.length > 0) {
-		sections.push(
-			formatRowsBlock(previous.countries, "Countries (by visitors)")
-		);
-	}
-	if (previous.browsers.length > 0) {
-		sections.push(formatRowsBlock(previous.browsers, "Browsers (by visitors)"));
-	}
-	if (previous.vitalsOverview.length > 0) {
-		sections.push(
-			formatRowsBlock(
-				previous.vitalsOverview,
-				"Web Vitals (p75 and samples; use for performance insights when samples are meaningful)"
-			)
-		);
-	}
-
-	return sections.filter(Boolean).join("\n\n");
 }
 
 async function fetchRecentAnnotations(websiteId: string): Promise<string> {
@@ -667,14 +284,14 @@ async function analyzeWebsiteLegacy(
 	const previousRange = period.previous;
 
 	const [current, previous] = await Promise.all([
-		fetchPeriodData(
+		fetchWebPeriodData(
 			websiteId,
 			domain,
 			currentRange.from,
 			currentRange.to,
 			timezone
 		),
-		fetchPeriodData(
+		fetchWebPeriodData(
 			websiteId,
 			domain,
 			previousRange.from,
@@ -688,7 +305,7 @@ async function analyzeWebsiteLegacy(
 		return [];
 	}
 
-	const dataSection = formatDataForPrompt(
+	const dataSection = formatLegacyWebDataForPrompt(
 		current,
 		previous,
 		currentRange,
@@ -751,7 +368,7 @@ async function analyzeWebsite(
 	const currentRange = period.current;
 	const previousRange = period.previous;
 
-	const hasData = await checkHasInsightData(
+	const hasData = await hasWebInsightData(
 		websiteId,
 		domain,
 		currentRange.from,
@@ -1494,12 +1111,13 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 				const seenInBatch = new Set<string>();
 				const sorted: WebsiteInsight[] = [];
 				for (const insight of merged) {
-					const key = insightDedupeKey(
-						insight.websiteId,
-						insight.type,
-						insight.sentiment,
-						insight.changePercent ?? null
-					);
+					const key = insightDedupeKey({
+						websiteId: insight.websiteId,
+						type: insight.type,
+						sentiment: insight.sentiment,
+						changePercent: insight.changePercent ?? null,
+						title: insight.title,
+					});
 					if (seenInBatch.has(key)) {
 						continue;
 					}
@@ -1540,12 +1158,13 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 					}[] = [];
 
 					for (const insight of sorted) {
-						const key = insightDedupeKey(
-							insight.websiteId,
-							insight.type,
-							insight.sentiment,
-							insight.changePercent ?? null
-						);
+						const key = insightDedupeKey({
+							websiteId: insight.websiteId,
+							type: insight.type,
+							sentiment: insight.sentiment,
+							changePercent: insight.changePercent ?? null,
+							title: insight.title,
+						});
 						const existingId = dedupeKeyToId.get(key);
 						if (existingId && insight.id === existingId) {
 							continue;
@@ -1587,12 +1206,13 @@ export const insights = new Elysia({ prefix: "/v1/insights" })
 							await db.insert(analyticsInsights).values(toInsert);
 						}
 						const toRefresh = sorted.filter((insight) => {
-							const key = insightDedupeKey(
-								insight.websiteId,
-								insight.type,
-								insight.sentiment,
-								insight.changePercent ?? null
-							);
+							const key = insightDedupeKey({
+								websiteId: insight.websiteId,
+								type: insight.type,
+								sentiment: insight.sentiment,
+								changePercent: insight.changePercent ?? null,
+								title: insight.title,
+							});
 							const existingId = dedupeKeyToId.get(key);
 							return existingId !== undefined && insight.id === existingId;
 						});
