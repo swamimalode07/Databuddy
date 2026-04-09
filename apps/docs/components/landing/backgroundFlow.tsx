@@ -1,6 +1,6 @@
 const backgroundFlow = () => {
 	return (
-		<div className="pointer-events-none absolute -top-20 right-0 bottom-0 left-0 mx-auto max-w-7xl">
+		<div className="pointer-events-none absolute -top-20 right-0 bottom-0 left-0 mx-auto overflow-hidden">
 			<svg
 				className="h-full w-full"
 				fill="none"
@@ -8,50 +8,50 @@ const backgroundFlow = () => {
 				viewBox="0 0 2215 1865"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<g filter="url(#filter0_f_128_38)">
+				<g filter="url(#filter0_f_163_6)">
 					<path
-						d="M1873.78 133.541C1849.71 292.016 1753.25 611.898 1449.37 720.042C1069.52 855.222 641.733 695.564 223.576 1200.8"
+						d="M2209.09 140.6C2186.01 292.573 2037.51 644.522 1746.1 748.229C1381.83 877.863 228.596 931.229 250.096 2230.23"
 						stroke="#E3A514"
-						strokeWidth="128"
+						strokeWidth="257"
 					/>
 				</g>
-				<g filter="url(#filter1_f_128_38)">
+				<g filter="url(#filter1_f_163_6)">
 					<path
-						d="M1885.26 128.155C1861.18 286.631 1779.84 654.98 1475.96 763.124C1096.11 898.304 697.522 808.164 200.113 1340.32"
+						d="M2208.74 150.229C2185.66 302.202 1885.24 802.522 1616.74 842.022C368.707 1025.63 335.243 1733.02 356.743 2230.52"
 						stroke="#CD5F20"
 						strokeWidth="194"
 					/>
 				</g>
-				<g filter="url(#filter2_f_128_38)">
+				<g filter="url(#filter2_f_163_6)">
 					<path
-						d="M1946.78 138.926C1922.7 297.401 1766.81 765.132 1462.93 873.276C1083.08 1008.46 644.34 1070.08 175.086 1549.37"
+						d="M2234.1 143.729C2211.01 295.702 2027.6 797.813 1614.6 911.694C519.948 1213.53 509.096 1756.19 509.096 2228.69"
 						stroke="#B24A7E"
 						strokeWidth="225"
 					/>
 				</g>
-				<g filter="url(#filter3_f_128_38)">
+				<g filter="url(#filter3_f_163_6)">
 					<path
-						d="M1983.28 115.427C1959.2 273.902 1822.59 820.943 1518.72 929.087C1283.4 1012.83 1054.91 1077.6 768.953 1206.18C593.32 1285.16 421.184 1501.88 282.493 1687.43"
+						d="M2261.1 149.229C2237.04 301.202 2199.59 791.522 1895.99 895.229C1660.88 975.538 1132.31 1207.7 1041.67 1264.23C652.019 1507.23 669.209 2035.23 669.209 2230.23"
 						stroke="#714075"
-						strokeWidth="276"
+						strokeWidth="200"
 					/>
 				</g>
-				<g filter="url(#filter4_f_128_38)">
+				<g filter="url(#filter4_f_163_6)">
 					<path
-						d="M2012.48 120.812C1988.4 279.287 1927.92 818.005 1624.04 926.15C1421.66 998.172 1334.66 1003.5 1017.66 1129.32C661.546 1286.96 549.968 1454.39 456.117 1680.08"
+						d="M2286.6 154.729C2263.51 306.702 2190.87 903.816 1899.46 1007.52C1705.38 1076.59 1621.96 1081.7 1317.96 1202.36C794.957 1348.06 781.457 1996.06 794.957 2228.06"
 						stroke="#483C7B"
-						strokeWidth="132"
+						strokeWidth="166"
 					/>
 				</g>
 				<defs>
 					<filter
 						colorInterpolationFilters="sRGB"
 						filterUnits="userSpaceOnUse"
-						height="1307.07"
-						id="filter0_f_128_38"
-						width="1952.19"
-						x="79.5722"
-						y="29.228"
+						height="2353.66"
+						id="filter0_f_163_6"
+						width="2457.44"
+						x="4.57764e-05"
+						y="1.52588e-05"
 					>
 						<feFlood floodOpacity="0" result="BackgroundImageFix" />
 						<feBlend
@@ -61,18 +61,18 @@ const backgroundFlow = () => {
 							result="shape"
 						/>
 						<feGaussianBlur
-							result="effect1_foregroundBlur_128_38"
-							stdDeviation="47.35"
+							result="effect1_foregroundBlur_163_6"
+							stdDeviation="60.65"
 						/>
 					</filter>
 					<filter
 						colorInterpolationFilters="sRGB"
 						filterUnits="userSpaceOnUse"
-						height="1482.37"
-						id="filter1_f_128_38"
-						width="2041.31"
-						x="34.5493"
-						y="18.8867"
+						height="2341.65"
+						id="filter1_f_163_6"
+						width="2291.19"
+						x="134.752"
+						y="14.3603"
 					>
 						<feFlood floodOpacity="0" result="BackgroundImageFix" />
 						<feBlend
@@ -82,18 +82,18 @@ const backgroundFlow = () => {
 							result="shape"
 						/>
 						<feGaussianBlur
-							result="effect1_foregroundBlur_128_38"
-							stdDeviation="47.35"
+							result="effect1_foregroundBlur_163_6"
+							stdDeviation="60.65"
 						/>
 					</filter>
 					<filter
 						colorInterpolationFilters="sRGB"
 						filterUnits="userSpaceOnUse"
-						height="1695.44"
-						id="filter2_f_128_38"
-						width="2152.7"
-						x="-4.57764e-05"
-						y="27.3291"
+						height="2344.46"
+						id="filter2_f_163_6"
+						width="2191.32"
+						x="275.296"
+						y="5.53233"
 					>
 						<feFlood floodOpacity="0" result="BackgroundImageFix" />
 						<feBlend
@@ -103,18 +103,18 @@ const backgroundFlow = () => {
 							result="shape"
 						/>
 						<feGaussianBlur
-							result="effect1_foregroundBlur_128_38"
-							stdDeviation="47.35"
+							result="effect1_foregroundBlur_163_6"
+							stdDeviation="60.65"
 						/>
 					</filter>
 					<filter
 						colorInterpolationFilters="sRGB"
 						filterUnits="userSpaceOnUse"
-						height="1864.75"
-						id="filter3_f_128_38"
-						width="2137.15"
-						x="77.2595"
-						y="-4.57764e-05"
+						height="2339.23"
+						id="filter3_f_163_6"
+						width="2033.39"
+						x="447.775"
+						y="12.2962"
 					>
 						<feFlood floodOpacity="0" result="BackgroundImageFix" />
 						<feBlend
@@ -124,18 +124,18 @@ const backgroundFlow = () => {
 							result="shape"
 						/>
 						<feGaussianBlur
-							result="effect1_foregroundBlur_128_38"
-							stdDeviation="47.35"
+							result="effect1_foregroundBlur_163_6"
+							stdDeviation="60.65"
 						/>
 					</filter>
 					<filter
 						colorInterpolationFilters="sRGB"
 						filterUnits="userSpaceOnUse"
-						height="1783.93"
-						id="filter4_f_128_38"
-						width="1871.95"
-						x="300.476"
-						y="16.1989"
+						height="2333.22"
+						id="filter4_f_163_6"
+						width="1902.16"
+						x="587.793"
+						y="20.963"
 					>
 						<feFlood floodOpacity="0" result="BackgroundImageFix" />
 						<feBlend
@@ -145,8 +145,8 @@ const backgroundFlow = () => {
 							result="shape"
 						/>
 						<feGaussianBlur
-							result="effect1_foregroundBlur_128_38"
-							stdDeviation="47.35"
+							result="effect1_foregroundBlur_163_6"
+							stdDeviation="60.65"
 						/>
 					</filter>
 				</defs>

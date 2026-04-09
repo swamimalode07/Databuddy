@@ -83,7 +83,7 @@ function AccordionTrigger({
 					{children}
 				</motion.div>
 				<PlusIcon
-					className="size-6 shrink-0 translate-y-0.5 cursor-pointer text-muted-foreground transition-transform duration-200 hover:text-accent-foreground"
+					className="size-6 shrink-0 translate-y-0.5 cursor-pointer text-foreground transition-transform duration-200 hover:text-accent-foreground"
 					strokeWidth={1.5}
 				/>
 			</AccordionPrimitive.Trigger>

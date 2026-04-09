@@ -84,9 +84,9 @@ export default function Hero({
 		<section className="relative mx-auto flex w-full max-w-400 flex-col items-center overflow-hidden">
 			{/* <Spotlight transform="translateX(-60%) translateY(-50%)" /> */}
 			<BackgroundFlow />
-			<div className="mx-auto w-full max-w-400 px-4 pt-16 pb-8 sm:px-6 sm:pt-20 lg:px-8 lg:pt-38">
+			<div className="mx-auto w-full max-w-400 px-4 pt-26 pb-8 sm:px-14 sm:pt-20 lg:px-20 lg:pt-38">
 				<div className="mx-auto flex max-w-360 flex-col items-start space-y-2 text-left">
-					<h1 className="z-10 text-balance font-semibold text-4xl leading-[1.1] tracking-normal sm:text-5xl md:text-6xl lg:text-6xl">
+					<h1 className="z-10 text-balance font-semibold text-3xl leading-[1.1] tracking-normal sm:text-5xl md:text-6xl lg:text-6xl">
 						Privacy-first analytics. One script, no cookies ,no consent banners.
 					</h1>
 					<p className="z-10 max-w-2xl text-pretty font-medium text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
