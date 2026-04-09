@@ -1,6 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
 import {
+	BUSINESS_INSIGHT_QUERY_TYPES,
+	fetchBusinessMetrics,
+} from "../insights/business-context";
+import {
 	fetchOpsMetrics,
 	OPS_INSIGHT_QUERY_TYPES,
 } from "../insights/ops-context";
@@ -42,6 +46,7 @@ const INSIGHTS_AGENT_QUERY_TYPES = [
 ] as const;
 
 const INSIGHTS_TYPE_LIST = INSIGHTS_AGENT_QUERY_TYPES.join(", ");
+const BUSINESS_INSIGHTS_TYPE_LIST = BUSINESS_INSIGHT_QUERY_TYPES.join(", ");
 const OPS_INSIGHTS_TYPE_LIST = OPS_INSIGHT_QUERY_TYPES.join(", ");
 const PRODUCT_INSIGHTS_TYPE_LIST = PRODUCT_INSIGHT_QUERY_TYPES.join(", ");
 
@@ -263,8 +268,57 @@ export function createInsightsAgentTools(
 		},
 	});
 
+	const businessMetricQuerySchema = z.object({
+		type: z
+			.enum(BUSINESS_INSIGHT_QUERY_TYPES)
+			.describe(
+				`Business context query type. Allowed: ${BUSINESS_INSIGHTS_TYPE_LIST}`
+			),
+		limit: z
+			.number()
+			.min(1)
+			.max(10)
+			.optional()
+			.describe("Max number of products to summarize."),
+	});
+
+	const businessContextTool = tool({
+		description:
+			"Fetch business context for the current or previous week-over-week period. Use this for revenue totals, attributed vs unattributed revenue, and top products when you need to understand commercial impact.",
+		inputSchema: z.object({
+			period: z
+				.enum(["current", "previous"])
+				.describe("Which WoW window: current week vs previous week."),
+			queries: z
+				.array(businessMetricQuerySchema)
+				.min(1)
+				.max(MAX_QUERIES_PER_CALL),
+		}),
+		execute: async ({ period, queries }, options) => {
+			const appContext = getAppContext(options);
+
+			let payload = JSON.stringify(
+				await fetchBusinessMetrics(
+					appContext,
+					params.periodBounds,
+					period,
+					queries
+				),
+				null,
+				0
+			);
+
+			if (payload.length > MAX_TOOL_RESPONSE_CHARS) {
+				payload = `${payload.slice(0, MAX_TOOL_RESPONSE_CHARS)}\n…[truncated]`;
+			}
+
+			return payload;
+		},
+	});
+
 	return {
 		tools: {
+			business_context: businessContextTool,
 			insight_query: insightQueryTool,
 			ops_context: opsContextTool,
 			product_metrics: productMetricsTool,
