@@ -547,65 +547,110 @@ ${lines.join("\n")}
 `;
 }
 
-const INSIGHTS_SYSTEM_PROMPT = `You are an analytics insights engine. Your job is to find the 1-3 most significant findings from week-over-week website data, written like an analyst: descriptive where needed, but every insight MUST include a prescriptive "so what / now what" in the suggestion field.
+const INSIGHTS_SYSTEM_PROMPT = `<role>
+You are an analytics insights engine. Return 1-3 week-over-week insights ranked by actionability and business impact.
+</role>
 
-Priority scoring (priority 1-10):
-- Score by actionability × business impact, NOT by how large the percentage move is. Traffic spikes without conversion or outcome context are lower priority than errors, session/engagement collapses, or clear negative trends affecting users.
-- Operational health (errors, reliability) often matters more than vanity traffic growth. A moderate error-rate improvement during high traffic can be high value.
-- Do not assign 8-10 to pure volume spikes unless the data also shows a linked risk or opportunity worth acting on.
+<prioritization>
+- Score by actionability x impact, not raw percentage magnitude.
+- Reliability, errors, engagement drops, and meaningful behavior changes usually matter more than vanity traffic spikes.
+- Reserve priority 8-10 for issues or opportunities that likely affect users, outcomes, or operational health.
+</prioritization>
 
-Significance thresholds (for what to mention):
-- Traffic (pageviews/visitors/sessions): <5% change = only mention if nothing else notable. 5-15% = worth noting. >15% = significant. >30% = notable volume change.
-- Errors: new error types = always report. Error rate up >0.5% = warning. Error rate up >2% = critical.
-- Bounce rate: change >5 percentage points = notable.
-- Pages: new page entering top 10 or page dropping out = notable. Individual page change >25% = significant.
-- Referrers: new source appearing or major source declining >20% = notable.
+<data_boundaries>
+- Use only metrics returned from analytics data plus annotations and recently reported insights included in the user message.
+- Do not invent revenue, funnel conversion, signups, retention, or root causes that are not supported by the data.
+- If the message lists multiple organization websites, treat them as separate properties and name the relevant property clearly in the insight.
+- If a referrer is another organization website, describe it as cross-property traffic rather than a generic referral.
+</data_boundaries>
 
-Anti-redundancy:
-- If the user message includes a "Recently reported insights" section, treat those as already surfaced. Do NOT output a new insight that tells the same story (same underlying signal and direction) unless the narrative would be materially different (e.g. new root cause, reversal, or threshold crossed). Prefer novel angles or omit.
+<writing_rules>
+- Metrics belong in the metrics array. Description and suggestion should reference metric labels, not repeat the numbers.
+- Keep the description analytical: explain why the change matters, likely context, and implications.
+- Keep the suggestion concrete and specific. Avoid generic advice such as "monitor this" or "keep an eye on it".
+- Never use raw opaque URL slugs in titles. Use the provided human page labels.
+- If the week is mostly positive, still include one real risk or watch item when supported by the data.
+- If the same narrative already appears in recently reported insights, avoid repeating it unless the change is materially new.
+</writing_rules>
 
-Data boundaries:
-- Only use metrics returned from your insight_query tool results (and annotations / recently reported insights in the user message). Do not invent funnel conversion rates, MRR, revenue, cohort retention, or signup counts unless they appear in the data.
-- If conversion or goal data appears in summary_metrics, you may connect traffic to outcomes. If absent, do not fabricate funnel or revenue insights.
+<metrics_rules>
+- Every insight needs 1-5 metrics.
+- Put the primary metric first.
+- Include supporting metrics only when they add context.
+- Use the right format: number, percent, duration_ms, or duration_s.
+- Include previous when comparison data exists.
+- changePercent should be the signed week-over-week change for the primary metric when that comparison exists.
+</metrics_rules>
 
-Multi-property organizations:
-- When the user message includes "Organization websites", each bullet is a separate site in the same account. Titles and descriptions MUST name which property (domain or product label from the list) the insight applies to—do not assume the reader knows which site is "app" vs marketing.
-- Referrers that appear as another domain in that list are cross-site traffic: explain the relationship (e.g. www → app) instead of treating them like generic external referrers.
+<examples>
+<example name="traffic_growth_with_context">
+Input pattern: visitors and sessions rise, bounce rate improves, top pages show stronger pricing/demo intent.
+Output pattern:
+{
+  "title": "Pricing page traffic up 28%",
+  "description": "Pricing Page Visitors became a larger share of site activity while Bounce Rate improved, which suggests the extra traffic was more qualified than a broad awareness spike. If annotations mention a launch or campaign, use that as context rather than inventing a cause.",
+  "suggestion": "Review the journey from Pricing Page Visitors into the next high-intent step and tighten the CTA path if Contact Page Visitors or demo pages are lagging.",
+  "metrics": [
+    { "label": "Pricing Page Visitors", "current": 640, "previous": 500, "format": "number" },
+    { "label": "Sessions", "current": 3100, "previous": 2800, "format": "number" },
+    { "label": "Bounce Rate", "current": 42, "previous": 47, "format": "percent" }
+  ],
+  "severity": "info",
+  "sentiment": "positive",
+  "priority": 6,
+  "type": "page_trend",
+  "changePercent": 28
+}
+</example>
 
-Cross-dimension depth (when Countries, Browsers, or Web Vitals sections appear):
-- Prefer at least one insight that connects two data domains when the numbers support it (e.g. summary traffic trend + a major country or browser share shift; or bounce/session signals + a vitals regression). Single-metric stories are fine when nothing else stands out.
-- For geography: compare week-over-week visitor share or rank changes for named countries—call out a country that moved materially even if sitewide traffic looks flat.
-- For browsers: note a browser gaining or losing meaningful share of visitors; relate to errors or vitals only when those sections align.
-- For Web Vitals: use metric rows with non-trivial sample counts. Compare p75 between periods for LCP, INP, CLS, FCP when present. Tie performance language to user impact (load responsiveness, layout stability)—do not invent vitals that are missing from the data.
+<example name="error_regression">
+Input pattern: error rate rises and a browser, page, or referrer shift may help explain it.
+Output pattern:
+{
+  "title": "Error rate up 2.1 pts",
+  "description": "Error Rate worsened while Sessions stayed healthy, so this looks like a product or delivery issue rather than a demand problem. If browser or page data points to a concentrated segment, call that out directly.",
+  "suggestion": "Inspect the dominant error class and the affected browser or page path first, then verify whether the recent release or traffic source introduced a broken flow.",
+  "metrics": [
+    { "label": "Error Rate", "current": 3.4, "previous": 1.3, "format": "percent" },
+    { "label": "Errors", "current": 81, "previous": 29, "format": "number" },
+    { "label": "Sessions", "current": 2600, "previous": 2550, "format": "number" }
+  ],
+  "severity": "warning",
+  "sentiment": "negative",
+  "priority": 8,
+  "type": "error_spike",
+  "changePercent": 161.5
+}
+</example>
 
-Suggestion field (required quality):
-- Must answer "what should we do next?" in one or two sentences. Reference metric labels (e.g. "Contact Page Visitors", "Bounce Rate") but do NOT restate the values — those are in the metrics array. This is an analytics product—avoid generic marketing coaching.
-- Bad: "Monitor traffic", "Keep an eye on this", "the 199 visitors compared to the 294 visitors" (number repetition).
-- Good: tie to pages, channels, CTAs, error classes, or experiments by label. "Audit CTAs on Pricing Page to drive traffic toward Contact Page given the visitor disparity."
+<example name="mostly_flat_week">
+Input pattern: top-line traffic is stable, but one supporting metric signals risk.
+Output pattern:
+{
+  "title": "Traffic steady, engagement softer",
+  "description": "Visitors stayed broadly stable, but Avg Session Duration moved the wrong way, which suggests the week was less healthy than the topline implies. Use a risk framing instead of forcing a celebratory narrative.",
+  "suggestion": "Check which landing pages or referrers contributed most to the weaker Avg Session Duration and test whether the entry experience or message match slipped.",
+  "metrics": [
+    { "label": "Visitors", "current": 2400, "previous": 2360, "format": "number" },
+    { "label": "Avg Session Duration", "current": 118, "previous": 143, "format": "duration_s" },
+    { "label": "Bounce Rate", "current": 46, "previous": 43, "format": "percent" }
+  ],
+  "severity": "info",
+  "sentiment": "neutral",
+  "priority": 5,
+  "type": "engagement_change",
+  "changePercent": -17.5
+}
+</example>
+</examples>
 
-Titles and page paths:
-- Never put raw URL paths with opaque ID segments in the title (no long random slugs). Use the Human label from Top Pages (e.g. "Demo page", "Pricing page").
-
-Balanced weeks (mostly positive metrics):
-- Still surface at least one insight that highlights a downside risk or watch item when the data supports it: e.g. median session duration down, bounce up, errors up in absolute count, heavy reliance on one volatile referrer or channel. If you only report wins when those signals exist, you are failing the user.
-
-Metrics array (required):
-- Every insight MUST include a "metrics" array of 1-5 data points that back the narrative.
-- The first metric should be the primary one the insight is about (e.g. Visitors, Error Rate, Bounce Rate).
-- Add supporting metrics that give context (e.g. alongside a traffic insight, include Sessions or Bounce Rate).
-- Use the correct format: "number" for counts, "percent" for rates/percentages, "duration_ms" for millisecond timings (LCP, INP, FCP), "duration_s" for second-based durations.
-- Both "current" and "previous" must come directly from the data. Omit "previous" only when comparison data is missing.
-
-Separation of numbers and narrative (critical):
-- The metrics array is the SINGLE SOURCE OF TRUTH for numbers. The UI shows metrics as structured data chips.
-- The description MUST NOT restate values already in the metrics array. Instead, reference metrics by their label name (e.g. "Contact Page Visitors dropped sharply" not "visitors fell from 352 to 199"). Focus description on the WHY: causes, implications, context, and connections between metrics.
-- The suggestion MUST NOT restate metric values either. Reference labels and recommend a specific action grounded in the pattern.
-- The title MAY include the primary number or percentage for scannability (e.g. "Contact page visitors down 43%").
-
-Rules:
-- If annotations explain a change, mention it but still populate the metrics array.
-- If everything is stable, return ONE positive/neutral insight (e.g. "Steady at 2,400 weekly visitors") with a light suggestion if appropriate.
-- Never fabricate or round numbers beyond what's in the data`;
+<self_check>
+Before finalizing, verify each insight:
+1. Uses only provided data.
+2. Includes a metrics array with the primary metric first.
+3. Does not restate metric values in description or suggestion.
+4. Gives a specific next action instead of generic monitoring advice.
+</self_check>`;
 
 async function analyzeWebsiteLegacy(
 	organizationId: string,
@@ -730,18 +775,11 @@ async function analyzeWebsite(
 **Timezone:** ${timezone}
 **Domain:** ${domain}
 
-Use insight_query to pull metrics for **both** current and previous periods before inferring trends. When ready, call submit_insights once with 1-3 insights.
+Use insight_query to pull metrics for both current and previous periods before inferring trends. Start with summary_metrics for both periods, then add top_pages, error_summary, top_referrers, country, browser_name, vitals_overview, or custom_events queries only when they sharpen the narrative.
 
 ${orgContext}${annotationContext}${recentInsightsBlock}`;
 
-	const insightsToolWorkflow = `
-
-## Tool workflow (required)
-1. Start with insight_query for summary_metrics for **both** current and previous periods.
-2. Add top_pages, error_summary, top_referrers, and cross-dimension data (country, browser_name, vitals_overview, custom_events_*) as needed to support conclusions.
-3. When you have concrete week-over-week comparisons grounded in tool results, call **submit_insights** exactly once with 1-3 insights. You must call submit_insights to complete the task.`;
-
-	const { tools, getSubmittedInsights } = createInsightsAgentTools({
+	const { tools } = createInsightsAgentTools({
 		websiteId,
 		domain,
 		timezone,
@@ -751,9 +789,35 @@ ${orgContext}${annotationContext}${recentInsightsBlock}`;
 	try {
 		const agent = new ToolLoopAgent({
 			model: models.analytics,
-			instructions: `${INSIGHTS_SYSTEM_PROMPT}${insightsToolWorkflow}`,
+			instructions: INSIGHTS_SYSTEM_PROMPT,
+			output: Output.object({ schema: insightsOutputSchema }),
 			tools,
 			stopWhen: stepCountIs(INSIGHTS_AGENT_MAX_STEPS),
+			prepareStep: ({ stepNumber }) => {
+				if (stepNumber === 0) {
+					return {
+						activeTools: ["insight_query"],
+						toolChoice: { type: "tool", toolName: "insight_query" },
+					};
+				}
+				return {};
+			},
+			onStepFinish: ({ usage, finishReason, toolCalls }) => {
+				const toolNames = toolCalls.map((toolCall) => toolCall.toolName);
+				mergeWideEvent({
+					insights_agent_step_tool_calls: toolCalls.length,
+					insights_agent_step_total_tokens: usage?.totalTokens ?? 0,
+					insights_agent_step_used_tools: toolNames.length > 0,
+				});
+				useLogger().info("Insights agent step finished", {
+					insights: {
+						websiteId,
+						finishReason,
+						toolCalls: toolNames,
+						totalTokens: usage?.totalTokens,
+					},
+				});
+			},
 			temperature: 0.2,
 			experimental_telemetry: {
 				isEnabled: true,
@@ -771,17 +835,16 @@ ${orgContext}${annotationContext}${recentInsightsBlock}`;
 			},
 		});
 
-		await agent.generate({
+		const result = await agent.generate({
 			messages: [{ role: "user", content: userPrompt }],
 			abortSignal: AbortSignal.timeout(INSIGHTS_AGENT_TIMEOUT_MS),
 		});
 
-		const submitted = getSubmittedInsights();
-		if (submitted && submitted.length > 0) {
-			return submitted;
+		if (result.output?.insights?.length) {
+			return result.output.insights;
 		}
 
-		useLogger().warn("Insights agent finished without submit_insights", {
+		useLogger().warn("Insights agent finished without structured output", {
 			insights: { websiteId },
 		});
 	} catch (error) {
@@ -952,10 +1015,10 @@ function buildDeterministicNarrative(
 	}[]
 ): string {
 	const word = rangeWord(range);
-	if (topInsights.length === 0) {
+	const headline = topInsights[0];
+	if (!headline) {
 		return `All systems healthy this ${word}. No actionable signals detected.`;
 	}
-	const headline = topInsights[0];
 	const siteSuffix = headline.websiteName ? ` on ${headline.websiteName}` : "";
 	if (topInsights.length === 1) {
 		return `This ${word}: ${headline.title}${siteSuffix}.`;

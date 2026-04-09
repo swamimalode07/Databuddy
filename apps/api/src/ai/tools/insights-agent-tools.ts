@@ -3,10 +3,6 @@ import { z } from "zod";
 import { executeQuery } from "../../query";
 import { QueryBuilders } from "../../query/builders";
 import type { QueryRequest } from "../../query/types";
-import {
-	insightsOutputSchema,
-	type ParsedInsight,
-} from "../schemas/smart-insights-output";
 
 const QUERY_FETCH_TIMEOUT_MS = 45_000;
 const MAX_TOOL_RESPONSE_CHARS = 48_000;
@@ -74,8 +70,6 @@ export interface CreateInsightsAgentToolsParams {
 export function createInsightsAgentTools(
 	params: CreateInsightsAgentToolsParams
 ) {
-	let submittedInsights: ParsedInsight[] | null = null;
-
 	const singleQuerySchema = z.object({
 		type: z
 			.string()
@@ -93,7 +87,7 @@ export function createInsightsAgentTools(
 
 	const insightQueryTool = tool({
 		description:
-			"Fetch analytics data for the **current** or **previous** week-over-week period. Batch multiple query types in one call (up to 8). Use summary_metrics early, then add top_pages, errors, referrers, geo, browsers, vitals, or custom events as needed. Compare both periods before calling submit_insights.",
+			"Fetch analytics data for the current or previous week-over-week period. Batch multiple query types in one call (up to 8). Start with summary_metrics for both periods, then add top_pages, errors, referrers, geo, browsers, vitals, or custom events as needed before producing final insights.",
 		inputSchema: z.object({
 			period: z
 				.enum(["current", "previous"])
@@ -170,25 +164,9 @@ export function createInsightsAgentTools(
 		},
 	});
 
-	const submitInsightsTool = tool({
-		description:
-			"Submit your final 1-3 smart insights after you have queried enough data from both weeks. Call exactly once when ready.",
-		inputSchema: insightsOutputSchema,
-		execute: (data) => {
-			submittedInsights = data.insights;
-			return {
-				ok: true,
-				count: data.insights.length,
-				message: "Insights accepted.",
-			};
-		},
-	});
-
 	return {
 		tools: {
 			insight_query: insightQueryTool,
-			submit_insights: submitInsightsTool,
 		},
-		getSubmittedInsights: (): ParsedInsight[] | null => submittedInsights,
 	};
 }
