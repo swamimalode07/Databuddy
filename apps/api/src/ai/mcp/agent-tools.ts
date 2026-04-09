@@ -170,7 +170,7 @@ export function createMcpAgentTools() {
 			},
 		}),
 		get_data: tool({
-			description: `Batch 2-10 analytics queries in one call. PREFERRED when user asks for multiple metrics (traffic + top pages + referrers, etc). Types: ${Object.keys(QueryBuilders).join(", ")}. Use preset (e.g. last_7d, last_30d) or from/to dates. Supports filters (e.g. os_name eq "Mac" for slowest page for Mac users), groupBy, orderBy.`,
+			description: `Run 1-10 analytics queries in one call. PREFERRED when user asks for one or many metrics (traffic + top pages + referrers, etc). Types: ${Object.keys(QueryBuilders).join(", ")}. Use preset (e.g. last_7d, last_30d) or from/to dates. Supports filters (e.g. os_name eq "Mac" for slowest page for Mac users), groupBy, orderBy.`,
 			strict: true,
 			inputSchema: z.object({
 				websiteId: z.string(),
@@ -214,7 +214,7 @@ export function createMcpAgentTools() {
 							orderBy: z.string().optional(),
 						})
 					)
-					.min(2)
+					.min(1)
 					.max(10),
 				timezone: z.string().optional().default("UTC"),
 			}),
