@@ -17,25 +17,6 @@ export interface AppContext {
 }
 
 /**
- * Builds the application context for agent execution.
- */
-export function buildAppContext(
-	userId: string,
-	websiteId: string,
-	websiteDomain: string,
-	timezone: string
-): AppContext {
-	return {
-		userId,
-		websiteId,
-		websiteDomain,
-		chatId: crypto.randomUUID(),
-		timezone,
-		currentDateTime: new Date().toISOString(),
-	};
-}
-
-/**
  * Formats context as XML for LLM instructions.
  * This provides structured data the LLM can reference.
  */

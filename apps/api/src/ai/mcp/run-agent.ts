@@ -1,3 +1,4 @@
+import type { LanguageModelUsage } from "ai";
 import { ToolLoopAgent } from "ai";
 import {
 	formatMemoryForPrompt,
@@ -5,8 +6,13 @@ import {
 	isMemoryEnabled,
 	storeConversation,
 } from "../../lib/supermemory";
+import {
+	ensureAgentCreditsAvailable,
+	resolveAgentBillingCustomerId,
+	trackAgentUsageAndBill,
+} from "../agents/execution";
 import { createMcpAgentConfig } from "../agents/mcp";
-import { models } from "../config/models";
+import { modelNames } from "../config/models";
 
 const MCP_AGENT_TIMEOUT_MS = 45_000;
 
@@ -26,6 +32,8 @@ export async function runMcpAgent(
 	options: RunMcpAgentOptions
 ): Promise<string> {
 	const sessionId = options.conversationId ?? crypto.randomUUID();
+	const mcpUserId = options.userId ?? options.apiKey?.userId ?? null;
+	const organizationId = options.apiKey?.organizationId ?? null;
 
 	const apiKeyId =
 		options.apiKey &&
@@ -34,18 +42,31 @@ export async function runMcpAgent(
 			? (options.apiKey as { id: string }).id
 			: null;
 
+	const billingCustomerId = await resolveAgentBillingCustomerId({
+		userId: mcpUserId,
+		apiKey: options.apiKey,
+		organizationId,
+	});
+
+	if (!(await ensureAgentCreditsAvailable(billingCustomerId))) {
+		throw new Error(
+			"You're out of Databunny credits this month. Upgrade or wait for the monthly reset."
+		);
+	}
+
 	const [config, memoryCtx] = await Promise.all([
 		Promise.resolve(
-			createMcpAgentConfig(models.analyticsMcp, {
+			createMcpAgentConfig({
+				billingCustomerId,
 				requestHeaders: options.requestHeaders,
 				apiKey: options.apiKey,
-				userId: options.userId,
+				userId: mcpUserId,
 				timezone: options.timezone,
 				chatId: sessionId,
 			})
 		),
 		isMemoryEnabled()
-			? getMemoryContext(options.question, options.userId, apiKeyId)
+			? getMemoryContext(options.question, mcpUserId, apiKeyId)
 			: Promise.resolve(null),
 	]);
 
@@ -55,7 +76,6 @@ export async function runMcpAgent(
 	}
 	const instructions = config.system;
 
-	const mcpUserId = options.userId ?? options.apiKey?.userId;
 	const mcpTelemetryMetadata: Record<string, string> = {
 		source: "mcp",
 		authType: options.apiKey ? "api_key" : "session",
@@ -104,6 +124,19 @@ export async function runMcpAgent(
 			abortSignal: abortController.signal,
 		});
 
+		const usage = (result as { usage?: LanguageModelUsage }).usage;
+		if (usage) {
+			await trackAgentUsageAndBill({
+				usage,
+				modelId: modelNames.analytics,
+				source: "mcp",
+				organizationId,
+				userId: mcpUserId,
+				chatId: sessionId,
+				billingCustomerId,
+			});
+		}
+
 		const answer = result.text ?? "No response generated.";
 
 		storeConversation(
@@ -111,7 +144,7 @@ export async function runMcpAgent(
 				{ role: "user", content: options.question },
 				{ role: "assistant", content: answer },
 			],
-			options.userId,
+			mcpUserId,
 			apiKeyId,
 			{ source: "mcp" }
 		);

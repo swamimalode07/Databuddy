@@ -33,7 +33,6 @@ export const modelNames = {
 const baseModels = {
 	triage: gateway.chat(modelNames.triage),
 	analytics: gateway.chat(modelNames.analytics),
-	analyticsMcp: gateway.chat(modelNames.analytics),
 	advanced: gateway.chat(modelNames.advanced),
 	perplexity: gateway.chat(modelNames.perplexity),
 } as const;
@@ -41,7 +40,6 @@ const baseModels = {
 export const models = {
 	triage: baseModels.triage,
 	analytics: baseModels.analytics,
-	analyticsMcp: baseModels.analyticsMcp,
 	advanced: baseModels.advanced,
 	perplexity: baseModels.perplexity,
 } as const;

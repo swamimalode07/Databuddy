@@ -1,7 +1,6 @@
 import { auth, websitesApi } from "@databuddy/auth";
 import { agentChats, db, eq } from "@databuddy/db";
 import { getRateLimitHeaders, rateLimit } from "@databuddy/redis/rate-limit";
-import { getAutumn, getBillingCustomerId } from "@databuddy/rpc";
 import {
 	convertToModelMessages,
 	generateId,
@@ -16,6 +15,11 @@ import { Elysia, t } from "elysia";
 import { log, parseError } from "evlog";
 import { useLogger } from "evlog/elysia";
 import type { AgentConfig, AgentType } from "../ai/agents";
+import {
+	ensureAgentCreditsAvailable,
+	resolveAgentBillingCustomerId,
+	trackAgentUsageAndBill,
+} from "../ai/agents/execution";
 import { createAgentConfig } from "../ai/agents";
 import { AGENT_THINKING_LEVELS } from "../ai/agents/types";
 import { enrichAgentContext } from "../ai/config/enrich-context";
@@ -28,7 +32,6 @@ import {
 	isApiKeyPresent,
 } from "../lib/api-key";
 import { trackAgentEvent } from "../lib/databuddy";
-import { summarizeAgentUsage } from "../lib/usage-telemetry";
 import {
 	formatMemoryForPrompt,
 	getMemoryContext,
@@ -87,10 +90,6 @@ function getTextFromMessage(message: UIMessage | undefined): string {
 
 const TITLE_MAX_LEN = 60;
 
-/**
- * Generate a short, descriptive title from the first user/assistant exchange.
- * Falls back to a truncated user message on any failure.
- */
 async function generateChatTitle(
 	messages: UIMessage[]
 ): Promise<string | null> {
@@ -133,12 +132,8 @@ interface AgentExperimentalTelemetry {
 	metadata?: Record<string, string>;
 }
 
-/**
- * Schema uses t.Any() for message parts because UIMessage parts
- * are polymorphic (text, tool, reasoning, etc.) and validated
- * at the AI SDK level via convertToModelMessages.
- * Limits prevent resource exhaustion from oversized payloads.
- */
+// UIMessage parts are polymorphic (text/tool/reasoning/...) and re-validated
+// by safeValidateUIMessages + convertToModelMessages, so we only cap sizes here.
 const UIMessageSchema = t.Object({
 	id: t.String(),
 	role: t.Union([t.Literal("user"), t.Literal("assistant")]),
@@ -250,7 +245,6 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					const { website } = websiteValidation;
 					organizationId = website.organizationId ?? null;
 
-					// API key auth: key's org must match the website's org
 					const apiKeyOrg = apiKey?.organizationId ?? null;
 					const hasPermission =
 						website.isPublic ||
@@ -273,17 +267,15 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 
 					const userId = user?.id ?? apiKeyOrg ?? "api-key";
 
-					const billingCustomerId = user?.id
-						? await getBillingCustomerId(user.id, organizationId)
-						: null;
+					const billingCustomerId = await resolveAgentBillingCustomerId({
+						userId: user?.id ?? null,
+						apiKey,
+						organizationId,
+					});
 
 					if (billingCustomerId) {
 						try {
-							const allowed = await getAutumn().check({
-								customerId: billingCustomerId,
-								featureId: "agent_credits",
-							});
-							if (allowed.allowed === false) {
+							if (!(await ensureAgentCreditsAvailable(billingCustomerId))) {
 								mergeWideEvent({ agent_rejected: "out_of_credits" });
 								return jsonError(
 									402,
@@ -300,7 +292,6 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						}
 					}
 
-					// Rate limit: 40 chat turns per 10 minutes per user (LLM cost abuse guard).
 					const rl = await rateLimit(`agent-chat:${userId}`, 40, 600);
 					if (!rl.success) {
 						mergeWideEvent({ agent_rejected: "rate_limit" });
@@ -443,56 +434,28 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 						options: undefined,
 					});
 
-					// Capture for the persistence closure (avoid TDZ on the outer `user`).
 					const persistedUserId = user?.id;
 					const persistedOrgId = organizationId;
 					const fallbackTitle = lastMessage.slice(0, 60);
 					const isNewChat = validation.data.length <= 1;
 
-					// Ensure the stream completes (and onFinish runs) even if the
-					// client disconnects mid-response.
+					// Force onFinish to run even if the client disconnects mid-stream.
 					result.consumeStream();
 
-					// `totalUsage` resolves once the stream finishes; run as a
-					// parallel side effect so it never blocks the response.
+					// totalUsage resolves after the stream finishes — don't block the response.
 					Promise.resolve(result.totalUsage)
 						.then(async (usage) => {
-							const summary = summarizeAgentUsage(modelNames.analytics, usage);
-							mergeWideEvent(summary);
-							trackAgentEvent("agent_activity", {
-								action: "chat_usage",
+							await trackAgentUsageAndBill({
+								usage,
+								modelId: modelNames.analytics,
 								source: "dashboard",
-								agent_type: AGENT_TYPE,
-								website_id: body.websiteId,
-								organization_id: organizationId,
-								user_id: persistedUserId ?? null,
-								...summary,
+								agentType: AGENT_TYPE,
+								websiteId: body.websiteId,
+								organizationId,
+								userId: persistedUserId ?? null,
+								chatId,
+								billingCustomerId,
 							});
-
-							if (!billingCustomerId) {
-								return;
-							}
-							const autumn = getAutumn();
-							// Bill fresh input only — cache_read/cache_write are tracked
-							// as their own metered features and would otherwise be charged
-							// twice (once at the input rate, once at the cache rate).
-							const tokenTracks: [string, number][] = [
-								["agent_input_tokens", summary.fresh_input_tokens],
-								["agent_output_tokens", summary.output_tokens],
-								["agent_cache_read_tokens", summary.cache_read_tokens],
-								["agent_cache_write_tokens", summary.cache_write_tokens],
-							];
-							await Promise.allSettled(
-								tokenTracks
-									.filter(([, value]) => value > 0)
-									.map(([featureId, value]) =>
-										autumn.track({
-											customerId: billingCustomerId,
-											featureId,
-											value,
-										})
-									)
-							);
 						})
 						.catch((usageError) => {
 							captureError(usageError, {
@@ -528,9 +491,8 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 										},
 									});
 
-								// First-turn title polish: generate a real title once we
-								// have an assistant response. Run after the upsert so a
-								// failed/slow LLM call never blocks message persistence.
+								// First-turn title polish runs after the upsert so a slow
+								// or failed LLM call never blocks message persistence.
 								if (isNewChat) {
 									const generatedTitle = await generateChatTitle(messages);
 									if (generatedTitle) {
