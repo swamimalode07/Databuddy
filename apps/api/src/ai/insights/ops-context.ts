@@ -2,6 +2,7 @@ import type { AppContext } from "../config/context";
 import { callRPCProcedure } from "../tools/utils";
 import { executeQuery } from "../../query";
 import type { QueryRequest } from "../../query/types";
+import { fetchFlagChangeContext } from "./flag-context";
 import type { WeekOverWeekPeriod } from "./types";
 
 const DEFAULT_OPS_LIMIT = 5;
@@ -11,6 +12,7 @@ export const OPS_INSIGHT_QUERY_TYPES = [
 	"errors_by_page",
 	"uptime_summary",
 	"anomaly_summary",
+	"flag_changes",
 ] as const;
 
 export type OpsInsightQueryType = (typeof OPS_INSIGHT_QUERY_TYPES)[number];
@@ -98,6 +100,14 @@ async function getAnomalySummary(
 	};
 }
 
+async function getFlagChanges(
+	appContext: AppContext,
+	range: { from: string; to: string },
+	limit: number
+) {
+	return await fetchFlagChangeContext(appContext, range, limit);
+}
+
 export async function fetchOpsMetrics(
 	appContext: AppContext,
 	periodBounds: WeekOverWeekPeriod,
@@ -134,6 +144,12 @@ export async function fetchOpsMetrics(
 				results.push({
 					type: query.type,
 					...(await getAnomalySummary(appContext, period, limit)),
+				});
+				break;
+			case "flag_changes":
+				results.push({
+					type: query.type,
+					...(await getFlagChanges(appContext, range, limit)),
 				});
 				break;
 			default:

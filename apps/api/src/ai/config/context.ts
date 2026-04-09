@@ -8,6 +8,7 @@ export interface AppContext {
 	billingCustomerId?: string | null;
 	chatId: string;
 	currentDateTime: string;
+	organizationId?: string | null;
 	requestHeaders?: Headers;
 	timezone: string;
 	userId: string;

@@ -670,6 +670,13 @@ export const flagStatus = pgEnum("flag_status", [
 	"inactive",
 	"archived",
 ]);
+export const flagChangeType = pgEnum("flag_change_type", [
+	"created",
+	"updated",
+	"restored",
+	"archived",
+	"dependency_cascade",
+]);
 export const annotationType = pgEnum("annotation_type", [
 	"point",
 	"line",
@@ -703,6 +710,21 @@ export interface FlagVariant {
 	type: "string" | "number" | "json";
 	value: string | number;
 	weight?: number;
+}
+
+export interface FlagChangeSnapshot {
+	defaultValue: boolean;
+	dependencies?: string[] | null;
+	description?: string | null;
+	environment?: string | null;
+	key: string;
+	name?: string | null;
+	persistAcrossAuth: boolean;
+	rolloutBy?: string | null;
+	rolloutPercentage?: number | null;
+	status: "active" | "inactive" | "archived";
+	type: "boolean" | "rollout" | "multivariant";
+	variants?: FlagVariant[] | null;
 }
 
 export const flags = pgTable(
@@ -776,6 +798,66 @@ export const flags = pgTable(
 			columns: [table.createdBy],
 			foreignColumns: [user.id],
 			name: "flags_created_by_fkey",
+		})
+			.onUpdate("cascade")
+			.onDelete("restrict"),
+	]
+);
+
+export const flagChangeEvents = pgTable(
+	"flag_change_events",
+	{
+		id: text().primaryKey().notNull(),
+		flagId: text("flag_id").notNull(),
+		websiteId: text("website_id"),
+		organizationId: text("organization_id"),
+		changeType: flagChangeType("change_type").notNull(),
+		before: jsonb("before").$type<FlagChangeSnapshot>(),
+		after: jsonb("after").$type<FlagChangeSnapshot>(),
+		changedBy: text("changed_by").notNull(),
+		createdAt: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
+	},
+	(table) => [
+		index("idx_flag_change_events_flag_id_created_at").using(
+			"btree",
+			table.flagId.asc().nullsLast().op("text_ops"),
+			table.createdAt.desc().nullsLast()
+		),
+		index("idx_flag_change_events_website_created_at").using(
+			"btree",
+			table.websiteId.asc().nullsLast().op("text_ops"),
+			table.createdAt.desc().nullsLast()
+		),
+		index("idx_flag_change_events_org_created_at").using(
+			"btree",
+			table.organizationId.asc().nullsLast().op("text_ops"),
+			table.createdAt.desc().nullsLast()
+		),
+		foreignKey({
+			columns: [table.flagId],
+			foreignColumns: [flags.id],
+			name: "flag_change_events_flag_id_fkey",
+		})
+			.onUpdate("cascade")
+			.onDelete("cascade"),
+		foreignKey({
+			columns: [table.websiteId],
+			foreignColumns: [websites.id],
+			name: "flag_change_events_website_id_fkey",
+		})
+			.onUpdate("cascade")
+			.onDelete("cascade"),
+		foreignKey({
+			columns: [table.organizationId],
+			foreignColumns: [organization.id],
+			name: "flag_change_events_organization_id_fkey",
+		})
+			.onUpdate("cascade")
+			.onDelete("cascade"),
+		foreignKey({
+			columns: [table.changedBy],
+			foreignColumns: [user.id],
+			name: "flag_change_events_changed_by_fkey",
 		})
 			.onUpdate("cascade")
 			.onDelete("restrict"),
@@ -1521,6 +1603,8 @@ export type RevenueConfig = typeof revenueConfig.$inferSelect;
 export type RevenueConfigInsert = typeof revenueConfig.$inferInsert;
 export type Flags = typeof flags.$inferSelect;
 export type FlagsInsert = typeof flags.$inferInsert;
+export type FlagChangeEvents = typeof flagChangeEvents.$inferSelect;
+export type FlagChangeEventsInsert = typeof flagChangeEvents.$inferInsert;
 export type Annotations = typeof annotations.$inferSelect;
 export type AnnotationsInsert = typeof annotations.$inferInsert;
 export type AnalyticsInsight = typeof analyticsInsights.$inferSelect;

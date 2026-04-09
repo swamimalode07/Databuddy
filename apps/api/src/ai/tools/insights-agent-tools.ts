@@ -244,7 +244,7 @@ export function createInsightsAgentTools(
 
 	const opsContextTool = tool({
 		description:
-			"Fetch operational context for the current or previous week-over-week period. Use this for errors, page-level error concentration, uptime health, and current anomaly summaries when reliability may explain user behavior.",
+			"Fetch operational context for the current or previous week-over-week period. Use this for errors, page-level error concentration, uptime health, anomaly summaries, and recent flag changes when reliability or rollout activity may explain user behavior.",
 		inputSchema: z.object({
 			period: z
 				.enum(["current", "previous"])

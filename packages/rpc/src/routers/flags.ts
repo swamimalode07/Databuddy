@@ -2,6 +2,7 @@ import {
 	and,
 	desc,
 	eq,
+	flagChangeEvents,
 	flags,
 	flagsToTargetGroups,
 	inArray,
@@ -237,6 +238,42 @@ function sanitizeFlagForDemo<T extends FlagWithTargetGroups>(flag: T): T {
 						: group.rules,
 			})
 		),
+	};
+}
+
+function buildFlagChangeSnapshot(flag: {
+	defaultValue: boolean;
+	dependencies?: string[] | null;
+	description?: string | null;
+	environment?: string | null;
+	key: string;
+	name?: string | null;
+	persistAcrossAuth: boolean;
+	rolloutBy?: string | null;
+	rolloutPercentage?: number | null;
+	status: "active" | "inactive" | "archived";
+	type: "boolean" | "rollout" | "multivariant";
+	variants?: Array<{
+		description?: string;
+		key: string;
+		type: "string" | "number" | "json";
+		value: string | number;
+		weight?: number;
+	}> | null;
+}) {
+	return {
+		key: flag.key,
+		name: flag.name ?? null,
+		description: flag.description ?? null,
+		type: flag.type,
+		status: flag.status,
+		defaultValue: flag.defaultValue,
+		persistAcrossAuth: flag.persistAcrossAuth,
+		rolloutPercentage: flag.rolloutPercentage ?? null,
+		rolloutBy: flag.rolloutBy ?? null,
+		environment: flag.environment ?? null,
+		dependencies: flag.dependencies ?? [],
+		variants: flag.variants ?? [],
 	};
 }
 
@@ -597,6 +634,17 @@ export const flagsRouter = {
 						);
 					}
 
+					await tx.insert(flagChangeEvents).values({
+						id: randomUUIDv7(),
+						flagId: restored.id,
+						websiteId: restored.websiteId,
+						organizationId: restored.organizationId,
+						changeType: "restored",
+						before: buildFlagChangeSnapshot(existingFlag[0]),
+						after: buildFlagChangeSnapshot(restored),
+						changedBy: createdBy,
+					});
+
 					return restored;
 				});
 
@@ -663,6 +711,17 @@ export const flagsRouter = {
 						}))
 					);
 				}
+
+				await tx.insert(flagChangeEvents).values({
+					id: randomUUIDv7(),
+					flagId,
+					websiteId: createdFlag.websiteId,
+					organizationId: createdFlag.organizationId,
+					changeType: "created",
+					before: null,
+					after: buildFlagChangeSnapshot(createdFlag),
+					changedBy: createdBy,
+				});
 
 				return createdFlag;
 			});
@@ -746,6 +805,7 @@ export const flagsRouter = {
 				);
 			}
 
+			const changedBy = await workspace.getCreatedBy();
 			// Check for circular dependencies if dependencies are being updated
 			if (input.dependencies) {
 				await checkCircularDependency(
@@ -830,6 +890,17 @@ export const flagsRouter = {
 					}
 				}
 
+				await tx.insert(flagChangeEvents).values({
+					id: randomUUIDv7(),
+					flagId: updated.id,
+					websiteId: updated.websiteId,
+					organizationId: updated.organizationId,
+					changeType: "updated",
+					before: buildFlagChangeSnapshot(flag),
+					after: buildFlagChangeSnapshot(updated),
+					changedBy,
+				});
+
 				return updated;
 			});
 
@@ -837,7 +908,10 @@ export const flagsRouter = {
 
 			// Handle cascading status changes for dependent flags
 			if (flag.status !== updatedFlag.status) {
-				await handleFlagUpdateDependencyCascading({ updatedFlag });
+				await handleFlagUpdateDependencyCascading({
+					updatedFlag,
+					changedBy,
+				});
 			}
 			return updatedFlag;
 		}),
@@ -855,10 +929,7 @@ export const flagsRouter = {
 		.output(successOutputSchema)
 		.handler(async ({ context, input }) => {
 			const existingFlag = await context.db
-				.select({
-					organizationId: flags.organizationId,
-					websiteId: flags.websiteId,
-				})
+				.select()
 				.from(flags)
 				.where(and(eq(flags.id, input.id), isNull(flags.deletedAt)))
 				.limit(1);
@@ -868,14 +939,15 @@ export const flagsRouter = {
 			}
 
 			const flag = existingFlag[0];
+			let workspace: Workspace | undefined;
 
 			if (flag.websiteId) {
-				await withWorkspace(context, {
+				workspace = await withWorkspace(context, {
 					websiteId: flag.websiteId,
 					permissions: ["delete"],
 				});
 			} else if (flag.organizationId) {
-				await withWorkspace(context, {
+				workspace = await withWorkspace(context, {
 					organizationId: flag.organizationId,
 					resource: "website",
 					permissions: ["create"],
@@ -886,13 +958,29 @@ export const flagsRouter = {
 				);
 			}
 
-			await context.db
-				.update(flags)
-				.set({
-					deletedAt: new Date(),
-					status: "archived",
-				})
-				.where(and(eq(flags.id, input.id), isNull(flags.deletedAt)));
+			const changedBy = await workspace.getCreatedBy();
+
+			await withTransaction(async (tx) => {
+				const [archivedFlag] = await tx
+					.update(flags)
+					.set({
+						deletedAt: new Date(),
+						status: "archived",
+					})
+					.where(and(eq(flags.id, input.id), isNull(flags.deletedAt)))
+					.returning();
+
+				await tx.insert(flagChangeEvents).values({
+					id: randomUUIDv7(),
+					flagId: archivedFlag.id,
+					websiteId: archivedFlag.websiteId,
+					organizationId: archivedFlag.organizationId,
+					changeType: "archived",
+					before: buildFlagChangeSnapshot(flag),
+					after: buildFlagChangeSnapshot(archivedFlag),
+					changedBy,
+				});
+			});
 
 			await invalidateFlagCache(input.id, flag.websiteId, flag.organizationId);
 
