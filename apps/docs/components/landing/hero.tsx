@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowsOutSimpleIcon } from "@phosphor-icons/react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -86,62 +87,39 @@ export default function Hero({
 			<BackgroundFlow />
 			<div className="mx-auto w-full max-w-400 px-4 pt-26 pb-8 sm:px-14 sm:pt-20 lg:px-20 lg:pt-38">
 				<div className="mx-auto flex max-w-360 flex-col items-start space-y-2 text-left">
-					<h1 className="z-10 text-balance font-semibold text-3xl leading-[1.1] tracking-normal sm:text-5xl md:text-6xl lg:text-6xl">
-						Privacy-first analytics. One script, no cookies ,no consent banners.
-					</h1>
-					<p className="z-10 max-w-2xl text-pretty font-medium text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
+					<motion.h1
+						animate={{ opacity: 1, y: 0 }}
+						className="z-10 text-balance font-semibold text-3xl sm:text-5xl md:text-6xl"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0 }}
+					>
+						Privacy-first analytics. One script, no cookies, no consent banners.
+					</motion.h1>
+
+					<motion.p
+						animate={{ opacity: 1, y: 0 }}
+						className="z-10 max-w-2xl text-muted-foreground text-sm sm:text-base lg:text-lg"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0.15 }}
+					>
 						Web analytics, error tracking, and feature flags in a single script
-						under 30 KB. GDPR compliant out of the box.{" "}
-						<Link
-							className="text-foreground"
-							href="https://github.com/databuddy-analytics/databuddy"
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Open source
-						</Link>
-						.
-					</p>
+						under 30 KB. GDPR compliant out of the box.
+					</motion.p>
 
-					{/* <p className="max-w-2xl text-pretty text-muted-foreground text-xs leading-relaxed sm:text-sm">
-						<a
-							className="underline underline-offset-2 hover:text-foreground"
-							href="https://www.advance-metrics.com/en/blog/cookie-behaviour-study/"
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Advance Metrics
-						</a>{" "}
-						on real-world banner behavior.{" "}
-						<Link
-							className="underline underline-offset-2 hover:text-foreground"
-							href="/calculator"
-						>
-							Model the opportunity cost
-						</Link>{" "}
-						for your traffic.
-					</p> */}
-
-					<div className="flex items-center gap-3 pt-2">
-						<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
+					<motion.div
+						animate={{ opacity: 1, y: 0 }}
+						className="flex items-center gap-3 pt-2"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0.3 }}
+					>
+						<SciFiButton asChild className="px-6 py-5">
 							<a href="https://app.databuddy.cc/login">Start free</a>
 						</SciFiButton>
-						<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
+
+						<SciFiButton asChild className="px-6 py-5">
 							<Link href="/demo">Live demo</Link>
 						</SciFiButton>
-					</div>
-
-					{/* <p className="flex flex-wrap items-center justify-start gap-x-4 gap-y-1 text-muted-foreground text-sm">
-						<span>Used by 400+ teams</span>
-						<span className="text-border">·</span>
-						{stars ? (
-							<>
-								<span>{formatLocaleNumber(stars)} GitHub stars</span>
-								<span className="text-border">·</span>
-							</>
-						) : null}
-						<span>Open source</span>
-					</p> */}
+					</motion.div>
 				</div>
 
 				<div className="z-10 mt-5 space-y-0">
@@ -171,61 +149,68 @@ export default function Hero({
 						</div>
 					</div>
 
-					<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
-						<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">
-							{tabs.map((tab) => {
-								const isActive = activeTab === tab.id;
-								const src = loadedTabIds.has(tab.id)
-									? `${demoEmbedBaseUrl}${tab.path}?embed=true`
-									: "about:blank";
-								return (
-									<iframe
-										allowFullScreen
-										aria-hidden={!isActive}
-										className={cn(
-											"h-[400px] w-full rounded border-0 bg-muted shadow-inner sm:h-[500px] lg:h-[600px]",
-											isActive
-												? "relative z-10"
-												: "pointer-events-none absolute inset-0 z-0 opacity-0"
-										)}
-										key={tab.id}
-										onLoad={(e) => {
-											const url = e.currentTarget.src;
-											if (url.includes("embed=true")) {
-												markEmbedReady(tab.id);
-											}
-										}}
-										ref={(el) => {
-											iframeRefs.current[tab.id] = el;
-										}}
-										src={src}
-										tabIndex={isActive ? 0 : -1}
-										title={`Databuddy ${tab.label} Demo`}
-									/>
-								);
-							})}
-							<div
-								aria-hidden
-								className={cn(
-									"pointer-events-none absolute inset-0 z-20 rounded bg-muted transition-opacity duration-200",
-									loadedTabIds.has(activeTab) && !embedReady.has(activeTab)
-										? "opacity-100"
-										: "opacity-0"
-								)}
-							/>
-						</div>
-
-						<button
-							aria-label="Open demo in fullscreen"
-							className="absolute inset-1.5 flex items-center justify-center rounded bg-background/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:inset-2"
-							onClick={handleFullscreen}
-							type="button"
-						>
-							<div className="flex cursor-pointer items-center gap-2 rounded border border-border bg-card/90 px-4 py-2 font-medium text-sm shadow-lg backdrop-blur-sm transition-colors duration-200 hover:bg-card">
-								<ArrowsOutSimpleIcon className="size-4" weight="fill" />
-								<span>Click to view fullscreen</span>
+					<div className="relative">
+						<img
+							alt=""
+							className="pointer-events-none absolute right-0 bottom-full z-30 mb-0 hidden w-40 max-w-[min(100%,10rem)] md:right-0 lg:right-20 lg:block"
+							src="/brand/bunny/off-black.svg"
+						/>
+						<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
+							<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">
+								{tabs.map((tab) => {
+									const isActive = activeTab === tab.id;
+									const src = loadedTabIds.has(tab.id)
+										? `${demoEmbedBaseUrl}${tab.path}?embed=true`
+										: "about:blank";
+									return (
+										<iframe
+											allowFullScreen
+											aria-hidden={!isActive}
+											className={cn(
+												"h-[400px] w-full rounded border-0 bg-muted shadow-inner sm:h-[500px] lg:h-[600px]",
+												isActive
+													? "relative z-10"
+													: "pointer-events-none absolute inset-0 z-0 opacity-0"
+											)}
+											key={tab.id}
+											onLoad={(e) => {
+												const url = e.currentTarget.src;
+												if (url.includes("embed=true")) {
+													markEmbedReady(tab.id);
+												}
+											}}
+											ref={(el) => {
+												iframeRefs.current[tab.id] = el;
+											}}
+											src={src}
+											tabIndex={isActive ? 0 : -1}
+											title={`Databuddy ${tab.label} Demo`}
+										/>
+									);
+								})}
+								<div
+									aria-hidden
+									className={cn(
+										"pointer-events-none absolute inset-0 z-20 rounded bg-muted transition-opacity duration-200",
+										loadedTabIds.has(activeTab) && !embedReady.has(activeTab)
+											? "opacity-100"
+											: "opacity-0"
+									)}
+								/>
 							</div>
-						</button>
+
+							<button
+								aria-label="Open demo in fullscreen"
+								className="absolute inset-1.5 flex items-center justify-center rounded bg-background/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:inset-2"
+								onClick={handleFullscreen}
+								type="button"
+							>
+								<div className="flex cursor-pointer items-center gap-2 rounded border border-border bg-card/90 px-4 py-2 font-medium text-sm shadow-lg backdrop-blur-sm transition-colors duration-200 hover:bg-card">
+									<ArrowsOutSimpleIcon className="size-4" weight="fill" />
+									<span>Click to view fullscreen</span>
+								</div>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

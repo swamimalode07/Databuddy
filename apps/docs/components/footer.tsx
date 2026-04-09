@@ -13,7 +13,7 @@ import { NewsletterForm } from "./newsletter-form";
 export function Footer() {
 	return (
 		<footer className="border-border border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-			<div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-360 px-4 pt-10 sm:px-6 lg:px-8">
 				{/* CTA Section */}
 				<div className="mb-12 text-center">
 					<h2 className="mb-6 font-medium text-2xl leading-tight sm:text-3xl">
@@ -29,12 +29,12 @@ export function Footer() {
 					</div>
 				</div>
 
-				<div className="mb-10 flex flex-col items-start justify-between gap-4 border border-border bg-card/30 p-5 sm:flex-row sm:items-center sm:p-6">
+				<div className="mb-10 flex flex-col items-start justify-between gap-4 rounded-lg border border-border bg-card/30 p-5 sm:flex-row sm:items-center sm:p-6">
 					<div className="space-y-1">
-						<p className="font-medium text-foreground text-sm">
+						<p className="font-medium text-2xl text-foreground">
 							Get product updates
 						</p>
-						<p className="text-muted-foreground text-xs">
+						<p className="text-base text-muted-foreground">
 							New features, tips, and privacy-first analytics insights. No spam.
 						</p>
 					</div>

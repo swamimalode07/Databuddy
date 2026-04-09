@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, PaperPlaneIcon } from "@phosphor-icons/react";
+import { CheckIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 
 type FormStatus = "idle" | "loading" | "success" | "error";
@@ -58,7 +58,7 @@ export function NewsletterForm() {
 		<div className="space-y-2">
 			<form className="flex gap-2" onSubmit={handleSubmit}>
 				<input
-					className="h-9 w-full min-w-0 rounded border border-border bg-background px-3 text-foreground text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary sm:w-56"
+					className="h-10 w-full min-w-0 rounded bg-border px-4 text-base text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary sm:w-80"
 					disabled={status === "loading"}
 					placeholder="you@company.com"
 					ref={inputRef}
@@ -67,12 +67,14 @@ export function NewsletterForm() {
 				/>
 				<button
 					aria-label="Subscribe to newsletter"
-					className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded bg-primary px-3 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+					className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded bg-primary px-3 font-semibold text-primary-foreground text-sm transition-opacity hover:opacity-80 disabled:opacity-50"
 					disabled={status === "loading"}
 					type="submit"
 				>
-					<PaperPlaneIcon className="size-3.5" weight="fill" />
-					{status === "loading" ? "..." : "Subscribe"}
+					<span className="mt-0.5 flex items-center gap-1.5">
+						{status === "loading" ? "..." : "Subscribe"}
+					</span>
+					<PaperPlaneTiltIcon className="size-3.5" weight="fill" />
 				</button>
 			</form>
 			{status === "error" && errorMessage ? (
