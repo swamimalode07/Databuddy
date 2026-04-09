@@ -1,6 +1,8 @@
 import Supermemory from "supermemory";
 
 const apiKey = process.env.SUPERMEMORY_API_KEY;
+const MEMORY_SANITIZE_RE = /<\/?[a-z_][a-z_0-9-]*(?:\s[^>]*)?\s*\/?>/gi;
+const MAX_MEMORY_LENGTH = 2000;
 
 let _client: Supermemory | null = null;
 
@@ -16,6 +18,15 @@ function getClient(): Supermemory | null {
 
 export function isMemoryEnabled(): boolean {
 	return Boolean(apiKey);
+}
+
+export function sanitizeMemoryContent(
+	value: string,
+	maxLength = MAX_MEMORY_LENGTH
+): string {
+	let cleaned = value.slice(0, maxLength);
+	cleaned = cleaned.replace(MEMORY_SANITIZE_RE, "");
+	return cleaned;
 }
 
 function buildContainerTag(
@@ -171,7 +182,7 @@ export async function searchMemories(
  * via stored memories that flow back into system prompts.
  */
 function sanitizeMemoryString(value: string): string {
-	return value.replace(/<\/?[a-z_][a-z_0-9-]*(?:\s[^>]*)?\s*\/?>/gi, "");
+	return sanitizeMemoryContent(value, Number.POSITIVE_INFINITY);
 }
 
 /**

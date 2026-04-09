@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import {
 	isMemoryEnabled,
+	sanitizeMemoryContent,
 	searchMemories,
 	storeConversation as storeMemory,
 } from "../../lib/supermemory";
@@ -78,10 +79,6 @@ const QueryItemSchema = z.object({
 	orderBy: z.string().optional(),
 });
 
-// ---------------------------------------------------------------------------
-// Shared output schemas
-// ---------------------------------------------------------------------------
-
 const WebsiteSummarySchema = z.object({
 	id: z.string(),
 	name: z.string().nullable(),
@@ -100,10 +97,6 @@ const LinkRowOutputSchema = z.object({
 	ogTitle: z.string().nullable().optional(),
 	ogDescription: z.string().nullable().optional(),
 });
-
-// ---------------------------------------------------------------------------
-// ask
-// ---------------------------------------------------------------------------
 
 const askTool = defineMcpTool(
 	{
@@ -195,10 +188,6 @@ const askTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// list_websites
-// ---------------------------------------------------------------------------
-
 const listWebsitesTool = defineMcpTool(
 	{
 		name: "list_websites",
@@ -225,10 +214,6 @@ const listWebsitesTool = defineMcpTool(
 		};
 	}
 );
-
-// ---------------------------------------------------------------------------
-// get_data
-// ---------------------------------------------------------------------------
 
 const getDataTool = defineMcpTool(
 	{
@@ -401,10 +386,6 @@ const getDataTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// get_schema
-// ---------------------------------------------------------------------------
-
 const getSchemaTool = defineMcpTool(
 	{
 		name: "get_schema",
@@ -451,10 +432,6 @@ const getSchemaTool = defineMcpTool(
 		};
 	}
 );
-
-// ---------------------------------------------------------------------------
-// capabilities
-// ---------------------------------------------------------------------------
 
 const CAPABILITY_SECTIONS = [
 	"hints",
@@ -575,10 +552,6 @@ const capabilitiesTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// list_funnels
-// ---------------------------------------------------------------------------
-
 const listFunnelsTool = defineMcpTool(
 	{
 		name: "list_funnels",
@@ -613,10 +586,6 @@ const listFunnelsTool = defineMcpTool(
 		return { funnels, count: funnels.length };
 	}
 );
-
-// ---------------------------------------------------------------------------
-// get_funnel_analytics
-// ---------------------------------------------------------------------------
 
 const getFunnelAnalyticsTool = defineMcpTool(
 	{
@@ -661,10 +630,6 @@ const getFunnelAnalyticsTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// list_goals
-// ---------------------------------------------------------------------------
-
 const listGoalsTool = defineMcpTool(
 	{
 		name: "list_goals",
@@ -699,10 +664,6 @@ const listGoalsTool = defineMcpTool(
 		return { goals, count: goals.length };
 	}
 );
-
-// ---------------------------------------------------------------------------
-// get_goal_analytics
-// ---------------------------------------------------------------------------
 
 const getGoalAnalyticsTool = defineMcpTool(
 	{
@@ -746,10 +707,6 @@ const getGoalAnalyticsTool = defineMcpTool(
 		);
 	}
 );
-
-// ---------------------------------------------------------------------------
-// list_links
-// ---------------------------------------------------------------------------
 
 interface LinkRow {
 	createdAt: string;
@@ -815,10 +772,6 @@ const listLinksTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// search_links
-// ---------------------------------------------------------------------------
-
 const searchLinksTool = defineMcpTool(
 	{
 		name: "search_links",
@@ -878,10 +831,6 @@ const searchLinksTool = defineMcpTool(
 	}
 );
 
-// ---------------------------------------------------------------------------
-// search_memory / save_memory (optional)
-// ---------------------------------------------------------------------------
-
 const searchMemoryTool = defineMcpTool(
 	{
 		name: "search_memory",
@@ -927,7 +876,7 @@ const searchMemoryTool = defineMcpTool(
 		return {
 			found: true,
 			memories: results.map((r) => ({
-				content: r.memory,
+				content: sanitizeMemoryContent(r.memory),
 				relevance: Math.round(r.similarity * 100),
 			})),
 		};
@@ -959,7 +908,7 @@ const saveMemoryTool = defineMcpTool(
 		const apiKeyId = ctx.apiKey ? (ctx.apiKey as { id: string }).id : null;
 		// storeMemory is intentionally fire-and-forget (see supermemory.ts)
 		storeMemory(
-			[{ role: "assistant", content: input.content }],
+			[{ role: "assistant", content: sanitizeMemoryContent(input.content) }],
 			ctx.userId,
 			apiKeyId,
 			{ category: input.category ?? "insight" }
@@ -967,10 +916,6 @@ const saveMemoryTool = defineMcpTool(
 		return { queued: true };
 	}
 );
-
-// ---------------------------------------------------------------------------
-// Registry
-// ---------------------------------------------------------------------------
 
 const ALL_TOOL_FACTORIES: McpToolFactory[] = [
 	askTool,

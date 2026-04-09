@@ -2,21 +2,10 @@ import { type Tool, tool } from "ai";
 import { z } from "zod";
 import {
 	isMemoryEnabled,
+	sanitizeMemoryContent,
 	searchMemories,
 	storeConversation,
 } from "../../lib/supermemory";
-
-const MAX_MEMORY_LENGTH = 2000;
-
-/**
- * Sanitize content before storing or returning memory to prevent
- * stored prompt injection (malicious payloads persisted and retrieved later).
- */
-function sanitizeMemoryContent(value: string): string {
-	let cleaned = value.slice(0, MAX_MEMORY_LENGTH);
-	cleaned = cleaned.replace(/<\/?[a-z_][a-z_0-9-]*(?:\s[^>]*)?\s*\/?>/gi, "");
-	return cleaned;
-}
 
 function getAgentContext(options: unknown): {
 	userId: string | null;
