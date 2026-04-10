@@ -1,6 +1,6 @@
 import { createClient, type ResponseJSON } from "@clickhouse/client";
 import type { NodeClickHouseClientConfigOptions } from "@clickhouse/client/dist/config";
-import { SpanStatusCode, trace } from "@opentelemetry/api";
+
 import SqlString from "sqlstring";
 /**
  * ClickHouse table names used throughout the application
@@ -93,72 +93,37 @@ export interface ChQueryOptions {
 	readonly?: boolean;
 }
 
-export function chQueryWithMeta<T extends Record<string, any>>(
+export async function chQueryWithMeta<T extends Record<string, any>>(
 	query: string,
 	params?: Record<string, unknown>,
 	options?: ChQueryOptions
 ): Promise<ResponseJSON<T>> {
-	const tracer = trace.getTracer("clickhouse");
-	const spanName = options?.readonly ? "chQuery:readonly" : "chQuery";
-	return tracer.startActiveSpan(spanName, async (span) => {
-		const preview = query.length > 200 ? `${query.slice(0, 200)}...` : query;
-		span.setAttribute("db.system", "clickhouse");
-		span.setAttribute("db.statement", preview);
-		if (options?.readonly) {
-			span.setAttribute("db.readonly", true);
-		}
-
-		try {
-			const res = await clickHouse.query({
-				query,
-				query_params: params,
-				...(options?.readonly && {
-					clickhouse_settings: { readonly: "1" },
-				}),
-			});
-			const json = await res.json<T>();
-			const keys = Object.keys(json.data[0] || {});
-
-			span.setAttribute("db.row_count", json.data.length);
-			span.setAttribute("db.stats.rows_read", json.statistics?.rows_read ?? 0);
-			span.setAttribute(
-				"db.stats.bytes_read",
-				json.statistics?.bytes_read ?? 0
-			);
-			span.setAttribute("db.stats.elapsed_sec", json.statistics?.elapsed ?? 0);
-			span.setStatus({ code: SpanStatusCode.OK });
-
-			const response = {
-				...json,
-				data: json.data.map((item) =>
-					keys.reduce(
-						(acc, key) => {
-							const meta = json.meta?.find((m) => m.name === key);
-							acc[key] =
-								item[key] && meta?.type.includes("Int")
-									? Number.parseFloat(item[key] as string)
-									: item[key];
-							return acc;
-						},
-						{} as Record<string, any>
-					)
-				),
-			};
-
-			return response as ResponseJSON<T>;
-		} catch (error) {
-			span.setStatus({
-				code: SpanStatusCode.ERROR,
-				message: error instanceof Error ? error.message : String(error),
-			});
-			span.recordException(
-				error instanceof Error ? error : new Error(String(error))
-			);
-			throw error;
-		} finally {
-			span.end();
-		}
+	const res = await clickHouse.query({
+		query,
+		query_params: params,
+		...(options?.readonly && {
+			clickhouse_settings: { readonly: "1" },
+		}),
 	});
+	const json = await res.json<T>();
+	const keys = Object.keys(json.data[0] || {});
+
+	return {
+		...json,
+		data: json.data.map((item) =>
+			keys.reduce(
+				(acc, key) => {
+					const meta = json.meta?.find((m) => m.name === key);
+					acc[key] =
+						item[key] && meta?.type.includes("Int")
+							? Number.parseFloat(item[key] as string)
+							: item[key];
+					return acc;
+				},
+				{} as Record<string, any>
+			)
+		),
+	} as ResponseJSON<T>;
 }
 
 export function chQuery<T extends Record<string, any>>(
