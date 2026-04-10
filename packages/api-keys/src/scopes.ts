@@ -70,13 +70,3 @@ export function requiredScopesForResource(
 
 	return [...scopes];
 }
-
-/**
- * @deprecated Use requiredScopesForResource instead.
- * Kept for call sites that don't have resource context yet.
- */
-export function requiredScopesForPermissions(
-	permissions: string[]
-): ApiScope[] {
-	return requiredScopesForResource("website", permissions);
-}
