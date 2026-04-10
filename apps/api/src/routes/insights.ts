@@ -33,6 +33,7 @@ import type { ParsedInsight } from "../ai/schemas/smart-insights-output";
 import { insightsOutputSchema } from "../ai/schemas/smart-insights-output";
 import { createInsightsAgentTools } from "../ai/tools/insights-agent-tools";
 import { storeAnalyticsSummary } from "../lib/supermemory";
+import { getAILogger } from "../ai/config/ai-logger";
 import { captureError, mergeWideEvent } from "../lib/tracing";
 
 const CACHE_TTL = 900;
@@ -326,8 +327,9 @@ async function analyzeWebsiteLegacy(
 	const prompt = `Analyze this website's week-over-week data and return insights.\n\n${orgContext}${dataSection}${annotationContext}${recentInsightsBlock}`;
 
 	try {
+		const ai = getAILogger();
 		const result = await generateText({
-			model: models.analytics,
+			model: ai.wrap(models.analytics),
 			output: Output.object({ schema: insightsOutputSchema }),
 			system: INSIGHTS_SYSTEM_PROMPT,
 			prompt,
@@ -426,8 +428,9 @@ ${orgContext}${annotationContext}${recentInsightsBlock}`;
 			requestHeaders,
 		};
 
+		const ai = getAILogger();
 		const agent = new ToolLoopAgent({
-			model: models.analytics,
+			model: ai.wrap(models.analytics),
 			instructions: INSIGHTS_SYSTEM_PROMPT,
 			output: Output.object({ schema: insightsOutputSchema }),
 			tools,
@@ -738,7 +741,7 @@ ${insightLines.join("\n")}`;
 		let narrative = "";
 		try {
 			const result = await generateText({
-				model: models.analytics,
+				model: getAILogger().wrap(models.analytics),
 				prompt,
 				temperature: 0.2,
 				maxOutputTokens: 200,
