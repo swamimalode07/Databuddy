@@ -1,5 +1,6 @@
 export const SCHEMA_SECTIONS = [
 	"events",
+	"custom_events",
 	"errors",
 	"vitals",
 	"outgoing",
@@ -81,6 +82,26 @@ const ANALYTICS_TABLES: TableDef[] = [
 		],
 		additionalInfo:
 			"Partitioned by month (toYYYYMM(time)), ordered by (client_id, time, id)",
+	},
+	{
+		name: "analytics.custom_events",
+		section: "custom_events",
+		description:
+			"Custom events from SDK track() / /track API. Keyed by owner_id (org ID), NOT client_id — use get_data custom_events_* builders, not raw SQL.",
+		keyColumns: [
+			"owner_id (String) - Organization ID (not websiteId)",
+			"website_id (Nullable String) - Optional website scope",
+			"timestamp (DateTime64)",
+			"event_name (LowCardinality String)",
+			"namespace (LowCardinality Nullable String)",
+			"path (Nullable String)",
+			"properties (String) - JSON",
+			"anonymous_id (Nullable String)",
+			"session_id (Nullable String)",
+			"source (LowCardinality Nullable String)",
+		],
+		additionalInfo:
+			"Partitioned by day, ordered by (owner_id, event_name, timestamp).",
 	},
 	{
 		name: "analytics.error_spans",
@@ -209,6 +230,11 @@ WHERE client_id = {websiteId:String}
 GROUP BY path
 ORDER BY views DESC
 LIMIT 10`,
+	custom_events: `-- analytics.custom_events uses owner_id (org ID), not client_id.
+-- Raw SQL won't work — use get_data with custom_events_* builders:
+--   custom_events, custom_events_discovery, custom_events_summary,
+--   custom_events_trends, custom_events_recent, custom_events_by_path,
+--   custom_events_property_top_values, custom_events_property_classification`,
 	errors: `-- Error rate trends (using aggregated table)
 SELECT
   toStartOfDay(hour) as date,

@@ -103,7 +103,7 @@ export function buildBatchQueryRequests(
 }
 
 const SCHEMA_SUMMARY =
-	"analytics.events (client_id, path, time, country, device_type, referrer, utm_*); analytics.error_spans; analytics.web_vitals_hourly. Filter: client_id = {websiteId:String}.";
+	"analytics.events (client_id, path, time, country, device_type, referrer, utm_*); analytics.custom_events (owner_id, event_name, properties — use get_data custom_events_* builders, not raw SQL); analytics.error_spans; analytics.web_vitals_hourly. Filter: client_id = {websiteId:String}.";
 
 const QUERY_TYPE_DESCRIPTIONS: Record<string, string> = {
 	entry_pages:

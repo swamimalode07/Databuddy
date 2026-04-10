@@ -16,7 +16,7 @@ const ANALYTICS_CORE_RULES = `**Tools:**
 - execute_sql_query: only for queries no builder covers. SELECT/WITH, {paramName:Type} placeholders, must filter by client_id = {websiteId:String}.
 - list_links / list_funnels / list_goals / list_annotations: fetch the full list then filter locally.
 - Mutations (create/update/delete): call with confirmed=false first for a preview, then confirmed=true after user confirms.
-- custom_events: use custom_events_discovery for event+property listing in one call.
+- custom_events: use get_data custom_events_* builders (separate table keyed by owner_id, not client_id — raw SQL won't work). custom_events_discovery for event+property listing in one call.
 - web_search: external context only (benchmarks, best practices), never for analytics data.
 
 **Analysis:**
