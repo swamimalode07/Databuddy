@@ -1,4 +1,5 @@
-import { chQuery, db } from "@databuddy/db";
+import { db } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import {
 	DuplicateDomainError,
 	ValidationError,

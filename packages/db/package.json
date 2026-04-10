@@ -6,7 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/drizzle/schema.ts",
-    "./clickhouse": "./src/clickhouse/client.ts",
+    "./clickhouse": "./src/clickhouse/index.ts",
     "./clickhouse/schema": "./src/clickhouse/schema.ts"
   },
   "dependencies": {

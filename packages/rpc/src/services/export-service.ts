@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import JSZip from "jszip";
