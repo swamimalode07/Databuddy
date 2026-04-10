@@ -12,6 +12,7 @@ import {
 	trackAgentUsageAndBill,
 } from "../agents/execution";
 import { createMcpAgentConfig } from "../agents/mcp";
+import { getAILogger } from "../config/ai-logger";
 import { modelNames } from "../config/models";
 
 const MCP_AGENT_TIMEOUT_MS = 45_000;
@@ -90,8 +91,9 @@ export async function runMcpAgent(
 	}
 	mcpTelemetryMetadata["tcc.sessionId"] = sessionId;
 
+	const ai = getAILogger();
 	const agent = new ToolLoopAgent({
-		model: config.model,
+		model: ai.wrap(config.model),
 		instructions,
 		tools: config.tools,
 		stopWhen: config.stopWhen,
