@@ -1,13 +1,13 @@
 "use client";
 
-import type { Website } from "@databuddy/db";
+import type { Website } from "@databuddy/db/schema";
 import type { ProcessedMiniChartData } from "@databuddy/shared/types/website";
 
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 
-export type { Website } from "@databuddy/db";
+export type { Website } from "@databuddy/db/schema";
 
 export interface WebsitesListData {
 	activeUsers: Record<string, number>;

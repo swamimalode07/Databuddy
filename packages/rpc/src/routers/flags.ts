@@ -2,16 +2,18 @@ import {
 	and,
 	desc,
 	eq,
-	flagChangeEvents,
-	flags,
-	flagsToTargetGroups,
 	inArray,
 	isNull,
 	ne,
 	notDeleted,
-	targetGroups,
 	withTransaction,
 } from "@databuddy/db";
+import {
+	flagChangeEvents,
+	flags,
+	flagsToTargetGroups,
+	targetGroups,
+} from "@databuddy/db/schema";
 import { createDrizzleCache, redis } from "@databuddy/redis";
 import {
 	flagFormSchema,

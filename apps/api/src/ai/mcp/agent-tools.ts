@@ -3,7 +3,7 @@ import {
 	AGENT_SQL_VALIDATION_ERROR,
 	requiresTenantFilter,
 	validateAgentSQL,
-} from "@databuddy/db";
+} from "@databuddy/db/clickhouse";
 import { tool } from "ai";
 import { z } from "zod";
 import { getAccessibleWebsites } from "../../lib/accessible-websites";

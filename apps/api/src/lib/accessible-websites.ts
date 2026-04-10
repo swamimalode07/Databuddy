@@ -1,4 +1,5 @@
-import { db, eq, inArray, member, websites } from "@databuddy/db";
+import { db, eq, inArray } from "@databuddy/db";
+import { member, websites } from "@databuddy/db/schema";
 import {
 	type ApiKeyRow,
 	getAccessibleWebsiteIds,

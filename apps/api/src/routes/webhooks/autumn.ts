@@ -1,4 +1,5 @@
-import { and, db, eq, gt, usageAlertLog, user } from "@databuddy/db";
+import { and, db, eq, gt } from "@databuddy/db";
+import { usageAlertLog, user } from "@databuddy/db/schema";
 import { UsageAlertEmail, UsageLimitEmail } from "@databuddy/email";
 import { sendSlackWebhook } from "@databuddy/notifications";
 import { cacheable } from "@databuddy/redis";

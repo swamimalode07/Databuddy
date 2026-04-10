@@ -1,4 +1,5 @@
-import { and, db, desc, eq, gt, invitation, organization } from "@databuddy/db";
+import { and, db, desc, eq, gt } from "@databuddy/db";
+import { invitation, organization } from "@databuddy/db/schema";
 import { getPendingInvitationsSchema } from "@databuddy/validation";
 import { z } from "zod";
 import { rpcError } from "../errors";

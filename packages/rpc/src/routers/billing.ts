@@ -1,4 +1,6 @@
-import { chQuery, eq, websites } from "@databuddy/db";
+import { eq } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
+import { websites } from "@databuddy/db/schema";
 import type {
 	DailyUsageByTypeRow,
 	DailyUsageRow,

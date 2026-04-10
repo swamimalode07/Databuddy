@@ -1,4 +1,5 @@
-import { and, db, eq, flags, isNull, or } from "@databuddy/db";
+import { and, db, eq, isNull, or } from "@databuddy/db";
+import { flags } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import { Elysia, t } from "elysia";
 import { useLogger } from "evlog/elysia";

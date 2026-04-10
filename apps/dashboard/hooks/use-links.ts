@@ -1,6 +1,6 @@
 "use client";
 
-import type { Link } from "@databuddy/db";
+import type { Link } from "@databuddy/db/schema";
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { orpc } from "@/lib/orpc";
 
-export type { Link } from "@databuddy/db";
+export type { Link } from "@databuddy/db/schema";
 
 interface GeoEntry {
 	clicks: number;

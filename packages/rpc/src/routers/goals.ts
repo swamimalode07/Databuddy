@@ -1,4 +1,5 @@
-import { and, desc, eq, goals, inArray, isNull } from "@databuddy/db";
+import { and, desc, eq, inArray, isNull } from "@databuddy/db";
+import { goals } from "@databuddy/db/schema";
 import { createDrizzleCache, redis } from "@databuddy/redis";
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
 import { randomUUIDv7 } from "bun";

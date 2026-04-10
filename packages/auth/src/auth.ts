@@ -1,11 +1,10 @@
 import { sso } from "@better-auth/sso";
+import { db, eq } from "@databuddy/db";
 import {
-	db,
-	eq,
 	member as memberTable,
 	organization as organizationTable,
 	user,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import {
 	InvitationEmail,
 	MagicLinkEmail,

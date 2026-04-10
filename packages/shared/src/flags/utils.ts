@@ -1,13 +1,5 @@
-import {
-	and,
-	arrayContains,
-	db,
-	eq,
-	flagChangeEvents,
-	flags,
-	inArray,
-	isNull,
-} from "@databuddy/db";
+import { and, arrayContains, db, eq, inArray, isNull } from "@databuddy/db";
+import { flagChangeEvents, flags } from "@databuddy/db/schema";
 import {
 	createDrizzleCache,
 	invalidateCacheableWithArgs,

@@ -1,4 +1,5 @@
-import { analyticsInsights, and, db, desc, eq, gte } from "@databuddy/db";
+import { and, db, desc, eq, gte } from "@databuddy/db";
+import { analyticsInsights } from "@databuddy/db/schema";
 import dayjs from "dayjs";
 import type { ParsedInsight } from "../schemas/smart-insights-output";
 

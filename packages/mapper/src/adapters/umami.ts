@@ -1,4 +1,4 @@
-import type { AnalyticsEvent } from "@databuddy/db";
+import type { AnalyticsEvent } from "@databuddy/db/clickhouse/schema";
 import { randomUUIDv7 } from "bun";
 import type { ImportContext } from "../types";
 

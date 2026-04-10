@@ -1,14 +1,6 @@
 import { auth } from "@databuddy/auth";
-import {
-	and,
-	db,
-	eq,
-	isNull,
-	links,
-	member,
-	uptimeSchedules,
-	websites,
-} from "@databuddy/db";
+import { and, db, eq, isNull } from "@databuddy/db";
+import { links, member, uptimeSchedules, websites } from "@databuddy/db/schema";
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { CustomQueryRequest } from "@databuddy/shared/types/custom-query";
 import { Elysia, t } from "elysia";

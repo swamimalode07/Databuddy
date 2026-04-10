@@ -1,4 +1,4 @@
-import { chQuery, TABLE_NAMES } from "@databuddy/db";
+import { chQuery, TABLE_NAMES } from "@databuddy/db/clickhouse";
 
 /** ClickHouse `formatDateTime`: use `%i` for minutes. Since v23.4, `%M` is the full month name (MySQL-style). */
 

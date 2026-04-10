@@ -5,7 +5,8 @@
  * client IDs and origins against registered websites.
  */
 
-import { and, db, eq, member, type Website, websites } from "@databuddy/db";
+import { and, db, eq } from "@databuddy/db";
+import { member, type Website, websites } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import { captureError, record } from "@lib/tracing";
 import { createError, EvlogError } from "evlog";

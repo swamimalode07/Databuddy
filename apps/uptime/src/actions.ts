@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { connect } from "node:tls";
-import { db, eq, uptimeSchedules } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { uptimeSchedules } from "@databuddy/db/schema";
 import { validateUrl } from "@databuddy/shared/ssrf-guard";
 import { extractHealth, isHealthExtractionEnabled } from "./json-parser";
 import { captureError, mergeWideEvent } from "./lib/tracing";

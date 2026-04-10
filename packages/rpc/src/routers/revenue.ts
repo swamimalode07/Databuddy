@@ -1,4 +1,5 @@
-import { and, eq, isNull, revenueConfig } from "@databuddy/db";
+import { and, eq, isNull } from "@databuddy/db";
+import { revenueConfig } from "@databuddy/db/schema";
 import { createId } from "@databuddy/shared/utils/ids";
 import { z } from "zod";
 import { rpcError } from "../errors";

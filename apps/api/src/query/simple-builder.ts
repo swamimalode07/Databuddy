@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import type { Granularity } from "./expressions";
 import {
 	compileConfigField,

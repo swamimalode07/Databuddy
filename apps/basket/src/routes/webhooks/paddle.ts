@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { clickHouse } from "@databuddy/db";
+import { clickHouse } from "@databuddy/db/clickhouse";
 import { Elysia } from "elysia";
 import { useLogger } from "evlog/elysia";
 import { formatDate, getWebhookConfig, resolveWebsiteId } from "./shared";

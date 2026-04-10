@@ -1,4 +1,5 @@
-import { agentInstallTelemetry, db, eq, websites } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { agentInstallTelemetry, websites } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import { getRateLimitHeaders, rateLimit } from "@databuddy/redis/rate-limit";
 import { randomUUIDv7 } from "bun";

@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import { referrers } from "@databuddy/shared/lists/referrers";
 
 export interface AnalyticsStep {

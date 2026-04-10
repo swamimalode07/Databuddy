@@ -1,13 +1,5 @@
-import {
-	and,
-	db,
-	desc,
-	eq,
-	featureInvite,
-	flags,
-	ne,
-	withTransaction,
-} from "@databuddy/db";
+import { and, db, desc, eq, ne, withTransaction } from "@databuddy/db";
+import { featureInvite, flags } from "@databuddy/db/schema";
 import type { userRuleSchema } from "@databuddy/shared/flags";
 import { invalidateFlagCache } from "@databuddy/shared/flags/utils";
 import { randomUUIDv7 } from "bun";

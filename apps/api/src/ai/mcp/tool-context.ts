@@ -1,5 +1,6 @@
 import { auth, websitesApi } from "@databuddy/auth";
-import { db, eq, member } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { member } from "@databuddy/db/schema";
 import { getRedisCache } from "@databuddy/redis";
 import {
 	getAccessibleWebsites,

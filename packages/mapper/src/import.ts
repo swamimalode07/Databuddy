@@ -1,4 +1,4 @@
-import type { AnalyticsEvent } from "@databuddy/db";
+import type { AnalyticsEvent } from "@databuddy/db/clickhouse/schema";
 import type { ImportContext, MapperFn } from "./types";
 
 function buildSessionExitMap<TRow>(

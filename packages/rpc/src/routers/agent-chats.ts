@@ -1,4 +1,5 @@
-import { agentChats, analyticsInsights, and, desc, eq } from "@databuddy/db";
+import { and, desc, eq } from "@databuddy/db";
+import { agentChats, analyticsInsights } from "@databuddy/db/schema";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import { sessionProcedure } from "../orpc";

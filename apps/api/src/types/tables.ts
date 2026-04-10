@@ -10,7 +10,7 @@ import type {
 	UptimeMonitor,
 	WebVitalsHourlyAggregate,
 	WebVitalsSpan,
-} from "@databuddy/db";
+} from "@databuddy/db/clickhouse/schema";
 
 export const Analytics = {
 	events: "analytics.events",

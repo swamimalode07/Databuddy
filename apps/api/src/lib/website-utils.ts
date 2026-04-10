@@ -1,5 +1,6 @@
 import { auth } from "@databuddy/auth";
-import { db, eq, inArray, userPreferences, websites } from "@databuddy/db";
+import { db, eq, inArray } from "@databuddy/db";
+import { userPreferences, websites } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import type { Website } from "@databuddy/shared/types/website";
 import {

@@ -1,5 +1,5 @@
 import type { ClickHouseClient } from "@clickhouse/client";
-import { clickHouse, TABLE_NAMES } from "@databuddy/db";
+import { clickHouse, TABLE_NAMES } from "@databuddy/db/clickhouse";
 import { captureError, record } from "@lib/tracing";
 import { Data, Effect, Layer, ManagedRuntime, Ref, Schedule } from "effect";
 import { createError } from "evlog";

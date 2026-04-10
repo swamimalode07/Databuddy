@@ -1,4 +1,7 @@
-import type { AnalyticsEvent, CustomOutgoingLink } from "@databuddy/db";
+import type {
+	AnalyticsEvent,
+	CustomOutgoingLink,
+} from "@databuddy/db/clickhouse/schema";
 import {
 	analyticsEventSchema,
 	batchedCustomEventSpansSchema,

@@ -1,5 +1,6 @@
 import { auth, websitesApi } from "@databuddy/auth";
-import { agentChats, db, eq } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { agentChats } from "@databuddy/db/schema";
 import { getRateLimitHeaders, rateLimit } from "@databuddy/redis/rate-limit";
 import {
 	convertToModelMessages,

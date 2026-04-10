@@ -1,18 +1,12 @@
 import { auth } from "@databuddy/auth";
+import { and, db, desc, eq, gte, inArray, isNull } from "@databuddy/db";
 import {
 	analyticsInsights,
-	and,
 	annotations,
-	db,
-	desc,
-	eq,
-	gte,
-	inArray,
 	insightUserFeedback,
-	isNull,
 	member,
 	websites,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import { cacheable, getRedisCache } from "@databuddy/redis";
 import { getRateLimitHeaders, rateLimit } from "@databuddy/redis/rate-limit";
 import { generateText, Output, stepCountIs, ToolLoopAgent } from "ai";

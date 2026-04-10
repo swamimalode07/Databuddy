@@ -5,7 +5,8 @@ import {
 } from "@databuddy/api-keys/resolve";
 import { API_SCOPES } from "@databuddy/api-keys/scopes";
 import { websitesApi } from "@databuddy/auth";
-import { apikey, desc, eq } from "@databuddy/db";
+import { desc, eq } from "@databuddy/db";
+import { apikey } from "@databuddy/db/schema";
 import { invalidateCacheableKey } from "@databuddy/redis";
 import {
 	ApiKeyErrorCode,

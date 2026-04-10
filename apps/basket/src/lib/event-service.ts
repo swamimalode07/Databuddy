@@ -4,7 +4,7 @@ import type {
 	CustomOutgoingLink,
 	ErrorSpanRow,
 	WebVitalsSpan,
-} from "@databuddy/db";
+} from "@databuddy/db/clickhouse/schema";
 import type { ErrorSpan, IndividualVital } from "@databuddy/validation";
 import { runFork, runPromise, send, sendBatch } from "@lib/producer";
 import { checkDuplicate, getDailySalt, saltAnonymousId } from "@lib/security";

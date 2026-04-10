@@ -10,7 +10,8 @@ import {
 	type User,
 	websitesApi,
 } from "@databuddy/auth";
-import { db, eq, websites } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { websites } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import type { PlanId } from "@databuddy/shared/types/features";
 import { z } from "zod";

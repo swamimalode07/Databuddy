@@ -1,4 +1,5 @@
-import { db, eq, revenueConfig, websites } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { revenueConfig, websites } from "@databuddy/db/schema";
 
 const DATE_REGEX = /\.\d{3}Z$/;
 

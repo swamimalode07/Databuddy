@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { db, eq, links } from "@databuddy/db";
+import { db, eq } from "@databuddy/db";
+import { links } from "@databuddy/db/schema";
 import {
 	type CachedLink,
 	getCachedLink,

@@ -5,8 +5,9 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./clickhouse": "./clickhouse/index.ts"
+    "./schema": "./src/drizzle/schema.ts",
+    "./clickhouse": "./src/clickhouse/client.ts",
+    "./clickhouse/schema": "./src/clickhouse/schema.ts"
   },
   "dependencies": {
     "@clickhouse/client": "^1.14.0",

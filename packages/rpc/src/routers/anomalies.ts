@@ -1,4 +1,5 @@
-import { alarms, and, db, eq } from "@databuddy/db";
+import { and, db, eq } from "@databuddy/db";
+import { alarms } from "@databuddy/db/schema";
 import {
 	buildAnomalyNotificationPayload,
 	type NotificationChannel,

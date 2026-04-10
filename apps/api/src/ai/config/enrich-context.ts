@@ -1,17 +1,11 @@
+import { and, count, db, desc, eq, gte, isNull } from "@databuddy/db";
 import {
 	analyticsInsights,
-	and,
 	annotations,
-	count,
-	db,
-	desc,
-	eq,
 	funnelDefinitions,
 	goals,
-	gte,
-	isNull,
 	links,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import { getBillingOwner } from "@databuddy/rpc";
 import {
 	getPlanCapabilities,

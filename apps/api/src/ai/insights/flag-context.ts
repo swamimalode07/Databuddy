@@ -1,14 +1,5 @@
-import {
-	and,
-	db,
-	desc,
-	eq,
-	flagChangeEvents,
-	gte,
-	isNull,
-	lte,
-	or,
-} from "@databuddy/db";
+import { and, db, desc, eq, gte, isNull, lte, or } from "@databuddy/db";
+import { flagChangeEvents } from "@databuddy/db/schema";
 import type { AppContext } from "../config/context";
 import dayjs from "dayjs";
 import timezonePlugin from "dayjs/plugin/timezone";

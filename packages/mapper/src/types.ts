@@ -1,4 +1,4 @@
-import type { AnalyticsEvent } from "@databuddy/db";
+import type { AnalyticsEvent } from "@databuddy/db/clickhouse/schema";
 
 export interface ImportContext {
 	clientId: string;

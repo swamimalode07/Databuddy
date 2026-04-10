@@ -1,4 +1,4 @@
-import type { Website as WebsiteSchema } from "@databuddy/db";
+import type { Website as WebsiteSchema } from "@databuddy/db/schema";
 
 export type Website = WebsiteSchema;
 

@@ -1,12 +1,5 @@
-import {
-	and,
-	annotations,
-	desc,
-	eq,
-	isNull,
-	or,
-	type SQL,
-} from "@databuddy/db";
+import { and, desc, eq, isNull, or } from "@databuddy/db";
+import { annotations } from "@databuddy/db/schema";
 import { createDrizzleCache, redis } from "@databuddy/redis";
 import { randomUUIDv7 } from "bun";
 import { z } from "zod";

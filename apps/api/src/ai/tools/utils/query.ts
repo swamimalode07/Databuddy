@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import { createToolLogger } from "./logger";
 
 export interface QueryResult<T = unknown> {

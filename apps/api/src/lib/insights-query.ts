@@ -1,5 +1,4 @@
 import {
-	analyticsInsights,
 	and,
 	db,
 	desc,
@@ -9,8 +8,8 @@ import {
 	isNull,
 	lte,
 	type SQL,
-	websites,
 } from "@databuddy/db";
+import { analyticsInsights, websites } from "@databuddy/db/schema";
 
 export type InsightSeverity = "critical" | "warning" | "info";
 export type InsightSentiment = "positive" | "neutral" | "negative";

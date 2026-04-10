@@ -1,7 +1,8 @@
 "use server";
 
 import { auth } from "@databuddy/auth";
-import { account, and, db, eq, user } from "@databuddy/db";
+import { and, db, eq } from "@databuddy/db";
+import { account, user } from "@databuddy/db/schema";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { cache } from "react";

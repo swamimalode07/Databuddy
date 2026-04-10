@@ -1,15 +1,12 @@
+import { and, db, eq, inArray } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import {
-	and,
-	chQuery,
-	db,
-	eq,
-	inArray,
 	organization,
 	statusPageMonitors,
 	statusPages,
 	uptimeSchedules,
 	websites,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import { cacheable, invalidateCacheableWithArgs } from "@databuddy/redis";
 import { randomUUIDv7 } from "bun";
 import { z } from "zod";
