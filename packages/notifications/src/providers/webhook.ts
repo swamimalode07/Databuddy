@@ -1,3 +1,4 @@
+import { validateUrl } from "@databuddy/shared/ssrf-guard";
 import type { NotificationPayload, NotificationResult } from "../types";
 import { BaseProvider } from "./base";
 
@@ -37,6 +38,15 @@ export class WebhookProvider extends BaseProvider {
 				success: false,
 				channel: "webhook",
 				error: "Webhook URL not configured",
+			};
+		}
+
+		const urlCheck = await validateUrl(this.url);
+		if (!urlCheck.safe) {
+			return {
+				success: false,
+				channel: "webhook",
+				error: `Webhook URL blocked: ${urlCheck.error}`,
 			};
 		}
 

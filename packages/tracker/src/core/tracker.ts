@@ -26,6 +26,8 @@ const DID_PARAMS_KEY = "did_params";
 
 const HEADLESS_CHROME_REGEX = /\bHeadlessChrome\b/i;
 const PHANTOMJS_REGEX = /\bPhantomJS\b/i;
+const ANON_ID_PATTERN = /^anon_[0-9a-f-]{36}$/;
+const SESSION_ID_PATTERN = /^[0-9a-f-]{36}$/;
 
 interface QueueMeta<T> {
 	endpoint: string;
@@ -197,7 +199,7 @@ export class BaseTracker {
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const anonId = urlParams.get("anonId");
-		if (anonId) {
+		if (anonId && ANON_ID_PATTERN.test(anonId)) {
 			localStorage.setItem("did", anonId);
 			return anonId;
 		}
@@ -223,7 +225,7 @@ export class BaseTracker {
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const sessionIdFromUrl = urlParams.get("sessionId");
-		if (sessionIdFromUrl) {
+		if (sessionIdFromUrl && SESSION_ID_PATTERN.test(sessionIdFromUrl)) {
 			sessionStorage.setItem("did_session", sessionIdFromUrl);
 			sessionStorage.setItem("did_session_timestamp", Date.now().toString());
 			return sessionIdFromUrl;

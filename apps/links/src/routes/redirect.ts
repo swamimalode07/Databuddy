@@ -24,7 +24,7 @@ const NOT_FOUND_URL = "https://app.databuddy.cc/dby/not-found";
 const PROXY_URL = "https://app.databuddy.cc/dby/l";
 
 /** Set to `true` to enforce per-IP Redis rate limits (100 req / 60s). */
-const RATE_LIMIT_ENABLED = false;
+const RATE_LIMIT_ENABLED = true;
 
 function defaultRateLimit() {
 	return {

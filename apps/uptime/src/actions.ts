@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { connect } from "node:tls";
 import { db, eq, uptimeSchedules } from "@databuddy/db";
+import { validateUrl } from "@databuddy/shared/ssrf-guard";
 import { extractHealth, isHealthExtractionEnabled } from "./json-parser";
 import { captureError, mergeWideEvent } from "./lib/tracing";
 import type { ActionResult, UptimeData } from "./types";
@@ -166,6 +167,17 @@ async function fetchWithRedirects(
 		let ttfb = 0;
 
 		while (redirects < MAX_REDIRECTS) {
+			const urlCheck = await validateUrl(current);
+			if (!urlCheck.safe) {
+				return {
+					ok: false as const,
+					statusCode: 0,
+					ttfb: 0,
+					total: Math.round(performance.now() - start),
+					error: urlCheck.error ?? "Target resolves to a private address",
+				};
+			}
+
 			const res = await fetch(current, {
 				method: "GET",
 				signal: abort.signal,
