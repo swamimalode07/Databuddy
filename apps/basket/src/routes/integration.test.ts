@@ -105,6 +105,8 @@ mock.module("@lib/api-key", () => ({
 		})
 	),
 	hasKeyScope: mock(() => true),
+	hasGlobalAccess: mock(() => false),
+	getAccessibleWebsiteIds: mock(() => []),
 }));
 
 mock.module("@hooks/auth", () => ({
