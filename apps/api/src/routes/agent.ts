@@ -41,6 +41,7 @@ import {
 	isMemoryEnabled,
 	storeConversation,
 } from "../lib/supermemory";
+import { getAILogger } from "../ai/config/ai-logger";
 import { captureError, mergeWideEvent } from "../lib/tracing";
 import { validateWebsite } from "../lib/website-utils";
 
@@ -106,7 +107,7 @@ async function generateChatTitle(
 
 	try {
 		const result = await generateText({
-			model: models.triage,
+			model: getAILogger().wrap(models.triage),
 			temperature: 0.2,
 			maxOutputTokens: 32,
 			system:
@@ -164,10 +165,11 @@ function createToolLoopAgent(
 	config: AgentConfig,
 	experimentalTelemetry?: AgentExperimentalTelemetry
 ): InstanceType<typeof ToolLoopAgent> {
+	const ai = getAILogger();
 	// Anthropic rejects `temperature` when extended thinking is enabled.
 	const thinkingEnabled = Boolean(config.providerOptions);
 	return new ToolLoopAgent({
-		model: config.model,
+		model: ai.wrap(config.model),
 		instructions: config.system,
 		tools: config.tools,
 		stopWhen: config.stopWhen,
