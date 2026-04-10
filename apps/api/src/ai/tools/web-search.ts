@@ -1,6 +1,7 @@
 import { getAutumn } from "@databuddy/rpc";
 import { generateText, tool } from "ai";
 import { z } from "zod";
+import { getAILogger } from "../config/ai-logger";
 import { mergeWideEvent } from "../../lib/tracing";
 import type { AppContext } from "../config/context";
 import { models } from "../config/models";
@@ -51,7 +52,7 @@ export const webSearchTool = tool({
 			}
 
 			const result = await generateText({
-				model: models.perplexity,
+				model: getAILogger().wrap(models.perplexity),
 				system: systemPrompt,
 				prompt: query,
 				experimental_telemetry: {
