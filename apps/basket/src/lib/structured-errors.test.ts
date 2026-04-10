@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createError, EvlogError } from "evlog";
 import {
 	basketErrors,

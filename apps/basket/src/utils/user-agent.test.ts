@@ -1,42 +1,38 @@
-import { describe, expect, mock, test } from "bun:test";
+import { vi, describe, expect, test } from "vitest";
 
-// ── Mock the shared bot-detection to isolate the wrapper's logic ──
-
-const mockDetectBotShared = mock(() => ({
-	isBot: false,
-	category: undefined,
-	action: undefined,
-	confidence: 0,
-	reason: undefined,
-	name: undefined,
+const { mockDetectBotShared, mockParseUserAgentShared } = vi.hoisted(() => ({
+	mockDetectBotShared: vi.fn(() => ({
+		isBot: false,
+		category: undefined,
+		action: undefined,
+		confidence: 0,
+		reason: undefined,
+		name: undefined,
+	})),
+	mockParseUserAgentShared: vi.fn(() => ({
+		browserName: "Chrome",
+		browserVersion: "120.0",
+		osName: "Windows",
+		osVersion: "10",
+		deviceType: "desktop",
+		deviceBrand: undefined,
+		deviceModel: undefined,
+	})),
 }));
 
-const mockParseUserAgentShared = mock(() => ({
-	browserName: "Chrome",
-	browserVersion: "120.0",
-	osName: "Windows",
-	osVersion: "10",
-	deviceType: "desktop",
-	deviceBrand: undefined,
-	deviceModel: undefined,
-}));
-
-mock.module("@databuddy/shared/bot-detection", () => ({
+vi.mock("@databuddy/shared/bot-detection/detector", () => ({
 	detectBot: mockDetectBotShared,
+}));
+vi.mock("@databuddy/shared/bot-detection/user-agent", () => ({
 	parseUserAgent: mockParseUserAgentShared,
-	BotCategory: {
-		AI_CRAWLER: "ai_crawler",
-		AI_ASSISTANT: "ai_assistant",
-		SEARCH_ENGINE: "search_engine",
-		SOCIAL_MEDIA: "social_media",
-		MONITORING: "monitoring",
-		UNKNOWN_BOT: "unknown_bot",
-	},
+}));
+vi.mock("@databuddy/shared/bot-detection/types", async (importOriginal) => ({
+	...(await importOriginal()),
 }));
 
-mock.module("@lib/tracing", () => ({
+vi.mock("@lib/tracing", () => ({
 	record: (_n: string, fn: Function) => Promise.resolve().then(() => fn()),
-	captureError: mock(),
+	captureError: vi.fn(),
 }));
 
 const { detectBot, parseUserAgent } = await import("./user-agent");

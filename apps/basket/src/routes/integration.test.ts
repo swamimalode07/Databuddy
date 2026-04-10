@@ -1,53 +1,68 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { vi, beforeEach, describe, expect, test } from "vitest";
 
-// ── Mocks (must come before route imports) ──
+const {
+	noop,
+	noopAsync,
+	mockLogger,
+	mockValidateRequest,
+	mockCheckForBot,
+	mockInsertTrackEvent,
+	mockInsertOutgoingLink,
+	mockInsertTrackEventsBatch,
+	mockInsertOutgoingLinksBatch,
+	mockInsertIndividualVitals,
+	mockInsertErrorSpans,
+	mockInsertCustomEvents,
+} = vi.hoisted(() => {
+	const noop = vi.fn(() => {});
+	const noopAsync = vi.fn(() => Promise.resolve());
+	return {
+		noop,
+		noopAsync,
+		mockLogger: {
+			set: vi.fn(() => {}),
+			warn: vi.fn(() => {}),
+			error: vi.fn(() => {}),
+			info: vi.fn(() => {}),
+		},
+		mockValidateRequest: vi.fn(() =>
+			Promise.resolve({
+				clientId: "ws_test",
+				userAgent: "TestAgent/1.0",
+				ip: "1.2.3.4",
+				ownerId: "user_1",
+				organizationId: "org_1",
+			})
+		),
+		mockCheckForBot: vi.fn(() => Promise.resolve(undefined)),
+		mockInsertTrackEvent: vi.fn(() => Promise.resolve()),
+		mockInsertOutgoingLink: vi.fn(() => Promise.resolve()),
+		mockInsertTrackEventsBatch: vi.fn(() => Promise.resolve()),
+		mockInsertOutgoingLinksBatch: vi.fn(() => Promise.resolve()),
+		mockInsertIndividualVitals: vi.fn(() => Promise.resolve()),
+		mockInsertErrorSpans: vi.fn(() => Promise.resolve()),
+		mockInsertCustomEvents: vi.fn(() => Promise.resolve()),
+	};
+});
 
-const noop = mock(() => {});
-const noopAsync = mock(() => Promise.resolve());
-const mockLogger = {
-	set: mock(() => {}),
-	warn: mock(() => {}),
-	error: mock(() => {}),
-	info: mock(() => {}),
-};
-
-mock.module("evlog/elysia", () => ({
+vi.mock("evlog/elysia", () => ({
 	useLogger: () => mockLogger,
 }));
 
-mock.module("@lib/tracing", () => ({
+vi.mock("@lib/tracing", () => ({
 	record: (_n: string, fn: Function) => Promise.resolve().then(() => fn()),
 	captureError: noop,
 }));
 
-const mockValidateRequest = mock(() =>
-	Promise.resolve({
-		clientId: "ws_test",
-		userAgent: "TestAgent/1.0",
-		ip: "1.2.3.4",
-		ownerId: "user_1",
-		organizationId: "org_1",
-	})
-);
-const mockCheckForBot = mock(() => Promise.resolve(undefined));
-
-mock.module("@lib/request-validation", () => ({
+vi.mock("@lib/request-validation", () => ({
 	validateRequest: mockValidateRequest,
 	checkForBot: mockCheckForBot,
-	getWebsiteSecuritySettings: mock(() => null),
+	getWebsiteSecuritySettings: vi.fn(() => null),
 	ValidatedRequest: {},
 }));
 
-const mockInsertTrackEvent = mock(() => Promise.resolve());
-const mockInsertOutgoingLink = mock(() => Promise.resolve());
-const mockInsertTrackEventsBatch = mock(() => Promise.resolve());
-const mockInsertOutgoingLinksBatch = mock(() => Promise.resolve());
-const mockInsertIndividualVitals = mock(() => Promise.resolve());
-const mockInsertErrorSpans = mock(() => Promise.resolve());
-const mockInsertCustomEvents = mock(() => Promise.resolve());
-
-mock.module("@lib/event-service", () => ({
-	buildTrackEvent: mock(() => ({
+vi.mock("@lib/event-service", () => ({
+	buildTrackEvent: vi.fn(() => ({
 		id: "built_id",
 		client_id: "ws_test",
 		event_name: "pageview",
@@ -61,14 +76,14 @@ mock.module("@lib/event-service", () => ({
 	insertCustomEvents: mockInsertCustomEvents,
 }));
 
-mock.module("@lib/security", () => ({
-	getDailySalt: mock(() => Promise.resolve("test-salt")),
-	saltAnonymousId: mock((id: string) => `salted_${id}`),
-	checkDuplicate: mock(() => Promise.resolve(false)),
+vi.mock("@lib/security", () => ({
+	getDailySalt: vi.fn(() => Promise.resolve("test-salt")),
+	saltAnonymousId: vi.fn((id: string) => `salted_${id}`),
+	checkDuplicate: vi.fn(() => Promise.resolve(false)),
 }));
 
-mock.module("@utils/ip-geo", () => ({
-	getGeo: mock(() =>
+vi.mock("@utils/ip-geo", () => ({
+	getGeo: vi.fn(() =>
 		Promise.resolve({
 			anonymizedIP: "abc123",
 			country: "US",
@@ -76,27 +91,27 @@ mock.module("@utils/ip-geo", () => ({
 			city: "SF",
 		})
 	),
-	extractIpFromRequest: mock(() => "1.2.3.4"),
+	extractIpFromRequest: vi.fn(() => "1.2.3.4"),
 	closeGeoIPReader: noop,
 }));
 
-mock.module("@utils/user-agent", () => ({
-	parseUserAgent: mock(() =>
+vi.mock("@utils/user-agent", () => ({
+	parseUserAgent: vi.fn(() =>
 		Promise.resolve({ browserName: "Chrome", osName: "Windows" })
 	),
-	detectBot: mock(() => ({ isBot: false })),
+	detectBot: vi.fn(() => ({ isBot: false })),
 }));
 
-mock.module("@lib/blocked-traffic", () => ({
+vi.mock("@lib/blocked-traffic", () => ({
 	logBlockedTraffic: noop,
 }));
 
-mock.module("@lib/billing", () => ({
-	checkAutumnUsage: mock(() => Promise.resolve({ allowed: true })),
+vi.mock("@lib/billing", () => ({
+	checkAutumnUsage: vi.fn(() => Promise.resolve({ allowed: true })),
 }));
 
-mock.module("@lib/api-key", () => ({
-	getApiKeyFromHeader: mock(() =>
+vi.mock("@lib/api-key", () => ({
+	getApiKeyFromHeader: vi.fn(() =>
 		Promise.resolve({
 			id: "key_1",
 			organizationId: "org_1",
@@ -104,13 +119,13 @@ mock.module("@lib/api-key", () => ({
 			scopes: ["track:events"],
 		})
 	),
-	hasKeyScope: mock(() => true),
-	hasGlobalAccess: mock(() => false),
-	getAccessibleWebsiteIds: mock(() => ["ws_test"]),
+	hasKeyScope: vi.fn(() => true),
+	hasGlobalAccess: vi.fn(() => false),
+	getAccessibleWebsiteIds: vi.fn(() => ["ws_test"]),
 }));
 
-mock.module("@hooks/auth", () => ({
-	getWebsiteByIdV2: mock(() =>
+vi.mock("@hooks/auth", () => ({
+	getWebsiteByIdV2: vi.fn(() =>
 		Promise.resolve({
 			id: "ws_test",
 			domain: "example.com",
@@ -120,16 +135,16 @@ mock.module("@hooks/auth", () => ({
 			organizationId: "org_1",
 		})
 	),
-	resolveApiKeyOwnerId: mock(() => Promise.resolve("user_1")),
-	isValidOrigin: mock(() => true),
-	isValidOriginFromSettings: mock(() => true),
-	isValidIpFromSettings: mock(() => true),
+	resolveApiKeyOwnerId: vi.fn(() => Promise.resolve("user_1")),
+	isValidOrigin: vi.fn(() => true),
+	isValidOriginFromSettings: vi.fn(() => true),
+	isValidIpFromSettings: vi.fn(() => true),
 }));
 
-mock.module("@lib/producer", () => ({
+vi.mock("@lib/producer", () => ({
 	runFork: noop,
-	send: mock(() => ({})),
-	sendBatch: mock(() => ({})),
+	send: vi.fn(() => ({})),
+	sendBatch: vi.fn(() => ({})),
 	runPromise: noopAsync,
 }));
 

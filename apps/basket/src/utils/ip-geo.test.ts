@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "vitest";
 import { randomIPv4, randomPublicIPv4, req } from "../test-helpers";
 import {
 	anonymizeIp,

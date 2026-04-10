@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { CONTROL_CHARS, longString, XSS_PAYLOADS } from "../test-helpers";
 import { buildTrackEvent, type TrackEventContext } from "./event-service";
 

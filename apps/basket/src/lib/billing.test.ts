@@ -1,32 +1,31 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { vi, beforeEach, describe, expect, test } from "vitest";
 
-// ── Mocks ──
+const { mockCheck, mockLoggerSet } = vi.hoisted(() => ({
+	mockCheck: vi.fn(() =>
+		Promise.resolve({
+			allowed: true,
+			customerId: "cust_1",
+			balance: { usage: 50, granted: 1000, unlimited: false },
+		})
+	),
+	mockLoggerSet: vi.fn(() => {}),
+}));
 
-const mockCheck = mock(() =>
-	Promise.resolve({
-		allowed: true,
-		customerId: "cust_1",
-		balance: { usage: 50, granted: 1000, unlimited: false },
-	})
-);
-
-const mockLoggerSet = mock(() => {});
-
-mock.module("@databuddy/rpc/autumn", () => ({
+vi.mock("@databuddy/rpc/autumn", () => ({
 	getAutumn: () => ({ check: mockCheck }),
 }));
 
-mock.module("evlog/elysia", () => ({
+vi.mock("evlog/elysia", () => ({
 	useLogger: () => ({
 		set: mockLoggerSet,
-		warn: mock(),
-		error: mock(),
+		warn: vi.fn(),
+		error: vi.fn(),
 	}),
 }));
 
-mock.module("@lib/tracing", () => ({
+vi.mock("@lib/tracing", () => ({
 	record: (_name: string, fn: Function) => Promise.resolve().then(() => fn()),
-	captureError: mock(),
+	captureError: vi.fn(),
 }));
 
 const { checkAutumnUsage } = await import("./billing");

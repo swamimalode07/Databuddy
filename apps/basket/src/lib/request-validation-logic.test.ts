@@ -1,64 +1,77 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { vi, beforeEach, describe, expect, test } from "vitest";
 import { EvlogError } from "evlog";
 
-// ── Mocks ──
+const {
+	mockGetWebsiteByIdV2,
+	mockIsValidOrigin,
+	mockIsValidOriginFromSettings,
+	mockIsValidIpFromSettings,
+	mockCheckAutumnUsage,
+	mockLogBlockedTraffic,
+	mockRunFork,
+	mockSend,
+	mockDetectBot,
+	mockLoggerSet,
+	mockLoggerWarn,
+	mockLoggerError,
+} = vi.hoisted(() => ({
+	mockGetWebsiteByIdV2: vi.fn(() =>
+		Promise.resolve({
+			id: "ws_1",
+			domain: "example.com",
+			name: "Example",
+			status: "ACTIVE",
+			ownerId: "user_1",
+			organizationId: "org_1",
+			settings: null,
+		})
+	),
+	mockIsValidOrigin: vi.fn(() => true),
+	mockIsValidOriginFromSettings: vi.fn(() => true),
+	mockIsValidIpFromSettings: vi.fn(() => true),
+	mockCheckAutumnUsage: vi.fn(() => Promise.resolve({ allowed: true })),
+	mockLogBlockedTraffic: vi.fn(() => {}),
+	mockRunFork: vi.fn(() => {}),
+	mockSend: vi.fn(() => ({})),
+	mockDetectBot: vi.fn(() => ({ isBot: false })),
+	mockLoggerSet: vi.fn(() => {}),
+	mockLoggerWarn: vi.fn(() => {}),
+	mockLoggerError: vi.fn(() => {}),
+}));
 
-const mockGetWebsiteByIdV2 = mock(() =>
-	Promise.resolve({
-		id: "ws_1",
-		domain: "example.com",
-		name: "Example",
-		status: "ACTIVE",
-		ownerId: "user_1",
-		organizationId: "org_1",
-		settings: null,
-	})
-);
-const mockIsValidOrigin = mock(() => true);
-const mockIsValidOriginFromSettings = mock(() => true);
-const mockIsValidIpFromSettings = mock(() => true);
-
-mock.module("@hooks/auth", () => ({
+vi.mock("@hooks/auth", () => ({
 	getWebsiteByIdV2: mockGetWebsiteByIdV2,
 	isValidOrigin: mockIsValidOrigin,
 	isValidOriginFromSettings: mockIsValidOriginFromSettings,
 	isValidIpFromSettings: mockIsValidIpFromSettings,
 }));
 
-const mockCheckAutumnUsage = mock(() => Promise.resolve({ allowed: true }));
-mock.module("@lib/billing", () => ({
+vi.mock("@lib/billing", () => ({
 	checkAutumnUsage: mockCheckAutumnUsage,
 }));
 
-const mockLogBlockedTraffic = mock(() => {});
-mock.module("@lib/blocked-traffic", () => ({
+vi.mock("@lib/blocked-traffic", () => ({
 	logBlockedTraffic: mockLogBlockedTraffic,
 }));
 
-const mockRunFork = mock(() => {});
-const mockSend = mock(() => ({}));
-mock.module("@lib/producer", () => ({
+vi.mock("@lib/producer", () => ({
 	runFork: mockRunFork,
 	send: mockSend,
 }));
 
-const mockDetectBot = mock(() => ({ isBot: false }));
-mock.module("ua-parser-js/bot-detection", () => ({
+vi.mock("ua-parser-js/bot-detection", () => ({
 	isBot: () => false,
 	isAICrawler: () => false,
 	isAIAssistant: () => false,
 }));
-mock.module("ua-parser-js", () => ({
+vi.mock("ua-parser-js", () => ({
 	UAParser: class { getResult() { return {}; } },
 }));
-mock.module("@utils/user-agent", () => ({
+vi.mock("@utils/user-agent", () => ({
 	detectBot: mockDetectBot,
 }));
 
-const mockLoggerSet = mock(() => {});
-const mockLoggerWarn = mock(() => {});
-const mockLoggerError = mock(() => {});
-mock.module("evlog/elysia", () => ({
+vi.mock("evlog/elysia", () => ({
 	useLogger: () => ({
 		set: mockLoggerSet,
 		warn: mockLoggerWarn,
@@ -66,9 +79,9 @@ mock.module("evlog/elysia", () => ({
 	}),
 }));
 
-mock.module("@lib/tracing", () => ({
+vi.mock("@lib/tracing", () => ({
 	record: (_name: string, fn: Function) => Promise.resolve().then(() => fn()),
-	captureError: mock(),
+	captureError: vi.fn(),
 }));
 
 // Import after mocks

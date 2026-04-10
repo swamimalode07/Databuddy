@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { vi, beforeEach, describe, expect, test } from "vitest";
 import { checkDuplicate, saltAnonymousId } from "./security";
 
 // ── saltAnonymousId (pure — no mocks needed) ──
@@ -52,26 +52,27 @@ describe("saltAnonymousId", () => {
 
 // ── checkDuplicate (needs Redis mock) ──
 
-// We mock the redis module at the import level
-const mockRedisSet = mock(() => Promise.resolve("OK"));
-const mockLoggerSet = mock(() => {});
+const { mockRedisSet, mockLoggerSet } = vi.hoisted(() => ({
+	mockRedisSet: vi.fn(() => Promise.resolve("OK")),
+	mockLoggerSet: vi.fn(() => {}),
+}));
 
-mock.module("@databuddy/redis/redis", () => ({
+vi.mock("@databuddy/redis/redis", () => ({
 	redis: { set: mockRedisSet },
 	getRedisCache: () => ({ set: mockRedisSet }),
 }));
-mock.module("@databuddy/redis/cacheable", () => ({
+vi.mock("@databuddy/redis/cacheable", () => ({
 	cacheable: (fn: () => Promise<any>) => fn,
 }));
 
-mock.module("evlog/elysia", () => ({
-	useLogger: () => ({ set: mockLoggerSet, warn: mock(), error: mock() }),
+vi.mock("evlog/elysia", () => ({
+	useLogger: () => ({ set: mockLoggerSet, warn: vi.fn(), error: vi.fn() }),
 }));
 
-mock.module("@lib/tracing", () => ({
+vi.mock("@lib/tracing", () => ({
 	record: (_name: string, fn: () => Promise<any>) =>
 		Promise.resolve().then(() => fn()),
-	captureError: mock(),
+	captureError: vi.fn(),
 }));
 
 describe("checkDuplicate", () => {
