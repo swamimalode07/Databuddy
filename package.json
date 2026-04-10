@@ -13,6 +13,7 @@
     "dockerode": "^4.0.9",
     "dotenv-cli": "^10.0.0",
     "husky": "^9.1.7",
+    "ipaddr.js": "^2.3.0",
     "knip": "^5.88.1",
     "lint-staged": "^16.4.0",
     "turbo": "^2.9.3",
