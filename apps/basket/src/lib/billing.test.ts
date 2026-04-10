@@ -1,4 +1,4 @@
-import { vi, beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const { mockCheck, mockLoggerSet } = vi.hoisted(() => ({
 	mockCheck: vi.fn(() =>
@@ -70,7 +70,7 @@ describe("checkAutumnUsage", () => {
 		mockCheck.mockResolvedValue({
 			allowed: true,
 			customerId: "c",
-			balance: null,
+			balance: { usage: 0, granted: 0, unlimited: false },
 		});
 		await checkAutumnUsage("cust_1", "events", { website_id: "ws_1" });
 		expect(mockCheck).toHaveBeenCalledWith({
