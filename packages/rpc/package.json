@@ -26,7 +26,7 @@
     "bullmq": "^5.34.0",
     "dayjs": "^1.11.19",
     "drizzle-orm": "^0.44.7",
-    "evlog": "^2.8.0",
+    "evlog": "catalog:",
     "jszip": "^3.10.1",
     "keypal": "^0.1.11",
     "nanoid": "^5.1.6",
