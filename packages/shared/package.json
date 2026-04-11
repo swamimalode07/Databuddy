@@ -40,6 +40,7 @@
     "./bot-detection": "./src/utils/bot-detection/index.ts",
     "./bot-detection/detector": "./src/utils/bot-detection/detector.ts",
     "./bot-detection/types": "./src/utils/bot-detection/types.ts",
+    "./bot-detection/ua-patterns": "./src/utils/bot-detection/ua-patterns.ts",
     "./bot-detection/user-agent": "./src/utils/bot-detection/user-agent.ts",
     "./ssrf-guard": "./src/ssrf-guard.ts"
   },
