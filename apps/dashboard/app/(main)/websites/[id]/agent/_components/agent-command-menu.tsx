@@ -69,7 +69,7 @@ export function AgentCommandMenu({
 				side="top"
 				sideOffset={8}
 			>
-				<div className="border-border/60 border-b bg-muted/40 px-3 py-1.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
+				<div className="border-border/60 border-b bg-muted/40 px-3 py-1.5 font-medium text-[10px] text-muted-foreground uppercase">
 					Commands
 				</div>
 				<ul className="max-h-72 overflow-y-auto py-1">

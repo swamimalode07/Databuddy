@@ -105,7 +105,7 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 						<h1 className="truncate font-semibold text-foreground text-sm">
 							Databunny
 						</h1>
-						<span className="rounded border border-border/60 px-1.5 py-px font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
+						<span className="rounded border border-border/60 px-1.5 py-px font-medium text-[10px] text-muted-foreground uppercase">
 							Alpha
 						</span>
 					</div>

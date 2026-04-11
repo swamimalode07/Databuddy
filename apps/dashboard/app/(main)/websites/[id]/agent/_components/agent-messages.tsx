@@ -2,8 +2,6 @@
 
 import {
 	ArrowsClockwiseIcon,
-	CaretRightIcon,
-	CheckCircleIcon,
 	CheckIcon,
 	CopyIcon,
 } from "@phosphor-icons/react";
@@ -23,15 +21,18 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { useThinkingPhrase } from "@/components/ai-elements/thinking-phrases";
 import {
+	Tool,
+	ToolDetail,
+	ToolInput,
+	ToolOutput,
+	ToolSection,
+	type ToolStatus,
+} from "@/components/ai-elements/tool";
+import {
 	UnicodeSpinner,
 	useRandomThinkingVariant,
 } from "@/components/ai-elements/unicode-spinner";
 import { Button } from "@/components/ui/button";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { useChat } from "@/contexts/chat-context";
 import { parseContentSegments } from "@/lib/ai-components";
 import { formatToolLabel } from "@/lib/tool-display";
@@ -48,8 +49,6 @@ type ToolMessagePart = MessagePart & {
 };
 
 const TOOL_PREFIX_REGEX = /^tool-/;
-const PREVIEW_ROW_LIMIT = 5;
-const PREVIEW_VALUE_MAX_LEN = 120;
 
 function isToolPart(part: MessagePart): part is ToolMessagePart {
 	return part.type.startsWith("tool-");
@@ -66,11 +65,6 @@ function getMessageText(message: UIMessage): string {
 		.trim();
 }
 
-/**
- * Find the most recent tool part that has been started but not yet returned
- * an output. Used to label the streaming "Thinking" indicator with the
- * actual tool currently running.
- */
 function findActiveToolLabel(message: UIMessage | undefined): string | null {
 	if (!message || message.role !== "assistant") {
 		return null;
@@ -103,7 +97,6 @@ function ReasoningMessage({
 	);
 }
 
-/** Merge consecutive identical tool UI labels (same model re-calling the tool). */
 function mergeConsecutiveToolStepsForDisplay(
 	tools: ToolMessagePart[]
 ): Array<{ repeatCount: number; tool: ToolMessagePart }> {
@@ -146,124 +139,14 @@ function collectToolGroups(parts: MessagePart[]) {
 	return result;
 }
 
-function truncateValue(value: unknown): string {
-	if (value === null || value === undefined) {
-		return "—";
+function getToolStatus(tool: ToolMessagePart, isActive: boolean): ToolStatus {
+	if (isActive) {
+		return "running";
 	}
-	if (typeof value === "string") {
-		return value.length > PREVIEW_VALUE_MAX_LEN
-			? `${value.slice(0, PREVIEW_VALUE_MAX_LEN)}…`
-			: value;
+	if (tool.state === "output-error") {
+		return "error";
 	}
-	if (typeof value === "number" || typeof value === "boolean") {
-		return String(value);
-	}
-	const json = JSON.stringify(value);
-	return json.length > PREVIEW_VALUE_MAX_LEN
-		? `${json.slice(0, PREVIEW_VALUE_MAX_LEN)}…`
-		: json;
-}
-
-function ToolInputBlock({ input }: { input: Record<string, unknown> }) {
-	const entries = Object.entries(input);
-	if (entries.length === 0) {
-		return (
-			<p className="text-muted-foreground/70 text-xs italic">No parameters</p>
-		);
-	}
-	return (
-		<dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-			{entries.map(([key, value]) => (
-				<div className="contents" key={key}>
-					<dt className="font-mono text-muted-foreground">{key}</dt>
-					<dd className="break-words font-mono text-foreground/85">
-						{truncateValue(value)}
-					</dd>
-				</div>
-			))}
-		</dl>
-	);
-}
-
-function ToolOutputBlock({ output }: { output: unknown }) {
-	if (output === null || output === undefined) {
-		return <p className="text-muted-foreground/70 text-xs italic">No result</p>;
-	}
-
-	if (Array.isArray(output)) {
-		if (output.length === 0) {
-			return (
-				<p className="text-muted-foreground/70 text-xs italic">Empty array</p>
-			);
-		}
-		const preview = output.slice(0, PREVIEW_ROW_LIMIT);
-		const isObjectArray = preview.every(
-			(row): row is Record<string, unknown> =>
-				typeof row === "object" && row !== null && !Array.isArray(row)
-		);
-
-		if (isObjectArray) {
-			const columns = Array.from(
-				new Set(preview.flatMap((row) => Object.keys(row)))
-			).slice(0, 5);
-			return (
-				<div className="space-y-1.5">
-					<div className="overflow-x-auto rounded border border-border/60">
-						<table className="w-full font-mono text-xs">
-							<thead className="bg-muted/50 text-muted-foreground">
-								<tr>
-									{columns.map((col) => (
-										<th className="px-2 py-1 text-left font-medium" key={col}>
-											{col}
-										</th>
-									))}
-								</tr>
-							</thead>
-							<tbody>
-								{preview.map((row, rowIdx) => (
-									<tr
-										className="border-border/40 border-t"
-										key={`row-${rowIdx}`}
-									>
-										{columns.map((col) => (
-											<td
-												className="break-words px-2 py-1 text-foreground/80"
-												key={col}
-											>
-												{truncateValue(row[col])}
-											</td>
-										))}
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-					<p className="text-muted-foreground/70 text-xs">
-						{output.length === 1 ? "1 row" : `${output.length} rows`}
-						{output.length > PREVIEW_ROW_LIMIT
-							? ` · showing first ${PREVIEW_ROW_LIMIT}`
-							: ""}
-					</p>
-				</div>
-			);
-		}
-
-		return (
-			<pre className="overflow-x-auto rounded border border-border/60 bg-muted/30 p-2 font-mono text-foreground/85 text-xs">
-				{preview.map((item) => truncateValue(item)).join("\n")}
-			</pre>
-		);
-	}
-
-	if (typeof output === "object") {
-		return <ToolInputBlock input={output as Record<string, unknown>} />;
-	}
-
-	return (
-		<p className="break-words font-mono text-foreground/85 text-xs">
-			{truncateValue(output)}
-		</p>
-	);
+	return "complete";
 }
 
 function InspectableToolStep({
@@ -275,61 +158,25 @@ function InspectableToolStep({
 	tool: ToolMessagePart;
 	label: string;
 	repeatCount: number;
-	status: "active" | "complete";
+	status: ToolStatus;
 }) {
-	const [open, setOpen] = useState(false);
-	const isActive = status === "active";
 	const displayLabel = repeatCount > 1 ? `${label} · ${repeatCount}×` : label;
 	const hasOutput = tool.output != null;
+	const isActive = status === "running";
 
 	return (
-		<Collapsible onOpenChange={setOpen} open={open}>
-			<CollapsibleTrigger
-				className={cn(
-					"group flex w-full items-center gap-2 py-0.5 text-left text-muted-foreground text-xs transition-colors hover:text-foreground",
-					isActive && "text-foreground"
-				)}
-			>
-				{isActive ? (
-					<UnicodeSpinner
-						className="text-foreground text-xs"
-						label="Running tool"
-						variant="dots"
-					/>
-				) : (
-					<CheckCircleIcon
-						className="size-3 shrink-0 text-muted-foreground/60"
-						weight="fill"
-					/>
-				)}
-				<span className="truncate">{displayLabel}</span>
-				<CaretRightIcon
-					className={cn(
-						"size-3 shrink-0 text-muted-foreground/40 transition-transform",
-						open && "rotate-90"
-					)}
-					weight="bold"
-				/>
-			</CollapsibleTrigger>
-			<CollapsibleContent className="data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-1 data-[state=open]:animate-in">
-				<div className="mt-1 ml-5 space-y-3 rounded border border-border/60 bg-card/40 p-3">
-					<section className="space-y-1.5">
-						<p className="font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
-							Input
-						</p>
-						<ToolInputBlock input={tool.input ?? {}} />
-					</section>
-					{hasOutput || !isActive ? (
-						<section className="space-y-1.5">
-							<p className="font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
-								Result
-							</p>
-							<ToolOutputBlock output={tool.output} />
-						</section>
-					) : null}
-				</div>
-			</CollapsibleContent>
-		</Collapsible>
+		<Tool status={status} title={displayLabel}>
+			<ToolDetail>
+				<ToolSection label="Input">
+					<ToolInput input={tool.input ?? {}} />
+				</ToolSection>
+				{hasOutput || !isActive ? (
+					<ToolSection label="Result">
+						<ToolOutput error={status === "error"} output={tool.output} />
+					</ToolSection>
+				) : null}
+			</ToolDetail>
+		</Tool>
 	);
 }
 
@@ -342,7 +189,7 @@ function renderToolGroup(
 	const merged = mergeConsecutiveToolStepsForDisplay(tools);
 
 	return (
-		<div className="space-y-0 py-1" key={key}>
+		<div className="space-y-2 py-1" key={key}>
 			{merged.map((entry, idx) => {
 				const isLast = idx === merged.length - 1;
 				const isActive =
@@ -356,7 +203,7 @@ function renderToolGroup(
 						key={`${key}-${idx}`}
 						label={baseLabel}
 						repeatCount={entry.repeatCount}
-						status={isActive ? "active" : "complete"}
+						status={getToolStatus(entry.tool, isActive)}
 						tool={entry.tool}
 					/>
 				);
@@ -436,7 +283,7 @@ function renderMessagePart(
 				<InspectableToolStep
 					label={baseLabel}
 					repeatCount={1}
-					status={isActive ? "active" : "complete"}
+					status={getToolStatus(part, isActive)}
 					tool={part}
 				/>
 			</div>
@@ -593,12 +440,6 @@ export function AgentMessages() {
 	);
 }
 
-/**
- * The tail "Thinking" indicator only fills the gap before the assistant
- * has produced ANY part. Once a reasoning, tool, or text part exists,
- * those parts render their own inline progress, so we suppress the tail
- * to avoid duplicate "Thinking" labels stacking on screen.
- */
 function showTailIndicator(
 	isStreaming: boolean,
 	lastMessage: UIMessage | undefined
