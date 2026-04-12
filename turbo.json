@@ -31,6 +31,9 @@
     "REDPANDA_PASSWORD",
     "REDPANDA_USER",
     "RESEND_API_KEY",
+    "RESEND_AUDIENCE_ID",
+    "SUPERMEMORY_API_KEY",
+    "TCC_API_KEY",
     "UPSTASH_QSTASH_TOKEN"
   ],
   "tasks": {
