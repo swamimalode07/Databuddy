@@ -213,17 +213,19 @@ export function FlagSheet({
 	const [expandedSection, setExpandedSection] = useState<ExpandedSection>(null);
 	const queryClient = useQueryClient();
 
-	const { data: flagsList } = useQuery({
+	const { data: flagsListRaw } = useQuery({
 		...orpc.flags.list.queryOptions({
 			input: { websiteId },
 		}),
 	});
+	const flagsList = flagsListRaw as Flag[] | undefined;
 
-	const { data: targetGroups } = useQuery({
+	const { data: targetGroupsRaw } = useQuery({
 		...orpc.targetGroups.list.queryOptions({
 			input: { websiteId },
 		}),
 	});
+	const targetGroups = targetGroupsRaw as TargetGroup[] | undefined;
 
 	const isEditing = Boolean(flag);
 
@@ -899,7 +901,7 @@ export function FlagSheet({
 										name="flag.targetGroupIds"
 										render={({ field }) => (
 											<GroupSelector
-												availableGroups={(targetGroups as TargetGroup[]) ?? []}
+												availableGroups={targetGroups ?? []}
 												onChangeAction={(ids) => field.onChange(ids)}
 												selectedGroups={field.value ?? []}
 											/>
@@ -938,7 +940,7 @@ export function FlagSheet({
 										name="flag.dependencies"
 										render={({ field }) => (
 											<DependencySelector
-												availableFlags={(flagsList as Flag[]) || []}
+												availableFlags={flagsList ?? []}
 												currentFlagKey={flag?.key}
 												onChange={field.onChange}
 												value={field.value || []}
