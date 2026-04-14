@@ -52,13 +52,27 @@ const app = new Elysia()
 
 async function shutdown(signal: string) {
 	log.info("lifecycle", `${signal} received, shutting down`);
-	await flushDrain().catch((error) =>
-		log.error({
-			lifecycle: "drainFlush",
-			error_message: error instanceof Error ? error.message : String(error),
-		})
-	);
-	await disconnectProducer();
+	const { shutdownRedis } = await import("@databuddy/redis");
+	await Promise.all([
+		shutdownRedis().catch((error) =>
+			log.error({
+				lifecycle: "redisShutdown",
+				error_message: error instanceof Error ? error.message : String(error),
+			})
+		),
+		flushDrain().catch((error) =>
+			log.error({
+				lifecycle: "drainFlush",
+				error_message: error instanceof Error ? error.message : String(error),
+			})
+		),
+		disconnectProducer().catch((error) =>
+			log.error({
+				lifecycle: "producerDisconnect",
+				error_message: error instanceof Error ? error.message : String(error),
+			})
+		),
+	]);
 	process.exit(0);
 }
 

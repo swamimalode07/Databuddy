@@ -54,9 +54,13 @@ async function gracefulShutdown(signal: string) {
 			lifecycle,
 			error_message: error instanceof Error ? error.message : String(error),
 		});
-	await flushBatchedAxiomDrain().catch(logErr("drainFlush"));
-	await runPromise(disconnect).catch(logErr("shutdown"));
-	await disposeRuntime().catch(logErr("runtimeDispose"));
+	const { shutdownRedis } = await import("@databuddy/redis");
+	await Promise.all([
+		shutdownRedis().catch(logErr("redisShutdown")),
+		flushBatchedAxiomDrain().catch(logErr("drainFlush")),
+		runPromise(disconnect).catch(logErr("shutdown")),
+		disposeRuntime().catch(logErr("runtimeDispose")),
+	]);
 	closeGeoIPReader();
 	process.exit(0);
 }

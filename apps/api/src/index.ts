@@ -382,9 +382,16 @@ export default {
 	idleTimeout: BUN_IDLE_TIMEOUT_SECONDS,
 };
 
-process.on("SIGINT", async () => {
-	log.info("lifecycle", "SIGINT received, shutting down gracefully");
+async function shutdown(signal: string) {
+	log.info("lifecycle", `${signal} received, shutting down gracefully`);
+	const { shutdownRedis } = await import("@databuddy/redis");
 	await Promise.all([
+		shutdownRedis().catch((error) =>
+			log.error({
+				lifecycle: "redisShutdown",
+				error_message: error instanceof Error ? error.message : String(error),
+			})
+		),
 		flushBatchedApiDrain().catch((error) =>
 			log.error({
 				lifecycle: "drainFlush",
@@ -399,23 +406,7 @@ process.on("SIGINT", async () => {
 		),
 	]);
 	process.exit(0);
-});
+}
 
-process.on("SIGTERM", async () => {
-	log.info("lifecycle", "SIGTERM received, shutting down gracefully");
-	await Promise.all([
-		flushBatchedApiDrain().catch((error) =>
-			log.error({
-				lifecycle: "drainFlush",
-				error_message: error instanceof Error ? error.message : String(error),
-			})
-		),
-		shutdownTccTracing().catch((error) =>
-			log.error({
-				lifecycle: "tccOtelShutdown",
-				error_message: error instanceof Error ? error.message : String(error),
-			})
-		),
-	]);
-	process.exit(0);
-});
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
