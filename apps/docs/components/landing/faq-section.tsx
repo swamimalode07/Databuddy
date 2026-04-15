@@ -7,6 +7,7 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { SectionBullet } from "../icons/section-bullet";
 
 export interface FaqItem {
 	question: string;
@@ -30,8 +31,11 @@ export function FaqSection({
 		<div className={cn("mx-auto w-full max-w-5xl", className)}>
 			<div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
 				{/* Left: sticky title block */}
-				<div className="sm:sticky sm:top-8 sm:w-64 sm:shrink-0 sm:self-start">
-					<h2 className="text-balance font-semibold text-2xl tracking-tight sm:text-4xl">
+				<div className="flex gap-4 sm:sticky sm:top-8 sm:w-94 sm:shrink-0 sm:self-start">
+					<span className="mt-2">
+						<SectionBullet color="#CD5F20" />
+					</span>
+					<h2 className="text-balance font-medium text-2xl tracking-tight sm:text-5xl">
 						{title}
 					</h2>
 					{subtitle ? (
