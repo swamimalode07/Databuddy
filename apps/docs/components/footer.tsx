@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FaDiscord, FaXTwitter } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
@@ -13,22 +14,41 @@ import { NewsletterForm } from "./newsletter-form";
 export function Footer() {
 	return (
 		<footer className="border-border border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-			<div className="mx-auto max-w-360 px-4 pt-10 sm:px-6 lg:px-8">
+			<div className="mx-auto flex max-w-360 flex-col gap-8 px-4 pt-10 sm:px-6 lg:px-8">
 				{/* CTA Section */}
-				<div className="mb-12 text-center">
-					<h2 className="mb-6 font-medium text-2xl leading-tight sm:text-3xl">
-						You're just one click away.
-					</h2>
-					<div className="flex items-center justify-center gap-3">
-						<SciFiButton asChild>
-							<a href="https://app.databuddy.cc/login">START FREE</a>
-						</SciFiButton>
-						<SciFiButton asChild>
-							<Link href="/contact">CONTACT US</Link>
-						</SciFiButton>
+				<div
+					className="relative flex h-80 w-full items-start rounded-lg border-2 border-border bg-center bg-cover"
+					style={{
+						backgroundImage: "url('/brand/gradients/cta-bg.png')",
+					}}
+				>
+					<Image
+						alt="logo"
+						className="pointer-events-none absolute top-1/2 right-16 -translate-y-1/2 opacity-80"
+						height={180}
+						src="/brand/logomark/white.svg"
+						width={180}
+					/>
+					<div className="max-w-5xl px-8 pt-16 sm:px-16">
+						<h2 className="mb-2 text-left font-medium text-2xl leading-tight sm:text-4xl">
+							All the analytics you need. One click away
+						</h2>
+
+						<p className="mb-6 text-lg text-muted-foreground">
+							Events, errors, and feature flags in a single privacy-first
+							script.
+						</p>
+						<div className="flex gap-4">
+							<SciFiButton asChild>
+								<a href="https://app.databuddy.cc/login">START FREE</a>
+							</SciFiButton>
+
+							<SciFiButton asChild>
+								<Link href="/contact">CONTACT US</Link>
+							</SciFiButton>
+						</div>
 					</div>
 				</div>
-
 				<div className="mb-10 flex flex-col items-start justify-between gap-4 rounded-lg border border-border bg-card/30 p-5 sm:flex-row sm:items-center sm:p-6">
 					<div className="space-y-1">
 						<p className="font-medium text-2xl text-foreground">
@@ -179,14 +199,14 @@ export function Footer() {
 						<div className="flex items-center gap-6">
 							<Link
 								aria-label="CCPA Compliance"
-								className="text-muted-foreground/90 transition-colors hover:text-muted-foreground"
+								className="text-foreground transition-colors hover:text-muted-foreground"
 								href="/"
 							>
 								<CCPAIcon className="size-9" />
 							</Link>
 							<Link
 								aria-label="GDPR Compliance"
-								className="text-muted-foreground/90 transition-colors hover:text-muted-foreground"
+								className="text-foreground transition-colors hover:text-muted-foreground"
 								href="/"
 							>
 								<GDPRIcon className="size-11" />
