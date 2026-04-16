@@ -17,14 +17,14 @@ export function Footer() {
 			<div className="mx-auto flex max-w-360 flex-col gap-8 px-4 pt-10 sm:px-6 lg:px-8">
 				{/* CTA Section */}
 				<div
-					className="relative flex h-80 w-full items-start rounded-lg border-2 border-border bg-center bg-cover"
+					className="relative flex h-80 w-full items-start rounded-lg bg-center bg-cover"
 					style={{
 						backgroundImage: "url('/brand/gradients/cta-bg.png')",
 					}}
 				>
 					<Image
 						alt="logo"
-						className="pointer-events-none absolute top-1/2 right-16 -translate-y-1/2 opacity-80"
+						className="pointer-events-none absolute top-1/2 right-16 hidden -translate-y-1/2 opacity-80 lg:block"
 						height={180}
 						src="/brand/logomark/white.svg"
 						width={180}

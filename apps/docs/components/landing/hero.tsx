@@ -2,6 +2,7 @@
 
 import { ArrowsOutSimpleIcon } from "@phosphor-icons/react";
 import { motion } from "motion/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -82,7 +83,7 @@ export default function Hero({
 	};
 
 	return (
-		<section className="relative mx-auto flex w-full max-w-400 flex-col items-center overflow-hidden">
+		<section className="relative mx-auto flex w-full max-w-500 flex-col items-center">
 			{/* <Spotlight transform="translateX(-60%) translateY(-50%)" /> */}
 			<BackgroundFlow />
 			<div className="mx-auto w-full max-w-400 px-4 pt-26 pb-8 sm:px-14 sm:pt-20 lg:px-20 lg:pt-38">
@@ -150,10 +151,12 @@ export default function Hero({
 					</div>
 
 					<div className="relative">
-						<img
-							alt=""
+						<Image
+							alt="bunny"
 							className="pointer-events-none absolute right-0 bottom-full z-30 mb-0 hidden w-40 max-w-[min(100%,10rem)] md:right-0 lg:right-20 lg:block"
+							height={160}
 							src="/brand/bunny/off-black.svg"
+							width={160}
 						/>
 						<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
 							<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">

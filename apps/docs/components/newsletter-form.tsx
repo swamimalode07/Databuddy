@@ -71,7 +71,7 @@ export function NewsletterForm() {
 					disabled={status === "loading"}
 					type="submit"
 				>
-					<span className="mt-0.5 flex items-center gap-1.5">
+					<span className="mt-0 flex items-center gap-1.5 md:mt-0.5">
 						{status === "loading" ? "..." : "Subscribe"}
 					</span>
 					<PaperPlaneTiltIcon className="size-3.5" weight="fill" />

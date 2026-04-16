@@ -1,11 +1,11 @@
 const backgroundFlow = () => {
 	return (
-		<div className="pointer-events-none absolute -top-20 right-0 bottom-0 left-0 mx-auto overflow-hidden">
+		<div className="pointer-events-none absolute -top-20 right-0 bottom-0 left-0">
 			<svg
 				className="h-full w-full"
 				fill="none"
-				preserveAspectRatio="none"
-				viewBox="0 0 2215 1865"
+				preserveAspectRatio="xMinYMid slice"
+				viewBox="200 0 2215 1865"
 				xmlns="http://www.w3.org/2000/svg"
 			>
 				<g filter="url(#filter0_f_163_6)">
