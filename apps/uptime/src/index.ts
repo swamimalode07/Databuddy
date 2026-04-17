@@ -261,7 +261,6 @@ const app = new Elysia()
 				await sendUptimeTransitionEmailsIfNeeded({
 					schedule: schedule.data,
 					data: result.data,
-					previousStatus,
 				});
 			} catch (error) {
 				captureError(error, {
