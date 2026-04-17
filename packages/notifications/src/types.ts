@@ -1,11 +1,4 @@
-export type NotificationChannel =
-	| "slack"
-	| "discord"
-	| "email"
-	| "webhook"
-	| "teams"
-	| "telegram"
-	| "google-chat";
+export type NotificationChannel = "slack" | "email" | "webhook";
 
 export type NotificationPriority = "low" | "normal" | "high" | "urgent";
 
@@ -51,28 +44,6 @@ export interface SlackPayload {
 	username?: string;
 }
 
-export interface DiscordEmbed {
-	color?: number;
-	description?: string;
-	fields?: Array<{
-		name: string;
-		value: string;
-		inline?: boolean;
-	}>;
-	footer?: { text: string; icon_url?: string };
-	image?: { url: string };
-	thumbnail?: { url: string };
-	timestamp?: string;
-	title?: string;
-}
-
-export interface DiscordPayload {
-	avatar_url?: string;
-	content?: string;
-	embeds?: DiscordEmbed[];
-	username?: string;
-}
-
 export interface EmailPayload {
 	from?: string;
 	html?: string;
@@ -87,56 +58,4 @@ export interface WebhookPayload {
 	method?: "GET" | "POST" | "PUT" | "PATCH";
 	timeout?: number;
 	url: string;
-}
-
-export interface TeamsCard {
-	body: TeamsCardElement[];
-	type: "AdaptiveCard";
-	version: string;
-}
-
-export interface TeamsCardElement {
-	color?: string;
-	facts?: Array<{ title: string; value: string }>;
-	items?: TeamsCardElement[];
-	size?: string;
-	spacing?: string;
-	text?: string;
-	type: "TextBlock" | "FactSet" | "Container" | "ColumnSet";
-	weight?: string;
-	wrap?: boolean;
-}
-
-export interface TeamsPayload {
-	attachments: Array<{
-		contentType: "application/vnd.microsoft.card.adaptive";
-		content: TeamsCard;
-	}>;
-	type: "message";
-}
-
-export interface TelegramPayload {
-	chat_id: string;
-	disable_web_page_preview?: boolean;
-	parse_mode: "HTML" | "Markdown";
-	text: string;
-}
-
-export interface GoogleChatCard {
-	header?: {
-		title: string;
-		subtitle?: string;
-		imageUrl?: string;
-	};
-	sections?: Array<{
-		widgets: Array<{
-			keyValue?: { topLabel: string; content: string };
-			textParagraph?: { text: string };
-		}>;
-	}>;
-}
-
-export interface GoogleChatPayload {
-	cards?: GoogleChatCard[];
-	text?: string;
 }
