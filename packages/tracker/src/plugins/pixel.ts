@@ -2,13 +2,13 @@ import type { BaseTracker } from "../core/tracker";
 
 const PIXEL_PATH = "/px.jpg";
 
-// basket /px.jpg dispatches on `type` and only handles these two.
-// Other endpoints have no pixel equivalent and are dropped.
 const PIXEL_TYPE_BY_ENDPOINT: Record<string, string> = {
 	"/": "track",
 	"/batch": "track",
 	"/track": "track",
 	"/outgoing": "outgoing_link",
+	"/vitals": "web_vitals",
+	"/errors": "error",
 };
 
 function safeStringify(value: unknown): string {

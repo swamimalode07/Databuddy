@@ -7,6 +7,8 @@ import {
 	batchedCustomEventSpansSchema,
 	batchedErrorsSchema,
 	batchedVitalsSchema,
+	errorSpanSchema,
+	individualVitalSchema,
 	outgoingLinkSchema,
 } from "@databuddy/validation";
 import {
@@ -147,6 +149,20 @@ const app = new Elysia()
 				insertTrackEvent(eventData, clientId, userAgent, ip, request);
 			} else if (eventType === "outgoing_link") {
 				insertOutgoingLink(eventData, clientId, userAgent, ip);
+			} else if (eventType === "web_vitals") {
+				const vitalParse = individualVitalSchema.safeParse(eventData);
+				if (!vitalParse.success) {
+					log.set({ rejected: "schema" });
+					return createPixelResponse();
+				}
+				insertIndividualVitals([vitalParse.data], clientId);
+			} else if (eventType === "error") {
+				const errorParse = errorSpanSchema.safeParse(eventData);
+				if (!errorParse.success) {
+					log.set({ rejected: "schema" });
+					return createPixelResponse();
+				}
+				insertErrorSpans([errorParse.data], clientId);
 			}
 
 			return createPixelResponse();
