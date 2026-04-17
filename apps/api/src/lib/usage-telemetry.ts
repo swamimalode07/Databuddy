@@ -1,6 +1,24 @@
 import type { LanguageModelUsage } from "ai";
-import { getUsage } from "tokenlens/helpers";
+import type { SourceModel } from "tokenlens";
+import { computeTokenCostsForModel } from "tokenlens/helpers";
 import { vercelModels } from "tokenlens/providers/vercel";
+
+type VercelModelId = keyof typeof vercelModels.models;
+
+const lookupModel = (modelId: string): SourceModel | undefined => {
+	const model = vercelModels.models[modelId as VercelModelId];
+	return model
+		? ({ canonical_id: model.id, ...model } as unknown as SourceModel)
+		: undefined;
+};
+
+const toUsage = (usage: LanguageModelUsage) => ({
+	input_tokens: usage.inputTokens,
+	output_tokens: usage.outputTokens,
+	cache_read_tokens: usage.inputTokenDetails?.cacheReadTokens,
+	cache_write_tokens: usage.inputTokenDetails?.cacheWriteTokens,
+	reasoning_tokens: usage.outputTokenDetails?.reasoningTokens,
+});
 
 /**
  * Best-effort token telemetry for the agent route.
@@ -53,20 +71,19 @@ export function summarizeAgentUsage(
 		num(usage.inputTokenDetails?.noCacheTokens) ||
 		Math.max(0, inputTokens - cacheReadTokens - cacheWriteTokens);
 
+	const normalizedUsage = toUsage(usage);
 	let costModelId = modelId;
-	let costs = getUsage({
-		modelId,
-		usage,
-		providers: vercelModels,
-	}).costUSD;
+	let model = lookupModel(modelId);
+	let costs = model
+		? computeTokenCostsForModel({ model, usage: normalizedUsage })
+		: undefined;
 
-	if (costs?.totalUSD === undefined) {
+	if (costs === undefined || costs.totalTokenCostUSD === 0) {
 		costModelId = FALLBACK_MODEL_ID;
-		costs = getUsage({
-			modelId: FALLBACK_MODEL_ID,
-			usage,
-			providers: vercelModels,
-		}).costUSD;
+		model = lookupModel(FALLBACK_MODEL_ID);
+		costs = model
+			? computeTokenCostsForModel({ model, usage: normalizedUsage })
+			: undefined;
 	}
 
 	return {
@@ -77,12 +94,12 @@ export function summarizeAgentUsage(
 		cache_read_tokens: cacheReadTokens,
 		cache_write_tokens: cacheWriteTokens,
 		reasoning_tokens: num(usage.outputTokenDetails?.reasoningTokens),
-		cost_input_usd: num(costs?.inputUSD),
-		cost_output_usd: num(costs?.outputUSD),
-		cost_total_usd: num(costs?.totalUSD),
-		cost_cache_read_usd: num(costs?.cacheReadUSD),
-		cost_cache_write_usd: num(costs?.cacheWriteUSD),
-		cost_reasoning_usd: num(costs?.reasoningUSD),
+		cost_input_usd: num(costs?.inputTokenCostUSD),
+		cost_output_usd: num(costs?.outputTokenCostUSD),
+		cost_total_usd: num(costs?.totalTokenCostUSD),
+		cost_cache_read_usd: num(costs?.cacheReadTokenCostUSD),
+		cost_cache_write_usd: num(costs?.cacheWriteTokenCostUSD),
+		cost_reasoning_usd: num(costs?.reasoningTokenCostUSD),
 		cost_model_id: costModelId,
 		cost_fallback: costModelId !== modelId,
 	};
