@@ -392,7 +392,7 @@ export class BaseTracker {
 				window.location.search +
 				window.location.hash,
 			title: document.title,
-			referrer: document.referrer || "direct",
+			referrer: document.referrer || "",
 			viewport_size: width && height ? `${width}x${height}` : undefined,
 			timezone: this.cachedTimezone,
 			language: navigator.language,

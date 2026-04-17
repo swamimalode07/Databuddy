@@ -524,7 +524,7 @@ test.describe("Event Context", () => {
 			expect(payload?.referrer).toBe("https://google.com/search?q=test");
 		});
 
-		test("uses 'direct' when no referrer", async ({ page }) => {
+		test("uses empty string when no referrer", async ({ page }) => {
 			await page.goto("/test");
 			await page.evaluate(() => {
 				// Clear any referrer
@@ -548,7 +548,7 @@ test.describe("Event Context", () => {
 			const request = await requestPromise;
 			const payload = findEvent(request, (e) => e.name === "screen_view");
 
-			expect(payload?.referrer).toBe("direct");
+			expect(payload?.referrer).toBe("");
 		});
 	});
 
