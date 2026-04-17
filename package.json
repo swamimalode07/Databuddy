@@ -5,7 +5,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/plugin-transform-react-jsx": "^7.28.6",
     "@biomejs/biome": "2.4.10",
-    "@evilmartians/lefthook": "^2.1.5",
+    "@evilmartians/lefthook": "^2.1.6",
     "@types/bun": "latest",
     "@types/dockerode": "^3.3.47",
     "@types/node": "^24.12.2",
