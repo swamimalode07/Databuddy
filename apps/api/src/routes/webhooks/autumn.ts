@@ -1,7 +1,7 @@
 import { and, db, eq, gt } from "@databuddy/db";
 import { usageAlertLog, user } from "@databuddy/db/schema";
 import { UsageAlertEmail, UsageLimitEmail } from "@databuddy/email";
-import { sendSlackWebhook } from "@databuddy/notifications";
+import { SlackProvider } from "@databuddy/notifications";
 import { cacheable } from "@databuddy/redis";
 import { createId } from "@databuddy/shared/utils/ids";
 import { Elysia } from "elysia";
@@ -269,24 +269,26 @@ function handleProductsUpdated(data: ProductsUpdatedData): WebhookResult {
 	) {
 		const info = SCENARIO_LABELS[scenario];
 
-		sendSlackWebhook(SLACK_URL, {
-			title: info.title,
-			message: `Customer ${info.verb} *${updated_product.name ?? updated_product.id}*.`,
-			priority: info.priority,
-			metadata: {
-				scenario,
-				product: updated_product.name ?? updated_product.id,
-				customerId: customer.id ?? "—",
-				email: customer.email ?? "—",
-				name: customer.name ?? "—",
-				env: customer.env,
-			},
-		}).catch((error) => {
-			useLogger().error(
-				error instanceof Error ? error : new Error(String(error)),
-				{ autumn: { slack: true, customerId: customer.id } }
-			);
-		});
+		new SlackProvider({ webhookUrl: SLACK_URL })
+			.send({
+				title: info.title,
+				message: `Customer ${info.verb} *${updated_product.name ?? updated_product.id}*.`,
+				priority: info.priority,
+				metadata: {
+					scenario,
+					product: updated_product.name ?? updated_product.id,
+					customerId: customer.id ?? "—",
+					email: customer.email ?? "—",
+					name: customer.name ?? "—",
+					env: customer.env,
+				},
+			})
+			.catch((error) => {
+				useLogger().error(
+					error instanceof Error ? error : new Error(String(error)),
+					{ autumn: { slack: true, customerId: customer.id } }
+				);
+			});
 	}
 
 	return { success: true, message: `Processed ${scenario}` };

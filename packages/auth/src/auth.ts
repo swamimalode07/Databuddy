@@ -12,10 +12,7 @@ import {
 	ResetPasswordEmail,
 	VerificationEmail,
 } from "@databuddy/email";
-import {
-	type NotificationResult,
-	sendSlackWebhook,
-} from "@databuddy/notifications";
+import { SlackProvider } from "@databuddy/notifications";
 import { getRedisCache, rateLimit } from "@databuddy/redis";
 import { createId } from "@databuddy/shared/utils/ids";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -66,18 +63,19 @@ function notifySignUpSlackAction(input: {
 		return;
 	}
 
-	sendSlackWebhook(SLACK_WEBHOOK_URL, {
-		title: "New sign-up",
-		message: "A new user created an account.",
-		priority: "normal",
-		metadata: {
-			email: input.email,
-			name: input.name ?? "—",
-			userId: input.userId,
-			organizationId: input.organizationId,
-		},
-	})
-		.then((result: NotificationResult) => {
+	new SlackProvider({ webhookUrl: SLACK_WEBHOOK_URL })
+		.send({
+			title: "New sign-up",
+			message: "A new user created an account.",
+			priority: "normal",
+			metadata: {
+				email: input.email,
+				name: input.name ?? "—",
+				userId: input.userId,
+				organizationId: input.organizationId,
+			},
+		})
+		.then((result) => {
 			if (!result.success) {
 				console.error(
 					"Failed to send Slack notification for sign-up:",

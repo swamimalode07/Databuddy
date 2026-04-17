@@ -1636,12 +1636,8 @@ export type AlarmTriggerTypeValue = (typeof alarmTriggerTypeValues)[number];
 
 export const alarmDestinationTypeValues = [
 	"slack",
-	"discord",
 	"email",
 	"webhook",
-	"teams",
-	"telegram",
-	"google_chat",
 ] as const;
 export type AlarmDestinationTypeValue =
 	(typeof alarmDestinationTypeValues)[number];
