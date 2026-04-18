@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	Conversation,
 	ConversationContent,
@@ -49,13 +49,15 @@ const FALLBACK_ICONS = [
 	LightningIcon,
 ] as const;
 
+const LOADING_DELAY_MS = 250;
+
 export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 	useEffect(() => {
 		setLastChatId(websiteId, chatId);
 	}, [websiteId, chatId]);
 
 	const { messages, sendMessage } = useChat();
-	const { isRestoring } = useChatLoading();
+	const { isRestoring, isEmpty } = useChatLoading();
 	const { data: website } = useWebsite(websiteId);
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -73,7 +75,6 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 
 		autoSentRef.current = true;
 		sendMessage({ text: prompt });
-		// Strip ?prompt= so reloading or sharing the URL doesn't re-send.
 		router.replace(pathname);
 	}, [
 		searchParams,
@@ -86,6 +87,8 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 
 	const hasMessages = messages.length > 0;
 	const domain = website?.domain ?? null;
+	const showWelcome = !hasMessages && (!isRestoring || isEmpty);
+	const showLoading = isRestoring && !isEmpty && !hasMessages;
 
 	const launchPrompt = (text: string) => {
 		sendMessage({ text });
@@ -122,27 +125,48 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 						className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-6 px-4 py-6"
 						scrollClassName="overscroll-none"
 					>
-						{(() => {
-							if (isRestoring) {
-								return <ConversationLoadingSkeleton />;
-							}
-							if (hasMessages) {
-								return <AgentMessages />;
-							}
-							return (
-								<div className="flex flex-1 items-center justify-center">
-									<WelcomeState
-										domain={domain}
-										onPromptSelect={launchPrompt}
-										websiteId={websiteId}
-									/>
-								</div>
-							);
-						})()}
+						{hasMessages ? <AgentMessages /> : null}
+						{showLoading ? <DelayedLoading /> : null}
+						{showWelcome ? (
+							<div className="flex flex-1 items-center justify-center">
+								<WelcomeState
+									domain={domain}
+									onPromptSelect={launchPrompt}
+									websiteId={websiteId}
+								/>
+							</div>
+						) : null}
 						<AgentInput />
 					</ConversationContent>
 					<ConversationScrollButton />
 				</Conversation>
+			</div>
+		</div>
+	);
+}
+
+function DelayedLoading() {
+	const [visible, setVisible] = useState(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setVisible(true), LOADING_DELAY_MS);
+		return () => clearTimeout(timer);
+	}, []);
+
+	if (!visible) {
+		return null;
+	}
+
+	return (
+		<div
+			aria-hidden
+			className="fade-in flex flex-1 animate-in flex-col gap-3 pt-8 duration-150"
+		>
+			<Skeleton className="ml-auto h-8 w-2/5 rounded" />
+			<div className="flex flex-col gap-2">
+				<Skeleton className="h-3.5 w-full rounded-sm" />
+				<Skeleton className="h-3.5 w-11/12 rounded-sm" />
+				<Skeleton className="h-3.5 w-4/5 rounded-sm" />
 			</div>
 		</div>
 	);
@@ -328,51 +352,4 @@ function SuggestionSkeleton({ widthClass }: { widthClass: string }) {
 	);
 }
 
-// Pre-baked widths so the skeleton doesn't all line up — feels more natural
-// while still being layout-stable.
 const SKELETON_WIDTHS = ["w-3/5", "w-4/5", "w-2/3", "w-1/2"] as const;
-
-function ConversationLoadingSkeleton() {
-	return (
-		<div aria-hidden className="flex w-full flex-col gap-6 py-2">
-			<MessageSkeleton align="end" widthClass="w-2/5" />
-			<MessageSkeleton align="start" lines={3} widthClass="w-11/12" />
-			<MessageSkeleton align="end" widthClass="w-1/3" />
-			<MessageSkeleton align="start" lines={2} widthClass="w-10/12" />
-		</div>
-	);
-}
-
-const ASSISTANT_LINE_KEYS = ["a", "b", "c", "d"] as const;
-
-function MessageSkeleton({
-	align,
-	lines = 1,
-	widthClass,
-}: {
-	align: "start" | "end";
-	lines?: number;
-	widthClass: string;
-}) {
-	if (align === "end") {
-		return (
-			<div className="flex justify-end">
-				<Skeleton className={cn("h-9 max-w-[60%] rounded", widthClass)} />
-			</div>
-		);
-	}
-	const lineKeys = ASSISTANT_LINE_KEYS.slice(0, lines);
-	return (
-		<div className="flex w-full flex-col gap-2">
-			{lineKeys.map((lineKey, idx) => (
-				<Skeleton
-					className={cn(
-						"h-3.5 rounded-sm",
-						idx === lineKeys.length - 1 ? widthClass : "w-full"
-					)}
-					key={lineKey}
-				/>
-			))}
-		</div>
-	);
-}

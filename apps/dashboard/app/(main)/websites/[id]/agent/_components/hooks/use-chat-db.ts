@@ -23,9 +23,7 @@ function safeSetItem(key: string, value: string): void {
 		if (typeof localStorage !== "undefined") {
 			localStorage.setItem(key, value);
 		}
-	} catch {
-		// Ignore quota or security errors
-	}
+	} catch {}
 }
 
 function safeRemoveItem(key: string): void {
@@ -33,16 +31,9 @@ function safeRemoveItem(key: string): void {
 		if (typeof localStorage !== "undefined") {
 			localStorage.removeItem(key);
 		}
-	} catch {
-		// Ignore
-	}
+	} catch {}
 }
 
-/**
- * "Last opened chat" pointer is kept in localStorage so the agent index page
- * can navigate instantly without waiting on a server round trip. The chat
- * data itself lives on the server.
- */
 export function getLastChatId(websiteId: string): string | null {
 	return safeGetItem(lastChatKey(websiteId));
 }

@@ -1,5 +1,6 @@
 import { and, desc, eq } from "@databuddy/db";
 import { agentChats, analyticsInsights } from "@databuddy/db/schema";
+import { getActiveStream } from "@databuddy/redis/stream-buffer";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import { sessionProcedure } from "../orpc";
@@ -15,6 +16,7 @@ const chatListItemSchema = z.object({
 
 const chatDetailSchema = chatListItemSchema.extend({
 	messages: z.array(z.unknown()),
+	activeStreamId: z.string().nullable(),
 });
 
 const successOutputSchema = z.object({ success: z.literal(true) });
@@ -114,6 +116,8 @@ export const agentChatsRouter = {
 				permissions: ["read"],
 			});
 
+			const activeStreamId = await getActiveStream(row.websiteId, row.id);
+
 			return {
 				id: row.id,
 				websiteId: row.websiteId,
@@ -121,6 +125,7 @@ export const agentChatsRouter = {
 				messages: row.messages,
 				createdAt: row.createdAt,
 				updatedAt: row.updatedAt,
+				activeStreamId,
 			};
 		}),
 

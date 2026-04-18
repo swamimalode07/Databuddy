@@ -24,8 +24,8 @@ interface PendingQueueValue {
 }
 
 interface ChatLoadingValue {
-	/** Initial mount: server fetch in flight, messages not yet hydrated. */
 	isRestoring: boolean;
+	isEmpty: boolean;
 }
 
 const ChatContext = createContext<ChatApi | null>(null);
@@ -35,20 +35,12 @@ const PendingQueueContext = createContext<PendingQueueValue>({
 });
 const ChatLoadingContext = createContext<ChatLoadingValue>({
 	isRestoring: false,
+	isEmpty: true,
 });
 
 const isBusy = (c: ChatApi) =>
 	c.status === "submitted" || c.status === "streaming";
 
-/**
- * Queue-strategy wrapper around AI SDK's useChat.
- *
- * - Restores prior messages from the server (`agentChats.get`) on mount.
- * - Persists messages on the server via the agent route's onFinish handler.
- * - When the model is streaming/submitted and the user sends another text
- *   message, the wrapper enqueues it and dispatches the next one once the
- *   run finishes (Chat SDK "queue" strategy).
- */
 export function ChatProvider({
 	chatId,
 	websiteId,
@@ -60,24 +52,22 @@ export function ChatProvider({
 }) {
 	const transport = useAgentChatTransport(chatId);
 	const queryClient = useQueryClient();
-	/** Set synchronously after `useChat`; used by the send queue. */
 	const chatRef = useRef<ChatApi>(null as unknown as ChatApi);
 
-	/** Empty initial state — restored from the server below once the query lands. */
+	const { data: storedChat, isFetched } = useQuery({
+		...orpc.agentChats.get.queryOptions({ input: { id: chatId } }),
+		refetchOnWindowFocus: false,
+		staleTime: Number.POSITIVE_INFINITY,
+	});
+
 	const chat = useAiSdkChat<UIMessage>({
 		id: chatId,
 		messages: [],
 		transport,
+		resume: Boolean(storedChat?.activeStreamId),
 	});
 
 	chatRef.current = chat;
-
-	const { data: storedChat, isFetched } = useQuery({
-		...orpc.agentChats.get.queryOptions({ input: { id: chatId } }),
-		// The streaming response is the source of truth; never refetch on focus.
-		refetchOnWindowFocus: false,
-		staleTime: Number.POSITIVE_INFINITY,
-	});
 
 	const [hasRestored, setHasRestored] = useState(false);
 
@@ -144,7 +134,6 @@ export function ChatProvider({
 			return;
 		}
 
-		// Refresh the sidebar list (new chat appears, title updates).
 		queryClient.invalidateQueries({
 			queryKey: orpc.agentChats.list.key({ input: { websiteId } }),
 		});
@@ -171,8 +160,10 @@ export function ChatProvider({
 	const loadingValue = useMemo(
 		(): ChatLoadingValue => ({
 			isRestoring: !hasRestored,
+			isEmpty:
+				isFetched && (!storedChat?.messages || storedChat.messages.length === 0),
 		}),
-		[hasRestored]
+		[hasRestored, isFetched, storedChat]
 	);
 
 	return (

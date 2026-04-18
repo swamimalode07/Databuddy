@@ -11,8 +11,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 export function useAgentChatTransport(chatId: string) {
 	const params = useParams();
 	const websiteId = params.id as string;
-	// Read the latest thinking preference at send time without churning the
-	// transport instance whenever the user toggles it.
 	const thinking = useAtomValue(agentThinkingAtom);
 	const thinkingRef = useRef(thinking);
 	thinkingRef.current = thinking;
@@ -31,6 +29,12 @@ export function useAgentChatTransport(chatId: string) {
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							thinking: thinkingRef.current,
 						},
+					};
+				},
+				prepareReconnectToStreamRequest({ id }) {
+					return {
+						api: `${API_URL}/v1/agent/chat/${id}/stream`,
+						credentials: "include",
 					};
 				},
 			}),

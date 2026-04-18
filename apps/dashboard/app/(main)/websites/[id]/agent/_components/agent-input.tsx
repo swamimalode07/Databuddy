@@ -292,9 +292,6 @@ function GeneratingHint() {
 }
 
 function KeyboardHints({ isLoading }: { isLoading: boolean }) {
-	// Keep this slot mounted in both states so the footer layout doesn't
-	// shift when a message is sent. Streaming state shows a subtle status
-	// line in the same height instead of the keyboard shortcuts.
 	if (isLoading) {
 		return <GeneratingHint />;
 	}

@@ -25,7 +25,6 @@ import {
 	ToolDetail,
 	ToolInput,
 	ToolOutput,
-	ToolSection,
 	type ToolStatus,
 } from "@/components/ai-elements/tool";
 import {
@@ -167,13 +166,9 @@ function InspectableToolStep({
 	return (
 		<Tool status={status} title={displayLabel}>
 			<ToolDetail>
-				<ToolSection label="Input">
-					<ToolInput input={tool.input ?? {}} />
-				</ToolSection>
+				<ToolInput input={tool.input ?? {}} />
 				{hasOutput || !isActive ? (
-					<ToolSection label="Result">
-						<ToolOutput error={status === "error"} output={tool.output} />
-					</ToolSection>
+					<ToolOutput error={status === "error"} output={tool.output} />
 				) : null}
 			</ToolDetail>
 		</Tool>
@@ -315,9 +310,7 @@ function AssistantActions({
 			await navigator.clipboard.writeText(text);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 1500);
-		} catch {
-			// Clipboard unavailable — silent failure.
-		}
+		} catch {}
 	}, [text]);
 
 	if (!text) {
