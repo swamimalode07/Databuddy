@@ -236,8 +236,7 @@ export function EventsPageContent({ params }: EventsPageContentProps) {
 					<EmptyState
 						description={
 							<>
-								Events will appear here once your tracker starts collecting
-								them. Use{" "}
+								Events appear here once tracking starts. Use{" "}
 								<code className="rounded bg-muted px-1 py-0.5 text-xs">
 									databuddy.track()
 								</code>{" "}

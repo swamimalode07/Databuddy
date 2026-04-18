@@ -98,11 +98,10 @@ export const ErrorsPageContent = ({ params }: ErrorsPageContentProps) => {
 							<BugIcon className="size-6 text-destructive" weight="duotone" />
 						</div>
 						<h4 className="mb-2 font-semibold text-destructive">
-							Error loading data
+							Failed to load errors
 						</h4>
 						<p className="max-w-md text-destructive/80 text-sm">
-							There was an issue loading your error analytics. Please try
-							refreshing using the toolbar above.
+							Try refreshing from the toolbar above.
 						</p>
 					</div>
 				</div>

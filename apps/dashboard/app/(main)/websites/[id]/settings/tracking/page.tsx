@@ -12,7 +12,7 @@ export default function TrackingSetupPage() {
 	return (
 		<div className="flex h-full flex-col">
 			<PageHeader
-				description="Installation code, setup instructions, and troubleshooting"
+				description="Install and configure tracking"
 				icon={<CodeIcon />}
 				title="Tracking Setup"
 			/>

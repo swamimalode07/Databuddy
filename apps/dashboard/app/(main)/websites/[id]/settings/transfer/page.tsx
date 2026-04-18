@@ -88,16 +88,14 @@ function TransferPageContent() {
 		return (
 			<div className="flex h-full flex-col">
 				<PageHeader
-					description="Move this website to a different organization"
+					description="Move to another organization"
 					icon={<ArrowSquareOutIcon />}
 					title="Transfer Website"
 				/>
 				<div className="flex flex-1 items-center justify-center">
 					<div className="flex flex-col items-center gap-3">
 						<div className="size-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-						<p className="text-muted-foreground text-sm">
-							Loading transfer options...
-						</p>
+						<p className="text-muted-foreground text-sm">Loading…</p>
 					</div>
 				</div>
 			</div>
@@ -160,9 +158,9 @@ function TransferPageContent() {
 						</div>
 
 						<NoticeBanner
-							description="This will transfer ownership and all associated data to the selected organization. Members of the new organization will gain access."
+							description="Ownership and all data move to the target organization. Its members will gain access."
 							icon={<InfoIcon />}
-							title="Transfer Overview"
+							title="What transfers"
 						/>
 					</div>
 				</section>
@@ -202,9 +200,9 @@ function TransferPageContent() {
 
 						{availableOrgs.length === 0 && (
 							<NoticeBanner
-								description="No other organizations available. You need to create a new organization or be invited to one before you can transfer this website."
+								description="Create or join another organization to transfer this website."
 								icon={<WarningIcon />}
-								title="No organizations available"
+								title="No target organizations"
 							/>
 						)}
 					</div>
@@ -367,7 +365,7 @@ export default function TransferPage() {
 			fallback={
 				<div className="flex h-full flex-col">
 					<PageHeader
-						description="Move this website to a different organization"
+						description="Move to another organization"
 						icon={<ArrowSquareOutIcon />}
 						title="Transfer Website"
 					/>

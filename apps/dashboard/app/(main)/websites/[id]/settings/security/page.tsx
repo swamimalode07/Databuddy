@@ -307,7 +307,7 @@ export default function SecurityPage() {
 	return (
 		<div className="flex h-full flex-col">
 			<PageHeader
-				description="Control which origins and IP addresses can access your website's analytics"
+				description="Restrict tracking by origin or IP"
 				icon={<LockIcon />}
 				title="Security & Access"
 			/>
@@ -351,8 +351,7 @@ export default function SecurityPage() {
 								Allowed IP Addresses
 							</Label>
 							<p className="mt-1 text-muted-foreground text-xs">
-								Restrict analytics data collection to specific IP addresses or
-								CIDR ranges (e.g.,
+								Restrict tracking to specific IP addresses or CIDR ranges (e.g.,
 								<code className="mx-1 rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
 									192.168.1.0/24
 								</code>

@@ -151,8 +151,7 @@ export function RecentActivity({
 												No checks in this range
 											</p>
 											<p className="text-pretty text-muted-foreground text-xs leading-relaxed">
-												Widen the date filter or wait for the next scheduled run
-												to see results here.
+												Widen the date range or wait for the next check.
 											</p>
 										</div>
 									</div>

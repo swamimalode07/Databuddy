@@ -337,7 +337,7 @@ export default function PulsePage() {
 		<div className="relative flex h-full flex-col">
 			<WebsitePageHeader
 				additionalActions={headerActions}
-				description="Monitor your website's uptime and availability"
+				description="Track uptime and availability"
 				icon={
 					<HeartbeatIcon
 						className="size-6 text-accent-foreground"
@@ -389,13 +389,13 @@ export default function PulsePage() {
 						<div className="flex h-full items-center justify-center p-4">
 							<EmptyState
 								action={{
-									label: "Create Monitor",
+									label: "Create a monitor",
 									onClick: handleCreateMonitor,
 								}}
 								className="h-full py-0"
-								description="Set up uptime monitoring to track your website's availability and receive alerts when it goes down."
+								description="Track availability and get alerts when the site goes down."
 								icon={<HeartbeatIcon weight="duotone" />}
-								title="No monitor configured"
+								title="No monitor yet"
 								variant="minimal"
 							/>
 						</div>

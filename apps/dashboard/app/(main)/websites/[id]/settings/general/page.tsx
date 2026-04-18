@@ -73,7 +73,7 @@ export default function GeneralSettingsPage() {
 	return (
 		<div className="flex h-full flex-col">
 			<PageHeader
-				description="Manage name, domain, and basic settings"
+				description="Name, domain, and transfer"
 				icon={<GearIcon />}
 				title="General"
 			/>
@@ -141,9 +141,9 @@ export default function GeneralSettingsPage() {
 				<section className="border-b px-4 py-5 sm:px-6">
 					<div className="flex items-center justify-between gap-3">
 						<div>
-							<h2 className="font-medium text-sm">Transfer Website</h2>
+							<h2 className="font-medium text-sm">Transfer website</h2>
 							<p className="text-muted-foreground text-sm">
-								Move this website to a different organization
+								Move to another organization
 							</p>
 						</div>
 						<Button

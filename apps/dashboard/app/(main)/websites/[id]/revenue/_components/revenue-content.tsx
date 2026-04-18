@@ -301,7 +301,7 @@ function RevenueSettingsSheet({
 						<div>
 							<SheetTitle>Revenue Tracking</SheetTitle>
 							<SheetDescription>
-								Connect your payment providers via webhooks
+								Connect payment providers via webhooks
 							</SheetDescription>
 						</div>
 					</div>
@@ -423,7 +423,7 @@ function RevenueSettingsSheet({
 								) : (
 									<div>
 										<p className="mb-3 text-muted-foreground text-xs">
-											Generate webhook URLs to start receiving payment events.
+											Generate URLs to receive payment events.
 										</p>
 										<Button
 											className="w-full"
@@ -799,7 +799,7 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 									Revenue Trends
 								</h2>
 								<p className="text-sidebar-foreground/70 text-xs sm:text-sm">
-									Daily revenue, transactions, customers, and refunds
+									Revenue, transactions, customers, and refunds over time
 								</p>
 							</div>
 						</div>
@@ -823,13 +823,13 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 			) : (
 				<EmptyState
 					action={{
-						label: "Configure Webhooks",
+						label: "Configure webhooks",
 						onClick: () => setSettingsOpen(true),
 					}}
 					description={
 						isConfigured
-							? "Revenue data will appear here once transactions are processed through your payment provider webhooks."
-							: "Connect Stripe or Paddle to start tracking revenue from your payment providers."
+							? "Revenue appears here once webhooks process transactions."
+							: "Connect Stripe or Paddle to track revenue."
 					}
 					icon={<CurrencyDollarIcon />}
 					showPlusBadge={false}

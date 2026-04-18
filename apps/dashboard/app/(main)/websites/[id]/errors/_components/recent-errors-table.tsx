@@ -245,7 +245,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 			<DataTable
 				columns={columns}
 				data={tableData}
-				emptyMessage="No errors recorded in this time period"
+				emptyMessage="No errors in this time range"
 				initialPageSize={10}
 				minHeight={400}
 				onRowAction={(row) => handleViewError(row)}

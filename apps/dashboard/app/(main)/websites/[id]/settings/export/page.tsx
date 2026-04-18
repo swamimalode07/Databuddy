@@ -130,7 +130,7 @@ export default function ExportPage() {
 		<div className="flex h-full flex-col">
 			<PageHeader
 				badgeContent="Tools"
-				description="Download your analytics data for backup and analysis"
+				description="Download analytics as CSV, JSON, or TXT"
 				icon={<DownloadIcon />}
 				title="Data Export"
 			/>
@@ -214,7 +214,7 @@ export default function ExportPage() {
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
 							<h3 className="font-medium text-sm">
-								Ready to export {websiteData.name || "your website"} data
+								Export {websiteData.name || "data"}
 							</h3>
 							<p className="mt-2 text-muted-foreground text-xs">
 								Format:{" "}

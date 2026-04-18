@@ -100,9 +100,7 @@ function LoadingSkeleton({ onBack }: { onBack: () => void }) {
 			<div className="flex min-h-0 flex-1 items-center justify-center">
 				<div className="flex flex-col items-center gap-3">
 					<SpinnerIcon className="size-8 animate-spin text-primary" />
-					<span className="text-muted-foreground text-sm">
-						Loading user profile...
-					</span>
+					<span className="text-muted-foreground text-sm">Loading…</span>
 				</div>
 			</div>
 		</div>
@@ -559,11 +557,9 @@ export default function UserDetailPage() {
 									weight="duotone"
 								/>
 							</div>
-							<p className="mt-4 font-medium text-foreground">
-								No sessions found
-							</p>
+							<p className="mt-4 font-medium text-foreground">No sessions</p>
 							<p className="mt-1 text-muted-foreground text-sm">
-								No session data available for this user
+								This user has no session data.
 							</p>
 						</div>
 					)}

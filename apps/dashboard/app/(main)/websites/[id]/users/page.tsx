@@ -334,7 +334,7 @@ export default function UsersPage() {
 		return (
 			<div className="flex h-full flex-col">
 				<PageHeader
-					description="View detailed visitor profiles and activity"
+					description="Visitor profiles and activity"
 					icon={<UsersThreeIcon />}
 					title="Users"
 				/>
@@ -371,7 +371,7 @@ export default function UsersPage() {
 		return (
 			<div className="flex h-full flex-col">
 				<PageHeader
-					description="View detailed visitor profiles and activity"
+					description="Visitor profiles and activity"
 					icon={<UsersThreeIcon />}
 					title="Users"
 				/>
@@ -391,15 +391,15 @@ export default function UsersPage() {
 		return (
 			<div className="flex h-full flex-col">
 				<PageHeader
-					description="View detailed visitor profiles and activity"
+					description="Visitor profiles and activity"
 					icon={<UsersThreeIcon />}
 					title="Users"
 				/>
 
 				<EmptyState
-					description="Users will appear here once visitors browse your website"
+					description="Users appear here once visitors arrive."
 					icon={<UsersIcon />}
-					title="No users found"
+					title="No users yet"
 					variant="minimal"
 				/>
 			</div>

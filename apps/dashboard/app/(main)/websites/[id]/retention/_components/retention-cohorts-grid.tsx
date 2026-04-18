@@ -99,9 +99,9 @@ export function RetentionCohortsGrid({
 	if (cohorts.length === 0) {
 		return (
 			<EmptyState
-				description="No retention data available for the selected time period"
+				description="No retention data for this time range"
 				icon={<TableIcon className="text-muted-foreground" weight="duotone" />}
-				title="No cohort data"
+				title="No cohorts yet"
 				variant="minimal"
 			/>
 		);
