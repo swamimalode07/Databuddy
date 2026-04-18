@@ -4,10 +4,7 @@ import type { DatePreset } from "../schemas/query-schemas";
 
 function fakeToday(dateStr: string) {
 	const fakeNow = new Date(`${dateStr}T12:00:00Z`).getTime();
-	const original = Date.now;
-	Date.now = () => fakeNow;
-	const _origDate = globalThis.Date;
-	const OrigDate = Date;
+	const OrigDate = globalThis.Date;
 	const FakeDate = function (...args: unknown[]) {
 		if (args.length === 0) return new OrigDate(fakeNow);
 		// @ts-expect-error - constructor forwarding
@@ -19,8 +16,7 @@ function fakeToday(dateStr: string) {
 	FakeDate.prototype = OrigDate.prototype;
 	globalThis.Date = FakeDate;
 	return () => {
-		Date.now = original;
-		globalThis.Date = _origDate;
+		globalThis.Date = OrigDate;
 	};
 }
 
