@@ -8,6 +8,7 @@
     "./cacheable": "./cacheable.ts",
     "./rate-limit": "./rate-limit.ts",
     "./redis": "./redis.ts",
+    "./stream-buffer": "./stream-buffer.ts",
     "./drizzle-cache": "./drizzle-cache.ts",
     "./cache-invalidation": "./cache-invalidation.ts",
     "./links-cache": "./links-cache.ts",
