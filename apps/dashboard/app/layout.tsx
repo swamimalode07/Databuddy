@@ -112,7 +112,7 @@ export default function RootLayout({
 
 	return (
 		<html
-			className={`${ltSuperior.className} ${ltSuperior.variable} ${ltSuperiorMono.variable} h-full overflow-hidden`}
+			className={`${inter.className} ${inter.variable} ${ltSuperiorMono.variable} h-full overflow-hidden`}
 			lang="en"
 			suppressHydrationWarning
 		>
