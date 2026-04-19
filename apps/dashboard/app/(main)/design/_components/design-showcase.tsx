@@ -799,19 +799,31 @@ function SettingsMockup() {
 				<Tabs defaultValue="general">
 					<div className="border-border/60 border-b px-6">
 						<Tabs.List>
-							<Tabs.Tab value="general">
+							<Tabs.Tab
+								className="inline-flex items-center gap-1.5"
+								value="general"
+							>
 								<User className="size-3" />
 								General
 							</Tabs.Tab>
-							<Tabs.Tab value="notifications">
+							<Tabs.Tab
+								className="inline-flex items-center gap-1.5"
+								value="notifications"
+							>
 								<Bell className="size-3" />
 								Notifications
 							</Tabs.Tab>
-							<Tabs.Tab value="appearance">
+							<Tabs.Tab
+								className="inline-flex items-center gap-1.5"
+								value="appearance"
+							>
 								<Palette className="size-3" />
 								Appearance
 							</Tabs.Tab>
-							<Tabs.Tab value="security">
+							<Tabs.Tab
+								className="inline-flex items-center gap-1.5"
+								value="security"
+							>
 								<ShieldCheck className="size-3" />
 								Security
 							</Tabs.Tab>
