@@ -1,14 +1,12 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconArrowDoorOut2FillDuo18,
-	IconChevronRightFillDuo18,
-	IconCreditCardFillDuo18,
-	IconGearFillDuo18,
-	IconLoader2FillDuo18,
-	IconPlusFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { CreditCardIcon } from "@phosphor-icons/react";
+import { GearIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { SignOutIcon } from "@phosphor-icons/react";
+import { SpinnerGapIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -211,9 +209,9 @@ export function ProfileButtonClient({ user }: ProfileButtonClientProps) {
 								{session.user.email}
 							</span>
 							{switchingTo === session.session.id ? (
-								<IconLoader2FillDuo18 className="size-3.5 animate-spin text-muted-foreground" />
+								<SpinnerGapIcon className="size-3.5 animate-spin text-muted-foreground" />
 							) : (
-								<IconChevronRightFillDuo18 className="size-3.5 text-muted-foreground" />
+								<CaretRightIcon className="size-3.5 text-muted-foreground" />
 							)}
 						</DropdownMenuItem>
 					))}
@@ -221,15 +219,15 @@ export function ProfileButtonClient({ user }: ProfileButtonClientProps) {
 				{hasMultipleAccounts && <DropdownMenuSeparator />}
 
 				<DropdownMenuItem onClick={handleAddAccount}>
-					<IconPlusFillDuo18 className="size-4" />
+					<PlusIcon className="size-4" />
 					Add account
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={handleSettings}>
-					<IconGearFillDuo18 />
+					<GearIcon weight="duotone" />
 					Settings
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={handleBilling}>
-					<IconCreditCardFillDuo18 />
+					<CreditCardIcon weight="duotone" />
 					Billing
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
@@ -238,7 +236,7 @@ export function ProfileButtonClient({ user }: ProfileButtonClientProps) {
 					onClick={handleLogout}
 					variant="destructive"
 				>
-					<IconArrowDoorOut2FillDuo18 />
+					<SignOutIcon weight="duotone" />
 					{isLoggingOut ? "Signing out…" : "Sign out"}
 				</DropdownMenuItem>
 			</DropdownMenuContent>

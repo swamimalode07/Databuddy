@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconChartActivityFillDuo18,
-	IconPlusFillDuo18,
-	IconRefreshFillDuo18,
-	IconUserPlusFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { UserPlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
@@ -99,7 +97,7 @@ export default function MonitorsPage() {
 				<PageHeader
 					count={hasAccess ? schedulesQuery.data?.length : undefined}
 					description="View and manage all your uptime monitors"
-					icon={<IconChartActivityFillDuo18 />}
+					icon={<HeartbeatIcon />}
 					right={
 						hasAccess ? (
 							<>
@@ -107,7 +105,7 @@ export default function MonitorsPage() {
 									onClick={() => setShowInviteDialog(true)}
 									variant="outline"
 								>
-									<IconUserPlusFillDuo18 />
+									<UserPlusIcon weight="duotone" />
 									Invite
 								</Button>
 								<Button
@@ -119,7 +117,7 @@ export default function MonitorsPage() {
 									size="icon"
 									variant="outline"
 								>
-									<IconRefreshFillDuo18
+									<ArrowClockwiseIcon
 										className={cn(
 											(schedulesQuery.isLoading || schedulesQuery.isFetching) &&
 												"animate-spin"
@@ -127,7 +125,7 @@ export default function MonitorsPage() {
 									/>
 								</Button>
 								<Button onClick={handleCreate}>
-									<IconPlusFillDuo18 />
+									<PlusIcon />
 									Create Monitor
 								</Button>
 							</>
@@ -148,7 +146,7 @@ export default function MonitorsPage() {
 							},
 							description:
 								"Create your first uptime monitor to start tracking availability and receive alerts when services go down.",
-							icon: <IconChartActivityFillDuo18 />,
+							icon: <HeartbeatIcon weight="duotone" />,
 							title: "No monitors yet",
 						}}
 						errorProps={{
@@ -157,7 +155,7 @@ export default function MonitorsPage() {
 								onClick: () => schedulesQuery.refetch(),
 							},
 							description: "Something went wrong while fetching monitors.",
-							icon: <IconChartActivityFillDuo18 />,
+							icon: <HeartbeatIcon />,
 							title: "Failed to load monitors",
 						}}
 						gatePending={isAccessLoading}

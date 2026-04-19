@@ -1,6 +1,7 @@
 "use client";
 
-import { IconPlusFillDuo18 } from "nucleo-ui-fill-duo-18";
+import type { IconProps } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { cloneElement, memo, type ReactElement, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,7 +24,7 @@ export interface EmptyStateProps {
 	/** Description text */
 	description?: string | ReactNode;
 	/** Main icon to display */
-	icon: ReactElement<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon: ReactElement<IconProps>;
 	/** Whether this is the main content area */
 	isMainContent?: boolean;
 	/** Custom padding */
@@ -131,7 +132,7 @@ export const EmptyState = memo(function EmptyState({
 						tabIndex={0}
 						type="button"
 					>
-						<IconPlusFillDuo18 className="size-6 text-accent-foreground" size={16} />
+						<PlusIcon className="size-6 text-accent-foreground" size={16} />
 					</button>
 				)}
 			</div>
@@ -223,7 +224,7 @@ export const EmptyState = memo(function EmptyState({
 											<div className="absolute inset-0 translate-x-full bg-linear-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-700 group-hover:translate-x-full motion-reduce:transform-none" />
 										)}
 										{variant === "default" && (
-											<IconPlusFillDuo18
+											<PlusIcon
 												className="relative z-10 size-5 transition-transform duration-300 group-hover:rotate-90 motion-reduce:transform-none"
 												size={20}
 											/>
@@ -268,7 +269,7 @@ export function FeatureEmptyState({
 	actionLabel,
 	onAction,
 }: {
-	icon: ReactElement<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon: ReactElement<IconProps>;
 	title: string;
 	description: string;
 	actionLabel: string;

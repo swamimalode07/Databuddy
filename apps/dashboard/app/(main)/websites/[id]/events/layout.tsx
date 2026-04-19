@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconBulletListFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { ListBulletsIcon } from "@phosphor-icons/react";
 import { useParams } from "next/navigation";
 import { PageNavigation } from "@/components/layout/page-navigation";
 
@@ -45,13 +43,13 @@ export default function EventsLayout({
 						id: "summary",
 						label: "Summary",
 						href: `/websites/${websiteId}/events`,
-						icon: IconChartBarTrendUpFillDuo18,
+						icon: ChartBarIcon,
 					},
 					{
 						id: "stream",
 						label: "Stream",
 						href: `/websites/${websiteId}/events/stream`,
-						icon: IconBulletListFillDuo18,
+						icon: ListBulletsIcon,
 					},
 				]}
 				variant="tabs"

@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconBoltLightningFillDuo18,
-	IconChevronDownFillDuo18,
-	IconRefreshFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,7 +47,7 @@ export function EventsPageHeader() {
 			badgeContent="Alpha"
 			badgeVariant="amber"
 			description="Track and analyze custom events across all websites"
-			icon={<IconBoltLightningFillDuo18 />}
+			icon={<LightningIcon weight="duotone" />}
 			right={
 				<div className="flex items-center gap-2">
 					<DropdownMenu>
@@ -66,7 +64,7 @@ export function EventsPageHeader() {
 										{getDropdownLabel(websiteFilterMode, selectedWebsite)}
 									</span>
 								)}
-								<IconChevronDownFillDuo18 className="ml-2 size-4" />
+								<CaretDownIcon className="ml-2 size-4" weight="fill" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-[200px]">
@@ -96,7 +94,7 @@ export function EventsPageHeader() {
 						size="icon"
 						variant="outline"
 					>
-						<IconRefreshFillDuo18
+						<ArrowClockwiseIcon
 							className={query.isFetching ? "animate-spin" : ""}
 							size={16}
 						/>

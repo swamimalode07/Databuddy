@@ -1,7 +1,5 @@
-import {
-	IconArrowDownFillDuo18,
-	IconArrowUpFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowDownIcon } from "@phosphor-icons/react";
+import { ArrowUpIcon } from "@phosphor-icons/react";
 import { computeMetricChange, formatMetric } from "@/lib/format-insight-metric";
 import type { InsightMetric } from "@/lib/insight-types";
 import { cn } from "@/lib/utils";
@@ -29,9 +27,9 @@ function MetricItem({ metric }: { metric: InsightMetric }) {
 						)}
 					>
 						{change > 0 ? (
-							<IconArrowUpFillDuo18 className="size-2.5" />
+							<ArrowUpIcon className="size-2.5" weight="fill" />
 						) : (
-							<IconArrowDownFillDuo18 className="size-2.5" />
+							<ArrowDownIcon className="size-2.5" weight="fill" />
 						)}
 						{Math.abs(Math.round(change))}%
 					</span>

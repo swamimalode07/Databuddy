@@ -7,11 +7,9 @@ import type {
 	SessionReferrer,
 	SessionRowProps,
 } from "@databuddy/shared/types/sessions";
-import {
-	IconChevronDownFillDuo18,
-	IconChevronRightFillDuo18,
-	IconExternalLinkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 import React, { useCallback } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -124,9 +122,9 @@ function SessionRowInternal({
 				>
 					<div className="flex justify-center text-muted-foreground">
 						{isExpanded ? (
-							<IconChevronDownFillDuo18 className="size-3.5" />
+							<CaretDownIcon className="size-3.5" />
 						) : (
-							<IconChevronRightFillDuo18 className="size-3.5" />
+							<CaretRightIcon className="size-3.5" />
 						)}
 					</div>
 
@@ -153,7 +151,7 @@ function SessionRowInternal({
 								size={14}
 							/>
 						) : (
-							<IconExternalLinkFillDuo18 className="size-3.5 shrink-0 text-muted-foreground" />
+							<ArrowSquareOutIcon className="size-3.5 shrink-0 text-muted-foreground" />
 						)}
 						<span className="truncate">{referrerInfo.name}</span>
 					</div>

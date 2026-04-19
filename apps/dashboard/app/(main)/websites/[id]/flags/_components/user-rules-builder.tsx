@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	IconEnvelopeFillDuo18,
-	IconPlusFillDuo18,
-	IconTrashFillDuo18,
-	IconUserFillDuo18,
-	IconWrenchFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { EnvelopeIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
+import { WrenchIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { z } from "zod/mini";
 import { Button } from "@/components/ui/button";
@@ -23,9 +21,9 @@ import { cn } from "@/lib/utils";
 import type { UserRule, UserRulesBuilderProps } from "./types";
 
 const TARGET_TYPES = [
-	{ value: "user_id", label: "User ID", icon: IconUserFillDuo18 },
-	{ value: "email", label: "Email", icon: IconEnvelopeFillDuo18 },
-	{ value: "property", label: "Property", icon: IconWrenchFillDuo18 },
+	{ value: "user_id", label: "User ID", icon: UserIcon },
+	{ value: "email", label: "Email", icon: EnvelopeIcon },
+	{ value: "property", label: "Property", icon: WrenchIcon },
 ] as const;
 
 const CONDITIONS = [
@@ -144,7 +142,7 @@ function InlineTagsInput({
 							onClick={() => removeValue(i)}
 							type="button"
 						>
-							<IconXmarkFillDuo18 size={12} />
+							<XIcon size={12} />
 						</button>
 					</span>
 				))}
@@ -237,7 +235,7 @@ function RuleRow({
 							return (
 								<SelectItem key={t.value} value={t.value}>
 									<div className="flex items-center gap-1.5">
-										<TypeIcon size={14} />
+										<TypeIcon size={14} weight="duotone" />
 										{t.label}
 									</div>
 								</SelectItem>
@@ -297,7 +295,7 @@ function RuleRow({
 					onClick={onRemove}
 					type="button"
 				>
-					<IconTrashFillDuo18 size={14} />
+					<TrashIcon size={14} />
 				</button>
 			</div>
 
@@ -349,7 +347,7 @@ export function UserRulesBuilder({ rules, onChange }: UserRulesBuilderProps) {
 					Match users by ID, email, or property
 				</p>
 				<Button onClick={addRule} size="sm" type="button" variant="outline">
-					<IconPlusFillDuo18 size={14} />
+					<PlusIcon size={14} />
 					Add Rule
 				</Button>
 			</div>
@@ -374,7 +372,7 @@ export function UserRulesBuilder({ rules, onChange }: UserRulesBuilderProps) {
 				type="button"
 				variant="ghost"
 			>
-				<IconPlusFillDuo18 size={14} />
+				<PlusIcon size={14} />
 				Add Rule
 			</Button>
 		</div>

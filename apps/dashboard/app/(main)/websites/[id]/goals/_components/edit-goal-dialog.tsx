@@ -2,11 +2,9 @@
 
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { GoalFilter } from "@databuddy/shared/types/api";
-import {
-	IconPlusFillDuo18,
-	IconTargetFillDuo18 as Target,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { PlusIcon } from "@phosphor-icons/react";
+import { TargetIcon as Target } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
@@ -213,6 +211,7 @@ export function EditGoalDialog({
 							<Target
 								className="text-accent-foreground"
 								size={22}
+								weight="fill"
 							/>
 						</div>
 						<div className="min-w-0 flex-1">
@@ -377,7 +376,7 @@ export function EditGoalDialog({
 											size="icon"
 											variant="ghost"
 										>
-											<IconTrashFillDuo18 size={14} />
+											<TrashIcon size={14} />
 										</Button>
 									</div>
 								))}
@@ -390,7 +389,7 @@ export function EditGoalDialog({
 							size="sm"
 							variant="outline"
 						>
-							<IconPlusFillDuo18 size={14} />
+							<PlusIcon size={14} />
 							Add Filter
 						</Button>
 					</section>

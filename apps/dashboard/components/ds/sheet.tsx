@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Dialog as BaseDialog } from "@base-ui-components/react/dialog";
-import { IconXmarkOutline24 } from "nucleo-core-outline-24";
+import { X } from "@phosphor-icons/react/dist/ssr";
 import type { ComponentPropsWithoutRef } from "react";
 
 type Side = "left" | "right";
@@ -133,7 +133,7 @@ function Close({
 			)}
 			{...rest}
 		>
-			<IconXmarkOutline24 className="size-3.5" />
+			<X className="size-3.5" />
 		</BaseDialog.Close>
 	);
 }

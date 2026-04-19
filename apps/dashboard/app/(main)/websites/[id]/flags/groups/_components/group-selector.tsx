@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconCheckFillDuo18,
-	IconPlusFillDuo18,
-	IconUsersFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { UsersThreeIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -44,7 +42,7 @@ function GroupPill({
 				}}
 				type="button"
 			>
-				<IconXmarkFillDuo18 size={12} />
+				<XIcon size={12} weight="bold" />
 			</button>
 		</motion.div>
 	);
@@ -80,9 +78,10 @@ function GroupOption({
 					background: `linear-gradient(135deg, ${group.color}25 0%, ${group.color}15 100%)`,
 				}}
 			>
-				<IconUsersFillDuo18
+				<UsersThreeIcon
 					className="size-4"
 					style={{ color: group.color }}
+					weight="duotone"
 				/>
 			</div>
 			<div className="min-w-0 flex-1">
@@ -101,7 +100,7 @@ function GroupOption({
 				style={isSelected ? { backgroundColor: group.color } : undefined}
 			>
 				{isSelected && (
-					<IconCheckFillDuo18 className="text-white" size={12} />
+					<CheckIcon className="text-white" size={12} weight="bold" />
 				)}
 			</div>
 		</button>
@@ -134,8 +133,9 @@ export function GroupSelector({
 	if (availableGroups.length === 0) {
 		return (
 			<div className="rounded border border-dashed bg-accent/50 p-4 text-center">
-				<IconUsersFillDuo18
+				<UsersThreeIcon
 					className="mx-auto mb-2 size-8 text-muted-foreground"
+					weight="duotone"
 				/>
 				<p className="text-balance text-muted-foreground text-sm">
 					No groups yet. Create one to reuse user targeting across flags.
@@ -168,7 +168,7 @@ export function GroupSelector({
 						type="button"
 						variant="outline"
 					>
-						<IconPlusFillDuo18 size={14} />
+						<PlusIcon size={14} />
 						{selectedGroups.length > 0 ? "Add more groups" : "Add groups"}
 					</Button>
 				</PopoverTrigger>

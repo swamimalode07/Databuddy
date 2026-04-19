@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconArrowTrendUpFillDuo18,
-	IconBoltLightningFillDuo18,
-	IconRefreshFillDuo18,
-	IconTagFillDuo18,
-	IconUserFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { TagIcon } from "@phosphor-icons/react";
+import { TrendUpIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/empty-state";
@@ -194,8 +192,9 @@ export function EventsPageContent() {
 				<div className="rounded border border-destructive/20 bg-destructive/5 p-6">
 					<div className="flex flex-col items-center text-center">
 						<div className="mb-4 flex size-12 items-center justify-center rounded bg-destructive/10">
-							<IconBoltLightningFillDuo18
+							<LightningIcon
 								className="size-6 text-destructive"
+								weight="duotone"
 							/>
 						</div>
 						<h4 className="mb-2 font-semibold text-destructive">
@@ -217,7 +216,7 @@ export function EventsPageContent() {
 		<div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
 			{showRefreshingIndicator && (
 				<div className="flex items-center justify-center gap-2 rounded border border-primary/20 bg-primary/5 py-2 text-primary text-sm">
-					<IconRefreshFillDuo18 className="size-4 animate-spin" />
+					<ArrowClockwiseIcon className="size-4 animate-spin" />
 					<span>Refreshing data…</span>
 				</div>
 			)}
@@ -236,7 +235,7 @@ export function EventsPageContent() {
 								to send custom events.
 							</>
 						}
-						icon={<IconBoltLightningFillDuo18 />}
+						icon={<LightningIcon />}
 						title="No events yet"
 						variant="minimal"
 					/>
@@ -249,7 +248,7 @@ export function EventsPageContent() {
 							chartStepType={chartStepType}
 							chartType={chartType}
 							description={`${formatNumber(todayEvents)} today`}
-							icon={IconBoltLightningFillDuo18}
+							icon={LightningIcon}
 							id="events-total"
 							isLoading={isPageLoading}
 							showChart
@@ -262,7 +261,7 @@ export function EventsPageContent() {
 							}
 							chartStepType={chartStepType}
 							chartType={chartType}
-							icon={IconTagFillDuo18}
+							icon={TagIcon}
 							id="events-types"
 							isLoading={isPageLoading}
 							showChart
@@ -274,7 +273,7 @@ export function EventsPageContent() {
 							chartStepType={chartStepType}
 							chartType={chartType}
 							description={`${formatNumber(todayUsers)} today`}
-							icon={IconUserFillDuo18}
+							icon={UserIcon}
 							id="events-users"
 							isLoading={isPageLoading}
 							showChart
@@ -286,7 +285,7 @@ export function EventsPageContent() {
 							chartStepType={chartStepType}
 							chartType={chartType}
 							description={`${summary.unique_users > 0 ? (summary.total_events / summary.unique_users).toFixed(1) : "0"} per user`}
-							icon={IconArrowTrendUpFillDuo18}
+							icon={TrendUpIcon}
 							id="events-today"
 							isLoading={isPageLoading}
 							showChart

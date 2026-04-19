@@ -1,6 +1,6 @@
 "use client";
 
-import { IconMessageFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ChatTextIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,7 +44,7 @@ export function FeedbackTable() {
 			<EmptyState
 				className="py-16"
 				description="Submit your first feedback to start earning credits"
-				icon={<IconMessageFillDuo18 />}
+				icon={<ChatTextIcon />}
 				title="No feedback yet"
 				variant="minimal"
 			/>

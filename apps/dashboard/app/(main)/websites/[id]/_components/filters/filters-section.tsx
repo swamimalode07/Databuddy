@@ -2,11 +2,9 @@
 
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
-import {
-	IconFloppyDiskFillDuo18,
-	IconPencilFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { FloppyDiskIcon } from "@phosphor-icons/react";
+import { PencilIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -186,7 +184,7 @@ export function FiltersSection() {
 				<div className="flex items-center justify-between gap-3 border-b bg-secondary/50 px-4 py-2">
 					<div className="flex items-center gap-2">
 						<div className="rounded bg-primary/10 p-1">
-							<IconPencilFillDuo18 className="size-3 text-primary" />
+							<PencilIcon className="size-3 text-primary" weight="duotone" />
 						</div>
 						<span className="text-muted-foreground text-xs">
 							Editing{" "}
@@ -236,7 +234,7 @@ export function FiltersSection() {
 							onClick={() => handleRemoveFilter(index)}
 							type="button"
 						>
-							<IconXmarkFillDuo18 className="size-3" />
+							<XIcon className="size-3" weight="bold" />
 						</button>
 					</div>
 				))}
@@ -264,7 +262,7 @@ export function FiltersSection() {
 								size="sm"
 								variant="outline"
 							>
-								<IconFloppyDiskFillDuo18 className="size-3.5" />
+								<FloppyDiskIcon className="size-3.5" weight="duotone" />
 								Save
 							</Button>
 							<Button

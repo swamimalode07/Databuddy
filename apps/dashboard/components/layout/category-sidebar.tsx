@@ -9,10 +9,8 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconCircleInfoFillDuo18,
-	IconMagnifierFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { InfoIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
@@ -59,8 +57,9 @@ export function CategorySidebar() {
 								onClick={() => openCommandSearchAction()}
 								type="button"
 							>
-								<IconMagnifierFillDuo18
+								<MagnifyingGlassIcon
 									className="size-5 text-sidebar-foreground/75"
+									weight="duotone"
 								/>
 							</button>
 						</TooltipTrigger>
@@ -112,6 +111,7 @@ export function CategorySidebar() {
 												? "text-sidebar-ring"
 												: "text-sidebar-foreground/75"
 										)}
+										weight={isActive ? "fill" : "duotone"}
 									/>
 								</button>
 							</TooltipTrigger>
@@ -139,8 +139,9 @@ export function CategorySidebar() {
 							type="button"
 							variant="ghost"
 						>
-							<IconCircleInfoFillDuo18
+							<InfoIcon
 								className="size-5 text-sidebar-foreground/75"
+								weight="duotone"
 							/>
 						</Button>
 					</div>

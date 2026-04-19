@@ -1,16 +1,15 @@
-import {
-	IconBoltLightningFillDuo18,
-	IconFileContentFillDuo18,
-	IconHandPointerFillDuo18,
-	IconSparkleFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CursorClickIcon } from "@phosphor-icons/react";
+import { FileTextIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { SparkleIcon } from "@phosphor-icons/react";
+
 export const getEventIconAndColor = (
 	eventName: string,
 	hasProperties: boolean
 ) => {
 	if (hasProperties) {
 		return {
-			icon: <IconSparkleFillDuo18 className="size-4" />,
+			icon: <SparkleIcon className="size-4" />,
 			color: "text-accent-foreground",
 			bgColor: "bg-accent/20",
 			borderColor: "border-accent",
@@ -22,7 +21,7 @@ export const getEventIconAndColor = (
 		case "screen_view":
 		case "page_view":
 			return {
-				icon: <IconFileContentFillDuo18 className="size-4" />,
+				icon: <FileTextIcon className="size-4" />,
 				color: "text-primary",
 				bgColor: "bg-primary/10",
 				borderColor: "border-primary/20",
@@ -31,7 +30,7 @@ export const getEventIconAndColor = (
 		case "click":
 		case "player-page-tab":
 			return {
-				icon: <IconHandPointerFillDuo18 className="size-4" />,
+				icon: <CursorClickIcon className="size-4" />,
 				color: "text-secondary-foreground",
 				bgColor: "bg-secondary/50",
 				borderColor: "border-secondary",
@@ -39,7 +38,7 @@ export const getEventIconAndColor = (
 			};
 		default:
 			return {
-				icon: <IconBoltLightningFillDuo18 className="size-4" />,
+				icon: <LightningIcon className="size-4" />,
 				color: "text-muted-foreground",
 				bgColor: "bg-muted/30",
 				borderColor: "border-muted",

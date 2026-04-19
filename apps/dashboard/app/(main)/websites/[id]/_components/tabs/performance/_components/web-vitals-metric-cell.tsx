@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconAlertWarningFillDuo18 as Warning,
-	IconCircleCheckFillDuo18 as CheckCircle,
-} from "nucleo-ui-fill-duo-18";
+import { CheckCircleIcon as CheckCircle } from "@phosphor-icons/react";
+import { WarningIcon as Warning } from "@phosphor-icons/react";
 import { formatPerformanceTime } from "../_utils/performance-utils";
 
 interface WebVitalsMetricCellProps {

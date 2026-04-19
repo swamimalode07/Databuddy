@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconArrowRightFillDuo18,
-	IconBulletListFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconFilterFillDuo18,
-	IconRefreshFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { ListBulletsIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -68,7 +66,7 @@ export function SummaryView({
 			<div className="flex flex-1 items-center justify-center py-12">
 				<EmptyState
 					description="No aggregatable properties found"
-					icon={<IconChartBarTrendUpFillDuo18 />}
+					icon={<ChartBarIcon />}
 					title="No properties"
 					variant="minimal"
 				/>
@@ -107,7 +105,7 @@ export function SummaryView({
 						</span>
 						{isFetching && !isLoading && (
 							<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-								<IconRefreshFillDuo18 className="size-3 animate-spin" />
+								<ArrowClockwiseIcon className="size-3 animate-spin" />
 								<span>Updating…</span>
 							</div>
 						)}
@@ -116,7 +114,7 @@ export function SummaryView({
 							href={`/websites/${websiteId}/events/${encodeURIComponent(activeEvent.name)}`}
 						>
 							View details
-							<IconArrowRightFillDuo18 className="size-3.5" />
+							<ArrowRightIcon className="size-3.5" />
 						</Link>
 					</>
 				)}
@@ -139,7 +137,7 @@ export function SummaryView({
 				<div className="flex flex-1 items-center justify-center py-12">
 					<EmptyState
 						description="This event has no aggregatable properties. Check the Stream tab for individual event details."
-						icon={<IconBulletListFillDuo18 />}
+						icon={<ListBulletsIcon />}
 						title="No aggregatable properties"
 						variant="minimal"
 					/>
@@ -220,9 +218,10 @@ function PropertyCard({
 									<span className="w-10 text-right text-muted-foreground/60 text-xs tabular-nums">
 										{percentage.toFixed(0)}%
 									</span>
-									<IconFilterFillDuo18
+									<FunnelIcon
 										aria-hidden="true"
 										className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100"
+										weight="duotone"
 									/>
 								</div>
 							</div>

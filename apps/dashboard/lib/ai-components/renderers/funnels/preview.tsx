@@ -1,14 +1,13 @@
 "use client";
 
-import {
-	IconCheckFillDuo18,
-	IconFilterFillDuo18,
-	IconLoader2FillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import type { Icon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useParams } from "next/navigation";
-import type {  useCallback, useState, FC, SVGProps } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { EditFunnelDialog } from "@/app/(main)/websites/[id]/funnels/_components/edit-funnel-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +33,7 @@ export interface FunnelPreviewProps extends BaseComponentProps {
 
 interface ModeConfig {
 	accent: string;
-	ButtonIcon: FC<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
 	title: string;
@@ -48,7 +47,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, create it",
 		accent: "",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	update: {
 		title: "Update Funnel",
@@ -56,7 +55,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	delete: {
 		title: "Delete Funnel",
@@ -64,7 +63,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
 		variant: "destructive",
-		ButtonIcon: IconTrashFillDuo18,
+		ButtonIcon: TrashIcon,
 	},
 };
 
@@ -135,8 +134,9 @@ export function FunnelPreviewRenderer({
 			>
 				<div className="flex items-center gap-2.5 border-b px-3 py-2">
 					<div className="flex size-6 items-center justify-center rounded bg-accent">
-						<IconFilterFillDuo18
+						<FunnelIcon
 							className="size-3.5 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<p className="font-medium text-sm">{config.title}</p>
@@ -193,7 +193,7 @@ export function FunnelPreviewRenderer({
 						size="sm"
 						variant="ghost"
 					>
-						<IconPencilFillDuo18 className="size-3.5" />
+						<PencilSimpleIcon className="size-3.5" />
 						Edit
 					</Button>
 					<Button
@@ -203,9 +203,9 @@ export function FunnelPreviewRenderer({
 						variant={config.variant}
 					>
 						{isConfirming ? (
-							<IconLoader2FillDuo18 className="size-3.5 animate-spin" />
+							<CircleNotchIcon className="size-3.5 animate-spin" />
 						) : (
-							<config.ButtonIcon className="size-3.5" />
+							<config.ButtonIcon className="size-3.5" weight="bold" />
 						)}
 						{config.confirmLabel}
 					</Button>

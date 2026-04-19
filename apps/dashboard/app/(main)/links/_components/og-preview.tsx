@@ -1,15 +1,13 @@
 "use client";
 
-import {
-	IconCircleCheckFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconImageFillDuo18,
-	IconLoader2FillDuo18,
-	IconRefresh2FillDuo18,
-	IconUndoFillDuo18,
-	IconVideoFillDuo18,
-	IconXmarkFillDuo18 as CloseIcon,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { XIcon as CloseIcon } from "@phosphor-icons/react";
+import { ImageIcon } from "@phosphor-icons/react";
+import { VideoIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,7 +94,7 @@ export function OgPreview({
 			<div className="overflow-hidden rounded border bg-muted/30">
 				{isLoading ? (
 					<div className="flex h-40 items-center justify-center">
-						<IconLoader2FillDuo18 className="size-6 animate-spin text-muted-foreground" />
+						<CircleNotchIcon className="size-6 animate-spin text-muted-foreground" />
 					</div>
 				) : (
 					<>
@@ -104,7 +102,7 @@ export function OgPreview({
 							<div className="group relative aspect-video w-full overflow-hidden bg-muted">
 								{imageStatus === "loading" && (
 									<div className="flex size-full flex-col items-center justify-center gap-2">
-										<IconLoader2FillDuo18 className="size-8 animate-spin text-muted-foreground" />
+										<CircleNotchIcon className="size-8 animate-spin text-muted-foreground" />
 										<p className="text-muted-foreground text-xs">
 											Loading image…
 										</p>
@@ -113,7 +111,7 @@ export function OgPreview({
 
 								{imageStatus === "error" && (
 									<div className="flex size-full flex-col items-center justify-center gap-2 bg-destructive/10">
-										<IconCircleWarningFillDuo18 className="size-8 text-destructive" />
+										<WarningCircleIcon className="size-8 text-destructive" />
 										<p className="text-destructive text-xs">
 											Failed to load image
 										</p>
@@ -124,7 +122,7 @@ export function OgPreview({
 											type="button"
 											variant="outline"
 										>
-											<IconRefresh2FillDuo18 className="mr-1.5 size-3.5" />
+											<ArrowsClockwiseIcon className="mr-1.5 size-3.5" />
 											Retry
 										</Button>
 									</div>
@@ -161,8 +159,9 @@ export function OgPreview({
 
 								{imageStatus === "idle" && (
 									<div className="flex size-full items-center justify-center">
-										<IconImageFillDuo18
+										<ImageIcon
 											className="size-10 text-muted-foreground/50"
+											weight="duotone"
 										/>
 									</div>
 								)}
@@ -183,8 +182,9 @@ export function OgPreview({
 
 						{showNoImage && (
 							<div className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-muted">
-								<IconImageFillDuo18
+								<ImageIcon
 									className="size-10 text-muted-foreground/50"
+									weight="duotone"
 								/>
 								<p className="text-pretty text-muted-foreground text-xs">
 									Enter a URL to generate preview
@@ -281,23 +281,25 @@ export function OgPreview({
 								<span className="flex items-center gap-1 text-xs">
 									{imageStatus === "loading" && (
 										<>
-											<IconLoader2FillDuo18 className="size-3 animate-spin text-muted-foreground" />
+											<CircleNotchIcon className="size-3 animate-spin text-muted-foreground" />
 											<span className="text-muted-foreground">Checking…</span>
 										</>
 									)}
 									{imageStatus === "success" && (
 										<>
-											<IconCircleCheckFillDuo18
+											<CheckCircleIcon
 												className="size-3 text-green-600"
+												weight="fill"
 											/>
 											<span className="text-green-600">Valid</span>
 										</>
 									)}
 									{imageStatus === "error" && (
 										<>
-											<IconCircleWarningFillDuo18
+											<WarningCircleIcon
 												aria-hidden="true"
 												className="size-3 text-destructive"
+												weight="fill"
 											/>
 											<span className="text-destructive">Invalid</span>
 											<button
@@ -306,7 +308,7 @@ export function OgPreview({
 												onClick={retryImage}
 												type="button"
 											>
-												<IconRefresh2FillDuo18
+												<ArrowsClockwiseIcon
 													aria-hidden="true"
 													className="size-3"
 												/>
@@ -334,7 +336,7 @@ export function OgPreview({
 							className="flex items-center gap-1.5 text-xs"
 							htmlFor="og-video"
 						>
-							<IconVideoFillDuo18 size={12} />
+							<VideoIcon size={12} weight="duotone" />
 							Video URL (optional)
 						</Label>
 						<Input
@@ -358,7 +360,7 @@ export function OgPreview({
 							type="button"
 							variant="ghost"
 						>
-							<IconUndoFillDuo18 className="mr-1.5 size-3.5" />
+							<ArrowCounterClockwiseIcon className="mr-1.5 size-3.5" />
 							Reset to default
 						</Button>
 					)}

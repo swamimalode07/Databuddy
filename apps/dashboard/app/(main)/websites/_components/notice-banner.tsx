@@ -1,3 +1,4 @@
+import type { IconProps } from "@phosphor-icons/react";
 import { cloneElement } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ export const NoticeBanner = ({
 }: {
 	title?: string;
 	children?: React.ReactNode;
-	icon: React.ReactElement<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon: React.ReactElement<IconProps>;
 	className?: string;
 	description?: string;
 }) => (

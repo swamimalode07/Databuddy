@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconChevronDownFillDuo18,
-	IconCircleCheckFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconExternalLinkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
@@ -120,8 +118,9 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 						{index !== 0 && (
 							<div className="flex items-center justify-center gap-3 border-y bg-secondary/50 py-2">
 								<div className="flex items-center gap-1.5 text-xs">
-									<IconChevronDownFillDuo18
+									<CaretDownIcon
 										className="size-3 text-muted-foreground"
+										weight="fill"
 									/>
 									<span className="text-muted-foreground">
 										{droppedUsers.toLocaleString()} left
@@ -148,7 +147,7 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 								)}
 							>
 								{isLast ? (
-									<IconCircleCheckFillDuo18 className="size-5" />
+									<CheckCircleIcon className="size-5" weight="fill" />
 								) : (
 									step.step_number
 								)}
@@ -164,8 +163,9 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<div className="flex shrink-0 cursor-help items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive text-xs">
-														<IconCircleWarningFillDuo18
+														<WarningCircleIcon
 															className="size-3"
+															weight="fill"
 														/>
 														<span className="font-medium tabular-nums">
 															{step.error_count}
@@ -204,7 +204,7 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 															href={`/websites/${websiteId}/errors`}
 														>
 															View all errors
-															<IconExternalLinkFillDuo18 className="size-3" />
+															<ArrowSquareOutIcon className="size-3" />
 														</Link>
 													</div>
 												</TooltipContent>

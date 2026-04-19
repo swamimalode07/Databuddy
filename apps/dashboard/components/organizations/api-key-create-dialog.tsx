@@ -2,14 +2,12 @@
 
 import type { ApiScope } from "@databuddy/api-keys/scopes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	IconCheckFillDuo18,
-	IconCircleCheckFillDuo18,
-	IconCopyFillDuo18,
-	IconKeyFillDuo18,
-	IconPlusFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { KeyIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -183,9 +181,10 @@ export function ApiKeyCreateDialog({
 				<SheetContent className="sm:max-w-md" side="right">
 					<div className="flex h-full flex-col items-center justify-center p-8 text-center">
 						<div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-							<IconCircleCheckFillDuo18
+							<CheckCircleIcon
 								className="text-green-600 dark:text-green-400"
 								size={32}
+								weight="duotone"
 							/>
 						</div>
 						<SheetHeader className="mb-6 border-0 bg-transparent p-0 text-center">
@@ -207,9 +206,9 @@ export function ApiKeyCreateDialog({
 									variant="ghost"
 								>
 									{copied ? (
-										<IconCircleCheckFillDuo18 className="text-green-500" size={18} />
+										<CheckCircleIcon className="text-green-500" size={18} />
 									) : (
-										<IconCopyFillDuo18 size={18} />
+										<CopyIcon size={18} />
 									)}
 								</Button>
 							</div>
@@ -230,9 +229,10 @@ export function ApiKeyCreateDialog({
 				<SheetHeader>
 					<div className="flex items-center gap-4">
 						<div className="flex h-11 w-11 items-center justify-center rounded border bg-secondary-brighter">
-							<IconKeyFillDuo18
+							<KeyIcon
 								className="text-accent-foreground"
 								size={22}
+								weight="fill"
 							/>
 						</div>
 						<div>
@@ -286,7 +286,7 @@ export function ApiKeyCreateDialog({
 															: "border-muted-foreground/30"
 													}`}
 												>
-													{isSelected && <IconCheckFillDuo18 size={12} />}
+													{isSelected && <CheckIcon size={12} weight="bold" />}
 												</div>
 												<span className="truncate">{scope.label}</span>
 												{isDefault && (
@@ -335,7 +335,7 @@ export function ApiKeyCreateDialog({
 										type="button"
 										variant="outline"
 									>
-										<IconPlusFillDuo18 size={16} />
+										<PlusIcon size={16} />
 									</Button>
 								</div>
 
@@ -364,7 +364,7 @@ export function ApiKeyCreateDialog({
 															type="button"
 															variant="ghost"
 														>
-															<IconTrashFillDuo18 size={14} />
+															<TrashIcon size={14} />
 														</Button>
 													</div>
 													<div className="grid grid-cols-2 gap-1">
@@ -396,7 +396,7 @@ export function ApiKeyCreateDialog({
 																		}`}
 																	>
 																		{isSelected && (
-																			<IconCheckFillDuo18 size={8} />
+																			<CheckIcon size={8} weight="bold" />
 																		)}
 																	</div>
 																	<span className="truncate">
@@ -424,7 +424,7 @@ export function ApiKeyCreateDialog({
 								"Creating..."
 							) : (
 								<>
-									<IconPlusFillDuo18 size={16} />
+									<PlusIcon size={16} />
 									Create Key
 								</>
 							)}

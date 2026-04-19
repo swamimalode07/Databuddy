@@ -1,6 +1,6 @@
 "use client";
 
-import { IconPlusFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { PlusIcon } from "@phosphor-icons/react";
 import { generateId } from "ai";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export function NewChatButton() {
 			size="sm"
 			variant="ghost"
 		>
-			<IconPlusFillDuo18 className="size-4" />
+			<PlusIcon className="size-4" />
 		</Button>
 	);
 }

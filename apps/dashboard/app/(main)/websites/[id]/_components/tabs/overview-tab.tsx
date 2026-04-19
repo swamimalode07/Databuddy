@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconChartLine2FillDuo18,
-	IconCursorDefaultFillDuo18,
-	IconGlobeFillDuo18,
-	IconTimer2FillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ChartLineIcon } from "@phosphor-icons/react";
+import { CursorIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react";
+import { TimerIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import dynamic from "next/dynamic";
@@ -828,7 +826,7 @@ export function WebsiteOverviewTab({
 						title: "Pageviews",
 						value: analytics.summary?.pageviews || 0,
 						description: `${formatNumber(todayPageviews)} today`,
-						icon: IconGlobeFillDuo18,
+						icon: GlobeIcon,
 						chartData: miniChartData.pageviews,
 						trend: calculateTrends.pageviews,
 					},
@@ -837,7 +835,7 @@ export function WebsiteOverviewTab({
 						title: "Sessions",
 						value: analytics.summary?.sessions || 0,
 						description: `${formatNumber(todaySessions)} today`,
-						icon: IconChartLine2FillDuo18,
+						icon: ChartLineIcon,
 						chartData: miniChartData.sessions,
 						trend: calculateTrends.sessions,
 					},
@@ -846,7 +844,7 @@ export function WebsiteOverviewTab({
 						title: "Visitors",
 						value: analytics.summary?.unique_visitors || 0,
 						description: `${formatNumber(todayVisitors)} today`,
-						icon: IconUsersFillDuo18,
+						icon: UsersIcon,
 						chartData: miniChartData.visitors,
 						trend: calculateTrends.visitors,
 					},
@@ -858,7 +856,7 @@ export function WebsiteOverviewTab({
 							!Number.isNaN(analytics.summary.bounce_rate)
 								? `${clampBounceRate(analytics.summary.bounce_rate).toFixed(1)}%`
 								: "0%",
-						icon: IconCursorDefaultFillDuo18,
+						icon: CursorIcon,
 						chartData: miniChartData.bounceRate,
 						trend: calculateTrends.bounce_rate,
 						invertTrend: true,
@@ -883,7 +881,7 @@ export function WebsiteOverviewTab({
 							const seconds = Math.round(duration % 60);
 							return `${minutes}m ${seconds}s`;
 						})(),
-						icon: IconTimer2FillDuo18,
+						icon: TimerIcon,
 						chartData: miniChartData.sessionDuration,
 						trend: calculateTrends.session_duration,
 						formatValue: (value: number) => {

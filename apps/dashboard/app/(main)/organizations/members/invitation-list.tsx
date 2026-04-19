@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconEnvelopeFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { EnvelopeIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -61,7 +59,7 @@ function InvitationRow({
 	return (
 		<div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-5 py-4">
 			<div className="flex size-8 items-center justify-center rounded-full bg-secondary">
-				<IconEnvelopeFillDuo18 className="text-secondary-foreground" size={14} />
+				<EnvelopeIcon className="text-secondary-foreground" size={14} />
 			</div>
 
 			<div className="min-w-0">
@@ -87,7 +85,7 @@ function InvitationRow({
 					size="sm"
 					variant="outline"
 				>
-					<IconTrashFillDuo18 size={14} />
+					<TrashIcon size={14} />
 				</Button>
 			) : (
 				<div className="size-7" />

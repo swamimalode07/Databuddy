@@ -1,6 +1,6 @@
 "use client";
 
-import { IconOfficeFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { BuildingsIcon } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,9 +116,10 @@ export function CreateOrganizationDialog({
 				<SheetHeader>
 					<div className="flex items-center gap-4">
 						<div className="flex h-11 w-11 items-center justify-center rounded border bg-secondary-brighter">
-							<IconOfficeFillDuo18
+							<BuildingsIcon
 								className="text-accent-foreground"
 								size={22}
+								weight="fill"
 							/>
 						</div>
 						<div>
@@ -213,7 +214,7 @@ export function CreateOrganizationDialog({
 							"Creating..."
 						) : (
 							<>
-								<IconOfficeFillDuo18 className="mr-2" size={16} />
+								<BuildingsIcon className="mr-2" size={16} />
 								Create Organization
 							</>
 						)}

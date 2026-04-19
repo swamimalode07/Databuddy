@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconCalendarEventFillDuo18,
-	IconCheckFillDuo18,
-	IconChevronRightFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
@@ -204,7 +202,7 @@ export function DateRangePicker({
 						disabled={disabled}
 						variant="outline"
 					>
-						<IconCalendarEventFillDuo18 className="size-4" />
+						<CalendarDotsIcon className="size-4" weight="duotone" />
 						<span className="truncate">{formatDisplayRange(value)}</span>
 					</Button>
 				</PopoverTrigger>
@@ -236,7 +234,7 @@ export function DateRangePicker({
 												type="button"
 											>
 												<span>{preset.label}</span>
-												{isActive && <IconCheckFillDuo18 className="size-3.5" />}
+												{isActive && <CheckIcon className="size-3.5" />}
 											</button>
 										);
 									})}
@@ -254,8 +252,9 @@ export function DateRangePicker({
 													{formatLocalTime(tempRange.from, "MMM D")}
 												</span>
 											</div>
-											<IconChevronRightFillDuo18
+											<CaretRightIcon
 												className="size-3.5 text-muted-foreground"
+												weight="bold"
 											/>
 											<div
 												className={cn(

@@ -1,12 +1,10 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconArrowLeftFillDuo18,
-	IconEyeFillDuo18,
-	IconEyeSlashFillDuo18,
-	IconLoader2FillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react";
+import { EyeSlashIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -146,7 +144,7 @@ function ForgotPasswordPage() {
 							<Button className="w-full" disabled={isLoading} type="submit">
 								{isLoading ? (
 									<>
-										<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+										<SpinnerIcon className="mr-2 size-4 animate-spin" />
 										Sending verification code...
 									</>
 								) : (
@@ -161,7 +159,7 @@ function ForgotPasswordPage() {
 						className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 						href="/login"
 					>
-						<IconArrowLeftFillDuo18 className="mr-1 inline size-3" />
+						<ArrowLeftIcon className="mr-1 inline size-3" />
 						Back to login
 					</Link>
 				</div>
@@ -197,7 +195,7 @@ function ForgotPasswordPage() {
 								>
 									{isResending ? (
 										<>
-											<IconLoader2FillDuo18 className="mr-1 size-3 animate-spin" />
+											<SpinnerIcon className="mr-1 size-3 animate-spin" />
 											Sending...
 										</>
 									) : (
@@ -242,9 +240,9 @@ function ForgotPasswordPage() {
 									variant="ghost"
 								>
 									{showPassword ? (
-										<IconEyeSlashFillDuo18 className="size-4" />
+										<EyeSlashIcon className="size-4" />
 									) : (
-										<IconEyeFillDuo18 className="size-4" />
+										<EyeIcon className="size-4" />
 									)}
 								</Button>
 							</div>
@@ -280,9 +278,9 @@ function ForgotPasswordPage() {
 									variant="ghost"
 								>
 									{showConfirmPassword ? (
-										<IconEyeSlashFillDuo18 className="size-4" />
+										<EyeSlashIcon className="size-4" />
 									) : (
-										<IconEyeFillDuo18 className="size-4" />
+										<EyeIcon className="size-4" />
 									)}
 								</Button>
 							</div>
@@ -290,7 +288,7 @@ function ForgotPasswordPage() {
 						<Button className="w-full" disabled={isLoading} type="submit">
 							{isLoading ? (
 								<>
-									<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+									<SpinnerIcon className="mr-2 size-4 animate-spin" />
 									Resetting password...
 								</>
 							) : (
@@ -314,7 +312,7 @@ function ForgotPasswordPage() {
 					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="/login"
 				>
-					<IconArrowLeftFillDuo18 className="mr-1 inline size-3" />
+					<ArrowLeftIcon className="mr-1 inline size-3" />
 					Back to login
 				</Link>
 			</div>
@@ -329,7 +327,7 @@ export default function Page() {
 				<div className="flex h-dvh items-center justify-center bg-background">
 					<div className="relative">
 						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<IconLoader2FillDuo18 className="relative size-8 animate-spin text-primary" />
+						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
 					</div>
 				</div>
 			}

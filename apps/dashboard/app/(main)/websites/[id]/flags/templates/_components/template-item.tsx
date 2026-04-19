@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconAlertWarningFillDuo18,
-	IconArrowRightFillDuo18,
-	IconFlaskFillDuo18,
-	IconRocketFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { RocketLaunchIcon } from "@phosphor-icons/react";
+import { TestTubeIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,15 +25,15 @@ export interface TemplateItemProps {
 function getTemplateIcon(icon: string) {
 	switch (icon) {
 		case "rocket":
-			return IconRocketFillDuo18;
+			return RocketLaunchIcon;
 		case "test":
-			return IconFlaskFillDuo18;
+			return TestTubeIcon;
 		case "users":
-			return IconUsersFillDuo18;
+			return UsersIcon;
 		case "warning":
-			return IconAlertWarningFillDuo18;
+			return WarningIcon;
 		default:
-			return IconRocketFillDuo18;
+			return RocketLaunchIcon;
 	}
 }
 
@@ -65,7 +63,7 @@ export function TemplateItem({ template, onUseAction }: TemplateItemProps) {
 			<CardHeader className="space-y-2">
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex size-10 shrink-0 items-center justify-center rounded bg-primary/10">
-						<TemplateIcon className="size-5 text-primary" />
+						<TemplateIcon className="size-5 text-primary" weight="duotone" />
 					</div>
 					{template.isBuiltIn && (
 						<Badge className="shrink-0" variant="outline">
@@ -91,7 +89,7 @@ export function TemplateItem({ template, onUseAction }: TemplateItemProps) {
 					size="sm"
 				>
 					Use Template
-					<IconArrowRightFillDuo18 className="size-4" />
+					<ArrowRightIcon className="size-4" weight="bold" />
 				</Button>
 			</CardFooter>
 		</Card>

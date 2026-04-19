@@ -1,6 +1,6 @@
 "use client";
 
-import { IconPlusFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -89,7 +89,7 @@ export function SubmitFeedbackDialog() {
 		<Dialog onOpenChange={setOpen} open={open}>
 			<DialogTrigger asChild>
 				<Button size="sm" type="button">
-					<IconPlusFillDuo18 size={16} />
+					<PlusIcon size={16} />
 					New Feedback
 				</Button>
 			</DialogTrigger>

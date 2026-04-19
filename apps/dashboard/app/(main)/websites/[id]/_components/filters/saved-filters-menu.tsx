@@ -2,13 +2,11 @@
 
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
-import {
-	IconBookmarkFillDuo18,
-	IconCheckFillDuo18,
-	IconCopyFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BookmarkIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { PencilIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,7 +72,7 @@ export function SavedFiltersMenu({
 				size="sm"
 				variant="outline"
 			>
-				<IconBookmarkFillDuo18 className="size-3.5" />
+				<BookmarkIcon className="size-3.5" weight="duotone" />
 				{isLoading ? "Loading…" : "No saved"}
 			</Button>
 		);
@@ -84,7 +82,7 @@ export function SavedFiltersMenu({
 		<DropdownMenu onOpenChange={setOpen} open={open}>
 			<DropdownMenuTrigger asChild>
 				<Button className="h-7 gap-1.5 text-xs" size="sm" variant="outline">
-					<IconBookmarkFillDuo18 className="size-3.5" />
+					<BookmarkIcon className="size-3.5" weight="duotone" />
 					Saved ({savedFilters.length})
 				</Button>
 			</DropdownMenuTrigger>
@@ -122,8 +120,9 @@ export function SavedFiltersMenu({
 									<div className="flex items-center gap-1.5">
 										<span className="font-medium text-sm">{saved.name}</span>
 										{isActive && (
-											<IconCheckFillDuo18
+											<CheckIcon
 												className="size-3.5 text-green-600"
+												weight="bold"
 											/>
 										)}
 									</div>
@@ -138,7 +137,7 @@ export function SavedFiltersMenu({
 											}}
 											type="button"
 										>
-											<IconPencilFillDuo18 className="size-3" />
+											<PencilIcon className="size-3" />
 										</button>
 										<button
 											aria-label="Duplicate"
@@ -149,7 +148,7 @@ export function SavedFiltersMenu({
 											}}
 											type="button"
 										>
-											<IconCopyFillDuo18 className="size-3" />
+											<CopyIcon className="size-3" />
 										</button>
 										<button
 											aria-label="Delete"
@@ -160,7 +159,7 @@ export function SavedFiltersMenu({
 											}}
 											type="button"
 										>
-											<IconTrashFillDuo18 className="size-3" />
+											<TrashIcon className="size-3" />
 										</button>
 									</div>
 								</div>

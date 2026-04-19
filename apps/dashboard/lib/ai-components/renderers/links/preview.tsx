@@ -1,15 +1,14 @@
 "use client";
 
-import {
-	IconCalendarFillDuo18,
-	IconCheckFillDuo18,
-	IconImageFillDuo18,
-	IconLink5FillDuo18,
-	IconLoader2FillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
-import type {  useState, FC, SVGProps } from "react";
+import type { Icon } from "@phosphor-icons/react";
+import { CalendarIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { ImageIcon } from "@phosphor-icons/react";
+import { LinkIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,7 +35,7 @@ export interface LinkPreviewProps extends BaseComponentProps {
 
 interface ModeConfig {
 	accent: string;
-	ButtonIcon: FC<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
 	title: string;
@@ -50,7 +49,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, create it",
 		accent: "",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	update: {
 		title: "Update Link",
@@ -58,7 +57,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	delete: {
 		title: "Delete Link",
@@ -66,7 +65,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
 		variant: "destructive",
-		ButtonIcon: IconTrashFillDuo18,
+		ButtonIcon: TrashIcon,
 	},
 };
 
@@ -77,13 +76,14 @@ function Row({
 }: {
 	label: string;
 	value: string;
-	icon?: FC<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon?: Icon;
 }) {
 	return (
 		<div className="flex items-start gap-2.5 py-2">
 			{IconComponent && (
 				<IconComponent
 					className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+					weight="duotone"
 				/>
 			)}
 			<div className="min-w-0 flex-1">
@@ -136,8 +136,9 @@ export function LinkPreviewRenderer({
 			>
 				<div className="flex items-center gap-2.5 border-b px-3 py-2">
 					<div className="flex size-6 items-center justify-center rounded bg-accent">
-						<IconLink5FillDuo18
+						<LinkIcon
 							className="size-3.5 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<p className="font-medium text-sm">{config.title}</p>
@@ -156,14 +157,14 @@ export function LinkPreviewRenderer({
 					/>
 					{hasExpiration && (
 						<Row
-							icon={IconCalendarFillDuo18}
+							icon={CalendarIcon}
 							label="Expires"
 							value={link.expiresAt ?? "Never"}
 						/>
 					)}
 					{hasOgData && (
 						<Row
-							icon={IconImageFillDuo18}
+							icon={ImageIcon}
 							label="Social Preview"
 							value={link.ogTitle ?? "Custom OG data set"}
 						/>
@@ -177,7 +178,7 @@ export function LinkPreviewRenderer({
 						size="sm"
 						variant="ghost"
 					>
-						<IconPencilFillDuo18 className="size-3.5" />
+						<PencilSimpleIcon className="size-3.5" />
 						Edit
 					</Button>
 					<Button
@@ -187,9 +188,9 @@ export function LinkPreviewRenderer({
 						variant={config.variant}
 					>
 						{isConfirming ? (
-							<IconLoader2FillDuo18 className="size-3.5 animate-spin" />
+							<CircleNotchIcon className="size-3.5 animate-spin" />
 						) : (
-							<config.ButtonIcon className="size-3.5" />
+							<config.ButtonIcon className="size-3.5" weight="bold" />
 						)}
 						{config.confirmLabel}
 					</Button>

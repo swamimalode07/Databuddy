@@ -1,6 +1,6 @@
 "use client";
 
-import { IconTrashFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,9 +70,10 @@ export function DeleteDialog({
 						{children}
 						<div className="flex items-center gap-3 rounded-md border border-destructive/20 bg-destructive/5 p-3">
 							<div className="flex size-8 shrink-0 items-center justify-center">
-								<IconTrashFillDuo18
+								<TrashIcon
 									className="text-destructive"
 									size={16}
+									weight="duotone"
 								/>
 							</div>
 							<p className="text-foreground text-sm">
@@ -83,9 +84,10 @@ export function DeleteDialog({
 				) : (
 					<div className="flex items-center gap-3 py-2">
 						<div className="flex size-10 shrink-0 items-center justify-center border border-destructive/20 bg-destructive/10">
-							<IconTrashFillDuo18
+							<TrashIcon
 								className="text-destructive"
 								size={18}
+								weight="duotone"
 							/>
 						</div>
 						<p className="text-foreground text-sm">

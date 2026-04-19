@@ -1,7 +1,7 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { IconLoader2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { FeatureGate } from "@/components/feature-gate";
@@ -14,7 +14,7 @@ const RetentionContentDynamic = dynamic(
 	{
 		loading: () => (
 			<div className="flex items-center justify-center p-8">
-				<IconLoader2FillDuo18 className="size-6 animate-spin" />
+				<SpinnerIcon className="size-6 animate-spin" />
 			</div>
 		),
 		ssr: false,

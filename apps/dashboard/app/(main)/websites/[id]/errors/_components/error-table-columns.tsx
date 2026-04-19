@@ -1,9 +1,7 @@
-import {
-	IconBugFillDuo18,
-	IconMonitorFillDuo18,
-	IconPhoneFillDuo18,
-	IconTableFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BugIcon } from "@phosphor-icons/react";
+import { MonitorIcon } from "@phosphor-icons/react";
+import { PhoneIcon } from "@phosphor-icons/react";
+import { TableIcon } from "@phosphor-icons/react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { Badge } from "@/components/ui/badge";
 import { formatLocalTime } from "@/lib/time";
@@ -92,7 +90,7 @@ export const createErrorTypeColumn = () => ({
 			return (
 				<div className="flex flex-col gap-1">
 					<div className="flex items-center gap-2">
-						<IconBugFillDuo18 className="size-4" size={16} />
+						<BugIcon className="size-4" size={16} weight="duotone" />
 						<Badge className="border-gray-200 bg-gray-100 text-gray-800">
 							Unknown Error
 						</Badge>
@@ -193,28 +191,32 @@ export const createDeviceColumn = () =>
 	createNameColumn("Device Type", (name) => {
 		if (!name) {
 			return (
-				<IconMonitorFillDuo18
+				<MonitorIcon
 					className="size-4 text-gray-500"
 					size={16}
+					weight="duotone"
 				/>
 			);
 		}
 
 		const device = name.toLowerCase();
 		return device.includes("mobile") || device.includes("phone") ? (
-			<IconPhoneFillDuo18
+			<PhoneIcon
 				className="size-4 text-foreground"
 				size={16}
+				weight="duotone"
 			/>
 		) : device.includes("tablet") ? (
-			<IconTableFillDuo18
+			<TableIcon
 				className="size-4 text-purple-500"
 				size={16}
+				weight="duotone"
 			/>
 		) : (
-			<IconMonitorFillDuo18
+			<MonitorIcon
 				className="size-4 text-gray-500"
 				size={16}
+				weight="duotone"
 			/>
 		);
 	});

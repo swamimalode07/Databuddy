@@ -9,16 +9,14 @@ import {
 	PLAN_IDS,
 	type PlanId,
 } from "@databuddy/shared/types/features";
-import {
-	IconAlertWarningFillDuo18,
-	IconArrowDownFillDuo18,
-	IconCheckFillDuo18,
-	IconCrownFillDuo18,
-	IconLoader2FillDuo18,
-	IconRocketFillDuo18,
-	IconSparkleFillDuo18,
-	IconStarFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowDownIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { CrownIcon } from "@phosphor-icons/react";
+import { RocketLaunchIcon } from "@phosphor-icons/react";
+import { SparkleIcon } from "@phosphor-icons/react";
+import { StarIcon } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { useCustomer, useListPlans } from "autumn-js/react";
 import { createContext, useContext, useState } from "react";
 import { PricingTiersTooltip } from "@/app/(main)/billing/components/pricing-tiers-tooltip";
@@ -38,16 +36,16 @@ import { getPricingTableContent } from "@/lib/autumn/pricing-table-content";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { cn } from "@/lib/utils";
 
-const PLAN_ICONS: Record<string, typeof IconCrownFillDuo18> = {
-	free: IconSparkleFillDuo18,
-	hobby: IconRocketFillDuo18,
-	pro: IconStarFillDuo18,
-	scale: IconCrownFillDuo18,
-	buddy: IconCrownFillDuo18,
+const PLAN_ICONS: Record<string, typeof CrownIcon> = {
+	free: SparkleIcon,
+	hobby: RocketLaunchIcon,
+	pro: StarIcon,
+	scale: CrownIcon,
+	buddy: CrownIcon,
 };
 
 function getPlanIcon(planId: string) {
-	return PLAN_ICONS[planId] || IconCrownFillDuo18;
+	return PLAN_ICONS[planId] || CrownIcon;
 }
 
 function getNewFeaturesForPlan(planId: string): Array<{
@@ -190,7 +188,7 @@ export default function PricingTable({
 			<EmptyState
 				className="flex h-full flex-col items-center justify-center"
 				description="Something went wrong while loading pricing plans"
-				icon={<IconAlertWarningFillDuo18 />}
+				icon={<WarningIcon />}
 				title="Failed to load pricing plans"
 				variant="error"
 			/>
@@ -259,9 +257,10 @@ function DowngradeConfirmDialog({
 				</DialogHeader>
 				<div className="flex items-center gap-3 py-2">
 					<div className="flex size-10 shrink-0 items-center justify-center border border-amber-500/20 bg-amber-500/10">
-						<IconArrowDownFillDuo18
+						<ArrowDownIcon
 							className="text-amber-600 dark:text-amber-400"
 							size={18}
+							weight="duotone"
 						/>
 					</div>
 					<p className="text-foreground text-sm">
@@ -385,7 +384,7 @@ function PricingCard({
 		>
 			<div className="flex items-center gap-3 p-5 pb-4">
 				<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-accent">
-					<Icon className="text-accent-foreground" size={16} />
+					<Icon className="text-accent-foreground" size={16} weight="duotone" />
 				</div>
 				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-2">
@@ -465,7 +464,7 @@ function PricingCard({
 					variant={isRecommended ? "default" : "secondary"}
 				>
 					{isAttaching ? (
-						<IconLoader2FillDuo18 className="size-4 animate-spin" />
+						<CircleNotchIcon className="size-4 animate-spin" />
 					) : (
 						buttonText
 					)}
@@ -519,8 +518,9 @@ function FeatureItem({ item }: { item: FeatureItemDisplay }) {
 
 	return (
 		<div className="flex items-start gap-2 text-sm">
-			<IconCheckFillDuo18
+			<CheckIcon
 				className="mt-0.5 size-4 shrink-0 text-accent-foreground"
+				weight="bold"
 			/>
 			<div className="flex flex-col">
 				<span>{item.display?.primaryText}</span>
@@ -565,8 +565,9 @@ function GatedFeatureItem({
 
 	return (
 		<div className="flex items-start gap-2 text-sm">
-			<IconCheckFillDuo18
+			<CheckIcon
 				className="mt-0.5 size-4 shrink-0 text-accent-foreground"
+				weight="bold"
 			/>
 			<div className="flex flex-col">
 				<div className="flex items-center gap-2">

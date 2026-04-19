@@ -1,6 +1,6 @@
 "use client";
 
-import { IconGlobeFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { GlobeIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useState } from "react";
 import { resolveFaviconCanonicalHost } from "@/lib/favicon-domain";
@@ -64,10 +64,11 @@ export function FaviconImage({
 		>
 			{showFallback &&
 				(fallbackIcon ?? (
-					<IconGlobeFillDuo18
+					<GlobeIcon
 						aria-label={altText || "Website icon"}
 						className="absolute inset-0 m-auto text-muted-foreground"
 						size={size}
+						weight="duotone"
 					/>
 				))}
 			{valid && (

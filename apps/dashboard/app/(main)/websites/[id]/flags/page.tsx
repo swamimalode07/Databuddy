@@ -1,7 +1,7 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { IconFlag2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { FlagIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
@@ -105,7 +105,7 @@ export default function FlagsPage() {
 										onClick: handleCreateFlag,
 									}}
 									description="Flags let you roll out features gradually or run A/B tests."
-									icon={<IconFlag2FillDuo18 />}
+									icon={<FlagIcon weight="duotone" />}
 									title="No feature flags yet"
 									variant="minimal"
 								/>

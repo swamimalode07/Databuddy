@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconClockFillDuo18,
-	IconCodeFillDuo18,
-	IconGlobeFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ClockIcon } from "@phosphor-icons/react";
+import { CodeIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
@@ -135,8 +133,9 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 						<Tooltip skipProvider>
 							<TooltipTrigger asChild>
 								<div className="flex max-w-[140px] items-center gap-1.5">
-									<IconCodeFillDuo18
+									<CodeIcon
 										className="size-3.5 shrink-0 text-muted-foreground"
+										weight="duotone"
 									/>
 									<span className="truncate font-mono text-sm">{pathname}</span>
 								</div>
@@ -194,7 +193,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 					if (!(countryCode || countryName)) {
 						return (
 							<div className="flex items-center gap-1.5">
-								<IconGlobeFillDuo18 className="size-4 text-muted-foreground" />
+								<GlobeIcon className="size-4 text-muted-foreground" />
 								<span className="text-muted-foreground text-sm">Unknown</span>
 							</div>
 						);
@@ -226,7 +225,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 						<Tooltip skipProvider>
 							<TooltipTrigger asChild>
 								<div className="flex items-center gap-1.5 text-muted-foreground">
-									<IconClockFillDuo18 className="size-3.5 shrink-0" />
+									<ClockIcon className="size-3.5 shrink-0" weight="duotone" />
 									<span className="whitespace-nowrap text-sm">{relative}</span>
 								</div>
 							</TooltipTrigger>

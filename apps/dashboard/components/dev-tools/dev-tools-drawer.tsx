@@ -1,31 +1,29 @@
 "use client";
 
-import {
-	IconBoltLightningFillDuo18,
-	IconBugFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconChartLine2FillDuo18,
-	IconChevronDownFillDuo18,
-	IconCircleCheckFillDuo18,
-	IconCircleInfoFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconClipboardContentFillDuo18,
-	IconComputerFillDuo18,
-	IconCopyFillDuo18,
-	IconDatabaseFillDuo18,
-	IconFilterFillDuo18,
-	IconGearFillDuo18,
-	IconGrid2FillDuo18,
-	IconLoader2FillDuo18,
-	IconMonitorFillDuo18,
-	IconMoonFillDuo18,
-	IconPresentationScreenChartLineFillDuo18,
-	IconStackYFillDuo18,
-	IconSunFillDuo18,
-	IconTrashFillDuo18,
-	IconUsersFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BugIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { ClipboardIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { DatabaseIcon } from "@phosphor-icons/react";
+import { DesktopIcon } from "@phosphor-icons/react";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { GearIcon } from "@phosphor-icons/react";
+import { InfoIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { MonitorIcon } from "@phosphor-icons/react";
+import { MoonIcon } from "@phosphor-icons/react";
+import { PresentationChartIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
+import { SquaresFourIcon } from "@phosphor-icons/react";
+import { StackIcon } from "@phosphor-icons/react";
+import { SunIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
@@ -69,7 +67,7 @@ function InfoSection({
 	return (
 		<div className="space-y-2">
 			<h3 className="flex items-center gap-2 font-medium text-sm">
-				<IconCircleInfoFillDuo18 className="size-4" />
+				<InfoIcon className="size-4" weight="duotone" />
 				{title}
 			</h3>
 			<div className="rounded border bg-muted/30 p-3 text-xs">{children}</div>
@@ -83,7 +81,7 @@ function ActionButton({
 	onClick,
 	variant = "outline",
 }: {
-	icon: typeof IconBugFillDuo18;
+	icon: typeof BugIcon;
 	label: string;
 	onClick: () => void;
 	variant?: "outline" | "destructive";
@@ -95,7 +93,7 @@ function ActionButton({
 			size="sm"
 			variant={variant}
 		>
-			<Icon className="size-4" />
+			<Icon className="size-4" weight="duotone" />
 			{label}
 		</Button>
 	);
@@ -133,33 +131,33 @@ function ToastPreview() {
 			</p>
 			<div className="flex flex-wrap gap-2">
 				<ActionButton
-					icon={IconCircleCheckFillDuo18}
+					icon={CheckCircleIcon}
 					label="Success"
 					onClick={() => toast.success("Success")}
 				/>
 				<ActionButton
-					icon={IconXmarkFillDuo18}
+					icon={XIcon}
 					label="Error"
 					onClick={() => toast.error("Error")}
 					variant="destructive"
 				/>
 				<ActionButton
-					icon={IconCircleWarningFillDuo18}
+					icon={WarningCircleIcon}
 					label="Warning"
 					onClick={() => toast.warning("Warning")}
 				/>
 				<ActionButton
-					icon={IconCircleInfoFillDuo18}
+					icon={InfoIcon}
 					label="Info"
 					onClick={() => toast.info("Info")}
 				/>
 				<ActionButton
-					icon={IconLoader2FillDuo18}
+					icon={SpinnerIcon}
 					label="Loading"
 					onClick={() => toast.loading("Loading")}
 				/>
 				<ActionButton
-					icon={IconBoltLightningFillDuo18}
+					icon={LightningIcon}
 					label="Default"
 					onClick={() => toast("Default")}
 				/>
@@ -214,12 +212,12 @@ function ReactQueryCache() {
 				</div>
 				<div className="flex flex-wrap gap-2 pt-2">
 					<ActionButton
-						icon={IconTrashFillDuo18}
+						icon={TrashIcon}
 						label="Clear Cache"
 						onClick={handleClearCache}
 					/>
 					<ActionButton
-						icon={IconBoltLightningFillDuo18}
+						icon={LightningIcon}
 						label="Invalidate All"
 						onClick={handleInvalidateAll}
 					/>
@@ -302,13 +300,13 @@ function StorageManagement() {
 				</div>
 				<div className="flex flex-wrap gap-2 pt-2">
 					<ActionButton
-						icon={IconTrashFillDuo18}
+						icon={TrashIcon}
 						label="Clear LocalStorage"
 						onClick={handleClearLocalStorage}
 						variant="destructive"
 					/>
 					<ActionButton
-						icon={IconTrashFillDuo18}
+						icon={TrashIcon}
 						label="Clear SessionStorage"
 						onClick={handleClearSessionStorage}
 						variant="destructive"
@@ -636,7 +634,7 @@ function PerformanceInfo() {
 							Tracked Memory Usage
 						</h4>
 						<Button onClick={openDevToolsMemory} size="sm" variant="ghost">
-							<IconChartBarTrendUpFillDuo18 className="size-3" />
+							<ChartBarIcon className="size-3" weight="duotone" />
 						</Button>
 					</div>
 					<div className="rounded border bg-muted/30 p-2 text-muted-foreground text-xs">
@@ -685,28 +683,28 @@ const THEME_OPTIONS = [
 	{
 		id: "light",
 		name: "Light",
-		icon: IconSunFillDuo18,
+		icon: SunIcon,
 	},
 	{
 		id: "dark",
 		name: "Dark",
-		icon: IconMoonFillDuo18,
+		icon: MoonIcon,
 	},
 	{
 		id: "system",
 		name: "System",
-		icon: IconComputerFillDuo18,
+		icon: DesktopIcon,
 	},
 ] as const;
 
 const CHART_TYPE_OPTIONS: {
 	id: ChartSeriesKind;
 	name: string;
-	icon: typeof IconChartBarTrendUpFillDuo18;
+	icon: typeof ChartBarIcon;
 }[] = [
-	{ id: "bar", name: "Bar", icon: IconChartBarTrendUpFillDuo18 },
-	{ id: "line", name: "Line", icon: IconChartLine2FillDuo18 },
-	{ id: "area", name: "Area", icon: IconStackYFillDuo18 },
+	{ id: "bar", name: "Bar", icon: ChartBarIcon },
+	{ id: "line", name: "Line", icon: ChartLineIcon },
+	{ id: "area", name: "Area", icon: StackIcon },
 ];
 
 const STEP_TYPE_OPTIONS: { id: ChartCurveType; name: string }[] = [
@@ -717,13 +715,13 @@ const STEP_TYPE_OPTIONS: { id: ChartCurveType; name: string }[] = [
 	{ id: "stepAfter", name: "Step After" },
 ];
 
-const LOCATION_ICONS: Record<ChartLocation, typeof IconChartLine2FillDuo18> = {
-	"overview-stats": IconGrid2FillDuo18,
-	"overview-main": IconPresentationScreenChartLineFillDuo18,
-	funnels: IconFilterFillDuo18,
-	retention: IconUsersFillDuo18,
-	"website-list": IconChartLine2FillDuo18,
-	events: IconChartBarTrendUpFillDuo18,
+const LOCATION_ICONS: Record<ChartLocation, typeof ChartLineIcon> = {
+	"overview-stats": SquaresFourIcon,
+	"overview-main": PresentationChartIcon,
+	funnels: FunnelIcon,
+	retention: UsersIcon,
+	"website-list": ChartLineIcon,
+	events: ChartBarIcon,
 };
 
 function AppearanceSettings() {
@@ -752,7 +750,7 @@ function AppearanceSettings() {
 		<div className="space-y-4">
 			<div className="space-y-2">
 				<h3 className="flex items-center gap-2 font-medium text-sm">
-					<IconMonitorFillDuo18 className="size-4" />
+					<MonitorIcon className="size-4" weight="duotone" />
 					Theme
 				</h3>
 				<div className="flex gap-2">
@@ -764,7 +762,7 @@ function AppearanceSettings() {
 							size="sm"
 							variant={currentTheme === id ? "default" : "outline"}
 						>
-							<Icon className="size-4" />
+							<Icon className="size-4" weight="duotone" />
 							{name}
 						</Button>
 					))}
@@ -775,7 +773,7 @@ function AppearanceSettings() {
 
 			<div className="space-y-2">
 				<h3 className="flex items-center gap-2 font-medium text-sm">
-					<IconChartLine2FillDuo18 className="size-4" />
+					<ChartLineIcon className="size-4" weight="duotone" />
 					Charts
 				</h3>
 
@@ -796,7 +794,7 @@ function AppearanceSettings() {
 									{CHART_TYPE_OPTIONS.map(({ id, name, icon: OptIcon }) => (
 										<SelectItem key={id} value={id}>
 											<div className="flex items-center gap-2">
-												<OptIcon className="size-3" />
+												<OptIcon className="size-3" weight="duotone" />
 												{name}
 											</div>
 										</SelectItem>
@@ -836,7 +834,7 @@ function AppearanceSettings() {
 						<span className="text-muted-foreground text-xs">
 							{showGranular ? "Hide per-location" : "Per-location settings"}
 						</span>
-						<IconChevronDownFillDuo18
+						<CaretDownIcon
 							className={cn(
 								"size-3 text-muted-foreground transition-transform",
 								showGranular ? "rotate-180" : ""
@@ -862,6 +860,7 @@ function AppearanceSettings() {
 										<div className="flex items-center gap-2">
 											<Icon
 												className="size-3 shrink-0 text-muted-foreground"
+												weight="duotone"
 											/>
 											<span className="truncate">
 												{CHART_LOCATION_LABELS[location]}
@@ -890,6 +889,7 @@ function AppearanceSettings() {
 																<div className="flex items-center gap-2">
 																	<OptIcon
 																		className="size-3"
+																		weight="duotone"
 																	/>
 																	{name}
 																</div>
@@ -967,27 +967,27 @@ function QuickActions() {
 	return (
 		<div className="space-y-2">
 			<h3 className="flex items-center gap-2 font-medium text-sm">
-				<IconBoltLightningFillDuo18 className="size-4" />
+				<LightningIcon className="size-4" weight="duotone" />
 				Quick Actions
 			</h3>
 			<div className="flex flex-wrap gap-2">
 				<ActionButton
-					icon={IconCopyFillDuo18}
+					icon={CopyIcon}
 					label="Copy URL"
 					onClick={handleCopyUrl}
 				/>
 				<ActionButton
-					icon={IconClipboardContentFillDuo18}
+					icon={ClipboardIcon}
 					label="Copy State"
 					onClick={handleCopyState}
 				/>
 				<ActionButton
-					icon={IconDatabaseFillDuo18}
+					icon={DatabaseIcon}
 					label="Clear Console"
 					onClick={handleClearConsole}
 				/>
 				<ActionButton
-					icon={IconCircleCheckFillDuo18}
+					icon={CheckCircleIcon}
 					label="Reload"
 					onClick={handleReload}
 				/>
@@ -1036,7 +1036,7 @@ export function DevToolsDrawer() {
 				size="icon"
 				variant="outline"
 			>
-				<IconBugFillDuo18 className="size-5" />
+				<BugIcon className="size-5" weight="duotone" />
 			</Button>
 
 			<Drawer onOpenChange={setOpen} open={open}>
@@ -1044,12 +1044,12 @@ export function DevToolsDrawer() {
 					<DrawerHeader className="border-b">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-2">
-								<IconGearFillDuo18 className="size-5" />
+								<GearIcon className="size-5" weight="duotone" />
 								<DrawerTitle>Dev Tools</DrawerTitle>
 							</div>
 							<DrawerClose asChild>
 								<Button size="icon" variant="ghost">
-									<IconXmarkFillDuo18 className="size-4" />
+									<XIcon className="size-4" />
 								</Button>
 							</DrawerClose>
 						</div>

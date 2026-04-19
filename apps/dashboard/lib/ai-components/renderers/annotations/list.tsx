@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	IconCalendarFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconNoteFillDuo18,
-	IconPencilFillDuo18,
-	IconPlusFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CalendarIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { NoteIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -80,9 +78,10 @@ function AnnotationRow({
 						: "var(--accent)",
 				}}
 			>
-				<IconNoteFillDuo18
+				<NoteIcon
 					className="size-3.5"
 					style={{ color: annotation.color ?? "var(--muted-foreground)" }}
+					weight="duotone"
 				/>
 			</div>
 
@@ -91,7 +90,7 @@ function AnnotationRow({
 				<div className="mt-1.5 flex flex-wrap items-center gap-2">
 					<AnnotationTypeLabel type={annotation.annotationType} />
 					<span className="flex items-center gap-1 text-muted-foreground text-xs">
-						<IconCalendarFillDuo18 className="size-3" />
+						<CalendarIcon className="size-3" weight="duotone" />
 						{dateDisplay}
 					</span>
 					{Array.isArray(annotation.tags) && annotation.tags.length > 0 && (
@@ -136,12 +135,12 @@ function AnnotationRow({
 							size="icon"
 							variant="ghost"
 						>
-							<IconDotsVerticalFillDuo18 className="size-4" />
+							<DotsThreeIcon className="size-4" weight="bold" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-40">
 						<DropdownMenuItem className="gap-2" onClick={onEdit}>
-							<IconPencilFillDuo18 className="size-4" />
+							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Edit
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
@@ -150,7 +149,7 @@ function AnnotationRow({
 							onClick={onDelete}
 							variant="destructive"
 						>
-							<IconTrashFillDuo18 className="size-4" />
+							<TrashIcon className="size-4" weight="duotone" />
 							Delete
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -181,15 +180,16 @@ export function AnnotationsListRenderer({
 				className={className ?? "gap-0 overflow-hidden border bg-card py-0"}
 			>
 				<div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-					<IconNoteFillDuo18
+					<NoteIcon
 						className="size-8 text-muted-foreground/40"
+						weight="duotone"
 					/>
 					<p className="font-medium text-sm">No annotations found</p>
 					<p className="text-muted-foreground text-xs">
 						Add annotations to mark important events on charts
 					</p>
 					<Button className="mt-2" size="sm" variant="outline">
-						<IconPlusFillDuo18 className="size-4" />
+						<PlusIcon className="size-4" />
 						Create Annotation
 					</Button>
 				</div>

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Checkbox as BaseCheckbox } from "@base-ui-components/react/checkbox";
-import { IconCheckOutline24 } from "nucleo-core-outline-24";
+import { Check } from "@phosphor-icons/react/dist/ssr";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type CheckboxProps = ComponentPropsWithoutRef<typeof BaseCheckbox.Root> & {
@@ -30,7 +30,7 @@ export function Checkbox({
 			{...rest}
 		>
 			<BaseCheckbox.Indicator className="flex items-center justify-center text-current">
-				<IconCheckOutline24 className="size-3" />
+				<Check className="size-3" />
 			</BaseCheckbox.Indicator>
 		</BaseCheckbox.Root>
 	);

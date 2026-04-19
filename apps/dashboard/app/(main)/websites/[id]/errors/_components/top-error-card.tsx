@@ -1,8 +1,6 @@
-import {
-	IconBugFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BugIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import type { ErrorType } from "./types";
 
@@ -16,8 +14,9 @@ export const TopErrorCard = ({ topError }: TopErrorCardProps) => {
 			<div className="flex flex-1 flex-col rounded border bg-card">
 				<div className="flex items-center gap-3 border-b px-3 py-2.5 sm:px-4 sm:py-3">
 					<div className="flex size-8 items-center justify-center rounded bg-accent">
-						<IconBugFillDuo18
+						<BugIcon
 							className="size-4 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<div className="min-w-0 flex-1">
@@ -40,7 +39,7 @@ export const TopErrorCard = ({ topError }: TopErrorCardProps) => {
 		<div className="flex flex-1 flex-col rounded border bg-card">
 			<div className="flex items-center gap-3 border-b px-3 py-2.5 sm:px-4 sm:py-3">
 				<div className="flex size-8 items-center justify-center rounded bg-destructive/10">
-					<IconBugFillDuo18 className="size-4 text-destructive" />
+					<BugIcon className="size-4 text-destructive" weight="duotone" />
 				</div>
 				<div className="min-w-0 flex-1">
 					<h3 className="font-semibold text-foreground text-sm">
@@ -69,8 +68,9 @@ export const TopErrorCard = ({ topError }: TopErrorCardProps) => {
 
 			<div className="grid grid-cols-2 gap-2 border-t bg-accent/30 p-3">
 				<div className="flex items-center gap-2 rounded border bg-card p-2">
-					<IconCircleWarningFillDuo18
+					<WarningCircleIcon
 						className="size-4 shrink-0 text-destructive"
+						weight="duotone"
 					/>
 					<div className="min-w-0">
 						<div className="font-semibold text-foreground text-sm tabular-nums">
@@ -80,8 +80,9 @@ export const TopErrorCard = ({ topError }: TopErrorCardProps) => {
 					</div>
 				</div>
 				<div className="flex items-center gap-2 rounded border bg-card p-2">
-					<IconUsersFillDuo18
+					<UsersIcon
 						className="size-4 shrink-0 text-chart-2"
+						weight="duotone"
 					/>
 					<div className="min-w-0">
 						<div className="font-semibold text-foreground text-sm tabular-nums">

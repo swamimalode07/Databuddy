@@ -1,6 +1,6 @@
 "use client";
 
-import { IconLoader2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -111,8 +111,9 @@ export function FormDialog({
 				type="submit"
 			>
 				{isSubmitting && (
-					<IconLoader2FillDuo18
+					<CircleNotchIcon
 						className="mr-2 size-4 animate-spin"
+						weight="duotone"
 					/>
 				)}
 				{submitLabel}

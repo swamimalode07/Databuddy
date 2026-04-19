@@ -1,6 +1,6 @@
 "use client";
 
-import { IconChartLine2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ChartLineIcon } from "@phosphor-icons/react";
 import { Chart } from "@/components/ui/composables/chart";
 import dayjs from "@/lib/dayjs";
 
@@ -29,7 +29,7 @@ export function ClicksChart({
 			>
 				<div className="flex flex-col items-center py-12 text-center">
 					<div className="relative flex size-12 items-center justify-center rounded bg-accent">
-						<IconChartLine2FillDuo18 className="size-6" />
+						<ChartLineIcon className="size-6" weight="duotone" />
 					</div>
 					<p className="mt-6 text-balance font-medium text-foreground text-lg">
 						No click data available

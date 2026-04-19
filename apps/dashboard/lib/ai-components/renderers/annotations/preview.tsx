@@ -1,14 +1,13 @@
 "use client";
 
-import {
-	IconCalendarFillDuo18,
-	IconCheckFillDuo18,
-	IconLoader2FillDuo18,
-	IconNoteFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
-import type {  useState, FC, SVGProps } from "react";
+import type { Icon } from "@phosphor-icons/react";
+import { CalendarIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { NoteIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,7 +32,7 @@ export interface AnnotationPreviewProps extends BaseComponentProps {
 
 interface ModeConfig {
 	accent: string;
-	ButtonIcon: FC<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
 	title: string;
@@ -47,7 +46,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, create it",
 		accent: "",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	update: {
 		title: "Update Annotation",
@@ -55,7 +54,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
 		variant: "default",
-		ButtonIcon: IconCheckFillDuo18,
+		ButtonIcon: CheckIcon,
 	},
 	delete: {
 		title: "Delete Annotation",
@@ -63,7 +62,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
 		variant: "destructive",
-		ButtonIcon: IconTrashFillDuo18,
+		ButtonIcon: TrashIcon,
 	},
 };
 
@@ -119,9 +118,10 @@ export function AnnotationPreviewRenderer({
 							: "var(--accent)",
 					}}
 				>
-					<IconNoteFillDuo18
+					<NoteIcon
 						className="size-3.5"
 						style={{ color: annotation.color ?? "var(--muted-foreground)" }}
+						weight="duotone"
 					/>
 				</div>
 				<p className="font-medium text-sm">{config.title}</p>
@@ -137,8 +137,9 @@ export function AnnotationPreviewRenderer({
 					<div>
 						<p className="mb-1 text-muted-foreground text-xs">Date</p>
 						<div className="flex items-center gap-2">
-							<IconCalendarFillDuo18
+							<CalendarIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 							<span className="text-sm">{dateDisplay}</span>
 						</div>
@@ -182,7 +183,7 @@ export function AnnotationPreviewRenderer({
 					size="sm"
 					variant="ghost"
 				>
-					<IconPencilFillDuo18 className="size-3.5" />
+					<PencilSimpleIcon className="size-3.5" />
 					Edit
 				</Button>
 				<Button
@@ -192,9 +193,9 @@ export function AnnotationPreviewRenderer({
 					variant={config.variant}
 				>
 					{isConfirming ? (
-						<IconLoader2FillDuo18 className="size-3.5 animate-spin" />
+						<CircleNotchIcon className="size-3.5 animate-spin" />
 					) : (
-						<config.ButtonIcon className="size-3.5" />
+						<config.ButtonIcon className="size-3.5" weight="bold" />
 					)}
 					{config.confirmLabel}
 				</Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { LocationData } from "@databuddy/shared/types/website";
-import { IconGlobeFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { GlobeIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { CountryFlag } from "@/components/icon";
@@ -86,8 +86,9 @@ export function MiniMapRenderer({ title, countries, className }: MiniMapProps) {
 					</div>
 				)}
 				<div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-					<IconGlobeFillDuo18
+					<GlobeIcon
 						className="size-8 text-muted-foreground/40"
+						weight="duotone"
 					/>
 					<p className="font-medium text-sm">No location data</p>
 					<p className="text-muted-foreground text-xs">
@@ -168,8 +169,9 @@ export function MiniMapRenderer({ title, countries, className }: MiniMapProps) {
 						</div>
 					) : (
 						<div className="flex flex-col items-center justify-center bg-accent p-3 text-center">
-							<IconGlobeFillDuo18
+							<GlobeIcon
 								className="size-5 text-muted-foreground/30"
+								weight="duotone"
 							/>
 							<p className="mt-1 text-[10px] text-muted-foreground">
 								No location data

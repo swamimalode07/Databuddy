@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconCircleWarningFillDuo18,
-	IconGlobeFillDuo18,
-	IconTargetFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { GlobeIcon } from "@phosphor-icons/react";
+import { TargetIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useMemo, useRef, useState } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,18 +56,19 @@ function SourceCard({
 							isSelected ? "text-chart-2" : "text-muted-foreground"
 						)}
 					>
-						<IconGlobeFillDuo18 className="size-5" />
+						<GlobeIcon className="size-5" weight="duotone" />
 					</div>
 				) : (
 					<FaviconImage
 						className="shrink-0"
 						domain={domain || ""}
 						fallbackIcon={
-							<IconGlobeFillDuo18
+							<GlobeIcon
 								className={cn(
 									"size-5",
 									isSelected ? "text-chart-2" : "text-muted-foreground"
 								)}
+								weight="duotone"
 							/>
 						}
 						size={20}
@@ -87,7 +86,7 @@ function SourceCard({
 
 			<div className="flex items-center justify-between gap-2">
 				<div className="flex items-center gap-1 text-muted-foreground text-xs">
-					<IconUsersFillDuo18 className="size-3" />
+					<UsersIcon className="size-3" weight="fill" />
 					<span className="tabular-nums">{users.toLocaleString()}</span>
 				</div>
 				{conversionRate !== undefined && (
@@ -97,7 +96,7 @@ function SourceCard({
 							isSelected ? "text-chart-2" : "text-success"
 						)}
 					>
-						<IconTargetFillDuo18 className="size-3" />
+						<TargetIcon className="size-3" weight="fill" />
 						<span className="tabular-nums">{conversionRate.toFixed(0)}%</span>
 					</div>
 				)}
@@ -258,7 +257,7 @@ export function FunnelAnalyticsByReferrer({
 	if (error) {
 		return (
 			<div className="flex items-center gap-2 rounded border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm">
-				<IconCircleWarningFillDuo18 className="size-4 text-destructive" />
+				<WarningCircleIcon className="size-4 text-destructive" weight="fill" />
 				<span className="text-destructive">Failed to load traffic sources</span>
 			</div>
 		);

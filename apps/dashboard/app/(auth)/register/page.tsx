@@ -2,14 +2,13 @@
 
 import { authClient } from "@databuddy/auth/client";
 import { track } from "@databuddy/sdk";
-import {
-	IconChevronLeftFillDuo18,
-	IconCircleInfoFillDuo18,
-	IconEyeFillDuo18,
-	IconEyeSlashFillDuo18,
-	IconLoader2FillDuo18,
-} from "nucleo-ui-fill-duo-18";
-import { IconGithubLogo as IconGithubLogo, IconGoogleLogo as IconGoogleLogo } from "@/components/icons/brand-icons";
+import { CaretLeftIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react";
+import { EyeSlashIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon } from "@phosphor-icons/react";
+import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { InfoIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -225,7 +224,7 @@ function RegisterPageContent() {
 				>
 					{isLoading ? (
 						<>
-							<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+							<SpinnerIcon className="mr-2 size-4 animate-spin" />
 							Sending...
 						</>
 					) : (
@@ -243,7 +242,7 @@ function RegisterPageContent() {
 					size="lg"
 					variant="ghost"
 				>
-					<IconChevronLeftFillDuo18 className="size-3" />
+					<CaretLeftIcon className="size-3" weight="bold" />
 					<span className="hidden sm:inline">Back to registration</span>
 					<span className="sm:hidden">Back</span>
 				</Button>
@@ -274,7 +273,7 @@ function RegisterPageContent() {
 					type="button"
 					variant="outline"
 				>
-					<IconGithubLogo className="size-4" />
+					<GithubLogoIcon className="size-4" />
 					Sign up with GitHub
 				</Button>
 
@@ -285,7 +284,7 @@ function RegisterPageContent() {
 					type="button"
 					variant="outline"
 				>
-					<IconGoogleLogo className="size-4" />
+					<GoogleLogoIcon className="size-4" />
 					Sign up with Google
 				</Button>
 			</div>
@@ -344,7 +343,7 @@ function RegisterPageContent() {
 							<TooltipProvider>
 								<Tooltip>
 									<TooltipTrigger asChild>
-										<IconCircleInfoFillDuo18 className="size-4 text-muted-foreground" />
+										<InfoIcon className="size-4 text-muted-foreground" />
 									</TooltipTrigger>
 									<TooltipContent>
 										<p>Password must be at</p>
@@ -375,9 +374,9 @@ function RegisterPageContent() {
 								variant="ghost"
 							>
 								{showPassword ? (
-									<IconEyeSlashFillDuo18 className="size-4" />
+									<EyeSlashIcon className="size-4" />
 								) : (
-									<IconEyeFillDuo18 className="size-4" />
+									<EyeIcon className="size-4" />
 								)}
 							</Button>
 						</div>
@@ -414,9 +413,9 @@ function RegisterPageContent() {
 								variant="ghost"
 							>
 								{showConfirmPassword ? (
-									<IconEyeSlashFillDuo18 className="size-4" />
+									<EyeSlashIcon className="size-4" />
 								) : (
-									<IconEyeFillDuo18 className="size-4" />
+									<EyeIcon className="size-4" />
 								)}
 							</Button>
 						</div>
@@ -495,7 +494,7 @@ function RegisterPageContent() {
 				>
 					{isLoading ? (
 						<>
-							<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+							<SpinnerIcon className="mr-2 size-4 animate-spin" />
 							<span className="hidden sm:inline">Creating account...</span>
 							<span className="sm:hidden">Creating...</span>
 						</>
@@ -556,7 +555,7 @@ export default function RegisterPage() {
 				<div className="flex h-dvh items-center justify-center bg-background">
 					<div className="relative">
 						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<IconLoader2FillDuo18 className="relative size-8 animate-spin text-primary" />
+						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
 					</div>
 				</div>
 			}

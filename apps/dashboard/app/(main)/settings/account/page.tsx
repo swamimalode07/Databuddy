@@ -1,16 +1,16 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconKeyFillDuo18,
-	IconLink5FillDuo18,
-	IconLink5SlashFillDuo18,
-	IconLoader2FillDuo18,
-	IconShieldCheckFillDuo18,
-} from "nucleo-ui-fill-duo-18";
-import { IconGithubLogo as IconGithubLogo, IconGoogleLogo as IconGoogleLogo } from "@/components/icons/brand-icons";
+import type { Icon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon } from "@phosphor-icons/react";
+import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { KeyIcon } from "@phosphor-icons/react";
+import { LinkBreakIcon } from "@phosphor-icons/react";
+import { LinkIcon } from "@phosphor-icons/react";
+import { ShieldCheckIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type {  useEffect, useState, FC, SVGProps } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,10 +43,10 @@ type SocialProvider = "google" | "github";
 
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github"];
 
-const PROVIDER_CONFIG: Record<string, { icon: FC<SVGProps<SVGSVGElement> & { size?: number | string }>; name: string }> = {
-	google: { icon: IconGoogleLogo, name: "Google" },
-	github: { icon: IconGithubLogo, name: "GitHub" },
-	credential: { icon: IconKeyFillDuo18, name: "Password" },
+const PROVIDER_CONFIG: Record<string, { icon: Icon; name: string }> = {
+	google: { icon: GoogleLogoIcon, name: "Google" },
+	github: { icon: GithubLogoIcon, name: "GitHub" },
+	credential: { icon: KeyIcon, name: "Password" },
 };
 
 function getInitials(name: string): string {
@@ -150,7 +150,7 @@ function ChangePasswordDialog({
 						onClick={() => changePasswordMutation.mutate()}
 					>
 						{changePasswordMutation.isPending && (
-							<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+							<CircleNotchIcon className="mr-2 size-4 animate-spin" />
 						)}
 						Change Password
 					</Button>
@@ -368,7 +368,7 @@ export default function AccountSettingsPage() {
 										size="sm"
 										variant="outline"
 									>
-										<IconShieldCheckFillDuo18 className="mr-2 size-4" />
+										<ShieldCheckIcon className="mr-2 size-4" />
 										{user?.twoFactorEnabled ? "Manage" : "Enable"}
 									</Button>
 								</div>
@@ -386,7 +386,7 @@ export default function AccountSettingsPage() {
 											size="sm"
 											variant="outline"
 										>
-											<IconKeyFillDuo18 className="mr-2 size-4" />
+											<KeyIcon className="mr-2 size-4" />
 											Change
 										</Button>
 									</div>
@@ -427,7 +427,7 @@ export default function AccountSettingsPage() {
 													key={provider}
 												>
 													<div className="flex items-center gap-3">
-														<ProviderIcon className="size-5" />
+														<ProviderIcon className="size-5" weight="duotone" />
 														<span className="font-medium text-sm">
 															{config.name}
 														</span>
@@ -446,7 +446,7 @@ export default function AccountSettingsPage() {
 																}
 																variant="ghost"
 															>
-																<IconLink5SlashFillDuo18 className="size-4" />
+																<LinkBreakIcon className="size-4" />
 															</Button>
 															<Badge variant="green">Connected</Badge>
 														</div>
@@ -458,9 +458,9 @@ export default function AccountSettingsPage() {
 															variant="outline"
 														>
 															{linkSocial.isPending ? (
-																<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+																<CircleNotchIcon className="mr-2 size-4 animate-spin" />
 															) : (
-																<IconLink5FillDuo18 className="mr-2 size-4" />
+																<LinkIcon className="mr-2 size-4" />
 															)}
 															Connect
 														</Button>
@@ -472,7 +472,7 @@ export default function AccountSettingsPage() {
 										{hasCredentialAccount && (
 											<div className="flex items-center justify-between py-2">
 												<div className="flex items-center gap-3">
-													<IconKeyFillDuo18 className="size-5" />
+													<KeyIcon className="size-5" weight="duotone" />
 													<span className="font-medium text-sm">Password</span>
 												</div>
 												<Badge variant="green">Connected</Badge>
@@ -543,10 +543,10 @@ export default function AccountSettingsPage() {
 						<div className="space-y-2">
 							{accounts.map((account) => {
 								const config = PROVIDER_CONFIG[account.providerId];
-								const ProviderIcon = config?.icon ?? IconKeyFillDuo18;
+								const ProviderIcon = config?.icon ?? KeyIcon;
 								return (
 									<div className="flex items-center gap-2" key={account.id}>
-										<ProviderIcon className="size-4" />
+										<ProviderIcon className="size-4" weight="duotone" />
 										<span className="flex-1 text-sm">
 											{config?.name ?? account.providerId}
 										</span>

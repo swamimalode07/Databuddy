@@ -1,15 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import type { Icon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconArrowLeftFillDuo18 } from "nucleo-ui-fill-duo-18";
-import type { FC, SVGProps } from "react";
+import { cn } from "@/lib/utils";
 
 interface TabItem {
 	count?: number;
 	href: string;
-	icon?: FC<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon?: Icon;
 	id: string;
 	label: string;
 }
@@ -52,7 +52,7 @@ export function PageNavigation(props: PageNavigationProps) {
 					href={props.breadcrumb.href}
 				>
 					<span className="inline-flex transition-transform duration-200 group-hover:-translate-x-0.5">
-						<IconArrowLeftFillDuo18 className="size-3.5" />
+						<ArrowLeftIcon className="size-3.5" weight="bold" />
 					</span>
 					<span>{props.breadcrumb.label}</span>
 				</Link>
@@ -93,6 +93,7 @@ export function PageNavigation(props: PageNavigationProps) {
 										"size-4 transition-colors",
 										isActive && "text-primary"
 									)}
+									weight={isActive ? "fill" : "duotone"}
 								/>
 							</span>
 						)}

@@ -1,38 +1,38 @@
 "use client";
 
 import {
-	IconArrowRightFillDuo18,
-	IconBoltLightningFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconHandPointerFillDuo18,
-	IconRocketFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+	ArrowRightIcon,
+	ChartLineUpIcon,
+	CursorClickIcon,
+	LightningIcon,
+	RocketLaunchIcon,
+	UsersIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const FEATURES = [
 	{
-		icon: IconChartBarTrendUpFillDuo18,
+		icon: ChartLineUpIcon,
 		title: "Analytics Overview",
 		description:
 			"Pageviews, visitors, bounce rate, and session duration at a glance.",
 		tab: "",
 	},
 	{
-		icon: IconUsersFillDuo18,
+		icon: UsersIcon,
 		title: "Live Visitors",
 		description: "See who's on your site right now with real-time data.",
 		tab: "?tab=realtime",
 	},
 	{
-		icon: IconHandPointerFillDuo18,
+		icon: CursorClickIcon,
 		title: "Custom Events",
 		description: "Track button clicks, form submissions, and any user action.",
 		tab: "/events",
 	},
 	{
-		icon: IconBoltLightningFillDuo18,
+		icon: LightningIcon,
 		title: "Web Vitals",
 		description: "Monitor Core Web Vitals and page load performance.",
 		tab: "/vitals",
@@ -49,7 +49,7 @@ export function StepExplore({ onComplete, websiteId }: StepExploreProps) {
 		<div className="space-y-6">
 			<div className="flex items-center gap-3">
 				<div className="flex size-10 items-center justify-center rounded bg-primary/10">
-					<IconRocketFillDuo18 className="size-5 text-primary" />
+					<RocketLaunchIcon className="size-5 text-primary" weight="duotone" />
 				</div>
 				<div>
 					<h2 className="text-balance font-semibold text-lg">You're all set</h2>
@@ -69,6 +69,7 @@ export function StepExplore({ onComplete, websiteId }: StepExploreProps) {
 						<div className="flex size-8 shrink-0 items-center justify-center rounded bg-accent">
 							<feature.icon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 						</div>
 						<div className="min-w-0 flex-1">
@@ -77,7 +78,7 @@ export function StepExplore({ onComplete, websiteId }: StepExploreProps) {
 								{feature.description}
 							</p>
 						</div>
-						<IconArrowRightFillDuo18 className="mt-0.5 size-3.5 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100" />
+						<ArrowRightIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100" />
 					</Link>
 				))}
 			</div>

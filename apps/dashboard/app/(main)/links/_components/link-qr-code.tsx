@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconCopyFillDuo18,
-	IconDownloadFillDuo18,
-	IconImageFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CopyIcon } from "@phosphor-icons/react";
+import { DownloadSimpleIcon } from "@phosphor-icons/react";
+import { ImageIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useCallback, useRef, useState } from "react";
 import { QRCode } from "react-qrcode-logo";
 import { toast } from "sonner";
@@ -156,11 +154,11 @@ export function LinkQrCode({
 				<>
 					<div className="flex justify-center gap-2">
 						<Button onClick={copyQrCode} size="sm" variant="outline">
-							<IconCopyFillDuo18 size={16} />
+							<CopyIcon size={16} weight="duotone" />
 							Copy
 						</Button>
 						<Button onClick={downloadQrCode} size="sm">
-							<IconDownloadFillDuo18 size={16} />
+							<DownloadSimpleIcon size={16} weight="bold" />
 							Download PNG
 						</Button>
 					</div>
@@ -293,7 +291,7 @@ export function LinkQrCode({
 									size="sm"
 									variant="ghost"
 								>
-									<IconXmarkFillDuo18 aria-hidden="true" size={16} />
+									<XIcon aria-hidden="true" size={16} />
 								</Button>
 							</div>
 						) : (
@@ -303,7 +301,7 @@ export function LinkQrCode({
 								onClick={() => fileInputRef.current?.click()}
 								type="button"
 							>
-								<IconImageFillDuo18 aria-hidden="true" size={20} />
+								<ImageIcon aria-hidden="true" size={20} weight="duotone" />
 								<span className="text-sm">Upload logo</span>
 							</button>
 						)}

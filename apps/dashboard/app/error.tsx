@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	IconArrowLeftFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconCommandFillDuo18,
-	IconHouse4FillDuo18,
-	IconMagnifierFillDuo18,
-	IconRefreshFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { CommandIcon } from "@phosphor-icons/react";
+import { HouseIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,7 +34,7 @@ const ALL_NAVIGATION: NavigationSection[] = [
 ];
 
 interface SearchItem {
-	icon: typeof IconMagnifierFillDuo18;
+	icon: typeof MagnifyingGlassIcon;
 	name: string;
 	path: string;
 }
@@ -48,7 +46,7 @@ function toSearchItem(item: NavigationItem): SearchItem | null {
 	return {
 		name: item.name,
 		path: item.href,
-		icon: item.icon || IconMagnifierFillDuo18,
+		icon: item.icon || MagnifyingGlassIcon,
 	};
 }
 
@@ -108,8 +106,9 @@ export default function GlobalError({
 					aria-hidden="true"
 					className="flex size-12 items-center justify-center rounded bg-destructive/10"
 				>
-					<IconCircleWarningFillDuo18
+					<WarningCircleIcon
 						className="size-6 text-destructive"
+						weight="duotone"
 					/>
 				</div>
 
@@ -134,7 +133,7 @@ export default function GlobalError({
 					onClick={() => reset()}
 					variant="default"
 				>
-					<IconRefreshFillDuo18 className="mr-2 size-4" />
+					<ArrowClockwiseIcon className="mr-2 size-4" weight="duotone" />
 					Try Again
 				</Button>
 
@@ -143,10 +142,10 @@ export default function GlobalError({
 					onClick={() => setOpen(true)}
 					variant="outline"
 				>
-					<IconMagnifierFillDuo18 className="mr-2 size-4" />
+					<MagnifyingGlassIcon className="mr-2 size-4" weight="duotone" />
 					Search pages, settings...
 					<kbd className="ml-auto hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-						<IconCommandFillDuo18 className="size-3" />
+						<CommandIcon className="size-3" weight="bold" />
 						<span>K</span>
 					</kbd>
 				</Button>
@@ -158,13 +157,13 @@ export default function GlobalError({
 							onClick={() => router.back()}
 							variant="outline"
 						>
-							<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+							<ArrowLeftIcon className="mr-2 size-4" weight="duotone" />
 							Go Back
 						</Button>
 					)}
 					<Button asChild className="flex-1" variant="outline">
 						<Link href="/">
-							<IconHouse4FillDuo18 className="mr-2 size-4" />
+							<HouseIcon className="mr-2 size-4" weight="duotone" />
 							Home
 						</Link>
 					</Button>
@@ -191,8 +190,9 @@ export default function GlobalError({
 					>
 						<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
 							<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
-								<IconMagnifierFillDuo18
+								<MagnifyingGlassIcon
 									className="size-4 text-muted-foreground"
+									weight="duotone"
 								/>
 							</div>
 							<CommandPrimitive.Input
@@ -202,15 +202,16 @@ export default function GlobalError({
 								value={search}
 							/>
 							<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-								<IconCommandFillDuo18 className="size-3" />
+								<CommandIcon className="size-3" weight="bold" />
 								<span>K</span>
 							</kbd>
 						</div>
 
 						<CommandPrimitive.List className="max-h-80 scroll-py-2 overflow-y-auto p-2">
 							<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-								<IconMagnifierFillDuo18
+								<MagnifyingGlassIcon
 									className="size-8 text-muted-foreground/50"
+									weight="duotone"
 								/>
 								<div>
 									<p className="font-medium text-muted-foreground text-sm">
@@ -236,6 +237,7 @@ export default function GlobalError({
 										<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent group-data-[selected=true]:bg-background">
 											<ItemIcon
 												className="size-4 text-muted-foreground"
+												weight="duotone"
 											/>
 										</div>
 										<div className="min-w-0 flex-1">

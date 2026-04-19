@@ -1,5 +1,6 @@
 "use client";
 
+import type { IconProps } from "@phosphor-icons/react";
 import { cloneElement, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ interface PageHeaderProps {
 	className?: string;
 	count?: number;
 	description: string;
-	icon: React.ReactElement<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon: React.ReactElement<IconProps>;
 	right?: React.ReactNode;
 	title: string;
 }

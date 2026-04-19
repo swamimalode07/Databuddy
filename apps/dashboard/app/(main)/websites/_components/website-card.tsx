@@ -3,19 +3,17 @@ import type {
 	ProcessedMiniChartData,
 	Website,
 } from "@databuddy/shared/types/website";
-import {
-	IconArrowTrendDownFillDuo18,
-	IconArrowTrendUpFillDuo18,
-	IconArrowsOppositeDirectionXFillDuo18,
-	IconCodeFillDuo18,
-	IconCopyFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconEyeFillDuo18,
-	IconGearFillDuo18,
-	IconMinusFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { ArrowsLeftRightIcon } from "@phosphor-icons/react";
+import { CodeIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react";
+import { GearIcon } from "@phosphor-icons/react";
+import { MinusIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { TrendDownIcon } from "@phosphor-icons/react";
+import { TrendUpIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,9 +64,10 @@ function TrendStat({
 	if (trend?.type === "up") {
 		return (
 			<div className={className}>
-				<IconArrowTrendUpFillDuo18
+				<TrendUpIcon
 					aria-hidden="true"
 					className="size-4 text-success"
+					weight="fill"
 				/>
 				<span className="text-success">+{trend.value.toFixed(0)}%</span>
 			</div>
@@ -77,9 +76,10 @@ function TrendStat({
 	if (trend?.type === "down") {
 		return (
 			<div className={className}>
-				<IconArrowTrendDownFillDuo18
+				<TrendDownIcon
 					aria-hidden
 					className="size-4 text-destructive"
+					weight="fill"
 				/>
 				<span className="text-destructive">-{trend.value.toFixed(0)}%</span>
 			</div>
@@ -87,7 +87,7 @@ function TrendStat({
 	}
 	return (
 		<div className={className}>
-			<IconMinusFillDuo18 aria-hidden className="size-4 text-muted-foreground" />
+			<MinusIcon aria-hidden className="size-4 text-muted-foreground" />
 			<span className="text-muted-foreground">0%</span>
 		</div>
 	);
@@ -199,8 +199,9 @@ export const WebsiteCard = memo(
 											) : (
 												<div className="flex h-28 flex-col items-center justify-center gap-2 px-4 text-center">
 													<div className="flex size-8 items-center justify-center rounded bg-amber-500/10">
-														<IconCodeFillDuo18
+														<CodeIcon
 															className="size-4 text-amber-500"
+															weight="duotone"
 														/>
 													</div>
 													<div className="space-y-0.5">
@@ -238,8 +239,9 @@ export const WebsiteCard = memo(
 												</div>
 												<div className="flex shrink-0 flex-col items-end space-y-0.5">
 													<span className="flex items-center gap-1 font-semibold text-foreground text-xs tabular-nums">
-														<IconEyeFillDuo18
+														<EyeIcon
 															className="size-4 shrink-0 text-muted-foreground"
+															weight="duotone"
 														/>
 														{chartData
 															? formatNumber(chartData.totalViews)
@@ -262,21 +264,21 @@ export const WebsiteCard = memo(
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleOpen}
 						>
-							<IconEyeFillDuo18 className="size-4" />
+							<EyeIcon className="size-4" weight="duotone" />
 							Open
 						</ContextMenuItem>
 						<ContextMenuItem
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleOpenNewTab}
 						>
-							<IconExternalLinkFillDuo18 className="size-4" />
+							<ArrowSquareOutIcon className="size-4" weight="duotone" />
 							Open in new tab
 						</ContextMenuItem>
 						<ContextMenuItem
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleCopyLink}
 						>
-							<IconCopyFillDuo18 className="size-4" />
+							<CopyIcon className="size-4" weight="duotone" />
 							Copy link
 						</ContextMenuItem>
 						<ContextMenuSeparator className="my-0" />
@@ -284,21 +286,21 @@ export const WebsiteCard = memo(
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleEdit}
 						>
-							<IconPencilFillDuo18 className="size-4" />
+							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Edit
 						</ContextMenuItem>
 						<ContextMenuItem
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleSettings}
 						>
-							<IconGearFillDuo18 className="size-4" />
+							<GearIcon className="size-4" weight="duotone" />
 							Settings
 						</ContextMenuItem>
 						<ContextMenuItem
 							className="w-full rounded-none px-3 py-2"
 							onSelect={handleTransfer}
 						>
-							<IconArrowsOppositeDirectionXFillDuo18 className="size-4" />
+							<ArrowsLeftRightIcon className="size-4" weight="duotone" />
 							Transfer…
 						</ContextMenuItem>
 						<ContextMenuSeparator className="my-0" />
@@ -307,7 +309,7 @@ export const WebsiteCard = memo(
 							onSelect={handleDelete}
 							variant="destructive"
 						>
-							<IconTrashFillDuo18 className="size-4" />
+							<TrashIcon className="size-4" weight="duotone" />
 							Delete
 						</ContextMenuItem>
 					</ContextMenuContent>

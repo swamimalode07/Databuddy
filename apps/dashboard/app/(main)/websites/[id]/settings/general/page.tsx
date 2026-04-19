@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	IconCheckFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconClipboardContentFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconGearFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { ClipboardIcon } from "@phosphor-icons/react";
+import { GearIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -76,7 +74,7 @@ export default function GeneralSettingsPage() {
 		<div className="flex h-full flex-col">
 			<PageHeader
 				description="Name, domain, and transfer"
-				icon={<IconGearFillDuo18 />}
+				icon={<GearIcon />}
 				title="General"
 			/>
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-none">
@@ -91,12 +89,12 @@ export default function GeneralSettingsPage() {
 						<Button onClick={handleCopyWebsiteId} size="sm" variant="outline">
 							{copiedWebsiteId ? (
 								<>
-									<IconCheckFillDuo18 className="size-3.5" />
+									<CheckIcon className="size-3.5" weight="bold" />
 									Copied
 								</>
 							) : (
 								<>
-									<IconClipboardContentFillDuo18 className="size-3.5" />
+									<ClipboardIcon className="size-3.5" weight="duotone" />
 									Copy
 								</>
 							)}
@@ -117,7 +115,7 @@ export default function GeneralSettingsPage() {
 							size="sm"
 							variant="outline"
 						>
-							<IconPencilFillDuo18 className="size-3.5" /> Edit
+							<PencilSimpleIcon className="size-3.5" /> Edit
 						</Button>
 					</div>
 				</section>
@@ -135,7 +133,7 @@ export default function GeneralSettingsPage() {
 							size="sm"
 							variant="outline"
 						>
-							<IconPencilFillDuo18 className="size-3.5" /> Edit
+							<PencilSimpleIcon className="size-3.5" /> Edit
 						</Button>
 					</div>
 				</section>
@@ -155,7 +153,7 @@ export default function GeneralSettingsPage() {
 							size="sm"
 							variant="outline"
 						>
-							<IconExternalLinkFillDuo18 className="size-3.5" /> Transfer
+							<ArrowSquareOutIcon className="size-3.5" /> Transfer
 						</Button>
 					</div>
 				</section>
@@ -173,7 +171,7 @@ export default function GeneralSettingsPage() {
 							size="sm"
 							variant="destructive"
 						>
-							<IconTrashFillDuo18 className="size-3.5" /> Delete Website
+							<TrashIcon className="size-3.5" /> Delete Website
 						</Button>
 					</div>
 				</section>
@@ -197,7 +195,7 @@ export default function GeneralSettingsPage() {
 			>
 				<div className="rounded-md bg-secondary p-3 text-sm">
 					<div className="flex items-start gap-2">
-						<IconCircleWarningFillDuo18 className="size-5 shrink-0" />
+						<WarningCircleIcon className="size-5 shrink-0" />
 						<div className="space-y-1">
 							<p className="font-medium">Warning:</p>
 							<ul className="list-disc space-y-1 pl-4 text-xs">

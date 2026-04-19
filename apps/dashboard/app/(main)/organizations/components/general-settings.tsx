@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconCheckFillDuo18,
-	IconCopyFillDuo18,
-	IconFloppyDiskFillDuo18,
-	IconOfficeFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BuildingsIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { FloppyDiskIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RightSidebar } from "@/components/right-sidebar";
@@ -119,12 +117,12 @@ export function GeneralSettings({
 							>
 								{copiedOrgId ? (
 									<>
-										<IconCheckFillDuo18 className="size-3.5" />
+										<CheckIcon className="size-3.5" weight="bold" />
 										Copied
 									</>
 								) : (
 									<>
-										<IconCopyFillDuo18 className="size-3.5" />
+										<CopyIcon className="size-3.5" weight="duotone" />
 										Copy
 									</>
 								)}
@@ -177,7 +175,7 @@ export function GeneralSettings({
 								</>
 							) : (
 								<>
-									<IconFloppyDiskFillDuo18 className="mr-2" size={14} />
+									<FloppyDiskIcon className="mr-2" size={14} />
 									Save Changes
 								</>
 							)}
@@ -189,7 +187,7 @@ export function GeneralSettings({
 			<RightSidebar className="gap-4 p-5">
 				<RightSidebar.InfoCard
 					description={`/${organization.slug}`}
-					icon={IconOfficeFillDuo18}
+					icon={BuildingsIcon}
 					title={organization.name}
 				/>
 				<RightSidebar.DocsLink />

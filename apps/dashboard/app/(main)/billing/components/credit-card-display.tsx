@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconCreditCardFillDuo18,
-	IconWifiFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CreditCardIcon } from "@phosphor-icons/react";
+import { WifiHighIcon } from "@phosphor-icons/react";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import { cn } from "@/lib/utils";
 import type { CustomerWithPaymentMethod } from "../types/billing";
@@ -24,9 +22,10 @@ export function CreditCardDisplay({ customer }: CreditCardDisplayProps) {
 	if (!card) {
 		return (
 			<div className="flex aspect-[1.586/1] w-full flex-col items-center justify-center rounded border border-dashed bg-background">
-				<IconCreditCardFillDuo18
+				<CreditCardIcon
 					className="mb-2 text-muted-foreground"
 					size={28}
+					weight="duotone"
 				/>
 				<span className="text-muted-foreground text-sm">No payment method</span>
 			</div>
@@ -81,9 +80,10 @@ export function CreditCardDisplay({ customer }: CreditCardDisplayProps) {
 								))}
 							</div>
 						</div>
-						<IconWifiFillDuo18
+						<WifiHighIcon
 							className="rotate-90 text-white/40"
 							size={18}
+							weight="bold"
 						/>
 					</div>
 					<span className="font-mono text-[10px] text-white/40 uppercase">
@@ -190,7 +190,7 @@ function CardBrandLogo({ brand }: { brand: string }) {
 	}
 	return (
 		<div className="flex h-6 w-10 items-center justify-center">
-			<IconCreditCardFillDuo18 className="text-white/50" size={18} />
+			<CreditCardIcon className="text-white/50" size={18} weight="duotone" />
 		</div>
 	);
 }

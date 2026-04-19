@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconArrowTrendDownFillDuo18,
-	IconArrowTrendUpFillDuo18,
-	IconCircleInfoFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { InfoIcon } from "@phosphor-icons/react";
+import { TrendDownIcon } from "@phosphor-icons/react";
+import { TrendUpIcon } from "@phosphor-icons/react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -312,7 +310,7 @@ export function VitalGaugeCard({
 								onClick={(e) => e.stopPropagation()}
 								type="button"
 							>
-								<IconCircleInfoFillDuo18 className="size-3.5" />
+								<InfoIcon className="size-3.5" weight="duotone" />
 							</button>
 						</TooltipTrigger>
 						<TooltipContent className="max-w-xs p-0" side="top">
@@ -367,10 +365,10 @@ export function VitalGaugeCard({
 						)}
 					>
 						{trendIsPositive && (
-							<IconArrowTrendDownFillDuo18 className="size-3" />
+							<TrendDownIcon className="size-3" weight="bold" />
 						)}
 						{trendIsNegative && (
-							<IconArrowTrendUpFillDuo18 className="size-3" />
+							<TrendUpIcon className="size-3" weight="bold" />
 						)}
 						<span>{Math.abs(Math.round(trendChange))}%</span>
 					</div>

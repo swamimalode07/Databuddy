@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	IconDotsVerticalFillDuo18,
-	IconEnvelopeFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-	IconUserFillDuo18,
-	IconUsersFillDuo18,
-	IconWrenchFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { EnvelopeIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
+import { UsersThreeIcon } from "@phosphor-icons/react";
+import { WrenchIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -45,11 +43,11 @@ function getRuleTypeLabel(type: string, count: number) {
 function getRuleIcon(type: string) {
 	switch (type) {
 		case "email":
-			return IconEnvelopeFillDuo18;
+			return EnvelopeIcon;
 		case "user_id":
-			return IconUserFillDuo18;
+			return UserIcon;
 		default:
-			return IconWrenchFillDuo18;
+			return WrenchIcon;
 	}
 }
 
@@ -99,12 +97,12 @@ function GroupActions({
 					size="icon"
 					variant="ghost"
 				>
-					<IconDotsVerticalFillDuo18 className="size-5" />
+					<DotsThreeIcon className="size-5" weight="bold" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-40">
 				<DropdownMenuItem className="gap-2" onClick={() => onEdit(group)}>
-					<IconPencilFillDuo18 className="size-4" />
+					<PencilSimpleIcon className="size-4" weight="duotone" />
 					Edit
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
@@ -113,7 +111,7 @@ function GroupActions({
 					onClick={() => onDelete(group.id)}
 					variant="destructive"
 				>
-					<IconTrashFillDuo18 className="size-4" />
+					<TrashIcon className="size-4" weight="duotone" />
 					Delete
 				</DropdownMenuItem>
 			</DropdownMenuContent>
@@ -147,6 +145,7 @@ function RuleIndicators({ group }: { group: TargetGroup }) {
 						<RuleIcon
 							className="size-3"
 							style={{ color: group.color }}
+							weight="duotone"
 						/>
 						{count} {getRuleTypeLabel(type, count)}
 					</span>
@@ -184,9 +183,10 @@ export function GroupItem({
 				className="shrink-0 rounded p-1.5"
 				style={{ backgroundColor: `${group.color}20` }}
 			>
-				<IconUsersFillDuo18
+				<UsersThreeIcon
 					className="size-4"
 					style={{ color: group.color }}
+					weight="duotone"
 				/>
 			</div>
 

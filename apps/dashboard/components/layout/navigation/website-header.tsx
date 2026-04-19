@@ -1,8 +1,6 @@
 import type { WebsiteBasic } from "@databuddy/shared/types/website";
-import {
-	IconChevronLeftFillDuo18,
-	IconEarthFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CaretLeftIcon } from "@phosphor-icons/react";
+import { PlanetIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,9 +25,10 @@ export function WebsiteHeader({
 						className="size-5"
 						domain={website?.domain || ""}
 						fallbackIcon={
-							<IconEarthFillDuo18
+							<PlanetIcon
 								className="text-sidebar-ring"
 								size={20}
+								weight="duotone"
 							/>
 						}
 						size={20}
@@ -58,8 +57,9 @@ export function WebsiteHeader({
 					className="group flex h-10 min-w-0 items-center gap-2 border-b px-3 hover:bg-accent"
 					href="/websites"
 				>
-					<IconChevronLeftFillDuo18
+					<CaretLeftIcon
 						className="size-3 shrink-0 text-sidebar-accent-foreground/80 transition-transform group-hover:-translate-x-0.5 group-hover:text-sidebar-accent-foreground"
+						weight="fill"
 					/>
 					<span className="truncate font-semibold text-sidebar-accent-foreground/80 text-xs group-hover:text-sidebar-accent-foreground">
 						Back to Websites

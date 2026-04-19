@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconPlusFillDuo18,
-	IconRefreshFillDuo18,
-	IconWindowFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { BrowserIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
@@ -91,7 +89,7 @@ export default function StatusPagesListPage() {
 				<PageHeader
 					count={hasAccess ? statusPages?.length : undefined}
 					description="Create and manage public status pages"
-					icon={<IconWindowFillDuo18 />}
+					icon={<BrowserIcon />}
 					right={
 						hasAccess ? (
 							<>
@@ -104,7 +102,7 @@ export default function StatusPagesListPage() {
 									size="icon"
 									variant="outline"
 								>
-									<IconRefreshFillDuo18
+									<ArrowClockwiseIcon
 										className={cn(
 											(statusPagesQuery.isLoading ||
 												statusPagesQuery.isFetching) &&
@@ -113,7 +111,7 @@ export default function StatusPagesListPage() {
 									/>
 								</Button>
 								<Button onClick={handleCreate}>
-									<IconPlusFillDuo18 />
+									<PlusIcon />
 									Create Status Page
 								</Button>
 							</>
@@ -148,7 +146,7 @@ export default function StatusPagesListPage() {
 									onClick: () => statusPagesQuery.refetch(),
 								}}
 								description="Something went wrong while fetching status pages."
-								icon={<IconWindowFillDuo18 />}
+								icon={<BrowserIcon weight="duotone" />}
 								title="Failed to load"
 								variant="error"
 							/>
@@ -165,7 +163,7 @@ export default function StatusPagesListPage() {
 										onClick: handleCreate,
 									}}
 									description="Create a public status page to keep your users informed about system availability."
-									icon={<IconWindowFillDuo18 />}
+									icon={<BrowserIcon weight="duotone" />}
 									title="No status pages yet"
 									variant="minimal"
 								/>

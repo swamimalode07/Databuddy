@@ -1,6 +1,6 @@
 "use client";
 
-import { IconBoltLightningFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { LightningIcon } from "@phosphor-icons/react";
 import { TableEmptyState } from "@/components/table/table-empty-state";
 import { formatNumber } from "@/lib/formatters";
 import { EVENT_COLORS } from "./events-trend-chart";
@@ -35,7 +35,7 @@ export function EventsList({
 				<div className="p-4">
 					<TableEmptyState
 						description="Events will appear here once tracked."
-						icon={<IconBoltLightningFillDuo18 className="size-6 text-muted-foreground" />}
+						icon={<LightningIcon className="size-6 text-muted-foreground" />}
 						title="No events"
 					/>
 				</div>

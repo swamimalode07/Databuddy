@@ -1,21 +1,19 @@
 "use client";
 
-import {
-	IconCalendarFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconChartLine2FillDuo18,
-	IconChevronDownFillDuo18,
-	IconClockFillDuo18,
-	IconComputerFillDuo18,
-	IconFilterFillDuo18,
-	IconGrid2FillDuo18,
-	IconHandPointerFillDuo18,
-	IconMoonFillDuo18,
-	IconPresentationScreenChartLineFillDuo18,
-	IconStackYFillDuo18,
-	IconSunFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CalendarBlankIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react";
+import { ClockIcon } from "@phosphor-icons/react";
+import { CursorClickIcon } from "@phosphor-icons/react";
+import { DesktopIcon } from "@phosphor-icons/react";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { MoonIcon } from "@phosphor-icons/react";
+import { PresentationChartIcon } from "@phosphor-icons/react";
+import { SquaresFourIcon } from "@phosphor-icons/react";
+import { StackIcon } from "@phosphor-icons/react";
+import { SunIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { StatCard } from "@/components/analytics/stat-card";
@@ -66,14 +64,14 @@ const THEME_OPTIONS = [
 	{
 		id: "light",
 		name: "Light",
-		icon: IconSunFillDuo18,
+		icon: SunIcon,
 		description: "Light background",
 	},
-	{ id: "dark", name: "Dark", icon: IconMoonFillDuo18, description: "Dark background" },
+	{ id: "dark", name: "Dark", icon: MoonIcon, description: "Dark background" },
 	{
 		id: "system",
 		name: "System",
-		icon: IconComputerFillDuo18,
+		icon: DesktopIcon,
 		description: "Auto-detect",
 	},
 ] as const;
@@ -81,11 +79,11 @@ const THEME_OPTIONS = [
 const CHART_TYPE_OPTIONS: {
 	id: ChartSeriesKind;
 	name: string;
-	icon: typeof IconChartBarTrendUpFillDuo18;
+	icon: typeof ChartBarIcon;
 }[] = [
-	{ id: "bar", name: "Bar", icon: IconChartBarTrendUpFillDuo18 },
-	{ id: "line", name: "Line", icon: IconChartLine2FillDuo18 },
-	{ id: "area", name: "Area", icon: IconStackYFillDuo18 },
+	{ id: "bar", name: "Bar", icon: ChartBarIcon },
+	{ id: "line", name: "Line", icon: ChartLineIcon },
+	{ id: "area", name: "Area", icon: StackIcon },
 ];
 
 const STEP_TYPE_OPTIONS: { id: ChartCurveType; name: string }[] = [
@@ -98,23 +96,23 @@ const STEP_TYPE_OPTIONS: { id: ChartCurveType; name: string }[] = [
 
 const DEFAULT_DATE_RANGE_OPTIONS: {
 	id: DefaultDateRangePreset;
-	icon: typeof IconClockFillDuo18;
+	icon: typeof ClockIcon;
 }[] = [
-	{ id: "24h", icon: IconClockFillDuo18 },
-	{ id: "7d", icon: IconCalendarFillDuo18 },
-	{ id: "30d", icon: IconCalendarFillDuo18 },
-	{ id: "90d", icon: IconCalendarFillDuo18 },
-	{ id: "180d", icon: IconCalendarFillDuo18 },
-	{ id: "365d", icon: IconCalendarFillDuo18 },
+	{ id: "24h", icon: ClockIcon },
+	{ id: "7d", icon: CalendarBlankIcon },
+	{ id: "30d", icon: CalendarBlankIcon },
+	{ id: "90d", icon: CalendarBlankIcon },
+	{ id: "180d", icon: CalendarBlankIcon },
+	{ id: "365d", icon: CalendarBlankIcon },
 ];
 
-const LOCATION_ICONS: Record<ChartLocation, typeof IconChartLine2FillDuo18> = {
-	"overview-stats": IconGrid2FillDuo18,
-	"overview-main": IconPresentationScreenChartLineFillDuo18,
-	funnels: IconFilterFillDuo18,
-	retention: IconUsersFillDuo18,
-	"website-list": IconChartLine2FillDuo18,
-	events: IconHandPointerFillDuo18,
+const LOCATION_ICONS: Record<ChartLocation, typeof ChartLineIcon> = {
+	"overview-stats": SquaresFourIcon,
+	"overview-main": PresentationChartIcon,
+	funnels: FunnelIcon,
+	retention: UsersIcon,
+	"website-list": ChartLineIcon,
+	events: CursorClickIcon,
 };
 
 export default function AppearanceSettingsPage() {
@@ -171,6 +169,7 @@ export default function AppearanceSettingsPage() {
 												"size-5",
 												isActive ? "text-foreground" : "text-muted-foreground"
 											)}
+											weight="duotone"
 										/>
 									</div>
 									<div className="text-center">
@@ -215,6 +214,7 @@ export default function AppearanceSettingsPage() {
 												"size-5",
 												isActive ? "text-foreground" : "text-muted-foreground"
 											)}
+											weight="duotone"
 										/>
 									</div>
 									<div className="text-center">
@@ -261,7 +261,7 @@ export default function AppearanceSettingsPage() {
 									chartData={MOCK_CHART_DATA}
 									chartStepType={previewPrefs.chartStepType}
 									chartType={previewPrefs.chartType}
-									icon={IconChartLine2FillDuo18}
+									icon={ChartLineIcon}
 									id="preview-1"
 									showChart
 									title="Visitors"
@@ -274,7 +274,7 @@ export default function AppearanceSettingsPage() {
 									}))}
 									chartStepType={previewPrefs.chartStepType}
 									chartType={previewPrefs.chartType}
-									icon={IconStackYFillDuo18}
+									icon={StackIcon}
 									id="preview-2"
 									showChart
 									title="Pageviews"
@@ -299,7 +299,7 @@ export default function AppearanceSettingsPage() {
 										<SelectContent>
 											{CHART_TYPE_OPTIONS.map(({ id, name, icon: OptIcon }) => (
 												<SelectItem key={id} value={id}>
-													<OptIcon className="size-4" />
+													<OptIcon className="size-4" weight="duotone" />
 													{name}
 												</SelectItem>
 											))}
@@ -350,7 +350,7 @@ export default function AppearanceSettingsPage() {
 										? "Hide per-location settings"
 										: "Customize per location"}
 								</span>
-								<IconChevronDownFillDuo18
+								<CaretDownIcon
 									className={cn(
 										"size-4 text-muted-foreground transition-transform",
 										showGranular && "rotate-180"
@@ -401,6 +401,7 @@ export default function AppearanceSettingsPage() {
 												<div className="flex items-center gap-2">
 													<LocationIcon
 														className="size-4 shrink-0 text-muted-foreground"
+														weight="duotone"
 													/>
 													<span
 														className={cn(
@@ -432,6 +433,7 @@ export default function AppearanceSettingsPage() {
 																<SelectItem key={id} value={id}>
 																	<OptIcon
 																		className="size-4"
+																		weight="duotone"
 																	/>
 																	{name}
 																</SelectItem>

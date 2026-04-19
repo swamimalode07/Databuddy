@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconDotsVerticalFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-	IconUndoFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -92,7 +90,7 @@ export function ArchivedFlagItem({
 						size="sm"
 						variant="outline"
 					>
-						<IconUndoFillDuo18 className="size-4" />
+						<ArrowCounterClockwiseIcon className="size-4" weight="duotone" />
 						<span className="hidden sm:inline">Restore</span>
 					</Button>
 				</div>
@@ -106,17 +104,18 @@ export function ArchivedFlagItem({
 								size="icon"
 								variant="ghost"
 							>
-								<IconDotsVerticalFillDuo18 className="size-5" />
+								<DotsThreeIcon className="size-5" weight="bold" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-40">
 							<DropdownMenuItem onClick={() => onEdit(flag)}>
-								<IconPencilFillDuo18 className="size-4" />
+								<PencilSimpleIcon className="size-4" weight="duotone" />
 								Edit
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={handleRestore}>
-								<IconUndoFillDuo18
+								<ArrowCounterClockwiseIcon
 									className="size-4"
+									weight="duotone"
 								/>
 								Restore
 							</DropdownMenuItem>
@@ -125,7 +124,7 @@ export function ArchivedFlagItem({
 								className="text-destructive focus:text-destructive"
 								onClick={() => onDelete(flag.id)}
 							>
-								<IconTrashFillDuo18 className="size-4" />
+								<TrashIcon className="size-4" weight="duotone" />
 								Delete
 							</DropdownMenuItem>
 						</DropdownMenuContent>

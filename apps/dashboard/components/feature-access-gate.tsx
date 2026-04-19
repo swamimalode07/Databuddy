@@ -1,6 +1,6 @@
 "use client";
 
-import { IconLockFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { LockIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
@@ -21,8 +21,9 @@ export function FeatureLockedPanel({ flagKey }: { flagKey: string }) {
 			<div className="w-full max-w-sm space-y-6 text-center">
 				<div className="flex justify-center">
 					<div className="rounded border bg-secondary p-4">
-						<IconLockFillDuo18
+						<LockIcon
 							className="size-8 text-accent-foreground"
+							weight="duotone"
 						/>
 					</div>
 				</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { IconLoader2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import type { PreviewAttachResponse } from "autumn-js";
 import type React from "react";
 import { useState } from "react";
@@ -68,7 +68,7 @@ export default function AttachDialog({
 						}}
 					>
 						{loading && (
-							<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+							<CircleNotchIcon className="mr-2 size-4 animate-spin" />
 						)}
 						Confirm Purchase
 					</Button>

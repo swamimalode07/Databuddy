@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconBulletListFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconRefreshFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { ListBulletsIcon } from "@phosphor-icons/react";
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/empty-state";
@@ -56,7 +54,7 @@ export function SummaryView({
 			<div className="flex flex-1 items-center justify-center py-12">
 				<EmptyState
 					description="No aggregatable properties found"
-					icon={<IconChartBarTrendUpFillDuo18 />}
+					icon={<ChartBarIcon />}
 					title="No properties"
 					variant="minimal"
 				/>
@@ -95,7 +93,7 @@ export function SummaryView({
 						</span>
 						{isFetching && !isLoading && (
 							<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-								<IconRefreshFillDuo18 className="size-3 animate-spin" />
+								<ArrowClockwiseIcon className="size-3 animate-spin" />
 								<span>Updating…</span>
 							</div>
 						)}
@@ -115,7 +113,7 @@ export function SummaryView({
 				<div className="flex flex-1 items-center justify-center py-12">
 					<EmptyState
 						description="This event has no aggregatable properties. Check the Stream tab for individual event details."
-						icon={<IconBulletListFillDuo18 />}
+						icon={<ListBulletsIcon />}
 						title="No aggregatable properties"
 						variant="minimal"
 					/>

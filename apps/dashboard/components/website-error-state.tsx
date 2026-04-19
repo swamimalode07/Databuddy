@@ -1,13 +1,11 @@
 "use client";
 
-import {
-	IconArrowLeftFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconCommandFillDuo18,
-	IconHouse4FillDuo18,
-	IconLockFillDuo18,
-	IconMagnifierFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { CommandIcon } from "@phosphor-icons/react";
+import { HouseIcon } from "@phosphor-icons/react";
+import { LockIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,7 +35,7 @@ const ALL_NAVIGATION: NavigationSection[] = [
 ];
 
 interface SearchItem {
-	icon: typeof IconMagnifierFillDuo18;
+	icon: typeof MagnifyingGlassIcon;
 	name: string;
 	path: string;
 }
@@ -49,7 +47,7 @@ function toSearchItem(item: NavigationItem): SearchItem | null {
 	return {
 		name: item.name,
 		path: item.href,
-		icon: item.icon || IconMagnifierFillDuo18,
+		icon: item.icon || MagnifyingGlassIcon,
 	};
 }
 
@@ -176,12 +174,12 @@ export function WebsiteErrorState({
 	const getIcon = () => {
 		switch (type) {
 			case "not_found":
-				return IconMagnifierFillDuo18;
+				return MagnifyingGlassIcon;
 			case "unauthorized":
 			case "forbidden":
-				return IconLockFillDuo18;
+				return LockIcon;
 			default:
-				return IconCircleWarningFillDuo18;
+				return WarningCircleIcon;
 		}
 	};
 
@@ -251,7 +249,7 @@ export function WebsiteErrorState({
 							onClick={() => router.back()}
 							variant="outline"
 						>
-							<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+							<ArrowLeftIcon className="mr-2 size-4" weight="duotone" />
 							Go Back
 						</Button>
 					)}
@@ -265,7 +263,7 @@ export function WebsiteErrorState({
 						variant="default"
 					>
 						<Link href={isDemoRoute ? "/" : "/websites"}>
-							<IconHouse4FillDuo18 className="mr-2 size-4" />
+							<HouseIcon className="mr-2 size-4" weight="duotone" />
 							Back to Websites
 						</Link>
 					</Button>
@@ -303,7 +301,7 @@ export function WebsiteErrorState({
 								size="lg"
 								variant="default"
 							>
-								<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+								<ArrowLeftIcon className="mr-2 size-4" weight="duotone" />
 								Back to Websites
 							</Button>
 							{type === "unauthorized" && (
@@ -372,6 +370,7 @@ export function WebsiteErrorState({
 								type === "unknown" && "text-destructive"
 							)}
 							size={24}
+							weight="fill"
 						/>
 					</div>
 
@@ -390,10 +389,10 @@ export function WebsiteErrorState({
 							onClick={() => setOpen(true)}
 							variant="outline"
 						>
-							<IconMagnifierFillDuo18 className="mr-2 size-4" />
+							<MagnifyingGlassIcon className="mr-2 size-4" weight="duotone" />
 							Search pages, settings...
 							<kbd className="ml-auto hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-								<IconCommandFillDuo18 className="size-3" />
+								<CommandIcon className="size-3" weight="bold" />
 								<span>K</span>
 							</kbd>
 						</Button>
@@ -422,8 +421,9 @@ export function WebsiteErrorState({
 								>
 									<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
 										<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
-											<IconMagnifierFillDuo18
+											<MagnifyingGlassIcon
 												className="size-4 text-muted-foreground"
+												weight="duotone"
 											/>
 										</div>
 										<CommandPrimitive.Input
@@ -433,15 +433,16 @@ export function WebsiteErrorState({
 											value={search}
 										/>
 										<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-											<IconCommandFillDuo18 className="size-3" />
+											<CommandIcon className="size-3" weight="bold" />
 											<span>K</span>
 										</kbd>
 									</div>
 
 									<CommandPrimitive.List className="max-h-80 scroll-py-2 overflow-y-auto p-2">
 										<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-											<IconMagnifierFillDuo18
+											<MagnifyingGlassIcon
 												className="size-8 text-muted-foreground/50"
+												weight="duotone"
 											/>
 											<div>
 												<p className="font-medium text-muted-foreground text-sm">
@@ -467,6 +468,7 @@ export function WebsiteErrorState({
 													<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent group-data-[selected=true]:bg-background">
 														<ItemIcon
 															className="size-4 text-muted-foreground"
+															weight="duotone"
 														/>
 													</div>
 													<div className="min-w-0 flex-1">

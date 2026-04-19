@@ -1,11 +1,9 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconArrowLeftFillDuo18,
-	IconEnvelopeFillDuo18,
-	IconLoader2FillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { EnvelopeIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
@@ -57,7 +55,7 @@ function MagicSentPage() {
 				<div className="relative z-10">
 					<div className="space-y-5">
 						<div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
-							<IconEnvelopeFillDuo18 className="size-5 shrink-0 text-primary" />
+							<EnvelopeIcon className="size-5 shrink-0 text-primary" />
 							<p className="text-muted-foreground text-sm">
 								We&apos;ve sent a magic link to{" "}
 								<strong className="text-foreground">{email}</strong>. Please
@@ -72,7 +70,7 @@ function MagicSentPage() {
 						>
 							{isLoading ? (
 								<>
-									<IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />
+									<SpinnerIcon className="mr-2 size-4 animate-spin" />
 									Sending...
 								</>
 							) : (
@@ -87,7 +85,7 @@ function MagicSentPage() {
 					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="/login"
 				>
-					<IconArrowLeftFillDuo18 className="mr-1 inline size-3" />
+					<ArrowLeftIcon className="mr-1 inline size-3" />
 					Back to login
 				</Link>
 			</div>
@@ -102,7 +100,7 @@ export default function Page() {
 				<div className="flex h-dvh items-center justify-center bg-background">
 					<div className="relative">
 						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<IconLoader2FillDuo18 className="relative size-8 animate-spin text-primary" />
+						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
 					</div>
 				</div>
 			}

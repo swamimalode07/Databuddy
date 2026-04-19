@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconChartActivityFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { PencilIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -84,9 +82,10 @@ export function MonitorCard({
 				<div className="flex items-start justify-between">
 					<div className="flex items-start gap-4">
 						<div className="flex size-12 items-center justify-center rounded border bg-secondary-brighter">
-							<IconChartActivityFillDuo18
+							<HeartbeatIcon
 								className="text-accent-foreground"
 								size={24}
+								weight="duotone"
 							/>
 						</div>
 						<div className="flex-1">
@@ -116,12 +115,12 @@ export function MonitorCard({
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button size="sm" variant="ghost">
-								<IconDotsVerticalFillDuo18 size={20} />
+								<DotsThreeIcon size={20} weight="duotone" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem onClick={onEditAction}>
-								<IconPencilFillDuo18 size={16} />
+								<PencilIcon size={16} />
 								Edit
 							</DropdownMenuItem>
 							<DropdownMenuItem
@@ -132,14 +131,14 @@ export function MonitorCard({
 								}
 								onClick={handleTogglePause}
 							>
-								<IconChartActivityFillDuo18 size={16} />
+								<HeartbeatIcon size={16} />
 								{schedule.isPaused ? "Resume" : "Pause"}
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								className="text-destructive focus:text-destructive"
 								onClick={onDeleteAction}
 							>
-								<IconTrashFillDuo18 size={16} />
+								<TrashIcon size={16} />
 								Delete
 							</DropdownMenuItem>
 						</DropdownMenuContent>

@@ -1,12 +1,10 @@
 "use client";
 
 import type { SessionEvent } from "@databuddy/shared/types/sessions";
-import {
-	IconBoltLightningFillDuo18,
-	IconFileContentFillDuo18,
-	IconHandPointerFillDuo18,
-	IconSparkleFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CursorClickIcon } from "@phosphor-icons/react";
+import { FileTextIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { SparkleIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { formatLocalTime } from "@/lib/time";
 import { cleanUrl, formatPropertyValue, getDisplayPath } from "./session-utils";
@@ -17,17 +15,17 @@ interface SessionEventTimelineProps {
 
 function getEventIcon(eventName: string, hasProperties: boolean) {
 	if (hasProperties) {
-		return IconSparkleFillDuo18;
+		return SparkleIcon;
 	}
 	switch (eventName) {
 		case "screen_view":
 		case "page_view":
-			return IconFileContentFillDuo18;
+			return FileTextIcon;
 		case "click":
 		case "player-page-tab":
-			return IconHandPointerFillDuo18;
+			return CursorClickIcon;
 		default:
-			return IconBoltLightningFillDuo18;
+			return LightningIcon;
 	}
 }
 

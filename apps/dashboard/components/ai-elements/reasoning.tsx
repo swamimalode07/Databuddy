@@ -6,7 +6,7 @@ import {
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { IconChevronDownFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import type { ComponentProps, ReactNode } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
@@ -172,11 +172,12 @@ export const ReasoningTrigger = memo(
 							) : null}
 							<span>{getThinkingMessage(isStreaming, duration)}</span>
 						</span>
-						<IconChevronDownFillDuo18
+						<CaretDownIcon
 							className={cn(
 								"size-3.5 shrink-0 opacity-60 transition-transform",
 								isOpen ? "rotate-180" : "rotate-0"
 							)}
+							weight="fill"
 						/>
 					</>
 				)}

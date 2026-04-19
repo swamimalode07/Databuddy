@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconRefreshFillDuo18,
-	IconUserPlusFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { UserPlusIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
 import { RightSidebar } from "@/components/right-sidebar";
@@ -21,7 +19,7 @@ function EmptyState() {
 	return (
 		<div className="flex h-full flex-col items-center justify-center p-8 text-center">
 			<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10">
-				<IconUsersFillDuo18 className="text-primary" size={28} />
+				<UsersIcon className="text-primary" size={28} weight="duotone" />
 			</div>
 			<h3 className="mb-1 font-semibold text-lg">No team members yet</h3>
 			<p className="mb-6 max-w-sm text-muted-foreground text-sm">
@@ -35,14 +33,14 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="flex h-full flex-col items-center justify-center p-8 text-center">
 			<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-destructive/10">
-				<IconUsersFillDuo18 className="text-destructive" size={28} />
+				<UsersIcon className="text-destructive" size={28} weight="duotone" />
 			</div>
 			<h3 className="mb-1 font-semibold text-lg">Failed to load</h3>
 			<p className="mb-6 max-w-sm text-muted-foreground text-sm">
 				Something went wrong while loading team members
 			</p>
 			<Button onClick={onRetry} variant="outline">
-				<IconRefreshFillDuo18 className="mr-2" size={16} />
+				<ArrowClockwiseIcon className="mr-2" size={16} />
 				Try again
 			</Button>
 		</div>
@@ -94,12 +92,12 @@ export function MembersView({
 
 				<RightSidebar className="gap-4 p-5">
 					<Button className="w-full" onClick={() => setShowInviteDialog(true)}>
-						<IconUserPlusFillDuo18 size={16} />
+						<UserPlusIcon size={16} />
 						Invite Member
 					</Button>
 					<RightSidebar.InfoCard
 						description={`Team member${members.length === 1 ? "" : "s"}`}
-						icon={IconUsersFillDuo18}
+						icon={UsersIcon}
 						title={String(members.length)}
 					/>
 					<RightSidebar.DocsLink className="justify-center" />

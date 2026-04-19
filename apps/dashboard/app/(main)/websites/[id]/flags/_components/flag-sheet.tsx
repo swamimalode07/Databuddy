@@ -3,16 +3,15 @@
 import type { FlagWithScheduleForm } from "@databuddy/shared/flags";
 import { flagWithScheduleSchema } from "@databuddy/shared/flags";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	IconBranchOutFillDuo18,
-	IconChevronDownFillDuo18,
-	IconCodeFillDuo18,
-	IconFlag2FillDuo18,
-	IconLoader2FillDuo18,
-	IconOfficeFillDuo18,
-	IconUserFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BuildingsIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { CodeIcon } from "@phosphor-icons/react";
+import { FlagIcon } from "@phosphor-icons/react";
+import { GitBranchIcon } from "@phosphor-icons/react";
+import { SpinnerGapIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
+import { UsersThreeIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -83,7 +82,7 @@ function CollapsibleSection({
 					type="button"
 				>
 					<div className="flex items-center gap-2.5">
-						<Icon size={16} />
+						<Icon size={16} weight="duotone" />
 						<span className="font-medium text-sm">{title}</span>
 						{badge !== undefined && badge > 0 && (
 							<span className="flex size-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
@@ -91,11 +90,12 @@ function CollapsibleSection({
 							</span>
 						)}
 					</div>
-					<IconChevronDownFillDuo18
+					<CaretDownIcon
 						className={cn(
 							"size-4 text-muted-foreground transition-transform duration-200",
 							isExpanded && "rotate-180"
 						)}
+						weight="fill"
 					/>
 				</button>
 			</div>
@@ -442,7 +442,7 @@ export function FlagSheet({
 				<SheetHeader>
 					<div className="flex items-center gap-4">
 						<div className="flex size-11 items-center justify-center rounded border bg-secondary">
-							<IconFlag2FillDuo18 className="text-primary" size={20} />
+							<FlagIcon className="text-primary" size={20} weight="fill" />
 						</div>
 						<div>
 							<SheetTitle className="text-lg">
@@ -659,19 +659,19 @@ export function FlagSheet({
 															value: "user",
 															label: "User",
 															description: "Each user",
-															icon: IconUserFillDuo18,
+															icon: UserIcon,
 														},
 														{
 															value: "organization",
 															label: "Organization",
 															description: "Whole org",
-															icon: IconOfficeFillDuo18,
+															icon: BuildingsIcon,
 														},
 														{
 															value: "team",
 															label: "Team",
 															description: "Whole team",
-															icon: IconUsersFillDuo18,
+															icon: UsersThreeIcon,
 														},
 													] as const;
 
@@ -711,6 +711,7 @@ export function FlagSheet({
 																						? "text-primary"
 																						: "text-muted-foreground"
 																				)}
+																				weight="duotone"
 																			/>
 																			<span className="block font-medium text-xs">
 																				{option.label}
@@ -889,7 +890,7 @@ export function FlagSheet({
 							<div className="space-y-1">
 								<CollapsibleSection
 									badge={form.watch("flag.targetGroupIds")?.length ?? 0}
-									icon={IconUsersFillDuo18}
+									icon={UsersThreeIcon}
 									isExpanded={expandedSection === "groups"}
 									onToggleAction={() => toggleSection("groups")}
 									title="Target Groups"
@@ -909,7 +910,7 @@ export function FlagSheet({
 
 								<CollapsibleSection
 									badge={watchedRules.length}
-									icon={IconUsersFillDuo18}
+									icon={UsersIcon}
 									isExpanded={expandedSection === "targeting"}
 									onToggleAction={() => toggleSection("targeting")}
 									title="User Targeting"
@@ -928,7 +929,7 @@ export function FlagSheet({
 
 								<CollapsibleSection
 									badge={watchedDependencies.length}
-									icon={IconBranchOutFillDuo18}
+									icon={GitBranchIcon}
 									isExpanded={expandedSection === "dependencies"}
 									onToggleAction={() => toggleSection("dependencies")}
 									title="Dependencies"
@@ -948,7 +949,7 @@ export function FlagSheet({
 								</CollapsibleSection>
 
 								<CollapsibleSection
-									icon={IconCodeFillDuo18}
+									icon={CodeIcon}
 									isExpanded={expandedSection === "implementation"}
 									onToggleAction={() => toggleSection("implementation")}
 									title="Code"
@@ -968,7 +969,7 @@ export function FlagSheet({
 							<Button className="min-w-28" disabled={isLoading} type="submit">
 								{isLoading ? (
 									<>
-										<IconLoader2FillDuo18 className="animate-spin" size={16} />
+										<SpinnerGapIcon className="animate-spin" size={16} />
 										{isEditing ? "Saving…" : "Creating…"}
 									</>
 								) : isEditing ? (

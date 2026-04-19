@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconCircleCheckFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconCircleXmarkFillDuo18,
-	IconClockRotateClockwiseFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { ClockCounterClockwiseIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
+import { XCircleIcon } from "@phosphor-icons/react";
 import type { RefCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -142,9 +140,10 @@ export function RecentActivity({
 								<TableCell className="h-auto py-14 text-center" colSpan={5}>
 									<div className="mx-auto flex max-w-sm flex-col items-center gap-3 px-4">
 										<div className="flex size-11 items-center justify-center rounded border bg-muted/50 text-muted-foreground">
-											<IconClockRotateClockwiseFillDuo18
+											<ClockCounterClockwiseIcon
 												aria-hidden
 												size={22}
+												weight="duotone"
 											/>
 										</div>
 										<div className="space-y-1">
@@ -166,31 +165,35 @@ export function RecentActivity({
 											const display = resolveCheckDisplay(check);
 											const iconMap = {
 												up: (
-													<IconCircleCheckFillDuo18
+													<CheckCircleIcon
 														aria-hidden
 														className="mt-0.5 shrink-0 text-emerald-500 sm:mt-0"
 														size={18}
+														weight="fill"
 													/>
 												),
 												pending: (
-													<IconCircleWarningFillDuo18
+													<WarningCircleIcon
 														aria-hidden
 														className="mt-0.5 shrink-0 text-amber-500 sm:mt-0"
 														size={18}
+														weight="fill"
 													/>
 												),
 												degraded: (
-													<IconCircleWarningFillDuo18
+													<WarningCircleIcon
 														aria-hidden
 														className="mt-0.5 shrink-0 text-amber-500 sm:mt-0"
 														size={18}
+														weight="fill"
 													/>
 												),
 												down: (
-													<IconCircleXmarkFillDuo18
+													<XCircleIcon
 														aria-hidden
 														className="mt-0.5 shrink-0 text-red-500 sm:mt-0"
 														size={18}
+														weight="fill"
 													/>
 												),
 											};

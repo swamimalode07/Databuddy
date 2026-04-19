@@ -1,11 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	IconCircleInfoFillDuo18,
-	IconCodeFillDuo18,
-	IconGearFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CodeIcon } from "@phosphor-icons/react";
+import { GearIcon } from "@phosphor-icons/react";
+import { InfoIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
@@ -283,7 +281,7 @@ export function MonitorSheet({
 											Check Frequency
 											<Tooltip>
 												<TooltipTrigger asChild>
-													<IconCircleInfoFillDuo18 className="size-4" />
+													<InfoIcon className="size-4" weight="duotone" />
 												</TooltipTrigger>
 												<TooltipContent className="max-w-xs">
 													<div className="space-y-2">
@@ -335,7 +333,7 @@ export function MonitorSheet({
 										(form.watch("timeout") ? 1 : 0) +
 										(form.watch("cacheBust") ? 1 : 0)
 									}
-									icon={IconGearFillDuo18}
+									icon={GearIcon}
 									isExpanded={isAdvancedOpen}
 									onToggleAction={() => setIsAdvancedOpen(!isAdvancedOpen)}
 									title="Request Settings"
@@ -351,8 +349,9 @@ export function MonitorSheet({
 															Timeout
 															<Tooltip>
 																<TooltipTrigger asChild>
-																	<IconCircleInfoFillDuo18
+																	<InfoIcon
 																		className="size-4"
+																		weight="duotone"
 																	/>
 																</TooltipTrigger>
 																<TooltipContent className="max-w-xs">
@@ -415,7 +414,7 @@ export function MonitorSheet({
 
 								<CollapsibleSection
 									badge={form.watch("jsonParsingEnabled") ? 1 : 0}
-									icon={IconCodeFillDuo18}
+									icon={CodeIcon}
 									isExpanded={isAdvancedOpen}
 									onToggleAction={() => setIsAdvancedOpen(!isAdvancedOpen)}
 									title="JSON health payload"

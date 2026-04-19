@@ -1,6 +1,6 @@
 "use client";
 
-import { IconTargetFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { TargetIcon } from "@phosphor-icons/react";
 import { EmptyState } from "@/components/empty-state";
 import { List } from "@/components/ui/composables/list";
 import type { Goal } from "@/hooks/use-goals";
@@ -50,7 +50,7 @@ export function GoalsList({
 						onClick: onCreateGoal,
 					}}
 					description="Track conversions like signups, purchases, or button clicks."
-					icon={<IconTargetFillDuo18 />}
+					icon={<TargetIcon weight="duotone" />}
 					title="No goals yet"
 					variant="minimal"
 				/>

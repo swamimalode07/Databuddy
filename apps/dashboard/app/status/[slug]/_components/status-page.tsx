@@ -1,16 +1,15 @@
-phor-icons/react/ssr";icons/react/ssr";
+import {
+	CheckCircleIcon,
+	MinusCircleIcon,
+	WarningCircleIcon,
+	XCircleIcon,
+} from "@phosphor-icons/react/ssr";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { LastChecked } from "./last-checked";
 import { MonitorRowInteractive } from "./monitor-row-interactive";
 
-import {
-	IconCircleCheckFillDuo18,
-	IconCircleMinusFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconCircleXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
 interface StatusRootProps {
 	children: ReactNode;
 	className?: string;
@@ -90,7 +89,7 @@ const BANNER_CONFIG = {
 		bgClass: "bg-emerald-500/10 border-emerald-500/20",
 		textClass: "text-emerald-600 dark:text-emerald-400",
 		dotClass: "bg-emerald-500",
-		Icon: IconCircleCheckFillDuo18,
+		Icon: CheckCircleIcon,
 		pulse: true,
 	},
 	degraded: {
@@ -98,7 +97,7 @@ const BANNER_CONFIG = {
 		bgClass: "bg-amber-500/10 border-amber-500/20",
 		textClass: "text-amber-600 dark:text-amber-400",
 		dotClass: "bg-amber-500",
-		Icon: IconCircleWarningFillDuo18,
+		Icon: WarningCircleIcon,
 		pulse: false,
 	},
 	outage: {
@@ -106,7 +105,7 @@ const BANNER_CONFIG = {
 		bgClass: "bg-red-500/10 border-red-500/20",
 		textClass: "text-red-600 dark:text-red-400",
 		dotClass: "bg-red-500",
-		Icon: IconCircleXmarkFillDuo18,
+		Icon: XCircleIcon,
 		pulse: false,
 	},
 } as const;
@@ -139,6 +138,7 @@ function StatusBanner({ status, className }: StatusBannerProps) {
 				) : null}
 				<config.Icon
 					className={cn("relative size-6 shrink-0", config.textClass)}
+					weight="fill"
 				/>
 			</div>
 			<span className={cn("font-semibold text-sm", config.textClass)}>
@@ -174,18 +174,18 @@ function StatusSection({
 
 const MONITOR_STATUS = {
 	up: {
-		Icon: IconCircleCheckFillDuo18,
+		Icon: CheckCircleIcon,
 		className: "text-emerald-500",
 		label: "Operational",
 	},
 	degraded: {
-		Icon: IconCircleWarningFillDuo18,
+		Icon: WarningCircleIcon,
 		className: "text-amber-500",
 		label: "Degraded",
 	},
-	down: { Icon: IconCircleXmarkFillDuo18, className: "text-red-500", label: "Down" },
+	down: { Icon: XCircleIcon, className: "text-red-500", label: "Down" },
 	unknown: {
-		Icon: IconCircleMinusFillDuo18,
+		Icon: MinusCircleIcon,
 		className: "text-muted-foreground",
 		label: "Unknown",
 	},
@@ -236,6 +236,7 @@ function StatusMonitorCard({
 				<div className="flex items-center gap-2.5 overflow-hidden">
 					<statusConfig.Icon
 						className={cn("size-5 shrink-0", statusConfig.className)}
+						weight="fill"
 					/>
 					<div className="min-w-0">
 						<p className="truncate font-medium text-sm">{name}</p>
@@ -273,8 +274,9 @@ function StatusIncidents({ className }: { className?: string }) {
 		>
 			<h2 className="text-balance font-semibold text-sm">Recent Incidents</h2>
 			<div className="mt-4 flex items-center gap-2.5 text-muted-foreground">
-				<IconCircleCheckFillDuo18
+				<CheckCircleIcon
 					className="size-4 shrink-0 text-emerald-500"
+					weight="fill"
 				/>
 				<p className="text-pretty text-sm">
 					No incidents reported in the last 90 days.

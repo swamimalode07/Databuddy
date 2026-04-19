@@ -1,10 +1,8 @@
 "use client";
 
 import type { Variant } from "@databuddy/shared/flags";
-import {
-	IconPlusFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { PlusIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -201,7 +199,7 @@ export function VariantEditor({
 						type="button"
 						variant="outline"
 					>
-						<IconPlusFillDuo18 className="mr-2 size-3" />
+						<PlusIcon className="mr-2 size-3" />
 						Add Variant
 					</Button>
 				</div>
@@ -251,7 +249,7 @@ export function VariantEditor({
 								type="button"
 								variant="ghost"
 							>
-								<IconTrashFillDuo18 className="size-4" />
+								<TrashIcon className="size-4" />
 							</Button>
 						</div>
 

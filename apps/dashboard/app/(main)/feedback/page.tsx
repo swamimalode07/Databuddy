@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconBasketShoppingFillDuo18,
-	IconMessageFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ChatTextIcon } from "@phosphor-icons/react";
+import { ShoppingCartIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,11 +38,11 @@ export default function FeedbackPage() {
 			<Tabs defaultValue="feedback" variant="navigation">
 				<TabsList>
 					<TabsTrigger value="feedback">
-						<IconMessageFillDuo18 size={16} />
+						<ChatTextIcon size={16} weight="duotone" />
 						Feedback
 					</TabsTrigger>
 					<TabsTrigger value="shop">
-						<IconBasketShoppingFillDuo18 size={16} />
+						<ShoppingCartIcon size={16} weight="duotone" />
 						Shop
 					</TabsTrigger>
 				</TabsList>

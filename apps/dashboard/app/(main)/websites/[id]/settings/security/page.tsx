@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconLockFillDuo18,
-	IconPlusFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { LockIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -108,7 +106,7 @@ function TagList({
 					variant="secondary"
 				>
 					{value}
-					<IconXmarkFillDuo18 className="size-2.5" />
+					<XIcon className="size-2.5" />
 				</Badge>
 			))}
 		</div>
@@ -189,7 +187,7 @@ function TagInput({
 					type="button"
 					variant="outline"
 				>
-					<IconPlusFillDuo18 className="size-4" />
+					<PlusIcon className="size-4" />
 				</Button>
 			</div>
 			{error && <p className="text-destructive text-xs">{error}</p>}
@@ -310,7 +308,7 @@ export default function SecurityPage() {
 		<div className="flex h-full flex-col">
 			<PageHeader
 				description="Restrict tracking by origin or IP"
-				icon={<IconLockFillDuo18 />}
+				icon={<LockIcon />}
 				title="Security & Access"
 			/>
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-none">
@@ -374,7 +372,7 @@ export default function SecurityPage() {
 				<section className="px-4 py-5 sm:px-6">
 					<NoticeBanner
 						description="By default, only your registered domain can send analytics. Add origins here for third-party integrations like Cal.com or embedded widgets."
-						icon={<IconLockFillDuo18 />}
+						icon={<LockIcon />}
 					/>
 				</section>
 

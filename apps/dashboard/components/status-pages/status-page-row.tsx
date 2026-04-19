@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	IconChartActivityFillDuo18,
-	IconCopyFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-	IconWindowFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { BrowserIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -109,7 +107,7 @@ function StatusPageActions({
 						size="icon"
 						variant="ghost"
 					>
-						<IconDotsVerticalFillDuo18 className="size-5" />
+						<DotsThreeIcon className="size-5" weight="bold" />
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-52">
@@ -118,16 +116,16 @@ function StatusPageActions({
 							className="gap-2"
 							href={`/monitors/status-pages/${statusPage.id}`}
 						>
-							<IconPencilFillDuo18 className="size-4" />
+							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Manage Monitors
 						</Link>
 					</DropdownMenuItem>
 					<DropdownMenuItem className="gap-2" onClick={onEditAction}>
-						<IconPencilFillDuo18 className="size-4" />
+						<PencilSimpleIcon className="size-4" weight="duotone" />
 						Edit Details
 					</DropdownMenuItem>
 					<DropdownMenuItem className="gap-2" onClick={handleCopyUrl}>
-						<IconCopyFillDuo18 className="size-4" />
+						<CopyIcon className="size-4" weight="duotone" />
 						Copy URL
 					</DropdownMenuItem>
 					<DropdownMenuItem asChild>
@@ -137,7 +135,7 @@ function StatusPageActions({
 							rel="noopener noreferrer"
 							target="_blank"
 						>
-							<IconExternalLinkFillDuo18 className="size-4" />
+							<ArrowSquareOutIcon className="size-4" weight="duotone" />
 							View Page
 						</Link>
 					</DropdownMenuItem>
@@ -145,7 +143,7 @@ function StatusPageActions({
 						className="gap-2"
 						onClick={() => setIsTransferOpen(true)}
 					>
-						<IconExternalLinkFillDuo18 className="size-4" />
+						<ArrowSquareOutIcon className="size-4" weight="duotone" />
 						Transfer to Workspace
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
@@ -153,7 +151,7 @@ function StatusPageActions({
 						className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
 						onClick={onDeleteAction}
 					>
-						<IconTrashFillDuo18 className="size-4" />
+						<TrashIcon className="size-4" weight="duotone" />
 						Delete
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -221,7 +219,7 @@ export function StatusPageRow({
 								: "bg-muted text-muted-foreground"
 						)}
 					>
-						<IconWindowFillDuo18 className="size-5" />
+						<BrowserIcon className="size-5" weight="duotone" />
 					</div>
 				</List.Cell>
 
@@ -247,8 +245,9 @@ export function StatusPageRow({
 				</List.Cell>
 
 				<List.Cell className="hidden w-28 gap-1.5 lg:flex">
-					<IconChartActivityFillDuo18
+					<HeartbeatIcon
 						className="size-3.5 text-muted-foreground"
+						weight="duotone"
 					/>
 					<span className="text-muted-foreground text-xs tabular-nums">
 						{statusPage.monitorCount}{" "}

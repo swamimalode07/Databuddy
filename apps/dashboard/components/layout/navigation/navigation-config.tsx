@@ -1,50 +1,47 @@
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
+import {
+	ActivityIcon,
+	ArrowSquareOutIcon,
+	BellIcon,
+	BookOpenIcon,
+	BugIcon,
+	BuildingsIcon,
+	ChartBarIcon,
+	CodeIcon,
+	CreditCardIcon,
+	CurrencyDollarIcon,
+	EyeIcon,
+	FileArrowDownIcon,
+	FlagIcon,
+	FunnelIcon,
+	GearIcon,
+	GlobeIcon,
+	GlobeSimpleIcon,
+	HeartbeatIcon,
+	HouseIcon,
+	IdentificationCardIcon,
+	KeyIcon,
+	LightningIcon,
+	LinkIcon,
+	LockIcon,
+	MapPinIcon,
+	PlayIcon,
+	ReceiptIcon,
+	RoadHorizonIcon,
+	RobotIcon,
+	ShieldCheckIcon,
+	SparkleIcon,
+	SpeakerHighIcon,
+	SquaresFourIcon,
+	TargetIcon,
+	TrendUpIcon,
+	UserGearIcon,
+	UserIcon,
+	UsersThreeIcon,
+	WarningIcon,
+} from "@phosphor-icons/react/ssr";
 import type { Category, NavigationEntry, NavigationSection } from "./types";
 
-import {
-	IconAlertWarningFillDuo18,
-	IconAntennaFillDuo18,
-	IconBellFillDuo18,
-	IconBoltLightningFillDuo18,
-	IconBookOpenFillDuo18,
-	IconBugFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconChartLine2FillDuo18,
-	IconCodeFillDuo18,
-	IconCoinsFillDuo18,
-	IconCompassFillDuo18,
-	IconCreditCardFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconEye2FillDuo18,
-	IconEyeFillDuo18,
-	IconFileDownloadFillDuo18,
-	IconFilterFillDuo18,
-	IconFlag2FillDuo18,
-	IconGearFillDuo18,
-	IconGlobeFillDuo18,
-	IconHeartPulseFillDuo18,
-	IconHouse4FillDuo18,
-	IconKeyFillDuo18,
-	IconLink5FillDuo18,
-	IconLocationFillDuo18,
-	IconLockFillDuo18,
-	IconMegaphoneFillDuo18,
-	IconOfficeFillDuo18,
-	IconRadarFillDuo18,
-	IconReceiptFillDuo18,
-	IconRoadmapFillDuo18,
-	IconRobotFillDuo18,
-	IconShieldCheckFillDuo18,
-	IconSparkleFillDuo18,
-	IconSquareActivityChartFillDuo18,
-	IconSubscriptionFillDuo18,
-	IconTargetFillDuo18,
-	IconUserContactFillDuo18,
-	IconUserFillDuo18,
-	IconUsersFillDuo18,
-	IconVideoFillDuo18,
-	IconWalletFillDuo18,
-} from "nucleo-ui-fill-duo-18";
 const createNavItem = (
 	name: string,
 	icon: any,
@@ -101,67 +98,67 @@ export function filterCategoriesByFlags(
 }
 
 export const homeNavigation: NavigationEntry[] = [
-	createNavSection("Overview", IconHouse4FillDuo18, [
-		createNavItem("Home", IconHouse4FillDuo18, "/home", {
+	createNavSection("Overview", SquaresFourIcon, [
+		createNavItem("Home", HouseIcon, "/home", {
 			highlight: true,
 		}),
-		createNavItem("Websites", IconGlobeFillDuo18, "/websites", {
+		createNavItem("Websites", GlobeIcon, "/websites", {
 			highlight: true,
 		}),
-		createNavItem("Insights", IconSparkleFillDuo18, "/insights", {
+		createNavItem("Insights", SparkleIcon, "/insights", {
 			highlight: true,
 		}),
 	]),
-	createNavSection("Observability", IconChartLine2FillDuo18, [
-		createNavItem("Links", IconLink5FillDuo18, "/links", {
+	createNavSection("Observability", ActivityIcon, [
+		createNavItem("Links", LinkIcon, "/links", {
 			highlight: true,
 		}),
-		createNavItem("Custom Events", IconBoltLightningFillDuo18, "/events", {
+		createNavItem("Custom Events", LightningIcon, "/events", {
 			highlight: true,
 		}),
 	]),
 ];
 
 export const settingsNavigation: NavigationSection[] = [
-	createNavSection("Workspace", IconOfficeFillDuo18, [
-		createNavItem("General", IconGearFillDuo18, "/organizations/settings"),
-		createNavItem("Members", IconUsersFillDuo18, "/organizations/members"),
-		createNavItem("API Keys", IconKeyFillDuo18, "/organizations/settings/api-keys"),
-		createNavItem("Danger Zone", IconAlertWarningFillDuo18, "/organizations/settings/danger"),
+	createNavSection("Workspace", BuildingsIcon, [
+		createNavItem("General", GearIcon, "/organizations/settings"),
+		createNavItem("Members", UserIcon, "/organizations/members"),
+		createNavItem("API Keys", KeyIcon, "/organizations/settings/api-keys"),
+		createNavItem("Danger Zone", WarningIcon, "/organizations/settings/danger"),
 	]),
-	createNavSection("Billing", IconCreditCardFillDuo18, [
-		createNavItem("Overview", IconWalletFillDuo18, "/billing"),
-		createNavItem("Plans", IconSubscriptionFillDuo18, "/billing/plans"),
-		createNavItem("Invoices", IconReceiptFillDuo18, "/billing/history"),
+	createNavSection("Billing", CreditCardIcon, [
+		createNavItem("Overview", ActivityIcon, "/billing"),
+		createNavItem("Plans", CurrencyDollarIcon, "/billing/plans"),
+		createNavItem("Invoices", ReceiptIcon, "/billing/history"),
 	]),
-	createNavSection("Account", IconUserContactFillDuo18, [
-		createNavItem("Profile", IconUserFillDuo18, "/settings/account"),
-		createNavItem("Appearance", IconEye2FillDuo18, "/settings/appearance"),
-		createNavItem("Notifications", IconBellFillDuo18, "/settings/notifications"),
+	createNavSection("Account", UserGearIcon, [
+		createNavItem("Profile", IdentificationCardIcon, "/settings/account"),
+		createNavItem("Appearance", EyeIcon, "/settings/appearance"),
+		createNavItem("Notifications", BellIcon, "/settings/notifications"),
 	]),
 ];
 
 export const resourcesNavigation: NavigationSection[] = [
-	createNavSection("Resources", IconCompassFillDuo18, [
-		createNavItem("Documentation", IconBookOpenFillDuo18, "https://databuddy.cc/docs", {
+	createNavSection("Resources", BookOpenIcon, [
+		createNavItem("Documentation", BookOpenIcon, "https://databuddy.cc/docs", {
 			external: true,
 			highlight: true,
 		}),
 		createNavItem(
 			"Video Guides",
-			IconVideoFillDuo18,
+			PlayIcon,
 			"https://youtube.com/@trydatabuddy",
 			{ external: true, highlight: true }
 		),
 		createNavItem(
 			"Roadmap",
-			IconRoadmapFillDuo18,
+			RoadHorizonIcon,
 			"https://trello.com/b/SOUXD4wE/databuddy",
 			{ external: true, highlight: true }
 		),
 		createNavItem(
 			"Feedback",
-			IconMegaphoneFillDuo18,
+			SpeakerHighIcon,
 			"https://databuddy.featurebase.app/",
 			{ external: true, highlight: true }
 		),
@@ -169,69 +166,69 @@ export const resourcesNavigation: NavigationSection[] = [
 ];
 
 export const monitorsNavigation: NavigationSection[] = [
-	createNavSection("Monitoring", IconRadarFillDuo18, [
-		createNavItem("All Monitors", IconHeartPulseFillDuo18, "/monitors", {
+	createNavSection("Monitoring", HeartbeatIcon, [
+		createNavItem("All Monitors", HeartbeatIcon, "/monitors", {
 			highlight: true,
 		}),
-		createNavItem("Status Pages", IconAntennaFillDuo18, "/monitors/status-pages", {
+		createNavItem("Status Pages", GlobeSimpleIcon, "/monitors/status-pages", {
 			highlight: true,
 		}),
 	]),
 ];
 
 export const websiteNavigation: NavigationSection[] = [
-	createNavSection("Web Analytics", IconChartBarTrendUpFillDuo18, [
-		createNavItem("Dashboard", IconEyeFillDuo18, "", { rootLevel: false }),
-		createNavItem("Audience", IconUsersFillDuo18, "/audience", {
+	createNavSection("Web Analytics", ChartBarIcon, [
+		createNavItem("Dashboard", EyeIcon, "", { rootLevel: false }),
+		createNavItem("Audience", UsersThreeIcon, "/audience", {
 			rootLevel: false,
 		}),
-		createNavItem("Web Vitals", IconHeartPulseFillDuo18, "/vitals", {
+		createNavItem("Web Vitals", HeartbeatIcon, "/vitals", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.WEB_VITALS,
 		}),
-		createNavItem("Geographic", IconLocationFillDuo18, "/map", {
+		createNavItem("Geographic", MapPinIcon, "/map", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.GEOGRAPHIC,
 		}),
-		createNavItem("Error Tracking", IconBugFillDuo18, "/errors", {
+		createNavItem("Error Tracking", BugIcon, "/errors", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.ERROR_TRACKING,
 		}),
-		createNavItem("Anomalies", IconAlertWarningFillDuo18, "/anomalies", {
+		createNavItem("Anomalies", WarningIcon, "/anomalies", {
 			rootLevel: false,
 			alpha: true,
 			flag: "anomalies",
 		}),
-		createNavItem("Pulse", IconChartLine2FillDuo18, "/pulse", {
+		createNavItem("Pulse", HeartbeatIcon, "/pulse", {
 			rootLevel: false,
 			flag: "pulse",
 			alpha: true,
 		}),
 	]),
-	createNavSection("Product Analytics", IconChartLine2FillDuo18, [
-		createNavItem("Users", IconUserFillDuo18, "/users", {
+	createNavSection("Product Analytics", TrendUpIcon, [
+		createNavItem("Users", UsersThreeIcon, "/users", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.USERS,
 		}),
-		createNavItem("Funnels", IconFilterFillDuo18, "/funnels", {
+		createNavItem("Funnels", FunnelIcon, "/funnels", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.FUNNELS,
 		}),
-		createNavItem("Goals", IconTargetFillDuo18, "/goals", {
+		createNavItem("Goals", TargetIcon, "/goals", {
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.GOALS,
 		}),
-		createNavItem("Feature Flags", IconFlag2FillDuo18, "/flags", {
+		createNavItem("Feature Flags", FlagIcon, "/flags", {
 			alpha: true,
 			rootLevel: false,
 			gatedFeature: GATED_FEATURES.FEATURE_FLAGS,
 		}),
-		createNavItem("Revenue", IconCoinsFillDuo18, "/revenue", {
+		createNavItem("Revenue", CurrencyDollarIcon, "/revenue", {
 			alpha: true,
 			rootLevel: false,
 			flag: "revenue",
 		}),
-		createNavItem("AI Agent", IconRobotFillDuo18, "/agent", {
+		createNavItem("AI Agent", RobotIcon, "/agent", {
 			alpha: true,
 			rootLevel: false,
 		}),
@@ -239,26 +236,26 @@ export const websiteNavigation: NavigationSection[] = [
 ];
 
 export const websiteSettingsNavigation: NavigationSection[] = [
-	createNavSection("Website Settings", IconGearFillDuo18, [
-		createNavItem("General", IconGearFillDuo18, "/settings/general", {
+	createNavSection("Website Settings", GearIcon, [
+		createNavItem("General", GearIcon, "/settings/general", {
 			rootLevel: false,
 		}),
-		createNavItem("Privacy", IconShieldCheckFillDuo18, "/settings/privacy", {
+		createNavItem("Privacy", ShieldCheckIcon, "/settings/privacy", {
 			rootLevel: false,
 		}),
-		createNavItem("Security", IconLockFillDuo18, "/settings/security", {
+		createNavItem("Security", LockIcon, "/settings/security", {
 			rootLevel: false,
 		}),
 		createNavItem(
 			"Transfer Website",
-			IconExternalLinkFillDuo18,
+			ArrowSquareOutIcon,
 			"/settings/transfer",
 			{ rootLevel: false }
 		),
-		createNavItem("Data Export", IconFileDownloadFillDuo18, "/settings/export", {
+		createNavItem("Data Export", FileArrowDownIcon, "/settings/export", {
 			rootLevel: false,
 		}),
-		createNavItem("Setup", IconCodeFillDuo18, "/settings/tracking", {
+		createNavItem("Setup", CodeIcon, "/settings/tracking", {
 			rootLevel: false,
 		}),
 	]),
@@ -276,27 +273,27 @@ export const categoryConfig = {
 			{
 				id: "home",
 				name: "Home",
-				icon: IconHouse4FillDuo18,
+				icon: HouseIcon,
 				production: true,
 			},
 			{
 				id: "monitors",
 				name: "Monitors",
-				icon: IconRadarFillDuo18,
+				icon: HeartbeatIcon,
 				production: true,
 				flag: "monitors",
 			},
 			{
 				id: "settings",
 				name: "Settings",
-				icon: IconGearFillDuo18,
+				icon: GearIcon,
 				production: true,
 				hideFromDemo: true,
 			},
 			{
 				id: "resources",
 				name: "Resources",
-				icon: IconCompassFillDuo18,
+				icon: BookOpenIcon,
 				production: true,
 			},
 		],
@@ -313,13 +310,13 @@ export const categoryConfig = {
 			{
 				id: "analytics",
 				name: "Analytics",
-				icon: IconSquareActivityChartFillDuo18,
+				icon: ChartBarIcon,
 				production: true,
 			},
 			{
 				id: "settings",
 				name: "Settings",
-				icon: IconGearFillDuo18,
+				icon: GearIcon,
 				production: true,
 				hideFromDemo: true,
 			},

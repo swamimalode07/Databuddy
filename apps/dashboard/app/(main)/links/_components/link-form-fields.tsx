@@ -1,12 +1,11 @@
 "use client";
 
-import {
-	IconCalendarFillDuo18,
-	IconImageFillDuo18,
-	IconLink5FillDuo18,
-	IconMobile2FillDuo18,
-} from "nucleo-ui-fill-duo-18";
-import { IconAndroidLogoFill24 as IconAndroidLogoFill24, IconAppleLogoFill24 as IconAppleLogoFill24 } from "nucleo-core-fill-24";
+import { AndroidLogoIcon } from "@phosphor-icons/react";
+import { AppleLogoIcon } from "@phosphor-icons/react";
+import { CalendarIcon } from "@phosphor-icons/react";
+import { DeviceMobileIcon } from "@phosphor-icons/react";
+import { ImageIcon } from "@phosphor-icons/react";
+import { LinkSimpleIcon } from "@phosphor-icons/react";
 import type { UseFormReturn } from "react-hook-form";
 import {
 	FormControl,
@@ -179,7 +178,7 @@ export function LinkFormFields({
 			<div className="space-y-1">
 				<CollapsibleSection
 					badge={hasExpiration}
-					icon={IconCalendarFillDuo18}
+					icon={CalendarIcon}
 					isExpanded={expandedSection === "expiration"}
 					onToggleAction={() => onToggleSectionAction("expiration")}
 					title="Link Expiration"
@@ -233,7 +232,7 @@ export function LinkFormFields({
 
 				<CollapsibleSection
 					badge={deviceTargetingCount}
-					icon={IconMobile2FillDuo18}
+					icon={DeviceMobileIcon}
 					isExpanded={expandedSection === "devices"}
 					onToggleAction={() => onToggleSectionAction("devices")}
 					title="Device Targeting"
@@ -253,7 +252,7 @@ export function LinkFormFields({
 											className="flex items-center gap-1.5 text-xs"
 											htmlFor="ios-url"
 										>
-											<IconAppleLogoFill24 size={14} />
+											<AppleLogoIcon size={14} weight="fill" />
 											iOS URL
 										</Label>
 										<FormControl>
@@ -282,7 +281,7 @@ export function LinkFormFields({
 											className="flex items-center gap-1.5 text-xs"
 											htmlFor="android-url"
 										>
-											<IconAndroidLogoFill24 size={14} />
+											<AndroidLogoIcon size={14} weight="fill" />
 											Android URL
 										</Label>
 										<FormControl>
@@ -307,7 +306,7 @@ export function LinkFormFields({
 
 				<CollapsibleSection
 					badge={utmParamsCount}
-					icon={IconLink5FillDuo18}
+					icon={LinkSimpleIcon}
 					isExpanded={expandedSection === "utm"}
 					onToggleAction={() => onToggleSectionAction("utm")}
 					title="UTM Parameters"
@@ -321,7 +320,7 @@ export function LinkFormFields({
 
 				<CollapsibleSection
 					badge={hasCustomSocial}
-					icon={IconImageFillDuo18}
+					icon={ImageIcon}
 					isExpanded={expandedSection === "social"}
 					onToggleAction={() => onToggleSectionAction("social")}
 					title="Social Preview"

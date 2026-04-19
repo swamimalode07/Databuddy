@@ -1,13 +1,11 @@
 "use client";
 
 import type { ExportFormat } from "@databuddy/rpc";
-import {
-	IconCheckFillDuo18,
-	IconCodeFillDuo18,
-	IconDownloadFillDuo18,
-	IconFileContentFillDuo18,
-	IconTableFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckIcon } from "@phosphor-icons/react";
+import { DownloadIcon } from "@phosphor-icons/react";
+import { FileCodeIcon } from "@phosphor-icons/react";
+import { FileTextIcon } from "@phosphor-icons/react";
+import { TableIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -99,19 +97,19 @@ export default function ExportPage() {
 				value: "json" as const,
 				label: "JSON",
 				description: "Structured data for developers",
-				icon: IconCodeFillDuo18,
+				icon: FileCodeIcon,
 			},
 			{
 				value: "csv" as const,
 				label: "CSV",
 				description: "Works with spreadsheets",
-				icon: IconTableFillDuo18,
+				icon: TableIcon,
 			},
 			{
 				value: "txt" as const,
 				label: "TXT",
 				description: "Plain text export",
-				icon: IconFileContentFillDuo18,
+				icon: FileTextIcon,
 			},
 		],
 		[]
@@ -133,7 +131,7 @@ export default function ExportPage() {
 			<PageHeader
 				badgeContent="Tools"
 				description="Download analytics as CSV, JSON, or TXT"
-				icon={<IconDownloadFillDuo18 />}
+				icon={<DownloadIcon />}
 				title="Data Export"
 			/>
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-none">
@@ -164,7 +162,7 @@ export default function ExportPage() {
 												{format.label}
 											</span>
 											{selectedFormat === format.value && (
-												<IconCheckFillDuo18 className="size-4 text-primary" />
+												<CheckIcon className="size-4 text-primary" />
 											)}
 										</div>
 										<p className="text-muted-foreground text-xs">
@@ -244,7 +242,7 @@ export default function ExportPage() {
 								</>
 							) : (
 								<>
-									<IconDownloadFillDuo18 className="size-4" />
+									<DownloadIcon className="size-4" />
 									Export Data
 								</>
 							)}

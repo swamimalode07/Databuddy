@@ -1,17 +1,15 @@
 "use client";
 
-import {
-	IconArrowLeftFillDuo18,
-	IconBoltLightningFillDuo18,
-	IconChartActivityFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconGlobeFillDuo18,
-	IconMediaPauseFillDuo18,
-	IconMediaPlayFillDuo18,
-	IconPencilFillDuo18,
-	IconRefreshFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { PauseIcon } from "@phosphor-icons/react";
+import { PencilIcon } from "@phosphor-icons/react";
+import { PlayIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -528,7 +526,7 @@ export default function MonitorDetailsPage() {
 						onClick: () => router.push("/monitors"),
 					}}
 					description="The monitor you are looking for does not exist or you don't have permission to view it."
-					icon={<IconChartActivityFillDuo18 />}
+					icon={<HeartbeatIcon />}
 					title="Monitor not found"
 				/>
 			</div>
@@ -559,11 +557,11 @@ export default function MonitorDetailsPage() {
 						<FaviconImage
 							altText={`${displayName} favicon`}
 							domain={displayDomain}
-							fallbackIcon={<IconChartActivityFillDuo18 />}
+							fallbackIcon={<HeartbeatIcon weight="duotone" />}
 							size={20}
 						/>
 					) : (
-						<IconChartActivityFillDuo18 />
+						<HeartbeatIcon />
 					)
 				}
 				right={
@@ -574,7 +572,7 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="ghost"
 						>
-							<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+							<ArrowLeftIcon className="mr-2 size-4" />
 							Back
 						</Button>
 						<Button
@@ -585,7 +583,7 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="outline"
 						>
-							<IconRefreshFillDuo18
+							<ArrowClockwiseIcon
 								className={isRefreshing ? "animate-spin" : ""}
 							/>
 						</Button>
@@ -597,9 +595,10 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="outline"
 						>
-							<IconBoltLightningFillDuo18
+							<LightningIcon
 								className={manualCheckMutation.isPending ? "animate-spin" : ""}
 								size={16}
+								weight="fill"
 							/>
 							Check Now
 						</Button>
@@ -614,12 +613,12 @@ export default function MonitorDetailsPage() {
 						>
 							{schedule.isPaused ? (
 								<>
-									<IconMediaPlayFillDuo18 size={16} />
+									<PlayIcon size={16} weight="fill" />
 									Resume
 								</>
 							) : (
 								<>
-									<IconMediaPauseFillDuo18 size={16} />
+									<PauseIcon size={16} weight="fill" />
 									Pause
 								</>
 							)}
@@ -631,7 +630,7 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="outline"
 						>
-							<IconPencilFillDuo18 size={16} />
+							<PencilIcon size={16} weight="duotone" />
 							<span className="hidden sm:inline">Configure</span>
 						</Button>
 						<Button
@@ -641,7 +640,7 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="outline"
 						>
-							<IconExternalLinkFillDuo18 size={16} />
+							<ArrowSquareOutIcon size={16} weight="duotone" />
 							<span className="hidden sm:inline">Transfer</span>
 						</Button>
 						<Button
@@ -652,7 +651,7 @@ export default function MonitorDetailsPage() {
 							type="button"
 							variant="outline"
 						>
-							<IconTrashFillDuo18 size={16} />
+							<TrashIcon size={16} weight="duotone" />
 							<span className="hidden sm:inline">Delete</span>
 						</Button>
 					</>
@@ -696,9 +695,10 @@ export default function MonitorDetailsPage() {
 							className="flex items-center gap-1.5 text-primary hover:underline"
 							href={`/websites/${schedule.websiteId}/pulse`}
 						>
-							<IconGlobeFillDuo18
+							<GlobeIcon
 								aria-hidden
 								className="size-3.5 shrink-0"
+								weight="duotone"
 							/>
 							<span className="truncate font-medium">
 								{schedule.website.name || schedule.website.domain}

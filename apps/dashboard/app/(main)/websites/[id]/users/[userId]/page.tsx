@@ -2,17 +2,15 @@
 
 import { getCountryCode } from "@databuddy/shared/country-codes";
 import type { Session } from "@databuddy/shared/types/sessions";
-import {
-	IconArrowLeftFillDuo18,
-	IconChartLine2FillDuo18,
-	IconClockFillDuo18,
-	IconComputerFillDuo18,
-	IconEyeFillDuo18,
-	IconGlobeFillDuo18,
-	IconHandPointerFillDuo18,
-	IconLoader2FillDuo18,
-	IconUserFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react";
+import { ClockIcon } from "@phosphor-icons/react";
+import { CursorClickIcon } from "@phosphor-icons/react";
+import { DevicesIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -39,7 +37,7 @@ function StatItem({
 	return (
 		<div className="flex items-center gap-3">
 			<div className="flex size-9 shrink-0 items-center justify-center rounded bg-primary/10">
-				<Icon className="size-4 text-primary" />
+				<Icon className="size-4 text-primary" weight="duotone" />
 			</div>
 			<div className="min-w-0 flex-1">
 				<p className="font-semibold text-foreground text-lg tabular-nums leading-tight">
@@ -101,7 +99,7 @@ function LoadingSkeleton({ onBack }: { onBack: () => void }) {
 			<Header onBack={onBack} />
 			<div className="flex min-h-0 flex-1 items-center justify-center">
 				<div className="flex flex-col items-center gap-3">
-					<IconLoader2FillDuo18 className="size-8 animate-spin text-primary" />
+					<SpinnerIcon className="size-8 animate-spin text-primary" />
 					<span className="text-muted-foreground text-sm">Loading…</span>
 				</div>
 			</div>
@@ -121,7 +119,7 @@ function ErrorState({
 			<Header onBack={onBack} />
 			<div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4">
 				<div className="flex size-16 items-center justify-center rounded-full bg-destructive/10">
-					<IconUserFillDuo18 className="size-8 text-destructive" />
+					<UserIcon className="size-8 text-destructive" weight="duotone" />
 				</div>
 				<div className="text-center">
 					<p className="font-semibold text-foreground text-lg">
@@ -132,7 +130,7 @@ function ErrorState({
 					</p>
 				</div>
 				<Button onClick={onBack} variant="outline">
-					<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+					<ArrowLeftIcon className="mr-2 size-4" />
 					Back to Users
 				</Button>
 			</div>
@@ -152,8 +150,9 @@ function NotFoundState({
 			<Header onBack={onBack} />
 			<div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4">
 				<div className="flex size-16 items-center justify-center rounded-full bg-secondary">
-					<IconUserFillDuo18
+					<UserIcon
 						className="size-8 text-secondary-foreground"
+						weight="duotone"
 					/>
 				</div>
 				<div className="text-center">
@@ -165,7 +164,7 @@ function NotFoundState({
 					</p>
 				</div>
 				<Button onClick={onBack} variant="outline">
-					<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+					<ArrowLeftIcon className="mr-2 size-4" />
 					Back to Users
 				</Button>
 			</div>
@@ -197,7 +196,7 @@ function Header({
 				size="icon"
 				variant="ghost"
 			>
-				<IconArrowLeftFillDuo18 className="size-4" />
+				<ArrowLeftIcon className="size-4" />
 			</Button>
 
 			{userProfile ? (
@@ -342,28 +341,28 @@ export default function UserDetailPage() {
 					<div className="grid grid-cols-2 gap-px border-b bg-border">
 						<div className="bg-sidebar p-4">
 							<StatItem
-								icon={IconChartLine2FillDuo18}
+								icon={ChartLineIcon}
 								label="Sessions"
 								value={userProfile.total_sessions ?? 0}
 							/>
 						</div>
 						<div className="bg-sidebar p-4">
 							<StatItem
-								icon={IconEyeFillDuo18}
+								icon={EyeIcon}
 								label="Pageviews"
 								value={userProfile.total_pageviews ?? 0}
 							/>
 						</div>
 						<div className="bg-sidebar p-4">
 							<StatItem
-								icon={IconHandPointerFillDuo18}
+								icon={CursorClickIcon}
 								label="Events"
 								value={totalEvents}
 							/>
 						</div>
 						<div className="bg-sidebar p-4">
 							<StatItem
-								icon={IconChartLine2FillDuo18}
+								icon={ChartLineIcon}
 								label="Avg Pages"
 								value={avgPagesPerSession.toFixed(1)}
 							/>
@@ -372,8 +371,9 @@ export default function UserDetailPage() {
 
 					<div className="border-b p-4">
 						<div className="mb-3 flex items-center gap-2">
-							<IconGlobeFillDuo18
+							<GlobeIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 							<span className="font-semibold text-foreground text-sm">
 								Location
@@ -399,8 +399,9 @@ export default function UserDetailPage() {
 
 					<div className="border-b p-4">
 						<div className="mb-3 flex items-center gap-2">
-							<IconComputerFillDuo18
+							<DevicesIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 							<span className="font-semibold text-foreground text-sm">
 								Technology
@@ -432,8 +433,9 @@ export default function UserDetailPage() {
 
 					<div className="p-4">
 						<div className="mb-3 flex items-center gap-2">
-							<IconClockFillDuo18
+							<ClockIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 							<span className="font-semibold text-foreground text-sm">
 								Timeline
@@ -550,8 +552,9 @@ export default function UserDetailPage() {
 					) : (
 						<div className="flex flex-col items-center justify-center py-16">
 							<div className="flex size-12 items-center justify-center rounded-full bg-secondary">
-								<IconChartLine2FillDuo18
+								<ChartLineIcon
 									className="size-6 text-secondary-foreground"
+									weight="duotone"
 								/>
 							</div>
 							<p className="mt-4 font-medium text-foreground">No sessions</p>

@@ -8,12 +8,10 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcuts } from "@/components/ui/keyboard-shortcuts";
-import {
-	IconBookOpenFillDuo18,
-	IconKeyboardFillDuo18,
-	IconMediaPlayFillDuo18,
-	IconMessageFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BookOpenIcon } from "@phosphor-icons/react";
+import { ChatCircleIcon } from "@phosphor-icons/react";
+import { KeyboardIcon } from "@phosphor-icons/react";
+import { PlayIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -25,21 +23,21 @@ interface HelpDialogProps {
 const helpItems = [
 	{
 		href: "https://www.databuddy.cc/docs",
-		icon: IconBookOpenFillDuo18,
+		icon: BookOpenIcon,
 		title: "Documentation",
 		description: "Read guides and API references",
 		external: true,
 	},
 	{
 		href: "mailto:support@databuddy.cc",
-		icon: IconMessageFillDuo18,
+		icon: ChatCircleIcon,
 		title: "Contact Support",
 		description: "Get help from our support team",
 		external: false,
 	},
 	{
 		href: "https://www.youtube.com/@trydatabuddy",
-		icon: IconMediaPlayFillDuo18,
+		icon: PlayIcon,
 		title: "Tutorials",
 		description: "Learn Databuddy step by step",
 		external: true,
@@ -82,8 +80,9 @@ export function HelpDialog({ open, onOpenChangeAction }: HelpDialogProps) {
 						>
 							<div className="flex items-start gap-4">
 								<div className="rounded-lg bg-accent-brighter p-2">
-									<IconKeyboardFillDuo18
+									<KeyboardIcon
 										className="size-5 text-accent-foreground"
+										weight="duotone"
 									/>
 								</div>
 								<div className="min-w-0 flex-1">
@@ -117,6 +116,7 @@ export function HelpDialog({ open, onOpenChangeAction }: HelpDialogProps) {
 											<div className="rounded-lg bg-accent-brighter p-2">
 												<Icon
 													className="size-5 text-accent-foreground"
+													weight="duotone"
 												/>
 											</div>
 											<div className="min-w-0 flex-1">

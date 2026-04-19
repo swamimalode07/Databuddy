@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconChartLine2FillDuo18,
-	IconTableFillDuo18,
-	IconUndoFillDuo18,
-	IconUserPlusFillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
+import { ChartLineIcon } from "@phosphor-icons/react";
+import { TableIcon } from "@phosphor-icons/react";
+import { UserPlusIcon } from "@phosphor-icons/react";
+import { UsersIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { StatCard } from "@/components/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -156,7 +154,7 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 						const safeValue = v == null || Number.isNaN(v) ? 0 : v;
 						return `${safeValue.toFixed(1)}%`;
 					}}
-					icon={IconUndoFillDuo18}
+					icon={ArrowCounterClockwiseIcon}
 					id="retention-rate"
 					isLoading={isLoading}
 					showChart
@@ -167,7 +165,7 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 					chartData={chartData.totalUsers}
 					chartStepType={chartStepType}
 					chartType={chartType}
-					icon={IconUsersFillDuo18}
+					icon={UsersIcon}
 					id="total-users"
 					isLoading={isLoading}
 					showChart
@@ -178,7 +176,7 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 					chartData={chartData.newUsers}
 					chartStepType={chartStepType}
 					chartType={chartType}
-					icon={IconUserPlusFillDuo18}
+					icon={UserPlusIcon}
 					id="new-users"
 					isLoading={isLoading}
 					showChart
@@ -189,7 +187,7 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 					chartData={chartData.returningUsers}
 					chartStepType={chartStepType}
 					chartType={chartType}
-					icon={IconChartLine2FillDuo18}
+					icon={ChartLineIcon}
 					id="returning-users"
 					isLoading={isLoading}
 					showChart
@@ -215,11 +213,11 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 						</div>
 						<TabsList className="h-9">
 							<TabsTrigger className="gap-1.5 px-3 text-xs" value="cohorts">
-								<IconTableFillDuo18 className="size-4" />
+								<TableIcon className="size-4" weight="duotone" />
 								Cohorts
 							</TabsTrigger>
 							<TabsTrigger className="gap-1.5 px-3 text-xs" value="rate">
-								<IconChartLine2FillDuo18 className="size-4" />
+								<ChartLineIcon className="size-4" weight="duotone" />
 								Daily Rate
 							</TabsTrigger>
 						</TabsList>

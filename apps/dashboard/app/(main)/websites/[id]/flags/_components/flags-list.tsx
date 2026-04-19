@@ -1,16 +1,14 @@
 "use client";
 
-import {
-	IconArchiveFillDuo18,
-	IconConnectedDotsFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconFlag2FillDuo18,
-	IconFlaskFillDuo18,
-	IconGauge2FillDuo18,
-	IconLink5FillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArchiveIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { FlagIcon } from "@phosphor-icons/react";
+import { FlaskIcon } from "@phosphor-icons/react";
+import { GaugeIcon } from "@phosphor-icons/react";
+import { LinkIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { ShareNetworkIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -45,10 +43,10 @@ interface FlagsListProps {
 }
 
 const TYPE_CONFIG = {
-	boolean: { icon: IconFlag2FillDuo18, label: "Boolean", color: "text-blue-500" },
-	rollout: { icon: IconGauge2FillDuo18, label: "Rollout", color: "text-violet-500" },
+	boolean: { icon: FlagIcon, label: "Boolean", color: "text-blue-500" },
+	rollout: { icon: GaugeIcon, label: "Rollout", color: "text-violet-500" },
 	multivariant: {
-		icon: IconFlaskFillDuo18,
+		icon: FlaskIcon,
 		label: "Multivariant",
 		color: "text-pink-500",
 	},
@@ -168,16 +166,16 @@ function FlagActions({
 					size="icon"
 					variant="ghost"
 				>
-					<IconDotsVerticalFillDuo18 className="size-5" />
+					<DotsThreeIcon className="size-5" weight="bold" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-44">
 				<DropdownMenuItem className="gap-2" onClick={() => onEdit(flag)}>
-					<IconPencilFillDuo18 className="size-4" />
+					<PencilSimpleIcon className="size-4" weight="duotone" />
 					Edit Flag
 				</DropdownMenuItem>
 				<DropdownMenuItem className="gap-2" onClick={handleArchive}>
-					<IconArchiveFillDuo18 className="size-4" />
+					<ArchiveIcon className="size-4" weight="duotone" />
 					{flag.status === "archived" ? "Restore" : "Archive"}
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
@@ -186,7 +184,7 @@ function FlagActions({
 					onClick={() => onDelete(flag.id)}
 					variant="destructive"
 				>
-					<IconTrashFillDuo18 className="size-4 fill-destructive" />
+					<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 					Delete Flag
 				</DropdownMenuItem>
 			</DropdownMenuContent>
@@ -213,7 +211,7 @@ function DependencyBadges({
 				<Tooltip delayDuration={200}>
 					<TooltipTrigger asChild>
 						<div className="flex items-center gap-1 rounded bg-blue-500/10 px-1.5 py-0.5 text-blue-600 dark:text-blue-400">
-							<IconLink5FillDuo18 className="size-3" />
+							<LinkIcon className="size-3" />
 							<span className="font-medium text-xs">{dependencies.length}</span>
 						</div>
 					</TooltipTrigger>
@@ -243,7 +241,7 @@ function DependencyBadges({
 				<Tooltip delayDuration={200}>
 					<TooltipTrigger asChild>
 						<div className="flex items-center gap-1 rounded bg-violet-500/10 px-1.5 py-0.5 text-violet-600 dark:text-violet-400">
-							<IconConnectedDotsFillDuo18 className="size-3" />
+							<ShareNetworkIcon className="size-3" weight="fill" />
 							<span className="font-medium text-xs">{dependents.length}</span>
 						</div>
 					</TooltipTrigger>
@@ -327,7 +325,7 @@ function FlagRow({
 								typeConfig.color
 							)}
 						>
-							<TypeIconComponent className="size-4" />
+							<TypeIconComponent className="size-4" weight="duotone" />
 						</div>
 						<div className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
 							<div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -391,7 +389,7 @@ function FlagRow({
 				>
 					{flag.status === "archived" ? (
 						<Badge className="gap-1" variant="amber">
-							<IconArchiveFillDuo18 className="size-3" />
+							<ArchiveIcon className="size-3" weight="duotone" />
 							Archived
 						</Badge>
 					) : (

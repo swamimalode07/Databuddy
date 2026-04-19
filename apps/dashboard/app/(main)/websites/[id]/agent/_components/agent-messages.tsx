@@ -1,10 +1,10 @@
 "use client";
 
 import {
-	IconCheckFillDuo18,
-	IconCopyFillDuo18,
-	IconRefresh2FillDuo18,
-} from "nucleo-ui-fill-duo-18";
+	ArrowsClockwiseIcon,
+	CheckIcon,
+	CopyIcon,
+} from "@phosphor-icons/react";
 import type { UIMessage } from "ai";
 import { useCallback, useState } from "react";
 import { AIComponent } from "@/components/ai-elements/ai-component";
@@ -328,9 +328,9 @@ function AssistantActions({
 				variant="ghost"
 			>
 				{copied ? (
-					<IconCheckFillDuo18 className="size-3.5" />
+					<CheckIcon className="size-3.5" weight="bold" />
 				) : (
-					<IconCopyFillDuo18 className="size-3.5" />
+					<CopyIcon className="size-3.5" weight="duotone" />
 				)}
 			</Button>
 			{isLast && canRegenerate ? (
@@ -342,7 +342,7 @@ function AssistantActions({
 					type="button"
 					variant="ghost"
 				>
-					<IconRefresh2FillDuo18 className="size-3.5" />
+					<ArrowsClockwiseIcon className="size-3.5" weight="duotone" />
 				</Button>
 			) : null}
 		</div>

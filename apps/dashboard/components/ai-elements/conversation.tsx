@@ -1,6 +1,6 @@
 "use client";
 
-import { IconArrowDownFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ArrowDownIcon } from "@phosphor-icons/react";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -92,7 +92,7 @@ export const ConversationScrollButton = ({
 			variant="outline"
 			{...props}
 		>
-			<IconArrowDownFillDuo18 className="size-4" />
+			<ArrowDownIcon className="size-4" />
 		</Button>
 	);
 };

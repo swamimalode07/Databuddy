@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconKeyFillDuo18,
-	IconPlusFillDuo18,
-	IconShieldCheckFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { KeyIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { ShieldCheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
@@ -47,7 +45,7 @@ export function ApiKeySettings({ organization }: ApiKeySettingsProps) {
 		return (
 			<EmptyState
 				description="Please try again in a moment"
-				icon={<IconKeyFillDuo18 />}
+				icon={<KeyIcon weight="duotone" />}
 				title="Failed to load API keys"
 				variant="error"
 			/>
@@ -61,7 +59,7 @@ export function ApiKeySettings({ organization }: ApiKeySettingsProps) {
 					{isEmpty ? (
 						<EmptyState
 							description="Create your first API key to start integrating with our platform"
-							icon={<IconKeyFillDuo18 />}
+							icon={<KeyIcon weight="duotone" />}
 							title="No API keys yet"
 						/>
 					) : (
@@ -82,13 +80,13 @@ export function ApiKeySettings({ organization }: ApiKeySettingsProps) {
 
 				<RightSidebar className="gap-4 p-5">
 					<Button className="w-full" onClick={() => setShowCreateDialog(true)}>
-						<IconPlusFillDuo18 size={16} />
+						<PlusIcon size={16} />
 						Create New Key
 					</Button>
 					{!isEmpty && (
 						<RightSidebar.InfoCard
 							description="Active keys"
-							icon={IconShieldCheckFillDuo18}
+							icon={ShieldCheckIcon}
 							title={`${activeCount} / ${items.length}`}
 						/>
 					)}

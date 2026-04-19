@@ -1,12 +1,10 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconChevronRightFillDuo18,
-	IconCircleCheckFillDuo18,
-	IconOfficeFillDuo18,
-	IconPlusFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { BuildingsIcon } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,7 +38,7 @@ function EmptyState() {
 		<>
 			<div className="flex h-full flex-col items-center justify-center p-8 text-center">
 				<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10">
-					<IconOfficeFillDuo18 className="text-primary" size={28} />
+					<BuildingsIcon className="text-primary" size={28} weight="duotone" />
 				</div>
 				<h3 className="mb-1 font-semibold text-lg">No organizations yet</h3>
 				<p className="mb-6 max-w-sm text-muted-foreground text-sm">
@@ -106,14 +104,15 @@ function OrganizationRow({
 
 			{isActive && (
 				<Badge variant="green">
-					<IconCircleCheckFillDuo18 className="mr-1" size={12} />
+					<CheckCircleIcon className="mr-1" size={12} weight="fill" />
 					Active
 				</Badge>
 			)}
 
-			<IconChevronRightFillDuo18
+			<CaretRightIcon
 				className="text-accent-foreground transition-all group-hover:translate-x-0.5"
 				size={16}
+				weight="bold"
 			/>
 		</button>
 	);
@@ -184,7 +183,7 @@ export function OrganizationsList({
 					className="w-full"
 					onClick={() => setShowCreateOrganizationDialog(true)}
 				>
-					<IconPlusFillDuo18 size={16} />
+					<PlusIcon size={16} />
 					New Organization
 				</Button>
 				<CreateOrganizationDialog

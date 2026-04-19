@@ -1,6 +1,6 @@
 "use client";
 
-import { IconChartActivityFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { HeartbeatIcon } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
@@ -577,8 +577,9 @@ export default function VitalsPage() {
 
 				{!isLoading && overviewData.length === 0 && (
 					<div className="rounded border bg-card p-8 text-center">
-						<IconChartActivityFillDuo18
+						<HeartbeatIcon
 							className="mx-auto size-12 text-muted-foreground/40"
+							weight="duotone"
 						/>
 						<h3 className="mt-4 font-medium text-foreground">
 							No Web Vitals yet

@@ -3,11 +3,9 @@
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	IconArrowLeftFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconFilterFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -194,8 +192,9 @@ function FilterDialogContent({
 			<>
 				<div className="mb-3 flex items-center gap-3">
 					<div className="rounded-full border bg-destructive/10 p-2.5">
-						<IconCircleWarningFillDuo18
+						<WarningCircleIcon
 							className="size-4 text-destructive"
+							weight="duotone"
 						/>
 					</div>
 					<div>
@@ -226,8 +225,9 @@ function FilterDialogContent({
 			<>
 				<div className="mb-3 flex items-center gap-3">
 					<div className="rounded-full border bg-secondary p-2.5">
-						<IconFilterFillDuo18
+						<FunnelIcon
 							className="size-4 text-accent-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<div>
@@ -282,8 +282,9 @@ function FilterDialogContent({
 		<>
 			<div className="mb-3 flex items-center gap-3">
 				<div className="rounded-full border bg-secondary p-2.5">
-					<IconFilterFillDuo18
+					<FunnelIcon
 						className="size-4 text-accent-foreground"
+						weight="duotone"
 					/>
 				</div>
 				<div>
@@ -301,7 +302,7 @@ function FilterDialogContent({
 				onClick={handleBack}
 				type="button"
 			>
-				<IconArrowLeftFillDuo18 className="size-3" />
+				<ArrowLeftIcon className="size-3" weight="fill" />
 				Back to fields
 			</button>
 
@@ -415,7 +416,7 @@ export function AddFilterForm({
 				onClick={() => setIsOpen(true)}
 				variant="outline"
 			>
-				<IconFilterFillDuo18 className="size-3.5" />
+				<FunnelIcon className="size-3.5" weight="duotone" />
 				{buttonText}
 			</Button>
 

@@ -1,8 +1,6 @@
-import {
-	IconCircleQuestionFillDuo18,
-	IconCoinsFillDuo18,
-	IconLocationFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CurrencyDollarIcon } from "@phosphor-icons/react";
+import { MapPinIcon } from "@phosphor-icons/react";
+import { QuestionIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { PercentageBadge } from "@/components/ui/percentage-badge";
@@ -72,8 +70,9 @@ export function createRevenueColumns({
 				const getIcon = () => {
 					if (isUnattributed) {
 						return (
-							<IconCircleQuestionFillDuo18
+							<QuestionIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 						);
 					}
@@ -88,8 +87,9 @@ export function createRevenueColumns({
 							return <CountryFlag country={countryCode} size={16} />;
 						}
 						return (
-							<IconLocationFillDuo18
+							<MapPinIcon
 								className="size-4 text-muted-foreground"
+								weight="duotone"
 							/>
 						);
 					}
@@ -103,8 +103,9 @@ export function createRevenueColumns({
 					}
 
 					return (
-						<IconCoinsFillDuo18
+						<CurrencyDollarIcon
 							className="size-4 text-muted-foreground"
+							weight="duotone"
 						/>
 					);
 				};

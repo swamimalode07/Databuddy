@@ -2,11 +2,9 @@
 
 import type { WebsiteOutput } from "@databuddy/rpc";
 import type { Website } from "@databuddy/shared/types/website";
-import {
-	IconAlertWarningFillDuo18,
-	IconArrowRightFillDuo18,
-	IconExternalLinkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -164,8 +162,9 @@ export function TransferWebsiteDialog({
 							</div>
 
 							<div className="flex justify-center">
-								<IconArrowRightFillDuo18
+								<ArrowRightIcon
 									className="size-4 rotate-90 text-muted-foreground"
+									weight="fill"
 								/>
 							</div>
 
@@ -214,7 +213,7 @@ export function TransferWebsiteDialog({
 								</>
 							) : (
 								<>
-									<IconExternalLinkFillDuo18 className="mr-2 size-4" />
+									<ArrowSquareOutIcon className="mr-2 size-4" weight="fill" />
 									Confirm Transfer
 								</>
 							)}
@@ -289,7 +288,7 @@ export function TransferWebsiteDialog({
 
 					{!isLoadingOrgs && availableOrgs.length === 0 && (
 						<div className="flex items-start gap-2 rounded border border-orange-200 bg-orange-50 p-3 text-orange-800 dark:border-orange-800 dark:bg-orange-950/20 dark:text-orange-200">
-							<IconAlertWarningFillDuo18 className="mt-0.5 size-4 shrink-0" />
+							<WarningIcon className="mt-0.5 size-4 shrink-0" />
 							<p className="text-xs">
 								No other workspaces available. Create a new workspace or get
 								invited to one to transfer this website.
@@ -299,7 +298,7 @@ export function TransferWebsiteDialog({
 
 					{selectedOrgId && (
 						<div className="flex items-start gap-2 rounded border border-orange-200 bg-orange-50 p-3 text-orange-800 dark:border-orange-800 dark:bg-orange-950/20 dark:text-orange-200">
-							<IconAlertWarningFillDuo18 className="mt-0.5 size-4 shrink-0" />
+							<WarningIcon className="mt-0.5 size-4 shrink-0" />
 							<p className="text-xs">
 								This will transfer all data, settings, and analytics to{" "}
 								<strong>{selectedOrg?.name}</strong>. This action cannot be
@@ -321,7 +320,7 @@ export function TransferWebsiteDialog({
 						disabled={!selectedOrgId || isTransferring}
 						onClick={() => setShowConfirmDialog(true)}
 					>
-						<IconExternalLinkFillDuo18 className="mr-2 size-4" />
+						<ArrowSquareOutIcon className="mr-2 size-4" />
 						Transfer Website
 					</Button>
 				</DialogFooter>

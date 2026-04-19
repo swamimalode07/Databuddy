@@ -1,6 +1,6 @@
 "use client";
 
-import { IconChevronDownFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { Chart } from "@/components/ui/composables/chart";
@@ -218,11 +218,12 @@ export function LatencyChart({
 					)}
 				</span>
 
-				<IconChevronDownFillDuo18
+				<CaretDownIcon
 					className={cn(
 						"ml-auto size-3 shrink-0 text-muted-foreground transition-transform duration-150",
 						isOpen && "rotate-180"
 					)}
+					weight="fill"
 				/>
 			</button>
 

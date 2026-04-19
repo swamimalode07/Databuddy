@@ -1,6 +1,6 @@
 "use client";
 
-import { IconShieldCheckFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ShieldCheckIcon } from "@phosphor-icons/react";
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
 
@@ -11,8 +11,9 @@ export default function PrivacySettingsPage() {
 				<ComingSoon
 					description="Manage data retention, export your data, control tracking consent, and delete your account. We're working on making these privacy controls available soon."
 					icon={
-						<IconShieldCheckFillDuo18
+						<ShieldCheckIcon
 							className="size-8 text-muted-foreground"
+							weight="duotone"
 						/>
 					}
 					title="Privacy Settings Coming Soon"

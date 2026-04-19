@@ -1,12 +1,10 @@
 "use client";
 
-import {
-	IconChartActivityFillDuo18,
-	IconCheckFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -164,7 +162,7 @@ export function StatusPageMonitorRow({
 								: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
 						)}
 					>
-						<IconChartActivityFillDuo18 className="size-4" />
+						<HeartbeatIcon className="size-4" weight="duotone" />
 					</div>
 				</List.Cell>
 
@@ -191,7 +189,7 @@ export function StatusPageMonitorRow({
 								size="icon"
 								variant="ghost"
 							>
-								<IconCheckFillDuo18 className="size-3.5" />
+								<CheckIcon className="size-3.5" />
 							</Button>
 							<Button
 								aria-label="Cancel editing"
@@ -201,7 +199,7 @@ export function StatusPageMonitorRow({
 								size="icon"
 								variant="ghost"
 							>
-								<IconXmarkFillDuo18 className="size-3.5" />
+								<XIcon className="size-3.5" />
 							</Button>
 						</fieldset>
 					) : (
@@ -231,7 +229,7 @@ export function StatusPageMonitorRow({
 								size="icon"
 								variant="ghost"
 							>
-								<IconPencilFillDuo18 className="size-3.5" />
+								<PencilSimpleIcon className="size-3.5" weight="duotone" />
 							</Button>
 						</div>
 					)}
@@ -300,7 +298,7 @@ export function StatusPageMonitorRow({
 						size="icon"
 						variant="ghost"
 					>
-						<IconTrashFillDuo18 className="size-4" />
+						<TrashIcon className="size-4" weight="duotone" />
 					</Button>
 				</List.Cell>
 			</Link>

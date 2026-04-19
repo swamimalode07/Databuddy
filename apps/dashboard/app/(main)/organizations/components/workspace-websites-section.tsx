@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconChevronRightFillDuo18,
-	IconGlobeFillDuo18,
-	IconPlusFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
@@ -33,9 +31,10 @@ function WebsiteRow({ website }: { website: WebsiteRowData }) {
 				domain={website.domain}
 				fallbackIcon={
 					<div className="flex size-8 items-center justify-center rounded border bg-background">
-						<IconGlobeFillDuo18
+						<GlobeIcon
 							className="text-muted-foreground"
 							size={16}
+							weight="duotone"
 						/>
 					</div>
 				}
@@ -47,9 +46,10 @@ function WebsiteRow({ website }: { website: WebsiteRowData }) {
 					{website.domain}
 				</p>
 			</div>
-			<IconChevronRightFillDuo18
+			<CaretRightIcon
 				className="text-muted-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-foreground"
 				size={14}
+				weight="bold"
 			/>
 		</Link>
 	);
@@ -108,7 +108,7 @@ export function WorkspaceWebsitesSection({
 					size="sm"
 					variant="outline"
 				>
-					<IconPlusFillDuo18 size={14} />
+					<PlusIcon size={14} />
 					New Website
 				</Button>
 			</div>
@@ -117,9 +117,10 @@ export function WorkspaceWebsitesSection({
 				<WebsitesSkeleton />
 			) : websites.length === 0 ? (
 				<div className="rounded border border-dashed px-4 py-8 text-center">
-					<IconGlobeFillDuo18
+					<GlobeIcon
 						className="mx-auto mb-2 text-muted-foreground/60"
 						size={24}
+						weight="duotone"
 					/>
 					<p className="text-muted-foreground text-sm">No websites yet</p>
 				</div>

@@ -1,11 +1,9 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	IconAlertWarningFillDuo18,
-	IconArrowDoorOut2FillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { SignOutIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -113,7 +111,7 @@ export function DangerZoneSettings({
 					<NoticeBanner
 						className="mb-5"
 						description="Actions here can result in permanent data loss"
-						icon={<IconAlertWarningFillDuo18 />}
+						icon={<WarningIcon />}
 						title="Danger Zone"
 					/>
 					<TransferAssets organizationId={organization.id} />
@@ -148,7 +146,7 @@ export function DangerZoneSettings({
 								size="sm"
 								variant="destructive"
 							>
-								<IconTrashFillDuo18 className="mr-2" size={14} />
+								<TrashIcon className="mr-2" size={14} />
 								Delete
 							</Button>
 						) : (
@@ -157,7 +155,7 @@ export function DangerZoneSettings({
 								size="sm"
 								variant="destructive"
 							>
-								<IconArrowDoorOut2FillDuo18 size={14} />
+								<SignOutIcon size={14} />
 								Leave
 							</Button>
 						)}

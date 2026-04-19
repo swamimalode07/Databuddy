@@ -1,6 +1,6 @@
 "use client";
 
-import { IconArrowDownFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ArrowDownIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -68,9 +68,10 @@ export function RedeemDialog({
 						</span>
 					</div>
 					<div className="flex justify-center">
-						<IconArrowDownFillDuo18
+						<ArrowDownIcon
 							className="text-muted-foreground"
 							size={14}
+							weight="fill"
 						/>
 					</div>
 					<div className="flex items-center justify-between rounded border bg-secondary/50 px-4 py-3">

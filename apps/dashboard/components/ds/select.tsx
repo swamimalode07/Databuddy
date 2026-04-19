@@ -3,8 +3,7 @@
 import { useFieldContext } from "@/components/ds/field";
 import { cn } from "@/lib/utils";
 import { Select as BaseSelect } from "@base-ui-components/react/select";
-import { IconChevronExpandYOutline24 } from "nucleo-core-outline-24";
-import { IconCheckOutline24 } from "nucleo-core-outline-24";
+import { CaretUpDown, Check } from "@phosphor-icons/react/dist/ssr";
 import {
 	createContext,
 	useContext,
@@ -94,7 +93,7 @@ function Trigger({
 		>
 			{children ?? <Value />}
 			<BaseSelect.Icon>
-				<IconChevronExpandYOutline24 className="size-3.5 shrink-0 text-muted-foreground" />
+				<CaretUpDown className="size-3.5 shrink-0 text-muted-foreground" />
 			</BaseSelect.Icon>
 		</BaseSelect.Trigger>
 	);
@@ -175,7 +174,7 @@ function Item({
 			{...rest}
 		>
 			<BaseSelect.ItemIndicator className="flex size-3.5 items-center justify-center">
-				<IconCheckOutline24 className="size-3" />
+				<Check className="size-3" />
 			</BaseSelect.ItemIndicator>
 			<BaseSelect.ItemText>{children}</BaseSelect.ItemText>
 		</BaseSelect.Item>

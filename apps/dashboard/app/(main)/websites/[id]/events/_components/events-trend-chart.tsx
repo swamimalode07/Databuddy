@@ -1,11 +1,10 @@
 "use client";
 
-import {
-	IconBoltLightningFillDuo18,
-	IconBulletListFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconUndoFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
+import { ChartBarIcon } from "@phosphor-icons/react";
+import { ChartLineUpIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { ListBulletsIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";
@@ -159,7 +158,7 @@ const MODE_OPTIONS = [
 		value: "aggregate" as const,
 		label: (
 			<>
-				<IconChartBarTrendUpFillDuo18 className="size-3.5" />
+				<ChartLineUpIcon className="size-3.5" weight="duotone" />
 				<span className="hidden sm:inline">Total</span>
 			</>
 		),
@@ -169,7 +168,7 @@ const MODE_OPTIONS = [
 		value: "by-event" as const,
 		label: (
 			<>
-				<IconBulletListFillDuo18 className="size-3.5" />
+				<ListBulletsIcon className="size-3.5" weight="duotone" />
 				<span className="hidden sm:inline">By Event</span>
 			</>
 		),
@@ -180,12 +179,12 @@ const MODE_OPTIONS = [
 const CHART_TYPE_OPTIONS = [
 	{
 		value: "area" as const,
-		label: <IconChartBarTrendUpFillDuo18 className="size-3.5" />,
+		label: <ChartLineUpIcon className="size-3.5" weight="duotone" />,
 		ariaLabel: "Area chart",
 	},
 	{
 		value: "bar" as const,
-		label: <IconChartBarTrendUpFillDuo18 className="size-3.5" />,
+		label: <ChartBarIcon className="size-3.5" weight="duotone" />,
 		ariaLabel: "Bar chart",
 	},
 ];
@@ -314,8 +313,9 @@ export function EventsTrendChart({
 			<div className="flex h-full flex-col rounded border bg-card">
 				<div className="flex items-center gap-3 border-b px-3 py-2.5 sm:px-4 sm:py-3">
 					<div className="flex size-8 items-center justify-center rounded bg-accent">
-						<IconBoltLightningFillDuo18
+						<LightningIcon
 							className="size-4 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<div className="min-w-0 flex-1">
@@ -335,8 +335,9 @@ export function EventsTrendChart({
 			<div className="flex h-full flex-col rounded border bg-card">
 				<div className="flex items-center gap-3 border-b px-3 py-2.5 sm:px-4 sm:py-3">
 					<div className="flex size-8 items-center justify-center rounded bg-accent">
-						<IconBoltLightningFillDuo18
+						<LightningIcon
 							className="size-4 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<div className="min-w-0 flex-1">
@@ -349,7 +350,7 @@ export function EventsTrendChart({
 				<div className="flex-1 p-3 sm:p-4">
 					<TableEmptyState
 						description="Event trends will appear here when events are tracked."
-						icon={<IconBoltLightningFillDuo18 className="size-6 text-muted-foreground" />}
+						icon={<LightningIcon className="size-6 text-muted-foreground" />}
 						title="No event trend data"
 					/>
 				</div>
@@ -364,7 +365,7 @@ export function EventsTrendChart({
 			<div className="flex flex-col items-start justify-between gap-2 border-b px-3 py-2.5 sm:flex-row sm:items-center sm:px-4 sm:py-3">
 				<div className="flex items-center gap-3">
 					<div className="flex size-8 items-center justify-center rounded bg-primary/10">
-						<IconBoltLightningFillDuo18 className="size-4 text-primary" />
+						<LightningIcon className="size-4 text-primary" weight="duotone" />
 					</div>
 					<div className="min-w-0">
 						<h2 className="font-semibold text-foreground text-sm sm:text-base">
@@ -380,7 +381,7 @@ export function EventsTrendChart({
 				<div className="flex items-center gap-1.5">
 					{isFetching && !isLoading && (
 						<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-							<IconUndoFillDuo18 className="size-3 animate-spin" />
+							<ArrowCounterClockwiseIcon className="size-3 animate-spin" />
 							<span>Updating...</span>
 						</div>
 					)}
@@ -391,7 +392,7 @@ export function EventsTrendChart({
 							size="sm"
 							variant="outline"
 						>
-							<IconUndoFillDuo18 className="size-3" />
+							<ArrowCounterClockwiseIcon className="size-3" weight="bold" />
 							Reset
 						</Button>
 					)}

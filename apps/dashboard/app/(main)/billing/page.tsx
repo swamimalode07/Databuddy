@@ -9,15 +9,14 @@ import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import type { UsageResponse } from "@databuddy/shared/types/billing";
 import {
-	IconArrowTrendUpFillDuo18,
-	IconCalendarFillDuo18,
-	IconCrownFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconPlusFillDuo18,
-	IconPuzzlePieceFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
-s/react";
+	ArrowSquareOutIcon,
+	CalendarIcon,
+	CrownIcon,
+	PlusIcon,
+	PuzzlePieceIcon,
+	TrendUpIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCustomer } from "autumn-js/react";
 import Link from "next/link";
@@ -217,7 +216,7 @@ export default function BillingPage() {
 						<EmptyState
 							className="h-full"
 							description="Start using features to see your consumption stats here"
-							icon={<IconArrowTrendUpFillDuo18 />}
+							icon={<TrendUpIcon />}
 							title="No usage data yet"
 							variant="minimal"
 						/>
@@ -271,9 +270,10 @@ export default function BillingPage() {
 						</div>
 						<div className="flex items-center gap-3">
 							<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-secondary">
-								<IconCrownFillDuo18
+								<CrownIcon
 									className="text-accent-foreground"
 									size={16}
+									weight="duotone"
 								/>
 							</div>
 							<div>
@@ -287,7 +287,7 @@ export default function BillingPage() {
 						</div>
 						{statusDetails && (
 							<div className="mt-3 flex items-center gap-2 text-muted-foreground text-sm">
-								<IconCalendarFillDuo18 size={14} />
+								<CalendarIcon size={14} weight="duotone" />
 								{statusDetails}
 							</div>
 						)}
@@ -334,7 +334,7 @@ export default function BillingPage() {
 									)}
 									<Button className="w-full" onClick={onManageBilling}>
 										Billing Portal
-										<IconExternalLinkFillDuo18 size={14} />
+										<ArrowSquareOutIcon size={14} />
 									</Button>
 								</>
 							) : (
@@ -355,9 +355,10 @@ export default function BillingPage() {
 					{showAddOns && (
 						<div className="border-t p-5">
 							<div className="mb-3 flex items-center gap-2">
-								<IconPuzzlePieceFillDuo18
+								<PuzzlePieceIcon
 									className="text-muted-foreground"
 									size={16}
+									weight="duotone"
 								/>
 								<h3 className="font-semibold">Enterprise Add-ons</h3>
 							</div>
@@ -402,7 +403,7 @@ export default function BillingPage() {
 															size="sm"
 															variant="ghost"
 														>
-															<IconXmarkFillDuo18 size={14} />
+															<XIcon size={14} />
 														</Button>
 													)}
 												</div>
@@ -416,7 +417,7 @@ export default function BillingPage() {
 													size="sm"
 													variant="outline"
 												>
-													<IconPlusFillDuo18 size={14} />
+													<PlusIcon size={14} />
 													Add
 												</Button>
 											) : null}

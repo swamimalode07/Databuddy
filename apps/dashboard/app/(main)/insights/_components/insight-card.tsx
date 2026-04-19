@@ -1,23 +1,21 @@
 "use client";
 
-import {
-	IconArrowRightFillDuo18,
-	IconArrowTrendDownFillDuo18,
-	IconArrowTrendUpFillDuo18,
-	IconBoltLightningFillDuo18,
-	IconBugFillDuo18,
-	IconChartBarTrendUpFillDuo18,
-	IconChevronDownFillDuo18,
-	IconCircleWarningFillDuo18,
-	IconCopyFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconGauge2FillDuo18,
-	IconLink5FillDuo18,
-	IconRocketFillDuo18,
-	IconThumbsDownFillDuo18,
-	IconThumbsUpFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { BugIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import { ChartLineUpIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { GaugeIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { LinkIcon } from "@phosphor-icons/react";
+import { RocketIcon } from "@phosphor-icons/react";
+import { ThumbsDownIcon } from "@phosphor-icons/react";
+import { ThumbsUpIcon } from "@phosphor-icons/react";
+import { TrendDownIcon } from "@phosphor-icons/react";
+import { TrendUpIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { type ReactNode, useMemo } from "react";
 import { toast } from "sonner";
@@ -53,67 +51,67 @@ const TYPE_STYLES: Record<
 	{ icon: ReactNode; color: string; bg: string }
 > = {
 	error_spike: {
-		icon: <IconBugFillDuo18 className="size-4" />,
+		icon: <BugIcon className="size-4" weight="duotone" />,
 		color: "text-red-500",
 		bg: "bg-red-500/10",
 	},
 	new_errors: {
-		icon: <IconBugFillDuo18 className="size-4" />,
+		icon: <BugIcon className="size-4" weight="duotone" />,
 		color: "text-amber-500",
 		bg: "bg-amber-500/10",
 	},
 	vitals_degraded: {
-		icon: <IconGauge2FillDuo18 className="size-4" />,
+		icon: <GaugeIcon className="size-4" weight="duotone" />,
 		color: "text-amber-500",
 		bg: "bg-amber-500/10",
 	},
 	custom_event_spike: {
-		icon: <IconBoltLightningFillDuo18 className="size-4" />,
+		icon: <LightningIcon className="size-4" weight="fill" />,
 		color: "text-blue-500",
 		bg: "bg-blue-500/10",
 	},
 	traffic_drop: {
-		icon: <IconArrowTrendDownFillDuo18 className="size-4" />,
+		icon: <TrendDownIcon className="size-4" weight="fill" />,
 		color: "text-red-500",
 		bg: "bg-red-500/10",
 	},
 	traffic_spike: {
-		icon: <IconArrowTrendUpFillDuo18 className="size-4" />,
+		icon: <TrendUpIcon className="size-4" weight="fill" />,
 		color: "text-emerald-500",
 		bg: "bg-emerald-500/10",
 	},
 	bounce_rate_change: {
-		icon: <IconArrowTrendDownFillDuo18 className="size-4" />,
+		icon: <TrendDownIcon className="size-4" weight="fill" />,
 		color: "text-amber-500",
 		bg: "bg-amber-500/10",
 	},
 	engagement_change: {
-		icon: <IconChartBarTrendUpFillDuo18 className="size-4" />,
+		icon: <ChartLineUpIcon className="size-4" weight="duotone" />,
 		color: "text-blue-500",
 		bg: "bg-blue-500/10",
 	},
 	referrer_change: {
-		icon: <IconChartBarTrendUpFillDuo18 className="size-4" />,
+		icon: <ChartLineUpIcon className="size-4" weight="duotone" />,
 		color: "text-violet-500",
 		bg: "bg-violet-500/10",
 	},
 	page_trend: {
-		icon: <IconChartBarTrendUpFillDuo18 className="size-4" />,
+		icon: <ChartLineUpIcon className="size-4" weight="duotone" />,
 		color: "text-blue-500",
 		bg: "bg-blue-500/10",
 	},
 	positive_trend: {
-		icon: <IconArrowTrendUpFillDuo18 className="size-4" />,
+		icon: <TrendUpIcon className="size-4" weight="fill" />,
 		color: "text-emerald-500",
 		bg: "bg-emerald-500/10",
 	},
 	performance: {
-		icon: <IconRocketFillDuo18 className="size-4" />,
+		icon: <RocketIcon className="size-4" weight="duotone" />,
 		color: "text-violet-500",
 		bg: "bg-violet-500/10",
 	},
 	uptime_issue: {
-		icon: <IconCircleWarningFillDuo18 className="size-4" />,
+		icon: <WarningCircleIcon className="size-4" weight="duotone" />,
 		color: "text-red-500",
 		bg: "bg-red-500/10",
 	},
@@ -282,17 +280,18 @@ export function InsightCard({
 									}}
 									type="button"
 								>
-									<IconXmarkFillDuo18 className="size-3" />
+									<XIcon className="size-3" weight="bold" />
 								</button>
 							)}
 							<span className="font-mono text-[11px] text-muted-foreground tabular-nums">
 								{insight.priority}/10
 							</span>
-							<IconChevronDownFillDuo18
+							<CaretDownIcon
 								className={cn(
 									"size-3 text-muted-foreground transition-transform",
 									expanded && "rotate-180"
 								)}
+								weight="fill"
 							/>
 						</div>
 					</div>
@@ -363,7 +362,7 @@ export function InsightCard({
 									onClick={(e) => e.stopPropagation()}
 								>
 									Ask agent
-									<IconArrowRightFillDuo18 className="size-3" />
+									<ArrowRightIcon className="size-3" weight="fill" />
 								</Link>
 								<Link
 									aria-label={
@@ -386,7 +385,7 @@ export function InsightCard({
 											onClick={(e) => e.stopPropagation()}
 											type="button"
 										>
-											<IconDotsVerticalFillDuo18 className="size-4" />
+											<DotsThreeIcon className="size-4" weight="bold" />
 										</button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="start" className="w-44">
@@ -396,11 +395,11 @@ export function InsightCard({
 												copyAgentPromptAction();
 											}}
 										>
-											<IconCopyFillDuo18 className="size-4" />
+											<CopyIcon className="size-4" weight="duotone" />
 											Copy prompt
 										</DropdownMenuItem>
 										<DropdownMenuItem onClick={copyLinkAction}>
-											<IconLink5FillDuo18 className="size-4" />
+											<LinkIcon className="size-4" weight="duotone" />
 											Copy link
 										</DropdownMenuItem>
 									</DropdownMenuContent>
@@ -429,7 +428,7 @@ export function InsightCard({
 												}}
 												type="button"
 											>
-												<IconThumbsUpFillDuo18 className="size-3.5" />
+												<ThumbsUpIcon className="size-3.5" weight="duotone" />
 											</button>
 											<button
 												aria-label="Mark as not helpful"
@@ -448,7 +447,7 @@ export function InsightCard({
 												}}
 												type="button"
 											>
-												<IconThumbsDownFillDuo18 className="size-3.5" />
+												<ThumbsDownIcon className="size-3.5" weight="duotone" />
 											</button>
 										</>
 									)}

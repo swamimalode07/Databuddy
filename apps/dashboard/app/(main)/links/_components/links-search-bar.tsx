@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconFilterFillDuo18,
-	IconMagnifierFillDuo18,
-	IconSortBottomToTopFillDuo18,
-	IconXmarkFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { FunnelIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { SortAscendingIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -45,8 +43,9 @@ export function LinksSearchBar({
 	return (
 		<div className="flex w-full items-center gap-1.5">
 			<div className="relative flex-1">
-				<IconMagnifierFillDuo18
+				<MagnifyingGlassIcon
 					className="absolute top-1/2 left-2.5 z-10 size-3.5 -translate-y-1/2 text-muted-foreground"
+					weight="bold"
 				/>
 				<Input
 					className="h-7 border-transparent bg-transparent pr-7 pl-8 text-sm shadow-none placeholder:text-muted-foreground/50 focus-visible:border-border focus-visible:bg-background"
@@ -62,7 +61,7 @@ export function LinksSearchBar({
 						onClick={() => onSearchQueryChangeAction("")}
 						type="button"
 					>
-						<IconXmarkFillDuo18 className="size-3.5" />
+						<XIcon className="size-3.5" />
 					</button>
 				)}
 			</div>
@@ -77,7 +76,7 @@ export function LinksSearchBar({
 						size="sm"
 						variant="outline"
 					>
-						<IconSortBottomToTopFillDuo18 size={14} />
+						<SortAscendingIcon size={14} weight="bold" />
 						<span className="hidden sm:inline">{SORT_LABELS[sortBy]}</span>
 					</Button>
 				</DropdownMenuTrigger>
@@ -114,7 +113,7 @@ export function LinksSearchBar({
 					size="sm"
 					variant="ghost"
 				>
-					<IconFilterFillDuo18 size={14} />
+					<FunnelIcon size={14} weight="duotone" />
 					Clear
 				</Button>
 			)}

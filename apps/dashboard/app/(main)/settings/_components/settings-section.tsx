@@ -1,4 +1,4 @@
-import { IconLoader2FillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -127,7 +127,7 @@ export function UnsavedChangesFooter({
 					</Button>
 				)}
 				<Button disabled={isSaving} onClick={onSave} size="sm">
-					{isSaving && <IconLoader2FillDuo18 className="mr-2 size-4 animate-spin" />}
+					{isSaving && <CircleNotchIcon className="mr-2 size-4 animate-spin" />}
 					{saveLabel}
 				</Button>
 			</div>

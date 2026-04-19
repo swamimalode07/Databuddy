@@ -1,10 +1,8 @@
 "use client";
 
-import {
-	IconArrowLeftFillDuo18,
-	IconLoader2FillDuo18,
-	IconShieldFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ShieldWarningIcon } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense } from "react";
@@ -98,7 +96,7 @@ function AuthErrorPage() {
 				<div className="relative z-10">
 					<div className="space-y-5">
 						<div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-							<IconShieldFillDuo18 className="size-5 shrink-0 text-destructive" />
+							<ShieldWarningIcon className="size-5 shrink-0 text-destructive" />
 							<p className="text-muted-foreground text-sm">
 								{errorInfo.description}
 							</p>
@@ -129,7 +127,7 @@ function AuthErrorPage() {
 					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="https://www.databuddy.cc"
 				>
-					<IconArrowLeftFillDuo18 className="mr-1 inline size-3" />
+					<ArrowLeftIcon className="mr-1 inline size-3" />
 					Back to databuddy.cc
 				</Link>
 			</div>
@@ -144,7 +142,7 @@ export default function Page() {
 				<div className="flex h-dvh items-center justify-center bg-background">
 					<div className="relative">
 						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<IconLoader2FillDuo18 className="relative size-8 animate-spin text-primary" />
+						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
 					</div>
 				</div>
 			}

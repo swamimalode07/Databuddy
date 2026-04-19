@@ -1,6 +1,6 @@
 "use client";
 
-import { IconRocketFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { RocketIcon } from "@phosphor-icons/react";
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
 
@@ -11,8 +11,9 @@ export default function FeaturesSettingsPage() {
 				<ComingSoon
 					description="Get early access to new features, beta UI experiments, and experimental performance optimizations. We're working on bringing these options to you soon."
 					icon={
-						<IconRocketFillDuo18
+						<RocketIcon
 							className="size-8 text-muted-foreground"
+							weight="duotone"
 						/>
 					}
 					title="Feature Access Coming Soon"

@@ -1,11 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	IconCheckFillDuo18,
-	IconLoader2FillDuo18,
-	IconUsersFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { CheckIcon } from "@phosphor-icons/react";
+import { SpinnerGapIcon } from "@phosphor-icons/react";
+import { UsersThreeIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -184,9 +182,10 @@ export function GroupSheet({
 							className="flex size-11 items-center justify-center rounded border"
 							style={{ backgroundColor: `${selectedColor}15` }}
 						>
-							<IconUsersFillDuo18
+							<UsersThreeIcon
 								className="size-5"
 								style={{ color: selectedColor }}
+								weight="duotone"
 							/>
 						</div>
 						<div>
@@ -280,9 +279,10 @@ export function GroupSheet({
 															type="button"
 														>
 															{field.value === color.value && (
-																<IconCheckFillDuo18
+																<CheckIcon
 																	className="text-white drop-shadow-sm"
 																	size={14}
+																	weight="bold"
 																/>
 															)}
 														</button>
@@ -332,7 +332,7 @@ export function GroupSheet({
 							<Button className="min-w-28" disabled={isLoading} type="submit">
 								{isLoading ? (
 									<>
-										<IconLoader2FillDuo18 className="animate-spin" size={16} />
+										<SpinnerGapIcon className="animate-spin" size={16} />
 										{isEditing ? "Saving…" : "Creating…"}
 									</>
 								) : isEditing ? (

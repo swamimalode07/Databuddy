@@ -1,14 +1,12 @@
 "use client";
 
-import {
-	IconCopyFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconLink5FillDuo18,
-	IconPencilFillDuo18,
-	IconQrcodeFillDuo18,
-	IconTimer2FillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ClockCountdownIcon } from "@phosphor-icons/react";
+import { CopyIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { QrCodeIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
+import { LinkIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
@@ -60,7 +58,7 @@ function LinkActions({
 					size="icon"
 					variant="ghost"
 				>
-					<IconDotsVerticalFillDuo18 className="size-4" />
+					<DotsThreeIcon className="size-4" weight="bold" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-40">
@@ -68,16 +66,16 @@ function LinkActions({
 					className="gap-2"
 					onClick={() => copyShortUrl(link.slug)}
 				>
-					<IconCopyFillDuo18 className="size-4" />
+					<CopyIcon className="size-4" weight="duotone" />
 					Copy URL
 				</DropdownMenuItem>
 				<DropdownMenuItem className="gap-2" onClick={() => onShowQr(link)}>
-					<IconQrcodeFillDuo18 className="size-4" />
+					<QrCodeIcon className="size-4" weight="duotone" />
 					QR Code
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem className="gap-2" onClick={() => onEdit(link)}>
-					<IconPencilFillDuo18 className="size-4" />
+					<PencilSimpleIcon className="size-4" weight="duotone" />
 					Edit
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
@@ -86,7 +84,7 @@ function LinkActions({
 					onClick={() => onDelete(link.id)}
 					variant="destructive"
 				>
-					<IconTrashFillDuo18 className="size-4" />
+					<TrashIcon className="size-4" weight="duotone" />
 					Delete
 				</DropdownMenuItem>
 			</DropdownMenuContent>
@@ -119,7 +117,7 @@ function ExpiryBadge({ link }: { link: Link }) {
 							: "bg-amber-500/10 text-amber-600 dark:text-amber-400"
 					)}
 				>
-					<IconTimer2FillDuo18 className="size-3" />
+					<ClockCountdownIcon className="size-3" weight="duotone" />
 					{isExpired ? "Expired" : localDayjs(link.expiresAt).fromNow(true)}
 				</span>
 			</TooltipTrigger>
@@ -185,7 +183,7 @@ function LinkRow({
 						}}
 						type="button"
 					>
-						<IconCopyFillDuo18 className="size-3" />
+						<CopyIcon className="size-3" weight="bold" />
 					</button>
 					<span className="text-muted-foreground/30">→</span>
 					<span className="hidden truncate text-muted-foreground sm:inline">
@@ -242,7 +240,7 @@ export function LinksList({
 						onClick: onCreateLink,
 					}}
 					description="Create short links to track clicks and measure engagement across your marketing campaigns."
-					icon={<IconLink5FillDuo18 />}
+					icon={<LinkIcon weight="duotone" />}
 					title="No links yet"
 					variant="minimal"
 				/>

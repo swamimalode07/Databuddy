@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { IconCheckFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { CheckIcon } from "@phosphor-icons/react";
+
 interface Step {
 	id: string;
 	title: string;
@@ -41,7 +42,7 @@ export function OnboardingStepIndicator({
 								)}
 							>
 								{isCompleted ? (
-									<IconCheckFillDuo18 className="size-3.5" />
+									<CheckIcon className="size-3.5" weight="bold" />
 								) : (
 									<span>{index + 1}</span>
 								)}

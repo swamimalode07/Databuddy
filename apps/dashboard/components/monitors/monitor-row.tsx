@@ -1,15 +1,13 @@
 "use client";
 
-import {
-	IconBoltLightningFillDuo18,
-	IconChartActivityFillDuo18,
-	IconDotsVerticalFillDuo18,
-	IconExternalLinkFillDuo18,
-	IconMediaPauseFillDuo18,
-	IconMediaPlayFillDuo18,
-	IconPencilFillDuo18,
-	IconTrashFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon } from "@phosphor-icons/react";
+import { HeartbeatIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
+import { PauseIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { PlayIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -169,12 +167,12 @@ function MonitorActions({
 						size="icon"
 						variant="ghost"
 					>
-						<IconDotsVerticalFillDuo18 className="size-5" />
+						<DotsThreeIcon className="size-5" weight="bold" />
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-52">
 					<DropdownMenuItem className="gap-2" onClick={onEditAction}>
-						<IconPencilFillDuo18 className="size-4" />
+						<PencilSimpleIcon className="size-4" weight="duotone" />
 						Edit Monitor
 					</DropdownMenuItem>
 					<DropdownMenuItem
@@ -182,7 +180,7 @@ function MonitorActions({
 						disabled={manualCheckMutation.isPending || schedule.isPaused}
 						onClick={handleManualCheck}
 					>
-						<IconBoltLightningFillDuo18 className="size-4" />
+						<LightningIcon className="size-4" weight="duotone" />
 						Check Now
 					</DropdownMenuItem>
 					<DropdownMenuItem
@@ -193,9 +191,9 @@ function MonitorActions({
 						onClick={handleTogglePause}
 					>
 						{schedule.isPaused ? (
-							<IconMediaPlayFillDuo18 className="size-4" />
+							<PlayIcon className="size-4" weight="duotone" />
 						) : (
-							<IconMediaPauseFillDuo18 className="size-4" />
+							<PauseIcon className="size-4" weight="duotone" />
 						)}
 						{schedule.isPaused ? "Resume" : "Pause"}
 					</DropdownMenuItem>
@@ -204,7 +202,7 @@ function MonitorActions({
 							className="gap-2"
 							onClick={() => setIsTransferOpen(true)}
 						>
-							<IconExternalLinkFillDuo18 className="size-4" />
+							<ArrowSquareOutIcon className="size-4" weight="duotone" />
 							Transfer to Workspace
 						</DropdownMenuItem>
 					) : null}
@@ -215,7 +213,7 @@ function MonitorActions({
 						onClick={handleDelete}
 						variant="destructive"
 					>
-						<IconTrashFillDuo18 className="size-4 fill-destructive" />
+						<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 						Delete Monitor
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -396,12 +394,12 @@ export function MonitorRow({
 								altText={`${displayName} favicon`}
 								domain={displayUrl}
 								fallbackIcon={
-									<IconChartActivityFillDuo18 className="size-4" />
+									<HeartbeatIcon className="size-4" weight="duotone" />
 								}
 								size={16}
 							/>
 						) : (
-							<IconChartActivityFillDuo18 className="size-4" />
+							<HeartbeatIcon className="size-4" weight="duotone" />
 						)}
 					</div>
 				</List.Cell>

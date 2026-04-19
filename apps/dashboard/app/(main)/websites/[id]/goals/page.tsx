@@ -1,10 +1,8 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import {
-	IconArrowTrendDownFillDuo18,
-	IconTargetFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { TargetIcon } from "@phosphor-icons/react";
+import { TrendDownIcon } from "@phosphor-icons/react";
 import { useAtomValue } from "jotai";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -117,8 +115,9 @@ export default function GoalsPage() {
 				<Card className="border-destructive/20 bg-destructive/5">
 					<CardContent className="pt-6">
 						<div className="flex items-center gap-2">
-							<IconArrowTrendDownFillDuo18
+							<TrendDownIcon
 								className="size-5 text-destructive"
+								weight="duotone"
 							/>
 							<p className="font-medium text-destructive">
 								Error loading goal data
@@ -143,8 +142,9 @@ export default function GoalsPage() {
 					feature={GATED_FEATURES.GOALS}
 					hasError={!!goalsError}
 					icon={
-						<IconTargetFillDuo18
+						<TargetIcon
 							className="size-6 text-accent-foreground"
+							weight="duotone"
 						/>
 					}
 					isLoading={goalsLoading}

@@ -1,6 +1,6 @@
 "use client";
 
-import { IconRefreshFillDuo18 } from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
@@ -176,7 +176,7 @@ export function AnalyticsToolbar({
 						onClick={onRefreshAction}
 						variant="outline"
 					>
-						<IconRefreshFillDuo18
+						<ArrowClockwiseIcon
 							aria-hidden="true"
 							className={`size-4 ${isRefreshing || isLoading ? "animate-spin" : ""}`}
 						/>

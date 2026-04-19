@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconBugFillDuo18,
-	IconUndoFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
+import { BugIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { METRIC_COLORS, METRICS } from "@/components/charts/metrics-constants";
@@ -126,8 +124,9 @@ export const ErrorTrendsChart = ({ errorChartData }: ErrorTrendsChartProps) => {
 			<div className="flex h-full flex-col rounded border bg-card">
 				<div className="flex items-center gap-3 border-b px-3 py-2.5 sm:px-4 sm:py-3">
 					<div className="flex size-8 items-center justify-center rounded bg-accent">
-						<IconBugFillDuo18
+						<BugIcon
 							className="size-4 text-muted-foreground"
+							weight="duotone"
 						/>
 					</div>
 					<div className="min-w-0 flex-1">
@@ -140,7 +139,7 @@ export const ErrorTrendsChart = ({ errorChartData }: ErrorTrendsChartProps) => {
 				<div className="flex-1 p-3 sm:p-4">
 					<TableEmptyState
 						description="Error trends will appear here when your website encounters errors."
-						icon={<IconBugFillDuo18 className="size-6 text-muted-foreground" />}
+						icon={<BugIcon className="size-6 text-muted-foreground" />}
 						title="No error trend data"
 					/>
 				</div>
@@ -161,7 +160,7 @@ export const ErrorTrendsChart = ({ errorChartData }: ErrorTrendsChartProps) => {
 			<div className="flex flex-col items-start justify-between gap-2 border-b px-3 py-2.5 sm:flex-row sm:items-center sm:px-4 sm:py-3">
 				<div className="flex items-center gap-3">
 					<div className="flex size-8 items-center justify-center rounded bg-destructive/10">
-						<IconBugFillDuo18 className="size-4 text-destructive" />
+						<BugIcon className="size-4 text-destructive" weight="duotone" />
 					</div>
 					<div className="min-w-0">
 						<h2 className="font-semibold text-foreground text-sm sm:text-base">
@@ -180,7 +179,7 @@ export const ErrorTrendsChart = ({ errorChartData }: ErrorTrendsChartProps) => {
 							size="sm"
 							variant="outline"
 						>
-							<IconUndoFillDuo18 className="size-3" />
+							<ArrowCounterClockwiseIcon className="size-3" weight="bold" />
 							Reset
 						</Button>
 					)}

@@ -1,10 +1,8 @@
 "use client";
 
 import { trackError } from "@databuddy/sdk";
-import {
-	IconArrowLeftFillDuo18,
-	IconCircleWarningFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -55,10 +53,11 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
 							className="flex size-12 items-center justify-center rounded-2xl bg-destructive/10"
 							role="img"
 						>
-							<IconCircleWarningFillDuo18
+							<WarningCircleIcon
 								aria-hidden="true"
 								className="size-6 text-destructive"
 								size={24}
+								weight="fill"
 							/>
 						</div>
 
@@ -87,7 +86,7 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
 									onClick={() => router.back()}
 									variant="outline"
 								>
-									<IconArrowLeftFillDuo18 className="mr-2 size-4" />
+									<ArrowLeftIcon className="mr-2 size-4" weight="duotone" />
 									Go Back
 								</Button>
 							)}

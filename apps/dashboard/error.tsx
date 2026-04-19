@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	IconAlertWarningFillDuo18,
-	IconRefreshFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { WarningIcon } from "@phosphor-icons/react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +21,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 			<Card className="w-full max-w-lg border-destructive/50 shadow-lg">
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2 text-destructive">
-						<IconAlertWarningFillDuo18 className="size-6" size={24} />
+						<WarningIcon className="size-6" size={24} weight="duotone" />
 						Something went wrong
 					</CardTitle>
 				</CardHeader>
@@ -36,7 +34,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 						{error.message || "An unknown error occurred."}
 					</pre>
 					<Button onClick={() => reset()} size="sm">
-						<IconRefreshFillDuo18 className="mr-2 size-4" size={16} />
+						<ArrowClockwiseIcon className="mr-2 size-4" size={16} />
 						Try again
 					</Button>
 				</CardContent>

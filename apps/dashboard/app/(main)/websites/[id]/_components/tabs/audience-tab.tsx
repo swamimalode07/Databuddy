@@ -1,11 +1,9 @@
 "use client";
 
-import {
-	IconLaptopFillDuo18,
-	IconMobile2FillDuo18,
-	IconMonitorFillDuo18,
-	IconTabletFillDuo18,
-} from "nucleo-ui-fill-duo-18";
+import { DeviceMobileIcon } from "@phosphor-icons/react";
+import { DeviceTabletIcon } from "@phosphor-icons/react";
+import { LaptopIcon } from "@phosphor-icons/react";
+import { MonitorIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -73,7 +71,7 @@ const getDeviceInfo = (width: number, height: number, isValid: boolean) => {
 	if (!isValid) {
 		return {
 			type: "Unknown",
-			Icon: IconMonitorFillDuo18,
+			Icon: MonitorIcon,
 			isMobile: false,
 			isTablet: false,
 		};
@@ -85,7 +83,7 @@ const getDeviceInfo = (width: number, height: number, isValid: boolean) => {
 	if (shortSide <= 480) {
 		return {
 			type: "Mobile",
-			Icon: IconMobile2FillDuo18,
+			Icon: DeviceMobileIcon,
 			isMobile: true,
 			isTablet: false,
 		};
@@ -93,7 +91,7 @@ const getDeviceInfo = (width: number, height: number, isValid: boolean) => {
 	if (aspect >= 1.5 && longSide >= 1100) {
 		return {
 			type: longSide > 1920 ? "Desktop" : "Laptop",
-			Icon: longSide > 1920 ? IconMonitorFillDuo18 : IconLaptopFillDuo18,
+			Icon: longSide > 1920 ? MonitorIcon : LaptopIcon,
 			isMobile: false,
 			isTablet: false,
 		};
@@ -101,7 +99,7 @@ const getDeviceInfo = (width: number, height: number, isValid: boolean) => {
 	if (shortSide <= 1024 && aspect < 1.5) {
 		return {
 			type: "Tablet",
-			Icon: IconTabletFillDuo18,
+			Icon: DeviceTabletIcon,
 			isMobile: false,
 			isTablet: true,
 		};
@@ -109,14 +107,14 @@ const getDeviceInfo = (width: number, height: number, isValid: boolean) => {
 	if (longSide <= 1920) {
 		return {
 			type: "Laptop",
-			Icon: IconLaptopFillDuo18,
+			Icon: LaptopIcon,
 			isMobile: false,
 			isTablet: false,
 		};
 	}
 	return {
 		type: "Desktop",
-		Icon: IconMonitorFillDuo18,
+		Icon: MonitorIcon,
 		isMobile: false,
 		isTablet: false,
 	};
@@ -591,6 +589,7 @@ export function WebsiteAudienceTab({
 													<div className="flex items-center gap-2">
 														<Icon
 															className="size-4 text-muted-foreground"
+															weight="duotone"
 														/>
 														<div>
 															<div className="font-medium text-foreground text-sm">
@@ -643,8 +642,9 @@ export function WebsiteAudienceTab({
 					) : (
 						<div className="flex flex-col items-center justify-center py-12 text-center">
 							<div className="mb-3 flex size-12 items-center justify-center rounded bg-muted">
-								<IconMonitorFillDuo18
+								<MonitorIcon
 									className="size-6 text-muted-foreground"
+									weight="duotone"
 								/>
 							</div>
 							<h4 className="mb-1 font-medium text-foreground text-sm">

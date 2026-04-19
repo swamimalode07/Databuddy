@@ -1,4 +1,5 @@
-import { IconBookOpenFillDuo18 } from "nucleo-ui-fill-duo-18";
+import type { IconProps } from "@phosphor-icons/react";
+import { BookOpenIcon } from "@phosphor-icons/react";
 import type { VariantProps } from "class-variance-authority";
 import type { ComponentType } from "react";
 import { Badge, type badgeVariants } from "@/components/ui/badge";
@@ -65,7 +66,7 @@ interface InfoCardProps {
 	};
 	className?: string;
 	description?: string;
-	icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
+	icon: ComponentType<IconProps>;
 	title: string;
 }
 
@@ -87,6 +88,7 @@ function InfoCard({
 				<IconComponent
 					className="text-accent-foreground"
 					size={20}
+					weight="duotone"
 				/>
 			</div>
 			<div className="min-w-0 flex-1">
@@ -124,7 +126,7 @@ function DocsLink({
 			variant="outline"
 		>
 			<a href={href} rel="noopener noreferrer" target="_blank">
-				<IconBookOpenFillDuo18 size={16} />
+				<BookOpenIcon size={16} />
 				{label}
 			</a>
 		</Button>
