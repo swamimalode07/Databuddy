@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Card } from "@/components/ds/card";
-import { ghostControlShell } from "@/components/ds/control-shell";
+import { GhostTriggerButton } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { orpc } from "@/lib/orpc";
 
@@ -109,13 +109,9 @@ export function MonitorCard({
 
 					<DropdownMenu>
 						<DropdownMenu.Trigger>
-							<button
-								aria-label="More options"
-								className={ghostControlShell("text-sm")}
-								type="button"
-							>
+							<GhostTriggerButton aria-label="More options" className="text-sm">
 								<DotsThreeIcon size={20} weight="duotone" />
-							</button>
+							</GhostTriggerButton>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end">
 							<DropdownMenu.Item onClick={onEditAction}>

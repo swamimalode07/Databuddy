@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ds/button";
-import { fieldControlShell } from "@/components/ds/control-shell";
+import { FieldTriggerButton } from "@/components/ds/control-shell";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
@@ -84,13 +84,10 @@ export function InviteMemberDialog({
 						</Field>
 						<DropdownMenu>
 							<DropdownMenu.Trigger>
-								<button
-									className={fieldControlShell("w-auto gap-1")}
-									type="button"
-								>
+								<FieldTriggerButton className="w-auto gap-1">
 									{role === "admin" ? "Admin" : "Member"}
 									<CaretUpDown className="size-3 shrink-0 text-muted-foreground" />
-								</button>
+								</FieldTriggerButton>
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content align="end" side="bottom">
 								<DropdownMenu.RadioGroup

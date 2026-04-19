@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { markFeedbackSubmitted } from "@/components/feedback-prompt";
 import { Button } from "@/components/ds/button";
-import { fieldControlShell } from "@/components/ds/control-shell";
+import { FieldTriggerButton } from "@/components/ds/control-shell";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
@@ -92,11 +92,8 @@ export function SubmitFeedbackDialog() {
 						<Field.Label>Category</Field.Label>
 						<DropdownMenu>
 							<DropdownMenu.Trigger>
-								<button
-									className={fieldControlShell(
-										category ? undefined : "text-muted-foreground"
-									)}
-									type="button"
+								<FieldTriggerButton
+									className={category ? undefined : "text-muted-foreground"}
 								>
 									<span className={category ? "text-foreground" : undefined}>
 										{category
@@ -104,7 +101,7 @@ export function SubmitFeedbackDialog() {
 											: "Select a category"}
 									</span>
 									<CaretDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
-								</button>
+								</FieldTriggerButton>
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content
 								align="start"

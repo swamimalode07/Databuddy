@@ -10,7 +10,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
-import { ghostControlShell } from "@/components/ds/control-shell";
+import { GhostTriggerButton } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { orpc } from "@/lib/orpc";
 import { fromNow } from "@/lib/time";
@@ -169,15 +169,12 @@ export function StatusHeader({
 					</Button>
 					<DropdownMenu>
 						<DropdownMenu.Trigger>
-							<button
+							<GhostTriggerButton
 								aria-label="More options"
-								className={ghostControlShell(
-									"size-8 px-0 data-[state=open]:bg-interactive-hover data-[state=open]:text-foreground"
-								)}
-								type="button"
+								className="size-8 px-0 data-[state=open]:bg-interactive-hover data-[state=open]:text-foreground"
 							>
 								<CircleIcon className="size-4" weight="bold" />
-							</button>
+							</GhostTriggerButton>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end">
 							<DropdownMenu.Item
