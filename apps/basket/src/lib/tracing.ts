@@ -2,11 +2,23 @@ import { EvlogError, log } from "evlog";
 import { useLogger } from "evlog/elysia";
 
 /**
- * Run a named operation. Kept for call-site compatibility; request-level timing
- * and HTTP metadata are emitted by evlog on the wide event.
+ * Run a named operation and attach its duration (ms) to the active wide event
+ * as `timing.<name>`. Nested calls accumulate — the wide event ends up with one
+ * `timing.*` field per `record()` call in the request.
  */
-export function record<T>(_name: string, fn: () => Promise<T> | T): Promise<T> {
-	return Promise.resolve().then(() => fn());
+export async function record<T>(
+	name: string,
+	fn: () => Promise<T> | T
+): Promise<T> {
+	const start = performance.now();
+	try {
+		return await fn();
+	} finally {
+		const ms = Math.round((performance.now() - start) * 100) / 100;
+		try {
+			useLogger().set({ [`timing.${name}`]: ms });
+		} catch {}
+	}
 }
 
 /**
