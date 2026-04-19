@@ -6,13 +6,73 @@ import {
 	CaretLeftIcon,
 	CaretRightIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import type { ComponentProps } from "react";
+import type { ComponentProps, HTMLAttributes } from "react";
 import { useEffect, useRef } from "react";
 import {
 	type DayButton,
 	DayPicker,
 	getDefaultClassNames,
 } from "react-day-picker";
+
+type CalendarComponents = NonNullable<
+	ComponentProps<typeof DayPicker>["components"]
+>;
+
+const CalendarRoot: NonNullable<CalendarComponents["Root"]> = ({
+	className,
+	rootRef,
+	...props
+}) => (
+	<div
+		className={cn(className)}
+		data-slot="calendar"
+		ref={rootRef}
+		{...props}
+	/>
+);
+
+const CalendarChevron: NonNullable<CalendarComponents["Chevron"]> = ({
+	className,
+	orientation,
+	...props
+}) => {
+	if (orientation === "left") {
+		return (
+			<CaretLeftIcon
+				className={cn("size-3.5", className)}
+				weight="bold"
+				{...props}
+			/>
+		);
+	}
+	if (orientation === "right") {
+		return (
+			<CaretRightIcon
+				className={cn("size-3.5", className)}
+				weight="bold"
+				{...props}
+			/>
+		);
+	}
+	return (
+		<CaretDownIcon
+			className={cn("size-3.5", className)}
+			weight="bold"
+			{...props}
+		/>
+	);
+};
+
+const CalendarWeekNumber: NonNullable<CalendarComponents["WeekNumber"]> = ({
+	children,
+	...props
+}) => (
+	<td {...(props as HTMLAttributes<HTMLTableCellElement>)}>
+		<div className="flex size-(--cell-size) items-center justify-center text-center">
+			{children}
+		</div>
+	</td>
+);
 
 function Calendar({
 	className,
@@ -121,49 +181,10 @@ function Calendar({
 				...classNames,
 			}}
 			components={{
-				Root: ({ className, rootRef, ...props }) => (
-					<div
-						className={cn(className)}
-						data-slot="calendar"
-						ref={rootRef}
-						{...props}
-					/>
-				),
-				Chevron: ({ className, orientation, ...props }) => {
-					if (orientation === "left") {
-						return (
-							<CaretLeftIcon
-								className={cn("size-3.5", className)}
-								weight="bold"
-								{...props}
-							/>
-						);
-					}
-					if (orientation === "right") {
-						return (
-							<CaretRightIcon
-								className={cn("size-3.5", className)}
-								weight="bold"
-								{...props}
-							/>
-						);
-					}
-					return (
-						<CaretDownIcon
-							className={cn("size-3.5", className)}
-							weight="bold"
-							{...props}
-						/>
-					);
-				},
+				Root: CalendarRoot,
+				Chevron: CalendarChevron,
 				DayButton: CalendarDayButton,
-				WeekNumber: ({ children, ...props }) => (
-					<td {...props}>
-						<div className="flex size-(--cell-size) items-center justify-center text-center">
-							{children}
-						</div>
-					</td>
-				),
+				WeekNumber: CalendarWeekNumber,
 				...components,
 			}}
 			formatters={{

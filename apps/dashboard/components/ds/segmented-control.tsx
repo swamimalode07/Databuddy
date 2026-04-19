@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useId } from "react";
 import type { ReactNode } from "react";
 
 interface SegmentedControlOption<T extends string> {
@@ -11,6 +12,7 @@ interface SegmentedControlOption<T extends string> {
 interface SegmentedControlProps<T extends string> {
 	className?: string;
 	disabled?: boolean;
+	name?: string;
 	onChange: (value: T) => void;
 	options: SegmentedControlOption<T>[];
 	size?: "sm" | "md";
@@ -26,7 +28,11 @@ function SegmentedControl<T extends string>({
 	variant = "default",
 	className,
 	disabled = false,
+	name,
 }: SegmentedControlProps<T>) {
+	const generatedName = useId();
+	const groupName = name ?? generatedName;
+
 	return (
 		<div
 			className={cn(
@@ -43,12 +49,11 @@ function SegmentedControl<T extends string>({
 				const isSelected = option.value === value;
 
 				return (
-					<button
-						aria-checked={isSelected}
+					<label
 						className={cn(
-							"relative flex items-center justify-center rounded px-2.5 font-medium",
+							"relative flex cursor-pointer items-center justify-center rounded px-2.5 font-medium",
 							"transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
-							"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+							"focus-within:ring-2 focus-within:ring-ring/60",
 							size === "sm" ? "h-5 text-xs" : "h-6 text-xs",
 							variant === "default" &&
 								(isSelected
@@ -59,14 +64,19 @@ function SegmentedControl<T extends string>({
 									? "bg-primary text-primary-foreground"
 									: "text-muted-foreground hover:text-foreground")
 						)}
-						disabled={disabled}
 						key={option.value}
-						onClick={() => onChange(option.value)}
-						role="radio"
-						type="button"
 					>
+						<input
+							checked={isSelected}
+							className="sr-only"
+							disabled={disabled}
+							name={groupName}
+							onChange={() => onChange(option.value)}
+							type="radio"
+							value={option.value}
+						/>
 						{option.label}
-					</button>
+					</label>
 				);
 			})}
 		</div>
