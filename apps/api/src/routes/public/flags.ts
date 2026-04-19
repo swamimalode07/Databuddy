@@ -4,7 +4,7 @@ import { cacheable } from "@databuddy/redis";
 import { Elysia, t } from "elysia";
 import { useLogger } from "evlog/elysia";
 import { LRUCache } from "lru-cache";
-import { mergeWideEvent } from "@/lib/tracing";
+import { mergeWideEvent, record } from "@/lib/tracing";
 
 const memCache = new LRUCache<string, object>({ max: 500, ttl: 5000 });
 
@@ -555,16 +555,19 @@ export const flagsRoute = new Elysia({ prefix: "/v1/flags" })
 					properties: parseProperties(query.properties),
 				};
 
-				let flag = await fromMemory(
-					`f:${query.key}:${query.clientId}:${query.environment || ""}`,
-					() => getCachedFlag(query.key, query.clientId, query.environment)
+				let flag = await record("getCachedFlag", () =>
+					fromMemory(
+						`f:${query.key}:${query.clientId}:${query.environment || ""}`,
+						() => getCachedFlag(query.key, query.clientId, query.environment)
+					)
 				);
 
 				if (!flag && context.userId) {
 					const uid = context.userId;
-					const userFlags = await fromMemory(
-						`fu:${uid}:${query.environment || ""}`,
-						() => getCachedFlagsForUser(uid, query.environment)
+					const userFlags = await record("getCachedFlagsForUser", () =>
+						fromMemory(`fu:${uid}:${query.environment || ""}`, () =>
+							getCachedFlagsForUser(uid, query.environment)
+						)
 					);
 					flag = userFlags.find((f) => f.key === query.key) ?? null;
 				}
@@ -645,18 +648,20 @@ export const flagsRoute = new Elysia({ prefix: "/v1/flags" })
 						)
 					: null;
 
-				const clientFlags = await fromMemory(
-					`fc:${query.clientId}:${query.environment || ""}`,
-					() => getCachedFlagsForClient(query.clientId, query.environment)
+				const clientFlags = await record("getCachedFlagsForClient", () =>
+					fromMemory(`fc:${query.clientId}:${query.environment || ""}`, () =>
+						getCachedFlagsForClient(query.clientId, query.environment)
+					)
 				);
 
 				let allFlags = clientFlags;
 
 				if (context.userId) {
 					const uid = context.userId;
-					const userFlags = await fromMemory(
-						`fu:${uid}:${query.environment || ""}`,
-						() => getCachedFlagsForUser(uid, query.environment)
+					const userFlags = await record("getCachedFlagsForUser", () =>
+						fromMemory(`fu:${uid}:${query.environment || ""}`, () =>
+							getCachedFlagsForUser(uid, query.environment)
+						)
 					);
 					if (userFlags.length > 0) {
 						const clientKeys = new Set(clientFlags.map((f) => f.key));

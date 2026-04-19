@@ -1,5 +1,5 @@
 import { chQuery } from "@databuddy/db/clickhouse";
-import { mergeWideEvent } from "../lib/tracing";
+import { mergeWideEvent, record } from "../lib/tracing";
 import { QueryBuilders } from "./builders";
 import { SimpleQueryBuilder } from "./simple-builder";
 import type { QueryRequest, SimpleQueryConfig } from "./types";
@@ -36,8 +36,7 @@ function runSingle(
 		});
 	}
 
-	return (async () => {
-		const startTime = performance.now();
+	return record(`query.${req.type}`, async () => {
 		try {
 			const builder = new SimpleQueryBuilder(
 				config,
@@ -51,7 +50,6 @@ function runSingle(
 				query_from: req.from,
 				query_to: req.to,
 				query_rows: data.length,
-				query_duration_ms: Math.round(performance.now() - startTime),
 			});
 
 			return { type: req.type, data };
@@ -60,7 +58,7 @@ function runSingle(
 			mergeWideEvent({ query_error: error });
 			return { type: req.type, data: [], error };
 		}
-	})();
+	});
 }
 
 function groupBySchema(
@@ -146,9 +144,7 @@ export function executeBatch(
 		return Promise.resolve([]);
 	}
 
-	return (async () => {
-		const startTime = performance.now();
-
+	return record("executeBatch", async () => {
 		mergeWideEvent({
 			batch_size: requests.length,
 			batch_types: requests.map((r) => r.type).join(","),
@@ -176,14 +172,13 @@ export function executeBatch(
 
 			try {
 				const { sql, params, indices } = buildUnionQuery(groupItems, opts);
-				const queryStart = performance.now();
-				const rawRows = await chQuery(sql, params);
-				const queryDuration = Math.round(performance.now() - queryStart);
+				const rawRows = await record("chUnionQuery", () =>
+					chQuery(sql, params)
+				);
 
 				mergeWideEvent({
 					batch_union_query_count: indices.length,
 					batch_union_rows: rawRows.length,
-					batch_union_duration_ms: queryDuration,
 				});
 
 				const split = splitResults(
@@ -217,13 +212,12 @@ export function executeBatch(
 		mergeWideEvent({
 			batch_union_groups: unionCount,
 			batch_single_queries: singleCount,
-			batch_duration_ms: Math.round(performance.now() - startTime),
 		});
 
 		return results.map(
 			(r, i) => r || { type: requests[i]?.type || "unknown", data: [] }
 		);
-	})();
+	});
 }
 
 export function areQueriesCompatible(type1: string, type2: string): boolean {

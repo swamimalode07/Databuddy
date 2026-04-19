@@ -8,6 +8,7 @@ import {
 	hasWebsiteScope,
 	isApiKeyPresent,
 } from "../lib/api-key";
+import { record } from "../lib/tracing";
 import { getCachedWebsite, getTimezone } from "../lib/website-utils";
 
 function json(status: number, body: unknown) {
@@ -30,11 +31,15 @@ export function websiteAuth() {
 
 			const url = new URL(request.url);
 			const websiteId = url.searchParams.get("website_id");
-			const { sessionUser, apiKey, apiKeyPresent } =
-				await getAuthContext(request);
+			const { sessionUser, apiKey, apiKeyPresent } = await record(
+				"getAuthContext",
+				() => getAuthContext(request)
+			);
 
 			const outcome = websiteId
-				? await checkWebsiteAuth(websiteId, sessionUser, apiKey, apiKeyPresent)
+				? await record("checkWebsiteAuth", () =>
+						checkWebsiteAuth(websiteId, sessionUser, apiKey, apiKeyPresent)
+					)
 				: checkNoWebsiteAuth(sessionUser, apiKey);
 
 			if (debug) {
@@ -50,11 +55,15 @@ export function websiteAuth() {
 			const apiKeyPresent = isApiKeyPresent(request.headers);
 			const session = apiKeyPresent
 				? null
-				: await auth.api.getSession({ headers: request.headers });
+				: await record("getSession", () =>
+						auth.api.getSession({ headers: request.headers })
+					);
 			const timezone = session?.user
 				? await getTimezone(request, session)
 				: await getTimezone(request, null);
-			const website = websiteId ? await getCachedWebsite(websiteId) : undefined;
+			const website = websiteId
+				? await record("getCachedWebsite", () => getCachedWebsite(websiteId))
+				: undefined;
 			return {
 				user: session?.user ?? null,
 				session,

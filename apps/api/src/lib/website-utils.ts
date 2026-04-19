@@ -8,6 +8,7 @@ import {
 	hasWebsiteScope,
 	isApiKeyPresent,
 } from "./api-key";
+import { record } from "./tracing";
 
 export interface WebsiteContext {
 	session: unknown;
@@ -147,7 +148,9 @@ async function deriveWithApiKey(request: Request) {
 	const url = new URL(request.url);
 	const siteId = url.searchParams.get("website_id");
 
-	const key = await getApiKeyFromHeader(request.headers);
+	const key = await record("getApiKeyFromHeader", () =>
+		getApiKeyFromHeader(request.headers)
+	);
 	if (!key) {
 		throw jsonError(401, "Invalid or expired API key", "AUTH_REQUIRED");
 	}
@@ -158,7 +161,7 @@ async function deriveWithApiKey(request: Request) {
 	}
 
 	const [site, timezone] = await Promise.all([
-		getCachedWebsite(siteId),
+		record("getCachedWebsite", () => getCachedWebsite(siteId)),
 		getTimezone(request, null),
 	]);
 
@@ -185,7 +188,9 @@ async function deriveWithApiKey(request: Request) {
 async function deriveWithSession(request: Request) {
 	const url = new URL(request.url);
 	const websiteId = url.searchParams.get("website_id");
-	const session = await auth.api.getSession({ headers: request.headers });
+	const session = await record("getSession", () =>
+		auth.api.getSession({ headers: request.headers })
+	);
 
 	if (!websiteId) {
 		if (!session?.user) {
