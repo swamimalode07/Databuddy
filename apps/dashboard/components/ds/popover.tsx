@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveComposableRender } from "@/components/ds/composable-render";
 import { cn } from "@/lib/utils";
 import { Popover as BasePopover } from "@base-ui-components/react/popover";
 import type { ComponentPropsWithoutRef } from "react";
@@ -10,13 +11,20 @@ function Root(props: ComponentPropsWithoutRef<typeof BasePopover.Root>) {
 
 function Trigger({
 	className,
+	children,
+	render,
 	...rest
 }: ComponentPropsWithoutRef<typeof BasePopover.Trigger>) {
+	const composed = resolveComposableRender(children, render);
+
 	return (
 		<BasePopover.Trigger
-			className={cn("cursor-pointer", className)}
+			className={composed.render ? className : cn("cursor-pointer", className)}
+			render={composed.render}
 			{...rest}
-		/>
+		>
+			{composed.children}
+		</BasePopover.Trigger>
 	);
 }
 
@@ -33,8 +41,9 @@ function Content({
 			<BasePopover.Positioner className="z-50" side={side} sideOffset={6}>
 				<BasePopover.Popup
 					className={cn(
-						"w-72 rounded-lg border border-border/60 bg-popover p-4",
-						"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+						"w-72 max-w-[calc(100vw-1rem)] rounded-lg border border-border/60 bg-popover p-4",
+						"transition-[opacity,transform] duration-(--duration-quick) ease-(--ease-smooth)",
+						"motion-reduce:transition-none",
 						"data-starting-style:scale-95 data-starting-style:opacity-0",
 						"data-ending-style:scale-95 data-ending-style:opacity-0",
 						"origin-(--transform-origin)",

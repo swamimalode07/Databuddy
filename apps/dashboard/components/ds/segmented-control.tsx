@@ -2,15 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import { useId } from "react";
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 interface SegmentedControlOption<T extends string> {
 	label: ReactNode;
 	value: T;
 }
 
-interface SegmentedControlProps<T extends string> {
-	className?: string;
+interface SegmentedControlProps<T extends string>
+	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
 	disabled?: boolean;
 	name?: string;
 	onChange: (value: T) => void;
@@ -29,6 +29,7 @@ function SegmentedControl<T extends string>({
 	className,
 	disabled = false,
 	name,
+	...rest
 }: SegmentedControlProps<T>) {
 	const generatedName = useId();
 	const groupName = name ?? generatedName;
@@ -42,6 +43,7 @@ function SegmentedControl<T extends string>({
 				className
 			)}
 			role="radiogroup"
+			{...rest}
 		>
 			{options.map((option) => {
 				const isSelected = option.value === value;
@@ -49,10 +51,10 @@ function SegmentedControl<T extends string>({
 				return (
 					<label
 						className={cn(
-							"relative flex cursor-pointer items-center justify-center rounded font-medium",
+							"relative flex min-w-0 cursor-pointer items-center justify-center rounded-md font-medium",
 							"transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
 							"focus-within:ring-2 focus-within:ring-ring/60",
-							size === "sm" ? "px-2 py-1 text-[11px]" : "px-3 py-1.5 text-xs",
+							size === "sm" ? "h-5 px-2 text-[11px]" : "h-6 px-3 text-xs",
 							isSelected
 								? variant === "pill"
 									? "bg-primary text-primary-foreground shadow-sm"

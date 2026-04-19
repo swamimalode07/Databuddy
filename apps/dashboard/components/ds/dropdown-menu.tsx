@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveComposableRender } from "@/components/ds/composable-render";
 import { cn } from "@/lib/utils";
 import { Menu as BaseMenu } from "@base-ui-components/react/menu";
 import type { ComponentPropsWithoutRef } from "react";
@@ -8,8 +9,18 @@ function Root(props: ComponentPropsWithoutRef<typeof BaseMenu.Root>) {
 	return <BaseMenu.Root {...props} />;
 }
 
-function Trigger(props: ComponentPropsWithoutRef<typeof BaseMenu.Trigger>) {
-	return <BaseMenu.Trigger {...props} />;
+function Trigger({
+	children,
+	render,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseMenu.Trigger>) {
+	const composed = resolveComposableRender(children, render);
+
+	return (
+		<BaseMenu.Trigger render={composed.render} {...rest}>
+			{composed.children}
+		</BaseMenu.Trigger>
+	);
 }
 
 function Content({
@@ -35,7 +46,8 @@ function Content({
 				<BaseMenu.Popup
 					className={cn(
 						"min-w-44 overflow-hidden rounded-lg border border-border/60 bg-popover p-1",
-						"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+						"transition-[opacity,transform] duration-(--duration-quick) ease-(--ease-smooth)",
+						"motion-reduce:transition-none",
 						"data-starting-style:scale-95 data-starting-style:opacity-0",
 						"data-ending-style:scale-95 data-ending-style:opacity-0",
 						"origin-(--transform-origin)",

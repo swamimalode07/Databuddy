@@ -30,7 +30,7 @@ export function Spinner({ className, size, ...rest }: SpinnerProps) {
 			{...rest}
 		>
 			<svg
-				className="size-full animate-spin"
+				className="size-full animate-spin motion-reduce:animate-none"
 				fill="none"
 				role="presentation"
 				style={{ animationDuration: "0.75s" }}

@@ -51,7 +51,7 @@ function Footer({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 	return (
 		<div
 			className={cn(
-				"angled-rectangle-gradient flex items-center justify-end gap-2 bg-muted px-5 py-4",
+				"angled-rectangle-gradient flex items-center justify-end gap-2 bg-muted px-5 py-3",
 				className
 			)}
 			{...rest}

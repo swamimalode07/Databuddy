@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveComposableRender } from "@/components/ds/composable-render";
 import { cn } from "@/lib/utils";
 import { Dialog as BaseDialog } from "@base-ui-components/react/dialog";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
@@ -9,8 +10,18 @@ function Root(props: ComponentPropsWithoutRef<typeof BaseDialog.Root>) {
 	return <BaseDialog.Root {...props} />;
 }
 
-function Trigger(props: ComponentPropsWithoutRef<typeof BaseDialog.Trigger>) {
-	return <BaseDialog.Trigger {...props} />;
+function Trigger({
+	children,
+	render,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Trigger>) {
+	const composed = resolveComposableRender(children, render);
+
+	return (
+		<BaseDialog.Trigger render={composed.render} {...rest}>
+			{composed.children}
+		</BaseDialog.Trigger>
+	);
 }
 
 function Content({
@@ -32,7 +43,8 @@ function Content({
 				className={cn(
 					"fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2",
 					"overflow-hidden rounded-lg border border-border/60 bg-card shadow-lg",
-					"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+					"transition-[opacity,transform] duration-(--duration-quick) ease-(--ease-smooth)",
+					"motion-reduce:transition-none",
 					"data-starting-style:scale-95 data-starting-style:opacity-0",
 					"data-ending-style:scale-95 data-ending-style:opacity-0",
 					className
@@ -109,15 +121,17 @@ function Close({
 	}
 	return (
 		<BaseDialog.Close
+			aria-label={rest["aria-label"] ?? "Close"}
 			className={cn(
 				"absolute top-3 right-3 inline-flex size-6 items-center justify-center rounded-md text-muted-foreground",
 				"transition-colors duration-(--duration-instant) ease-(--ease-smooth)",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
 				"hover:bg-interactive-hover hover:text-foreground",
 				className
 			)}
 			{...rest}
 		>
-			<XIcon className="size-3.5" />
+			<XIcon aria-hidden="true" className="size-3.5" />
 		</BaseDialog.Close>
 	);
 }

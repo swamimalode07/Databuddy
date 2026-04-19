@@ -8,9 +8,11 @@ const button = cva(
 		"inline-flex items-center justify-center gap-1.5",
 		"select-none whitespace-nowrap font-medium",
 		"rounded-md",
-		"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+		"transition-[background-color,color,opacity,transform,filter,box-shadow] duration-(--duration-quick) ease-(--ease-smooth)",
+		"motion-reduce:transition-none",
 		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
 		"active:scale-[0.98]",
+		"motion-reduce:active:scale-100",
 		"disabled:pointer-events-none disabled:opacity-50",
 	],
 	{

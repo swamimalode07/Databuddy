@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Checkbox as BaseCheckbox } from "@base-ui-components/react/checkbox";
 import { Check } from "@phosphor-icons/react/dist/ssr";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { useId, type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 type CheckboxProps = ComponentPropsWithoutRef<typeof BaseCheckbox.Root> & {
 	label?: ReactNode;
@@ -16,12 +16,18 @@ export function Checkbox({
 	description,
 	...rest
 }: CheckboxProps) {
+	const id = useId();
+	const labelId = `${id}-label`;
+	const descriptionId = `${id}-description`;
 	const control = (
 		<BaseCheckbox.Root
+			aria-describedby={description ? descriptionId : undefined}
+			aria-labelledby={label ? labelId : rest["aria-labelledby"]}
 			className={cn(
 				"inline-flex size-4 shrink-0 cursor-pointer select-none items-center justify-center rounded-sm",
 				"bg-secondary",
-				"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+				"transition-[background-color,color,box-shadow,opacity] duration-(--duration-quick) ease-(--ease-smooth)",
+				"motion-reduce:transition-none",
 				"data-checked:bg-primary data-checked:text-primary-foreground",
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
 				"disabled:cursor-not-allowed disabled:opacity-50",
@@ -45,10 +51,15 @@ export function Checkbox({
 			className={cn("group flex cursor-pointer select-none gap-2", className)}
 		>
 			<span className="flex h-5 items-center">{control}</span>
-			<span className="flex flex-col gap-0.5">
-				<span className="font-medium text-foreground text-xs">{label}</span>
+			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+				<span className="font-medium text-foreground text-xs" id={labelId}>
+					{label}
+				</span>
 				{description ? (
-					<span className="text-[11px] text-muted-foreground">
+					<span
+						className="text-[11px] text-muted-foreground"
+						id={descriptionId}
+					>
 						{description}
 					</span>
 				) : null}

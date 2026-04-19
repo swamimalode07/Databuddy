@@ -24,7 +24,6 @@ import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { Field } from "@/components/ds/field";
 import { Skeleton } from "@/components/ds/skeleton";
 import { Switch } from "@/components/ds/switch";
-import { Tabs } from "@/components/ds/tabs";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
@@ -227,45 +226,33 @@ export default function StatusPageDetailsPage() {
 					variant="breadcrumb"
 				/>
 
-				<Tabs
-					className="flex min-h-0 flex-1 flex-col gap-0"
-					defaultValue="monitors"
-				>
-					<Tabs.List>
-						<Tabs.Tab value="monitors">
-							<HeartbeatIcon size={16} weight="duotone" />
-							Monitors
-						</Tabs.Tab>
-						<Tabs.Tab disabled value="incidents">
-							<SirenIcon size={16} weight="duotone" />
-							Incidents
-							<Badge className="px-1.5 py-0" variant="muted">
-								Soon
-							</Badge>
-						</Tabs.Tab>
-					</Tabs.List>
-
-					<Tabs.Panel
-						className="min-h-0 flex-1 overflow-y-auto"
-						value="monitors"
+				<div className="flex h-10 shrink-0 border-border border-b bg-accent/30">
+					<button
+						className="relative flex cursor-pointer items-center gap-2 px-3 py-2.5 font-medium text-foreground text-sm"
+						type="button"
 					>
-						{monitorsBody}
-					</Tabs.Panel>
-
-					<Tabs.Panel
-						className="min-h-0 flex-1 overflow-y-auto"
-						value="incidents"
+						<span className="inline-flex">
+							<HeartbeatIcon className="size-4 text-primary" weight="fill" />
+						</span>
+						Monitors
+						<div className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-purple" />
+					</button>
+					<button
+						className="flex cursor-not-allowed items-center gap-2 px-3 py-2.5 font-medium text-muted-foreground/50 text-sm"
+						disabled
+						type="button"
 					>
-						<div className="flex flex-1 items-center justify-center py-16">
-							<EmptyState
-								description="Incident management is coming soon. You'll be able to create and track incidents directly from here."
-								icon={<SirenIcon weight="duotone" />}
-								title="Coming Soon"
-								variant="minimal"
-							/>
-						</div>
-					</Tabs.Panel>
-				</Tabs>
+						<span className="inline-flex">
+							<SirenIcon className="size-4" weight="duotone" />
+						</span>
+						Incidents
+						<Badge className="px-1.5 py-0" variant="muted">
+							Soon
+						</Badge>
+					</button>
+				</div>
+
+				<div className="min-h-0 flex-1 overflow-y-auto">{monitorsBody}</div>
 
 				<AddMonitorDialog
 					existingMonitorIds={

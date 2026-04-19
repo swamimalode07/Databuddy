@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { markFeedbackSubmitted } from "@/components/feedback-prompt";
 import { Button } from "@/components/ds/button";
+import { fieldControlShell } from "@/components/ds/control-shell";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
@@ -90,17 +91,20 @@ export function SubmitFeedbackDialog() {
 					<Field>
 						<Field.Label>Category</Field.Label>
 						<DropdownMenu>
-							<DropdownMenu.Trigger className="flex h-8 w-full items-center justify-between rounded-md bg-secondary px-3 text-xs transition-colors duration-(--duration-quick) ease-(--ease-smooth) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
-								<span
-									className={
-										category ? "text-foreground" : "text-muted-foreground"
-									}
+							<DropdownMenu.Trigger>
+								<button
+									className={fieldControlShell(
+										category ? undefined : "text-muted-foreground"
+									)}
+									type="button"
 								>
-									{category
-										? CATEGORIES.find((c) => c.value === category)?.label
-										: "Select a category"}
-								</span>
-								<CaretDownIcon className="size-3.5 text-muted-foreground" />
+									<span className={category ? "text-foreground" : undefined}>
+										{category
+											? CATEGORIES.find((c) => c.value === category)?.label
+											: "Select a category"}
+									</span>
+									<CaretDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
+								</button>
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content
 								align="start"

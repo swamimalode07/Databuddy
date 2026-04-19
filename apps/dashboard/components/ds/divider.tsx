@@ -14,7 +14,9 @@ export function Divider({
 		<div
 			className={cn(
 				"shrink-0 bg-border/60",
-				orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
+				orientation === "horizontal"
+					? "h-px w-full"
+					: "h-auto w-px self-stretch",
 				className
 			)}
 			{...rest}

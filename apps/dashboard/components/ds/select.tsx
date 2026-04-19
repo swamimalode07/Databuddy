@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveComposableRender } from "@/components/ds/composable-render";
 import { useFieldContext } from "@/components/ds/field";
 import { cn } from "@/lib/utils";
 import { Select as BaseSelect } from "@base-ui-components/react/select";
@@ -64,9 +65,12 @@ function Trigger({
 	className,
 	children,
 	id,
+	render,
 	...rest
 }: ComponentPropsWithoutRef<typeof BaseSelect.Trigger>) {
 	const field = useFieldContext();
+	const composed = resolveComposableRender(children, render);
+	const isComposed = composed.render != null;
 
 	return (
 		<BaseSelect.Trigger
@@ -78,23 +82,34 @@ function Trigger({
 					: undefined
 			}
 			aria-invalid={field?.error || undefined}
-			className={cn(
-				"flex h-8 w-full cursor-pointer select-none items-center justify-between rounded-md bg-secondary px-3 text-foreground text-xs",
-				"transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
-				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
-				"disabled:cursor-not-allowed disabled:opacity-50",
-				"data-placeholder:text-muted-foreground",
-				field?.error &&
-					"ring-2 ring-destructive/60 focus-visible:ring-destructive/60",
-				className
-			)}
+			className={
+				isComposed
+					? className
+					: cn(
+							"flex h-(--control-h) w-full cursor-pointer select-none items-center justify-between rounded-md bg-secondary px-(--control-px) text-foreground text-xs [--control-h:--spacing(8)] [--control-px:--spacing(3)]",
+							"transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
+							"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+							"disabled:cursor-not-allowed disabled:opacity-50",
+							"data-placeholder:text-muted-foreground",
+							field?.error &&
+								"ring-2 ring-destructive/60 focus-visible:ring-destructive/60",
+							className
+						)
+			}
 			id={id ?? field?.id}
+			render={composed.render}
 			{...rest}
 		>
-			{children ?? <Value />}
-			<BaseSelect.Icon>
-				<CaretUpDown className="size-3.5 shrink-0 text-muted-foreground" />
-			</BaseSelect.Icon>
+			{isComposed ? (
+				composed.children
+			) : (
+				<>
+					{children ?? <Value />}
+					<BaseSelect.Icon>
+						<CaretUpDown className="size-3.5 shrink-0 text-muted-foreground" />
+					</BaseSelect.Icon>
+				</>
+			)}
 		</BaseSelect.Trigger>
 	);
 }
@@ -131,8 +146,9 @@ function Content({
 			<BaseSelect.Positioner className="z-50" sideOffset={4}>
 				<BaseSelect.Popup
 					className={cn(
-						"overflow-hidden rounded-md border border-border/60 bg-popover",
-						"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+						"min-w-44 overflow-hidden rounded-lg border border-border/60 bg-popover p-1",
+						"transition-[opacity,transform] duration-(--duration-quick) ease-(--ease-smooth)",
+						"motion-reduce:transition-none",
 						"data-starting-style:scale-95 data-starting-style:opacity-0",
 						"data-ending-style:scale-95 data-ending-style:opacity-0",
 						"origin-(--transform-origin)",
@@ -168,7 +184,7 @@ function Item({
 	return (
 		<BaseSelect.Item
 			className={cn(
-				"flex cursor-pointer select-none items-center gap-2 px-3 py-1.5 text-foreground text-xs outline-none",
+				"flex h-8 cursor-pointer select-none items-center gap-2 rounded-md px-2.5 text-[13px] text-foreground outline-none",
 				"data-highlighted:bg-interactive-hover",
 				"data-disabled:pointer-events-none data-disabled:opacity-50",
 				className
@@ -194,7 +210,7 @@ function GroupLabel({
 	return (
 		<BaseSelect.GroupLabel
 			className={cn(
-				"px-3 py-1.5 font-medium text-muted-foreground text-xs",
+				"px-2.5 py-1.5 font-medium text-[11px] text-muted-foreground",
 				className
 			)}
 			{...rest}

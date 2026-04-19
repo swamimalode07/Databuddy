@@ -10,6 +10,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
+import { ghostControlShell } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { orpc } from "@/lib/orpc";
 import { fromNow } from "@/lib/time";
@@ -167,9 +168,16 @@ export function StatusHeader({
 						Configure
 					</Button>
 					<DropdownMenu>
-						<DropdownMenu.Trigger className="inline-flex size-8 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50">
-							<CircleIcon className="size-4" weight="bold" />
-							<span className="sr-only">More options</span>
+						<DropdownMenu.Trigger>
+							<button
+								aria-label="More options"
+								className={ghostControlShell(
+									"size-8 px-0 data-[state=open]:bg-interactive-hover data-[state=open]:text-foreground"
+								)}
+								type="button"
+							>
+								<CircleIcon className="size-4" weight="bold" />
+							</button>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end">
 							<DropdownMenu.Item

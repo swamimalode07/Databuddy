@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveComposableRender } from "@/components/ds/composable-render";
 import { cn } from "@/lib/utils";
 import { Dialog as BaseDialog } from "@base-ui-components/react/dialog";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
@@ -11,8 +12,18 @@ function Root(props: ComponentPropsWithoutRef<typeof BaseDialog.Root>) {
 	return <BaseDialog.Root {...props} />;
 }
 
-function Trigger(props: ComponentPropsWithoutRef<typeof BaseDialog.Trigger>) {
-	return <BaseDialog.Trigger {...props} />;
+function Trigger({
+	children,
+	render,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Trigger>) {
+	const composed = resolveComposableRender(children, render);
+
+	return (
+		<BaseDialog.Trigger render={composed.render} {...rest}>
+			{composed.children}
+		</BaseDialog.Trigger>
+	);
 }
 
 const sideStyles: Record<Side, string> = {
@@ -124,15 +135,17 @@ function Close({
 	}
 	return (
 		<BaseDialog.Close
+			aria-label={rest["aria-label"] ?? "Close"}
 			className={cn(
 				"absolute top-3 right-3 inline-flex size-6 items-center justify-center rounded-md text-muted-foreground",
 				"transition-colors duration-(--duration-instant) ease-(--ease-smooth)",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
 				"hover:bg-interactive-hover hover:text-foreground",
 				className
 			)}
 			{...rest}
 		>
-			<XIcon className="size-3.5" />
+			<XIcon aria-hidden="true" className="size-3.5" />
 		</BaseDialog.Close>
 	);
 }

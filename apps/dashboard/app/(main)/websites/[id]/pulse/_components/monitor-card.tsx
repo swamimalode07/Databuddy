@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Card } from "@/components/ds/card";
+import { ghostControlShell } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { orpc } from "@/lib/orpc";
 
@@ -107,8 +108,14 @@ export function MonitorCard({
 					</div>
 
 					<DropdownMenu>
-						<DropdownMenu.Trigger className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-transparent px-3 font-medium text-muted-foreground text-sm transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50">
-							<DotsThreeIcon size={20} weight="duotone" />
+						<DropdownMenu.Trigger>
+							<button
+								aria-label="More options"
+								className={ghostControlShell("text-sm")}
+								type="button"
+							>
+								<DotsThreeIcon size={20} weight="duotone" />
+							</button>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end">
 							<DropdownMenu.Item onClick={onEditAction}>

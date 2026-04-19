@@ -39,7 +39,8 @@ function Progress({
 			<div
 				className={cn(
 					"h-full rounded-full",
-					"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+					"transition-[width] duration-(--duration-quick) ease-(--ease-smooth)",
+					"motion-reduce:transition-none",
 					toneClasses[tone]
 				)}
 				style={{ width: `${clamped}%` }}

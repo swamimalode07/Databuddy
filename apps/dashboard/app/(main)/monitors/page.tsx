@@ -1,21 +1,23 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { HeartbeatIcon } from "@phosphor-icons/react";
-import { PlusIcon } from "@phosphor-icons/react";
-import { UserPlusIcon } from "@phosphor-icons/react";
+import {
+	ArrowClockwiseIcon,
+	HeartbeatIcon,
+	PlusIcon,
+	UserPlusIcon,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { FeatureAccessGate } from "@/components/feature-access-gate";
+import { FeatureLockedPanel } from "@/components/feature-access-gate";
 import { MonitorRow } from "@/components/monitors/monitor-row";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
 import { FeatureInviteDialog } from "@/components/organizations/feature-invite-dialog";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
+import { Button } from "@/components/ds/button";
+import { Card } from "@/components/ds/card";
+import { EmptyState } from "@/components/ds/empty-state";
+import { Skeleton } from "@/components/ds/skeleton";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
-import type { ListQuerySlice } from "@/lib/list-query-outcome";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -91,91 +93,121 @@ export default function MonitorsPage() {
 		setEditingSchedule(null);
 	};
 
+	const monitors = (schedulesQuery.data ?? []) as Monitor[];
+	const isLoading = isAccessLoading || (hasAccess && schedulesQuery.isLoading);
+
 	return (
 		<ErrorBoundary>
-			<div className="h-full overflow-y-auto">
-				<PageHeader
-					count={hasAccess ? schedulesQuery.data?.length : undefined}
-					description="View and manage all your uptime monitors"
-					icon={<HeartbeatIcon />}
-					right={
-						hasAccess ? (
-							<>
-								<Button
-									onClick={() => setShowInviteDialog(true)}
-									variant="outline"
-								>
-									<UserPlusIcon weight="duotone" />
-									Invite
-								</Button>
-								<Button
-									aria-label="Refresh monitors"
-									disabled={
-										schedulesQuery.isLoading || schedulesQuery.isFetching
-									}
-									onClick={() => schedulesQuery.refetch()}
-									size="icon"
-									variant="outline"
-								>
-									<ArrowClockwiseIcon
-										className={cn(
-											(schedulesQuery.isLoading || schedulesQuery.isFetching) &&
-												"animate-spin"
-										)}
-									/>
-								</Button>
-								<Button onClick={handleCreate}>
-									<PlusIcon />
-									Create Monitor
-								</Button>
-							</>
-						) : undefined
-					}
-					title="Monitors"
-				/>
+			<div className="flex-1 overflow-y-auto">
+				{isAccessLoading || hasAccess ? (
+					<div className="mx-auto max-w-2xl space-y-6 p-5">
+						<Card>
+							<Card.Header className="flex-row items-start justify-between gap-4">
+								<div>
+									<Card.Title>Monitors</Card.Title>
+									<Card.Description>
+										{isLoading
+											? "Loading monitors…"
+											: monitors.length === 0
+												? "Track availability and receive alerts"
+												: `${monitors.length} monitor${monitors.length === 1 ? "" : "s"}`}
+									</Card.Description>
+								</div>
+								{hasAccess && (
+									<div className="flex items-center gap-2">
+										<Button
+											onClick={() => setShowInviteDialog(true)}
+											size="sm"
+											variant="secondary"
+										>
+											<UserPlusIcon className="size-3.5" weight="duotone" />
+											Invite
+										</Button>
+										<Button
+											aria-label="Refresh monitors"
+											disabled={
+												schedulesQuery.isLoading || schedulesQuery.isFetching
+											}
+											onClick={() => schedulesQuery.refetch()}
+											size="sm"
+											variant="ghost"
+										>
+											<ArrowClockwiseIcon
+												className={cn(
+													"size-3.5",
+													(schedulesQuery.isLoading ||
+														schedulesQuery.isFetching) &&
+														"animate-spin"
+												)}
+											/>
+										</Button>
+										<Button onClick={handleCreate} size="sm">
+											<PlusIcon className="size-3.5" />
+											Create Monitor
+										</Button>
+									</div>
+								)}
+							</Card.Header>
+							<Card.Content className="p-0">
+								{isLoading && (
+									<div className="divide-y">
+										{Array.from({ length: 3 }).map((_, i) => (
+											<div
+												className="flex items-center gap-4 px-5 py-3"
+												key={`skel-${i + 1}`}
+											>
+												<Skeleton className="size-10 shrink-0 rounded-lg" />
+												<div className="min-w-0 flex-1 space-y-2">
+													<div className="flex items-center gap-2">
+														<Skeleton className="h-4 w-40" />
+														<Skeleton className="h-4 w-16 rounded-full" />
+													</div>
+													<Skeleton className="h-3.5 w-56" />
+												</div>
+											</div>
+										))}
+									</div>
+								)}
 
-				<FeatureAccessGate
-					flagKey="monitors"
-					loadingFallback={<List.DefaultLoading />}
-				>
-					<List.Content<Monitor>
-						emptyProps={{
-							action: {
-								label: "Create Your First Monitor",
-								onClick: handleCreate,
-							},
-							description:
-								"Create your first uptime monitor to start tracking availability and receive alerts when services go down.",
-							icon: <HeartbeatIcon weight="duotone" />,
-							title: "No monitors yet",
-						}}
-						errorProps={{
-							action: {
-								label: "Retry",
-								onClick: () => schedulesQuery.refetch(),
-							},
-							description: "Something went wrong while fetching monitors.",
-							icon: <HeartbeatIcon />,
-							title: "Failed to load monitors",
-						}}
-						gatePending={isAccessLoading}
-						query={schedulesQuery as ListQuerySlice<Monitor>}
-					>
-						{(items) => (
-							<List className="rounded bg-card">
-								{items.map((monitor) => (
-									<MonitorRow
-										key={monitor.id}
-										onDeleteAction={handleDelete}
-										onEditAction={() => handleEdit(monitor)}
-										onRefetchAction={schedulesQuery.refetch}
-										schedule={monitor}
-									/>
-								))}
-							</List>
-						)}
-					</List.Content>
-				</FeatureAccessGate>
+								{!isLoading && monitors.length === 0 && (
+									<div className="px-5 py-12">
+										<EmptyState
+											action={
+												<Button
+													onClick={handleCreate}
+													size="sm"
+													variant="secondary"
+												>
+													<PlusIcon className="size-3.5" />
+													Create Monitor
+												</Button>
+											}
+											description="Create your first uptime monitor to start tracking availability and receive alerts when services go down."
+											icon={<HeartbeatIcon weight="duotone" />}
+											title="No monitors yet"
+										/>
+									</div>
+								)}
+
+								{!isLoading && monitors.length > 0 && (
+									<div className="divide-y">
+										{monitors.map((monitor) => (
+											<MonitorRow
+												key={monitor.id}
+												onDeleteAction={handleDelete}
+												onEditAction={() => handleEdit(monitor)}
+												onRefetchAction={schedulesQuery.refetch}
+												schedule={monitor}
+											/>
+										))}
+									</div>
+								)}
+							</Card.Content>
+						</Card>
+					</div>
+				) : (
+					<FeatureLockedPanel flagKey="monitors" />
+				)}
 
 				{isSheetOpen && (
 					<Suspense fallback={null}>

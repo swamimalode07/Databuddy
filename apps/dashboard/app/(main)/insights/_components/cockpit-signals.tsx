@@ -4,6 +4,7 @@ import { useInsightsFeed } from "@/app/(main)/insights/hooks/use-insights-feed";
 import { useInsightsLocalState } from "@/app/(main)/insights/hooks/use-insights-local-state";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import { Button } from "@/components/ds/button";
+import { ghostControlShell } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import type { Insight, InsightSeverity } from "@/lib/insight-types";
 import { cn } from "@/lib/utils";
@@ -285,10 +286,17 @@ export function CockpitSignals(): ReactElement {
 					</DropdownMenu>
 
 					<DropdownMenu>
-						<DropdownMenu.Trigger className="flex items-center gap-1.5 rounded px-2 py-1 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-							<ArrowsDownUpIcon className="size-3.5" />
-							{selectedSortLabel}
-							<CaretDownIcon className="size-3" weight="fill" />
+						<DropdownMenu.Trigger>
+							<button
+								className={ghostControlShell(
+									"[--control-h:--spacing(6)] [--control-px:--spacing(2)]"
+								)}
+								type="button"
+							>
+								<ArrowsDownUpIcon className="size-3.5 shrink-0" />
+								{selectedSortLabel}
+								<CaretDownIcon className="size-3 shrink-0" weight="fill" />
+							</button>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="start">
 							{SORT_OPTIONS.map((opt) => (

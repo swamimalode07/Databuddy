@@ -200,7 +200,7 @@ export default function AppearanceSettingsPage() {
 										}
 										value={previewLocation}
 									>
-										<Select.Trigger className="h-7 w-40" />
+										<Select.Trigger className="w-40 [--control-h:--spacing(7)]" />
 										<Select.Content>
 											{CHART_LOCATIONS.map((loc) => (
 												<Select.Item key={loc} value={loc}>
@@ -250,7 +250,7 @@ export default function AppearanceSettingsPage() {
 										}
 										value={globalPrefs.chartType}
 									>
-										<Select.Trigger className="h-7 w-max" />
+										<Select.Trigger className="w-max [--control-h:--spacing(7)]" />
 										<Select.Content>
 											{CHART_TYPE_OPTIONS.map(({ id, name, icon: OptIcon }) => (
 												<Select.Item key={id} value={id}>
@@ -365,7 +365,7 @@ export default function AppearanceSettingsPage() {
 														}
 														value={prefs.chartType}
 													>
-														<Select.Trigger className="h-7 w-[6.5rem]" />
+														<Select.Trigger className="w-[6.5rem] [--control-h:--spacing(7)]" />
 														<Select.Content>
 															{CHART_TYPE_OPTIONS.map(
 																({ id, name, icon: OptIcon }) => (

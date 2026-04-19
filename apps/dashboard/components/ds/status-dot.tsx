@@ -41,7 +41,7 @@ export function StatusDot({
 				<span
 					className={cn(
 						statusDot({ color, size }),
-						"absolute inline-flex size-full animate-ping opacity-75"
+						"absolute inline-flex size-full animate-ping opacity-75 motion-reduce:animate-none"
 					)}
 				/>
 				<span

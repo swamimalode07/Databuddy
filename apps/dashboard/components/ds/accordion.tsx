@@ -53,6 +53,7 @@ function Panel({
 				"overflow-hidden",
 				"h-[--collapsible-panel-height]",
 				"transition-[height] duration-200 ease-out",
+				"motion-reduce:transition-none",
 				"data-ending-style:h-0",
 				"data-starting-style:h-0",
 				className

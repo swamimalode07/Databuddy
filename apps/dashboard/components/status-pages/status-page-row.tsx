@@ -4,7 +4,6 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { BrowserIcon } from "@phosphor-icons/react";
 import { CopyIcon } from "@phosphor-icons/react";
 import { DotsThreeIcon } from "@phosphor-icons/react";
-import { HeartbeatIcon } from "@phosphor-icons/react";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
@@ -13,10 +12,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { Badge } from "@/components/ds/badge";
-import { List } from "@/components/ui/composables/list";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
-import { Skeleton } from "@/components/ds/skeleton";
 import { Switch } from "@/components/ds/switch";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { getStatusPageUrl } from "@/lib/app-url";
@@ -90,10 +87,10 @@ function StatusPageActions({
 			<DropdownMenu>
 				<DropdownMenu.Trigger
 					aria-label="Status page actions"
-					className="inline-flex size-8 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+					className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-interactive-hover hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
 					data-dropdown-trigger
 				>
-					<DotsThreeIcon className="size-5" weight="bold" />
+					<DotsThreeIcon className="size-4" weight="bold" />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" className="w-52">
 					<DropdownMenu.Item
@@ -140,10 +137,11 @@ function StatusPageActions({
 					</DropdownMenu.Item>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item
-						className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+						className="gap-2 text-destructive focus:text-destructive"
 						onClick={onDeleteAction}
+						variant="destructive"
 					>
-						<TrashIcon className="size-4" weight="duotone" />
+						<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 						Delete
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
@@ -197,89 +195,63 @@ export function StatusPageRow({
 	};
 
 	return (
-		<List.Row asChild className="py-4">
-			<Link
-				href={`/monitors/status-pages/${statusPage.id}`}
-				onClick={handleClick}
-			>
-				<List.Cell>
-					<div
-						className={cn(
-							"flex size-10 items-center justify-center rounded",
-							hasMonitors
-								? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-								: "bg-muted text-muted-foreground"
-						)}
-					>
-						<BrowserIcon className="size-5" weight="duotone" />
-					</div>
-				</List.Cell>
-
-				<List.Cell className="w-48 min-w-0 flex-col gap-0.5 lg:w-60">
-					<p className="wrap-break-word text-pretty font-medium text-foreground text-sm">
-						{statusPage.name}
-					</p>
-					<p className="truncate text-muted-foreground text-xs">
-						/{statusPage.slug}
-					</p>
-				</List.Cell>
-
-				<List.Cell className="hidden md:flex" grow>
-					{statusPage.description ? (
-						<p className="line-clamp-2 text-muted-foreground text-xs leading-relaxed">
-							{statusPage.description}
-						</p>
-					) : (
-						<p className="text-muted-foreground/50 text-xs italic">
-							No description
-						</p>
+		<Link
+			className="group flex items-center hover:bg-interactive-hover"
+			href={`/monitors/status-pages/${statusPage.id}`}
+			onClick={handleClick}
+		>
+			<div className="flex flex-1 items-center gap-4 px-5 py-3">
+				<div
+					className={cn(
+						"flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60",
+						hasMonitors
+							? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+							: "bg-secondary text-muted-foreground"
 					)}
-				</List.Cell>
-
-				<List.Cell className="hidden w-28 gap-1.5 lg:flex">
-					<HeartbeatIcon
-						className="size-3.5 text-muted-foreground"
-						weight="duotone"
-					/>
-					<span className="text-muted-foreground text-xs tabular-nums">
-						{statusPage.monitorCount}{" "}
-						{statusPage.monitorCount === 1 ? "monitor" : "monitors"}
-					</span>
-				</List.Cell>
-
-				<List.Cell className="w-20">
-					<Badge
-						className="shrink-0"
-						variant={hasMonitors ? "success" : "muted"}
-					>
-						{hasMonitors ? "Active" : "Empty"}
-					</Badge>
-				</List.Cell>
-
-				<List.Cell action>
-					<StatusPageActions
-						onDeleteAction={onDeleteAction}
-						onEditAction={onEditAction}
-						onTransferSuccessAction={onTransferSuccessAction}
-						statusPage={statusPage}
-					/>
-				</List.Cell>
-			</Link>
-		</List.Row>
-	);
-}
-
-export function StatusPageRowSkeleton() {
-	return (
-		<div className="flex items-center gap-4 border-border/80 border-b px-4 py-4 last:border-b-0">
-			<Skeleton className="size-10 shrink-0 rounded" />
-			<div className="flex w-48 min-w-0 flex-col gap-1.5 lg:w-60">
-				<Skeleton className="h-4 w-32 rounded" />
-				<Skeleton className="h-3 w-20 rounded" />
+				>
+					<BrowserIcon className="size-5" weight="duotone" />
+				</div>
+				<div className="min-w-0 flex-1">
+					<div className="flex items-center gap-2">
+						<span className="truncate font-medium text-foreground text-sm">
+							{statusPage.name}
+						</span>
+						<Badge
+							className="shrink-0"
+							variant={hasMonitors ? "success" : "muted"}
+						>
+							{hasMonitors ? "Active" : "Empty"}
+						</Badge>
+					</div>
+					<div className="mt-0.5 flex items-center gap-1.5">
+						<span className="truncate text-muted-foreground text-xs">
+							/{statusPage.slug}
+						</span>
+						{statusPage.description && (
+							<>
+								<span className="text-muted-foreground text-xs">·</span>
+								<span className="hidden truncate text-muted-foreground text-xs md:inline">
+									{statusPage.description}
+								</span>
+							</>
+						)}
+						<span className="text-muted-foreground text-xs">·</span>
+						<span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+							{statusPage.monitorCount}{" "}
+							{statusPage.monitorCount === 1 ? "monitor" : "monitors"}
+						</span>
+					</div>
+				</div>
 			</div>
-			<Skeleton className="hidden h-3 min-w-0 flex-1 md:block" />
-			<Skeleton className="hidden h-3 w-20 lg:block" />
-			<Skeleton className="h-5 w-16 rounded-full" />
-		</div>
+
+			<div className="flex shrink-0 items-center pr-4">
+				<StatusPageActions
+					onDeleteAction={onDeleteAction}
+					onEditAction={onEditAction}
+					onTransferSuccessAction={onTransferSuccessAction}
+					statusPage={statusPage}
+				/>
+			</div>
+		</Link>
 	);
 }

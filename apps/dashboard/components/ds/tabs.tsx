@@ -30,7 +30,7 @@ function Tab({
 	return (
 		<BaseTabs.Tab
 			className={cn(
-				"cursor-pointer select-none rounded-md px-2.5 py-1 font-medium text-muted-foreground text-xs",
+				"inline-flex h-7 cursor-pointer select-none items-center rounded-md px-2.5 font-medium text-muted-foreground text-xs",
 				"transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
 				"hover:bg-interactive-hover hover:text-foreground",
 				"data-active:bg-secondary data-active:text-foreground",
@@ -63,7 +63,8 @@ function Indicator({
 		<BaseTabs.Indicator
 			className={cn(
 				"absolute bottom-0 h-0.5 rounded-full bg-primary",
-				"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+				"transition-[width,transform] duration-(--duration-quick) ease-(--ease-smooth)",
+				"motion-reduce:transition-none",
 				className
 			)}
 			{...rest}

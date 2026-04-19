@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { Badge } from "@/components/ds/badge";
-import { List } from "@/components/ui/composables/list";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Skeleton } from "@/components/ds/skeleton";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
@@ -154,10 +153,10 @@ function MonitorActions({
 			<DropdownMenu>
 				<DropdownMenu.Trigger
 					aria-label="Monitor actions"
-					className="inline-flex size-8 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+					className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-interactive-hover hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
 					data-dropdown-trigger
 				>
-					<DotsThreeIcon className="size-5" weight="bold" />
+					<DotsThreeIcon className="size-4" weight="bold" />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" className="w-52">
 					<DropdownMenu.Item className="gap-2" onClick={onEditAction}>
@@ -367,74 +366,80 @@ export function MonitorRow({
 	};
 
 	return (
-		<List.Row align="start" asChild className={cn(!isActive && "opacity-50")}>
-			<Link href={`/monitors/${schedule.id}`} onClick={handleClick}>
-				<List.Cell className="pt-0.5">
-					<div
-						className={cn(
-							"flex size-8 items-center justify-center rounded",
-							isActive
-								? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-								: "bg-muted text-muted-foreground"
-						)}
-					>
-						{displayUrl ? (
-							<FaviconImage
-								altText={`${displayName} favicon`}
-								domain={displayUrl}
-								fallbackIcon={
-									<HeartbeatIcon className="size-4" weight="duotone" />
-								}
-								size={16}
-							/>
-						) : (
-							<HeartbeatIcon className="size-4" weight="duotone" />
-						)}
+		<Link
+			className={cn(
+				"group flex items-center hover:bg-interactive-hover",
+				!isActive && "opacity-50"
+			)}
+			href={`/monitors/${schedule.id}`}
+			onClick={handleClick}
+		>
+			<div className="flex flex-1 items-center gap-4 px-5 py-3">
+				<div
+					className={cn(
+						"flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60",
+						isActive
+							? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+							: "bg-secondary text-muted-foreground"
+					)}
+				>
+					{displayUrl ? (
+						<FaviconImage
+							altText={`${displayName} favicon`}
+							domain={displayUrl}
+							fallbackIcon={
+								<HeartbeatIcon className="size-5" weight="duotone" />
+							}
+							size={20}
+						/>
+					) : (
+						<HeartbeatIcon className="size-5" weight="duotone" />
+					)}
+				</div>
+				<div className="min-w-0 flex-1">
+					<div className="flex items-center gap-2">
+						<span className="truncate font-medium text-foreground text-sm">
+							{displayName}
+						</span>
+						<Badge
+							className="shrink-0"
+							variant={isActive ? "success" : "warning"}
+						>
+							{isActive ? "Active" : "Paused"}
+						</Badge>
 					</div>
-				</List.Cell>
+					<div className="mt-0.5 flex items-center gap-1.5">
+						{displayUrl && (
+							<span className="truncate text-muted-foreground text-xs">
+								{displayUrl}
+							</span>
+						)}
+						{displayUrl && (
+							<span className="text-muted-foreground text-xs">·</span>
+						)}
+						<span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+							{GRANULARITY_LABELS[schedule.granularity] || schedule.granularity}
+						</span>
+					</div>
+				</div>
+			</div>
 
-				<List.Cell className="w-40 min-w-0 lg:w-52">
-					<p className="wrap-break-word text-pretty font-medium text-foreground text-sm">
-						{displayName}
-					</p>
-				</List.Cell>
+			<div className="hidden shrink-0 items-center gap-3 pr-2 lg:flex">
+				<MiniHeatmap
+					isActive={isActive}
+					scheduleId={schedule.id}
+					websiteId={schedule.websiteId}
+				/>
+			</div>
 
-				<List.Cell grow>
-					<p className="wrap-break-word text-pretty text-muted-foreground text-xs">
-						{displayUrl}
-					</p>
-				</List.Cell>
-
-				<List.Cell className="hidden w-14 pt-0.5 text-muted-foreground text-xs tabular-nums md:block">
-					{GRANULARITY_LABELS[schedule.granularity] || schedule.granularity}
-				</List.Cell>
-
-				<List.Cell className="hidden items-start gap-3 pt-0.5 lg:flex">
-					<MiniHeatmap
-						isActive={isActive}
-						scheduleId={schedule.id}
-						websiteId={schedule.websiteId}
-					/>
-				</List.Cell>
-
-				<List.Cell className="w-16 pt-0.5">
-					<Badge
-						className="shrink-0"
-						variant={isActive ? "success" : "warning"}
-					>
-						{isActive ? "Active" : "Paused"}
-					</Badge>
-				</List.Cell>
-
-				<List.Cell action className="pt-0.5">
-					<MonitorActions
-						onDeleteAction={onDeleteAction}
-						onEditAction={onEditAction}
-						onRefetchAction={onRefetchAction}
-						schedule={schedule}
-					/>
-				</List.Cell>
-			</Link>
-		</List.Row>
+			<div className="flex shrink-0 items-center pr-4">
+				<MonitorActions
+					onDeleteAction={onDeleteAction}
+					onEditAction={onEditAction}
+					onRefetchAction={onRefetchAction}
+					schedule={schedule}
+				/>
+			</div>
+		</Link>
 	);
 }

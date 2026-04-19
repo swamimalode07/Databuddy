@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ds/button";
+import { fieldControlShell } from "@/components/ds/control-shell";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
@@ -82,9 +83,14 @@ export function InviteMemberDialog({
 							{error && <Field.Error>{error}</Field.Error>}
 						</Field>
 						<DropdownMenu>
-							<DropdownMenu.Trigger className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md bg-secondary px-3 font-medium text-foreground text-xs transition-colors hover:bg-interactive-hover">
-								{role === "admin" ? "Admin" : "Member"}
-								<CaretUpDown className="size-3 text-muted-foreground" />
+							<DropdownMenu.Trigger>
+								<button
+									className={fieldControlShell("w-auto gap-1")}
+									type="button"
+								>
+									{role === "admin" ? "Admin" : "Member"}
+									<CaretUpDown className="size-3 shrink-0 text-muted-foreground" />
+								</button>
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content align="end" side="bottom">
 								<DropdownMenu.RadioGroup
