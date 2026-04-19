@@ -1,20 +1,15 @@
 "use client";
 
-import { Branding } from "@/components/layout/logo";
-import { useCommandSearchOpenAction } from "@/components/ui/command-search";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import { InfoIcon } from "@phosphor-icons/react";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { InfoIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ds/button";
+import { Tooltip } from "@/components/ds/tooltip";
+import { Branding } from "@/components/layout/logo";
+import { useCommandSearchOpenAction } from "@/components/ui/command-search";
+import { cn } from "@/lib/utils";
 import { PendingInvitationsButton } from "./pending-invitations-button";
 import { ProfileButtonClient } from "./profile-button-client";
 import { useSidebarNavigation } from "./sidebar-navigation-provider";
@@ -49,27 +44,18 @@ export function CategorySidebar() {
 				</div>
 
 				<div className="shrink-0">
-					<Tooltip delayDuration={500}>
-						<TooltipTrigger asChild>
-							<button
-								aria-label="Search"
-								className="relative flex h-10 w-full cursor-pointer items-center justify-center border-border border-b hover:bg-sidebar-accent-brighter focus:outline-none"
-								onClick={() => openCommandSearchAction()}
-								type="button"
-							>
-								<MagnifyingGlassIcon
-									className="size-5 text-sidebar-foreground/75"
-									weight="duotone"
-								/>
-							</button>
-						</TooltipTrigger>
-						<TooltipContent
-							className="max-w-xs text-balance"
-							side="right"
-							sideOffset={8}
+					<Tooltip content="Search" delay={500} side="right">
+						<button
+							aria-label="Search"
+							className="relative flex h-10 w-full cursor-pointer items-center justify-center border-border border-b hover:bg-sidebar-accent-brighter focus:outline-none"
+							onClick={() => openCommandSearchAction()}
+							type="button"
 						>
-							Search
-						</TooltipContent>
+							<MagnifyingGlassIcon
+								className="size-5 text-sidebar-foreground/75"
+								weight="duotone"
+							/>
+						</button>
 					</Tooltip>
 				</div>
 
@@ -84,40 +70,36 @@ export function CategorySidebar() {
 						: "border-transparent";
 
 					return (
-						<Tooltip delayDuration={500} key={category.id}>
-							<TooltipTrigger asChild>
-								<button
+						<Tooltip
+							content={category.name}
+							delay={500}
+							key={category.id}
+							side="right"
+						>
+							<button
+								className={cn(
+									borderClass,
+									"relative flex h-10 w-full cursor-pointer items-center justify-center",
+									"focus:outline-none",
+									hoverClass,
+									boxClass
+								)}
+								onClick={() => setCategory(category.id)}
+								type="button"
+							>
+								{isActive ? (
+									<div className="absolute top-0 left-0 -z-10 h-full w-full bg-sidebar-accent-brighter" />
+								) : null}
+								<Icon
 									className={cn(
-										borderClass,
-										"relative flex h-10 w-full cursor-pointer items-center justify-center",
-										"focus:outline-none",
-										hoverClass,
-										boxClass
+										"size-5",
+										isActive
+											? "text-sidebar-ring"
+											: "text-sidebar-foreground/75"
 									)}
-									onClick={() => setCategory(category.id)}
-									type="button"
-								>
-									{isActive ? (
-										<div
-											className={cn(
-												"absolute top-0 left-0 -z-10 h-full w-full bg-sidebar-accent-brighter"
-											)}
-										/>
-									) : null}
-									<Icon
-										className={cn(
-											"size-5",
-											isActive
-												? "text-sidebar-ring"
-												: "text-sidebar-foreground/75"
-										)}
-										weight={isActive ? "fill" : "duotone"}
-									/>
-								</button>
-							</TooltipTrigger>
-							<TooltipContent side="right" sideOffset={8}>
-								{category.name}
-							</TooltipContent>
+									weight={isActive ? "fill" : "duotone"}
+								/>
+							</button>
 						</Tooltip>
 					);
 				})}
@@ -133,10 +115,10 @@ export function CategorySidebar() {
 
 					<div className="flex justify-center">
 						<Button
-							className="flex size-8 items-center justify-center"
+							aria-label="Help & resources"
+							className="size-8 p-0"
 							onClick={() => setHelpOpen(true)}
 							suppressHydrationWarning
-							type="button"
 							variant="ghost"
 						>
 							<InfoIcon

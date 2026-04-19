@@ -1,20 +1,13 @@
 "use client";
 
-import { MonitorIcon } from "@phosphor-icons/react";
-import { MoonIcon } from "@phosphor-icons/react";
-import { SunIcon } from "@phosphor-icons/react";
+import { MonitorIcon, MoonIcon, SunIcon } from "@phosphor-icons/react/dist/ssr";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Button } from "@/components/ds/button";
+import { Tooltip } from "@/components/ds/tooltip";
 import { cn } from "@/lib/utils";
 
 interface ThemeTogglerProps {
 	className?: string;
-	/** When true, wraps the control in a tooltip. Default: no tooltip. */
 	tooltip?: boolean;
 }
 
@@ -75,13 +68,9 @@ export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 	const button = (
 		<Button
 			aria-label="Toggle theme"
-			className={cn(
-				"relative hidden size-8 transition-all duration-200 md:flex",
-				className
-			)}
+			className={cn("relative hidden size-8 p-0 md:flex", className)}
 			onClick={switchTheme}
 			suppressHydrationWarning
-			type="button"
 			variant="ghost"
 		>
 			<SunIcon
@@ -89,7 +78,6 @@ export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 					"size-5 transition-all duration-300",
 					currentTheme === "light" ? "rotate-0 scale-100" : "-rotate-90 scale-0"
 				)}
-				size={32}
 				suppressHydrationWarning
 				weight="duotone"
 			/>
@@ -98,7 +86,6 @@ export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 					"absolute size-5 transition-all duration-300",
 					currentTheme === "dark" ? "rotate-0 scale-100" : "rotate-90 scale-0"
 				)}
-				size={32}
 				suppressHydrationWarning
 				weight="duotone"
 			/>
@@ -107,7 +94,6 @@ export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 					"absolute size-5 transition-all duration-300",
 					currentTheme === "system" ? "rotate-0 scale-100" : "rotate-90 scale-0"
 				)}
-				size={32}
 				suppressHydrationWarning
 				weight="duotone"
 			/>
@@ -117,11 +103,12 @@ export function ThemeToggle({ className, tooltip = false }: ThemeTogglerProps) {
 
 	if (tooltip) {
 		return (
-			<Tooltip delayDuration={500}>
-				<TooltipTrigger asChild>{button}</TooltipTrigger>
-				<TooltipContent side="right" sideOffset={8}>
-					{getThemeLabel()} • {getNextThemeLabel()}
-				</TooltipContent>
+			<Tooltip
+				content={`${getThemeLabel()} · ${getNextThemeLabel()}`}
+				delay={500}
+				side="right"
+			>
+				{button}
 			</Tooltip>
 		);
 	}

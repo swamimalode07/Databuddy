@@ -28,7 +28,6 @@ import {
 	ReceiptIcon,
 	RoadHorizonIcon,
 	RobotIcon,
-	ShieldCheckIcon,
 	SparkleIcon,
 	SpeakerHighIcon,
 	SquaresFourIcon,
@@ -236,9 +235,6 @@ export const websiteNavigation: NavigationSection[] = [
 export const websiteSettingsNavigation: NavigationSection[] = [
 	createNavSection("Website Settings", GearIcon, [
 		createNavItem("General", GearIcon, "/settings/general", {
-			rootLevel: false,
-		}),
-		createNavItem("Privacy", ShieldCheckIcon, "/settings/privacy", {
 			rootLevel: false,
 		}),
 		createNavItem("Security", LockIcon, "/settings/security", {

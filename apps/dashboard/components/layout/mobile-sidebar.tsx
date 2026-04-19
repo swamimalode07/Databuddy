@@ -1,23 +1,25 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { useCommandSearchOpenAction } from "@/components/ui/command-search";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import { ListIcon } from "@phosphor-icons/react";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { MonitorIcon } from "@phosphor-icons/react";
-import { MoonIcon } from "@phosphor-icons/react";
-import { SignOutIcon } from "@phosphor-icons/react";
-import { SunIcon } from "@phosphor-icons/react";
+import {
+	ListIcon,
+	MagnifyingGlassIcon,
+	MonitorIcon,
+	MoonIcon,
+	SignOutIcon,
+	SunIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Avatar } from "@/components/ds/avatar";
+import { Button } from "@/components/ds/button";
+import { useCommandSearchOpenAction } from "@/components/ui/command-search";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { Branding } from "./logo";
 import { NavigationRenderer } from "./navigation/navigation-renderer";
 import { useSidebarNavigation } from "./sidebar-navigation-provider";
@@ -112,11 +114,9 @@ export function MobileSidebar() {
 					<div className="flex items-center gap-2.5">
 						<Button
 							aria-label="Open navigation menu"
-							className="size-9"
+							className="size-9 p-0"
 							data-track="sidebar-toggle"
 							onClick={() => setIsOpen(true)}
-							size="icon"
-							type="button"
 							variant="ghost"
 						>
 							<ListIcon className="size-5" weight="duotone" />
@@ -133,11 +133,9 @@ export function MobileSidebar() {
 
 					<Button
 						aria-label="Search"
-						className="size-9"
+						className="size-9 p-0"
 						data-track="mobile-search"
 						onClick={() => openCommandSearchAction()}
-						size="icon"
-						type="button"
 						variant="ghost"
 					>
 						<MagnifyingGlassIcon className="size-5" weight="duotone" />
@@ -200,15 +198,12 @@ export function MobileSidebar() {
 
 						{user ? (
 							<div className="flex items-center gap-3 px-3 py-3">
-								<Avatar className="size-8 shrink-0">
-									<AvatarImage
-										alt={user.name || "User"}
-										src={user.image || undefined}
-									/>
-									<AvatarFallback className="bg-primary text-primary-foreground text-xs">
-										{getInitials(user.name, user.email)}
-									</AvatarFallback>
-								</Avatar>
+								<Avatar
+									alt={user.name || "User"}
+									className="size-8 shrink-0"
+									fallback={getInitials(user.name, user.email)}
+									src={user.image || undefined}
+								/>
 								<div className="min-w-0 flex-1">
 									<p className="truncate font-medium text-sidebar-foreground text-sm">
 										{user.name || "User"}
@@ -219,10 +214,8 @@ export function MobileSidebar() {
 								</div>
 								<Button
 									aria-label="Sign out"
-									className="size-8 shrink-0 text-sidebar-foreground/50 hover:text-destructive"
+									className="size-8 shrink-0 p-0 text-sidebar-foreground/50 hover:text-destructive"
 									onClick={handleSignOut}
-									size="icon"
-									type="button"
 									variant="ghost"
 								>
 									<SignOutIcon className="size-4" weight="duotone" />
