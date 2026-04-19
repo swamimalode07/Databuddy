@@ -1,12 +1,25 @@
+import type { IconProps } from "@phosphor-icons/react";
+import { cloneElement, type ReactElement, type ReactNode } from "react";
+import { Button } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
-import type { HTMLAttributes, ReactNode } from "react";
 
-type EmptyStateProps = HTMLAttributes<HTMLDivElement> & {
-	icon?: ReactNode;
+export interface EmptyStateAction {
+	label: string;
+	onClick: () => void;
+	size?: "sm" | "md" | "lg";
+	tone?: "danger";
+	variant?: "primary" | "secondary" | "ghost";
+}
+
+export interface EmptyStateProps {
+	action?: EmptyStateAction | ReactNode;
+	className?: string;
+	description?: string | ReactNode;
+	icon?: ReactElement<IconProps>;
+	isMainContent?: boolean;
 	title: string;
-	description?: string;
-	action?: ReactNode;
-};
+	variant?: "default" | "minimal" | "error";
+}
 
 export function EmptyState({
 	className,
@@ -14,28 +27,77 @@ export function EmptyState({
 	title,
 	description,
 	action,
-	...rest
+	variant = "minimal",
+	isMainContent = false,
 }: EmptyStateProps) {
+	const renderIcon = () => {
+		if (!icon || typeof icon !== "object" || !("type" in icon)) {
+			return null;
+		}
+
+		const iconProps = icon.props || {};
+
+		return (
+			<div
+				className={cn(
+					"flex size-12 items-center justify-center rounded-2xl bg-accent-foreground",
+					variant === "error" && "bg-destructive/10"
+				)}
+			>
+				{cloneElement(icon, {
+					...iconProps,
+					className: cn(
+						"size-6 text-accent",
+						variant === "error" && "text-destructive",
+						iconProps.className
+					),
+					"aria-hidden": "true",
+					size: 24,
+					weight: "fill",
+				})}
+			</div>
+		);
+	};
+
+	const isActionObject = (
+		a: EmptyStateAction | ReactNode
+	): a is EmptyStateAction =>
+		typeof a === "object" && a !== null && "label" in a && "onClick" in a;
+
+	const Heading = isMainContent ? "h1" : "h2";
+
 	return (
 		<div
 			className={cn(
 				"flex flex-1 flex-col items-center justify-center gap-3 text-center",
 				className
 			)}
-			{...rest}
 		>
-			{icon ? (
-				<span className="text-muted-foreground [&>svg]:size-10">{icon}</span>
-			) : null}
-			<div className="flex flex-col gap-1">
-				<p className="font-medium text-foreground text-sm">{title}</p>
+			{renderIcon()}
+			<div className="flex max-w-sm flex-col gap-1">
+				<Heading className="mt-3 font-medium text-foreground text-lg">
+					{title}
+				</Heading>
 				{description ? (
-					<p className="max-w-xs text-muted-foreground text-sm">
-						{description}
-					</p>
+					<p className="text-muted-foreground text-sm">{description}</p>
 				) : null}
 			</div>
-			{action ? <div className="pt-1">{action}</div> : null}
+			{action ? (
+				<div className="pt-2">
+					{isActionObject(action) ? (
+						<Button
+							onClick={action.onClick}
+							size={action.size}
+							tone={action.tone}
+							variant={action.variant}
+						>
+							{action.label}
+						</Button>
+					) : (
+						action
+					)}
+				</div>
+			) : null}
 		</div>
 	);
 }

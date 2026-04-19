@@ -12,7 +12,7 @@ import {
 	useFormContext,
 	useFormState,
 } from "react-hook-form";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ds/field";
 import { cn } from "@/lib/utils";
 
 const Form = FormProvider;
@@ -93,7 +93,7 @@ function FormLabel({
 	const { error, formItemId } = useFormField();
 
 	return (
-		<Label
+		<Field.Label
 			className={cn("data-[error=true]:text-destructive", className)}
 			data-error={!!error}
 			data-slot="form-label"

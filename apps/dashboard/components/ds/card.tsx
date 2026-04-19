@@ -59,10 +59,24 @@ function Footer({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 	);
 }
 
+function Action({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+	return (
+		<div
+			className={cn(
+				"col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+				className
+			)}
+			data-slot="card-action"
+			{...rest}
+		/>
+	);
+}
+
 export const Card = Object.assign(Root, {
 	Header,
 	Title,
 	Description,
 	Content,
 	Footer,
+	Action,
 });

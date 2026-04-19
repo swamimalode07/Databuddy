@@ -27,8 +27,8 @@ import {
 } from "recharts";
 import { ChartErrorBoundary } from "@/components/chart-error-boundary";
 import { useDynamicDasharray } from "@/components/charts/use-dynamic-dasharray";
-import { EmptyState, type EmptyStateProps } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState, type EmptyStateProps } from "@/components/ds/empty-state";
+import { Skeleton } from "@/components/ds/skeleton";
 import {
 	chartAxisTickDefault,
 	chartAxisYWidthCompact,

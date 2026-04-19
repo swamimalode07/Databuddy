@@ -8,16 +8,18 @@ type TooltipProps = ComponentPropsWithoutRef<typeof BaseTooltip.Root> & {
 	content: ReactNode;
 	children: ReactNode;
 	side?: ComponentPropsWithoutRef<typeof BaseTooltip.Positioner>["side"];
+	delay?: number;
 };
 
 export function Tooltip({
 	content,
 	children,
 	side = "top",
+	delay,
 	...rest
 }: TooltipProps) {
 	return (
-		<BaseTooltip.Provider>
+		<BaseTooltip.Provider delay={delay}>
 			<BaseTooltip.Root {...rest}>
 				<BaseTooltip.Trigger
 					render={children as React.ReactElement<Record<string, unknown>>}

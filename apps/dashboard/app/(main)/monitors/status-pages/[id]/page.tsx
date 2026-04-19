@@ -12,19 +12,19 @@ import { useParams, useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/app/(main)/websites/_components/page-header";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/ds/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { FeatureLockedPanel } from "@/components/feature-access-gate";
 import { PageNavigation } from "@/components/layout/page-navigation";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ui/button";
 import { List } from "@/components/ui/composables/list";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DeleteDialog } from "@/components/ds/delete-dialog";
+import { Field } from "@/components/ds/field";
+import { Skeleton } from "@/components/ds/skeleton";
+import { Switch } from "@/components/ds/switch";
+import { Tabs } from "@/components/ds/tabs";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
@@ -230,30 +230,29 @@ export default function StatusPageDetailsPage() {
 				<Tabs
 					className="flex min-h-0 flex-1 flex-col gap-0"
 					defaultValue="monitors"
-					variant="navigation"
 				>
-					<TabsList>
-						<TabsTrigger value="monitors">
+					<Tabs.List>
+						<Tabs.Tab value="monitors">
 							<HeartbeatIcon size={16} weight="duotone" />
 							Monitors
-						</TabsTrigger>
-						<TabsTrigger disabled value="incidents">
+						</Tabs.Tab>
+						<Tabs.Tab disabled value="incidents">
 							<SirenIcon size={16} weight="duotone" />
 							Incidents
-							<Badge className="px-1.5 py-0" variant="secondary">
+							<Badge className="px-1.5 py-0" variant="muted">
 								Soon
 							</Badge>
-						</TabsTrigger>
-					</TabsList>
+						</Tabs.Tab>
+					</Tabs.List>
 
-					<TabsContent
+					<Tabs.Panel
 						className="min-h-0 flex-1 overflow-y-auto"
 						value="monitors"
 					>
 						{monitorsBody}
-					</TabsContent>
+					</Tabs.Panel>
 
-					<TabsContent
+					<Tabs.Panel
 						className="min-h-0 flex-1 overflow-y-auto"
 						value="incidents"
 					>
@@ -261,12 +260,11 @@ export default function StatusPageDetailsPage() {
 							<EmptyState
 								description="Incident management is coming soon. You'll be able to create and track incidents directly from here."
 								icon={<SirenIcon weight="duotone" />}
-								showPlusBadge={false}
 								title="Coming Soon"
 								variant="minimal"
 							/>
 						</div>
-					</TabsContent>
+					</Tabs.Panel>
 				</Tabs>
 
 				<AddMonitorDialog
@@ -308,12 +306,12 @@ export default function StatusPageDetailsPage() {
 						warning="The status page and its configuration will be transferred to {orgName}."
 					>
 						<div className="flex items-center justify-between rounded border p-3">
-							<Label
+							<Field.Label
 								className="cursor-pointer text-sm"
 								htmlFor="include-monitors-detail"
 							>
 								Include all linked monitors
-							</Label>
+							</Field.Label>
 							<Switch
 								checked={includeMonitors}
 								id="include-monitors-detail"

@@ -32,3 +32,40 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badge>;
 export function Badge({ className, variant, size, ...rest }: BadgeProps) {
 	return <span className={cn(badge({ variant, size }), className)} {...rest} />;
 }
+
+interface PercentageBadgeProps {
+	className?: string;
+	percentage: number;
+}
+
+function percentageVariant(
+	pct: number
+): "success" | "primary" | "warning" | "muted" {
+	if (pct >= 50) {
+		return "success";
+	}
+	if (pct >= 25) {
+		return "primary";
+	}
+	if (pct >= 10) {
+		return "warning";
+	}
+	return "muted";
+}
+
+export function PercentageBadge({
+	percentage,
+	className,
+}: PercentageBadgeProps) {
+	const safePercentage =
+		percentage == null || Number.isNaN(percentage) ? 0 : percentage;
+
+	return (
+		<Badge
+			className={cn("tabular-nums", className)}
+			variant={percentageVariant(safePercentage)}
+		>
+			{safePercentage.toFixed(1)}%
+		</Badge>
+	);
+}

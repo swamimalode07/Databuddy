@@ -6,21 +6,10 @@ import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Divider } from "@/components/ds/divider";
+import { Sheet } from "@/components/ds/sheet";
+import { Skeleton } from "@/components/ds/skeleton";
+import { Tooltip } from "@/components/ds/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
@@ -120,25 +109,23 @@ function SidebarProvider({
 
 	return (
 		<SidebarContext.Provider value={contextValue}>
-			<TooltipProvider delayDuration={0}>
-				<div
-					className={cn(
-						"group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
-						className
-					)}
-					data-slot="sidebar-wrapper"
-					style={
-						{
-							"--sidebar-width": SIDEBAR_WIDTH,
-							"--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-							...style,
-						} as React.CSSProperties
-					}
-					{...props}
-				>
-					{children}
-				</div>
-			</TooltipProvider>
+			<div
+				className={cn(
+					"group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
+					className
+				)}
+				data-slot="sidebar-wrapper"
+				style={
+					{
+						"--sidebar-width": SIDEBAR_WIDTH,
+						"--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+						...style,
+					} as React.CSSProperties
+				}
+				{...props}
+			>
+				{children}
+			</div>
 		</SidebarContext.Provider>
 	);
 }
@@ -175,7 +162,7 @@ function Sidebar({
 	if (isMobile) {
 		return (
 			<Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
-				<SheetContent
+				<Sheet.Content
 					className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
 					data-mobile="true"
 					data-sidebar="sidebar"
@@ -187,12 +174,12 @@ function Sidebar({
 						} as React.CSSProperties
 					}
 				>
-					<SheetHeader className="sr-only">
-						<SheetTitle>Sidebar</SheetTitle>
-						<SheetDescription>Displays the mobile sidebar.</SheetDescription>
-					</SheetHeader>
+					<Sheet.Header className="sr-only">
+						<Sheet.Title>Sidebar</Sheet.Title>
+						<Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
+					</Sheet.Header>
 					<div className="flex h-full w-full flex-col">{children}</div>
-				</SheetContent>
+				</Sheet.Content>
 			</Sheet>
 		);
 	}
@@ -347,9 +334,9 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
 function SidebarSeparator({
 	className,
 	...props
-}: React.ComponentProps<typeof Separator>) {
+}: React.ComponentProps<typeof Divider>) {
 	return (
-		<Separator
+		<Divider
 			className={cn("mx-2 w-auto bg-sidebar-border", className)}
 			data-sidebar="separator"
 			data-slot="sidebar-separator"
@@ -495,7 +482,7 @@ function SidebarMenuButton({
 }: React.ComponentProps<"button"> & {
 	asChild?: boolean;
 	isActive?: boolean;
-	tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+	tooltip?: string | { children: React.ReactNode; side?: "top" | "right" | "bottom" | "left" };
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
 	const Comp = asChild ? SlotPrimitive.Slot : "button";
 	const { isMobile, state } = useSidebar();
@@ -515,21 +502,18 @@ function SidebarMenuButton({
 		return button;
 	}
 
-	if (typeof tooltip === "string") {
-		tooltip = {
-			children: tooltip,
-		};
-	}
+	const tooltipContent = typeof tooltip === "string" ? tooltip : tooltip.children;
+	const tooltipSide = typeof tooltip === "string" ? "right" : (tooltip.side ?? "right");
+	const isHidden = state !== "collapsed" || isMobile;
 
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>{button}</TooltipTrigger>
-			<TooltipContent
-				align="center"
-				hidden={state !== "collapsed" || isMobile}
-				side="right"
-				{...tooltip}
-			/>
+		<Tooltip
+			content={tooltipContent}
+			delay={0}
+			open={isHidden ? false : undefined}
+			side={tooltipSide}
+		>
+			{button}
 		</Tooltip>
 	);
 }

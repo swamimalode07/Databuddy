@@ -31,14 +31,8 @@ import type {
 	NavigationItem,
 	NavigationSection,
 } from "@/components/layout/navigation/types";
-import { Badge } from "@/components/ui/badge";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+import { Badge } from "@/components/ds/badge";
+import { Dialog } from "@/components/ds/dialog";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 
@@ -271,104 +265,105 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 		<CommandSearchContext.Provider value={contextValue}>
 			{children}
 			<Dialog onOpenChange={handleOpenChange} open={open}>
-				<DialogHeader className="sr-only">
-					<DialogTitle>Command Search</DialogTitle>
-					<DialogDescription>
-						Search for pages, settings, and websites
-					</DialogDescription>
-				</DialogHeader>
-				<DialogContent
+				<Dialog.Content
 					className="gap-0 overflow-hidden p-0 sm:max-w-xl"
-					showCloseButton={false}
 				>
-					<CommandPrimitive
-						className="flex h-full w-full flex-col"
-						loop
-						onKeyDown={(e) => {
-							if (e.key === "Escape") {
-								setOpen(false);
-							}
-						}}
-					>
-						<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
-							<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
-								<MagnifyingGlassIcon
-									className="size-4 text-muted-foreground"
-									weight="duotone"
-								/>
-							</div>
-							<CommandPrimitive.Input
-								className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-								onValueChange={handleInputChange}
-								placeholder="Search pages, settings, websites..."
-								value={search}
-							/>
-							<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-								<CommandIcon className="size-3" weight="bold" />
-								<span>K</span>
-							</kbd>
-						</div>
-
-						<CommandPrimitive.List className="max-h-80 scroll-py-2 overflow-y-auto p-2">
-							<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-								<MagnifyingGlassIcon
-									className="size-8 text-muted-foreground/50"
-									weight="duotone"
-								/>
-								<div>
-									<p className="font-medium text-muted-foreground text-sm">
-										No results found
-									</p>
-									<p className="text-muted-foreground/70 text-xs">
-										Try searching for something else
-									</p>
+					<Dialog.Header className="sr-only">
+						<Dialog.Title>Command Search</Dialog.Title>
+						<Dialog.Description>
+							Search for pages, settings, and websites
+						</Dialog.Description>
+					</Dialog.Header>
+					<Dialog.Body className="p-0">
+						<CommandPrimitive
+							className="flex h-full w-full flex-col"
+							loop
+							onKeyDown={(e) => {
+								if (e.key === "Escape") {
+									setOpen(false);
+								}
+							}}
+						>
+							<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
+								<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
+									<MagnifyingGlassIcon
+										className="size-4 text-muted-foreground"
+										weight="duotone"
+									/>
 								</div>
-							</CommandPrimitive.Empty>
+								<CommandPrimitive.Input
+									className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+									onValueChange={handleInputChange}
+									placeholder="Search pages, settings, websites..."
+									value={search}
+								/>
+								<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
+									<CommandIcon className="size-3" weight="bold" />
+									<span>K</span>
+								</kbd>
+							</div>
 
-							{filteredGroups.map((group) => (
-								<CommandPrimitive.Group
-									className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-heading]]:text-xs"
-									heading={group.category}
-									key={group.category}
-								>
-									{group.items.map((item) => (
-										<SearchResultItem
-											item={item}
-											key={`${group.category}-${item.path}`}
-											onSelect={handleSelect}
-										/>
-									))}
-								</CommandPrimitive.Group>
-							))}
-						</CommandPrimitive.List>
+							<CommandPrimitive.List className="max-h-80 scroll-py-2 overflow-y-auto p-2">
+								<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+									<MagnifyingGlassIcon
+										className="size-8 text-muted-foreground/50"
+										weight="duotone"
+									/>
+									<div>
+										<p className="font-medium text-muted-foreground text-sm">
+											No results found
+										</p>
+										<p className="text-muted-foreground/70 text-xs">
+											Try searching for something else
+										</p>
+									</div>
+								</CommandPrimitive.Empty>
 
-						<div className="flex items-center justify-between border-t bg-accent/50 px-4 py-2">
-							<div className="flex items-center gap-3">
-								<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-									<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
-										↑↓
-									</kbd>
-									navigate
-								</span>
-								<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-									<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
-										↵
-									</kbd>
-									select
-								</span>
-								<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-									<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
-										esc
-									</kbd>
-									close
+								{filteredGroups.map((group) => (
+									<CommandPrimitive.Group
+										className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-heading]]:text-xs"
+										heading={group.category}
+										key={group.category}
+									>
+										{group.items.map((item) => (
+											<SearchResultItem
+												item={item}
+												key={`${group.category}-${item.path}`}
+												onSelect={handleSelect}
+											/>
+										))}
+									</CommandPrimitive.Group>
+								))}
+							</CommandPrimitive.List>
+
+							<div className="flex items-center justify-between border-t bg-accent/50 px-4 py-2">
+								<div className="flex items-center gap-3">
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											↑↓
+										</kbd>
+										navigate
+									</span>
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											↵
+										</kbd>
+										select
+									</span>
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											esc
+										</kbd>
+										close
+									</span>
+								</div>
+								<span className="font-medium text-muted-foreground text-xs tabular-nums">
+									{totalResults} results
 								</span>
 							</div>
-							<span className="font-medium text-muted-foreground text-xs tabular-nums">
-								{totalResults} results
-							</span>
-						</div>
-					</CommandPrimitive>
-				</DialogContent>
+						</CommandPrimitive>
+					</Dialog.Body>
+				</Dialog.Content>
 			</Dialog>
 		</CommandSearchContext.Provider>
 	);
@@ -411,20 +406,20 @@ function SearchResultItem({
 				{item.tag && (
 					<Badge
 						className="text-[10px]"
-						variant={item.tag === "soon" ? "secondary" : "outline"}
+						variant={item.tag === "soon" ? "muted" : "default"}
 					>
 						{item.tag}
 					</Badge>
 				)}
 
 				{item.alpha && (
-					<Badge className="text-[10px]" variant="secondary">
+					<Badge className="text-[10px]" variant="muted">
 						alpha
 					</Badge>
 				)}
 
 				{item.badge && (
-					<Badge className="text-[10px]" variant="secondary">
+					<Badge className="text-[10px]" variant="muted">
 						{item.badge.text}
 					</Badge>
 				)}

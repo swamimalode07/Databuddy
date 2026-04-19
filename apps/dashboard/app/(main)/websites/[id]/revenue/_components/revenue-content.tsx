@@ -1,41 +1,33 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { ArrowsCounterClockwiseIcon } from "@phosphor-icons/react";
-import { CaretDownIcon } from "@phosphor-icons/react";
-import { CheckIcon } from "@phosphor-icons/react";
-import { CheckCircleIcon } from "@phosphor-icons/react";
-import { ClipboardIcon } from "@phosphor-icons/react";
-import { CreditCardIcon } from "@phosphor-icons/react";
-import { CurrencyDollarIcon } from "@phosphor-icons/react";
-import { EyeIcon } from "@phosphor-icons/react";
-import { EyeSlashIcon } from "@phosphor-icons/react";
-import { GearIcon } from "@phosphor-icons/react";
-import { LinkIcon } from "@phosphor-icons/react";
-import { ReceiptIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
-import { StripeLogoIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
-import { UsersIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowsCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
+import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr";
+import { CreditCardIcon } from "@phosphor-icons/react/dist/ssr";
+import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr";
+import { GearIcon } from "@phosphor-icons/react/dist/ssr";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr";
+import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
+import { StripeLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr";
+import { UsersIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { StatCard } from "@/components/analytics/stat-card";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ds/empty-state";
+import { Button } from "@/components/ds/button";
+import { Sheet } from "@/components/ds/sheet";
 import { Input } from "@/components/ui/input";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -144,7 +136,7 @@ function CollapsibleSection({
 	onToggleAction,
 	children,
 }: {
-	icon: React.ComponentType<{ size?: number; weight?: "duotone" }>;
+	icon: React.ComponentType<{ className?: string; weight?: "duotone" }>;
 	title: string;
 	badge?: React.ReactNode;
 	isExpanded: boolean;
@@ -160,7 +152,7 @@ function CollapsibleSection({
 					type="button"
 				>
 					<div className="flex items-center gap-2.5">
-						<Icon size={16} weight="duotone" />
+						<Icon className="size-4" weight="duotone" />
 						<span className="font-medium text-sm">{title}</span>
 						{badge}
 					</div>
@@ -289,8 +281,8 @@ function RevenueSettingsSheet({
 
 	return (
 		<Sheet onOpenChange={onOpenChangeAction} open={open}>
-			<SheetContent className="sm:max-w-lg">
-				<SheetHeader>
+			<Sheet.Content className="sm:max-w-lg">
+				<Sheet.Header>
 					<div className="flex items-center gap-3">
 						<div className="flex size-10 items-center justify-center rounded border bg-secondary">
 							<CurrencyDollarIcon
@@ -299,15 +291,17 @@ function RevenueSettingsSheet({
 							/>
 						</div>
 						<div>
-							<SheetTitle>Revenue Tracking</SheetTitle>
-							<SheetDescription>
+							<Sheet.Title>Revenue Tracking</Sheet.Title>
+							<Sheet.Description>
 								Connect payment providers via webhooks
-							</SheetDescription>
+							</Sheet.Description>
 						</div>
 					</div>
-				</SheetHeader>
+				</Sheet.Header>
 
-				<SheetBody>
+				<Sheet.Close />
+
+				<Sheet.Body>
 					{isLoading ? (
 						<div className="flex items-center justify-center py-12">
 							<SpinnerIcon className="size-6 animate-spin text-muted-foreground" />
@@ -427,14 +421,11 @@ function RevenueSettingsSheet({
 										</p>
 										<Button
 											className="w-full"
-											disabled={createWebhookMutation.isPending}
+											loading={createWebhookMutation.isPending}
 											onClick={() => createWebhookMutation.mutate()}
 											size="sm"
-											variant="outline"
+											variant="secondary"
 										>
-											{createWebhookMutation.isPending ? (
-												<SpinnerIcon className="mr-2 size-4 animate-spin" />
-											) : null}
 											Generate Webhook URLs
 										</Button>
 									</div>
@@ -598,32 +589,26 @@ function RevenueSettingsSheet({
 							</CollapsibleSection>
 						</div>
 					)}
-				</SheetBody>
+				</Sheet.Body>
 
-				<SheetFooter>
+				<Sheet.Footer>
 					<Button
 						onClick={() => onOpenChangeAction(false)}
 						type="button"
-						variant="outline"
+						variant="secondary"
 					>
 						Cancel
 					</Button>
 					<Button
 						className="min-w-24"
-						disabled={
-							upsertMutation.isPending ||
-							(stripeSecret === "" && paddleSecret === "")
-						}
+						disabled={stripeSecret === "" && paddleSecret === ""}
+						loading={upsertMutation.isPending}
 						onClick={handleSave}
 					>
-						{upsertMutation.isPending ? (
-							<SpinnerIcon className="size-4 animate-spin" />
-						) : (
-							"Save"
-						)}
+						Save
 					</Button>
-				</SheetFooter>
-			</SheetContent>
+				</Sheet.Footer>
+			</Sheet.Content>
 		</Sheet>
 	);
 }
@@ -720,7 +705,7 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 		<>
 			<WebsitePageHeader
 				additionalActions={
-					<Button onClick={() => setSettingsOpen(true)} variant="outline">
+					<Button onClick={() => setSettingsOpen(true)} variant="secondary">
 						<GearIcon className="mr-2 size-4" weight="duotone" />
 						Configure
 					</Button>
@@ -832,7 +817,6 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 							: "Connect Stripe or Paddle to track revenue."
 					}
 					icon={<CurrencyDollarIcon />}
-					showPlusBadge={false}
 					title={
 						isConfigured ? "No revenue data yet" : "Set up revenue tracking"
 					}

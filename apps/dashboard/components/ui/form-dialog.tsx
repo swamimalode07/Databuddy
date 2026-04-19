@@ -1,15 +1,7 @@
 "use client";
 
-import { CircleNotchIcon } from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ds/button";
+import { Dialog } from "@/components/ds/dialog";
 import {
 	Drawer,
 	DrawerContent,
@@ -99,23 +91,16 @@ export function FormDialog({
 				className="flex-1"
 				disabled={isSubmitting}
 				onClick={() => onOpenChange(false)}
-				type="button"
-				variant="outline"
+				variant="secondary"
 			>
 				{cancelLabel}
 			</Button>
 			<Button
 				className="flex-1"
-				disabled={isSubmitting || submitDisabled}
+				disabled={submitDisabled}
+				loading={isSubmitting}
 				onClick={onSubmit}
-				type="submit"
 			>
-				{isSubmitting && (
-					<CircleNotchIcon
-						className="mr-2 size-4 animate-spin"
-						weight="duotone"
-					/>
-				)}
 				{submitLabel}
 			</Button>
 		</>
@@ -146,20 +131,21 @@ export function FormDialog({
 
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
-			<DialogContent className={sizeClasses[size]}>
+			<Dialog.Content className={sizeClasses[size]}>
 				{icon ? (
 					<div className="mb-4">{headerContent}</div>
 				) : (
-					<DialogHeader>
-						<DialogTitle>{title}</DialogTitle>
+					<Dialog.Header>
+						<Dialog.Title>{title}</Dialog.Title>
 						{description && (
-							<DialogDescription>{description}</DialogDescription>
+							<Dialog.Description>{description}</Dialog.Description>
 						)}
-					</DialogHeader>
+					</Dialog.Header>
 				)}
-				{formContent}
-				<DialogFooter className="gap-2">{footerContent}</DialogFooter>
-			</DialogContent>
+				<Dialog.Body>{formContent}</Dialog.Body>
+				<Dialog.Footer className="gap-2">{footerContent}</Dialog.Footer>
+				<Dialog.Close />
+			</Dialog.Content>
 		</Dialog>
 	);
 }

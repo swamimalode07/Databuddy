@@ -4,7 +4,7 @@ import {
 	MoreHorizontalIcon,
 } from "lucide-react";
 import type * as React from "react";
-import { type Button, buttonVariants } from "@/components/ui/button";
+import { type Button, buttonVariants } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -43,7 +43,7 @@ type PaginationLinkProps = {
 function PaginationLink({
 	className,
 	isActive,
-	size = "icon",
+	size = "sm",
 	...props
 }: PaginationLinkProps) {
 	return (
@@ -51,7 +51,7 @@ function PaginationLink({
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
 				buttonVariants({
-					variant: isActive ? "outline" : "ghost",
+					variant: isActive ? "secondary" : "ghost",
 					size,
 				}),
 				className
@@ -71,7 +71,7 @@ function PaginationPrevious({
 		<PaginationLink
 			aria-label="Go to previous page"
 			className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
-			size="default"
+			size="md"
 			{...props}
 		>
 			<ChevronLeftIcon />
@@ -88,7 +88,7 @@ function PaginationNext({
 		<PaginationLink
 			aria-label="Go to next page"
 			className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
-			size="default"
+			size="md"
 			{...props}
 		>
 			<span className="hidden sm:block">Next</span>
