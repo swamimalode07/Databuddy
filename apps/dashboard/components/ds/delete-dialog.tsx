@@ -76,7 +76,7 @@ export function DeleteDialog({
 						</>
 					) : (
 						<div className="flex items-center gap-3 py-2">
-							<div className="flex size-10 shrink-0 items-center justify-center border border-destructive/20 bg-destructive/10">
+							<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-destructive/20 bg-destructive/10">
 								<TrashIcon
 									className="size-4.5 text-destructive"
 									weight="duotone"

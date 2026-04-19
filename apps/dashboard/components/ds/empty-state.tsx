@@ -40,7 +40,7 @@ export function EmptyState({
 		return (
 			<div
 				className={cn(
-					"flex size-12 items-center justify-center rounded-2xl bg-accent-foreground",
+					"flex size-12 items-center justify-center rounded-lg bg-accent-foreground",
 					variant === "error" && "bg-destructive/10"
 				)}
 			>

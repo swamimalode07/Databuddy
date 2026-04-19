@@ -49,8 +49,9 @@ export function CopyButton({
 		<Tooltip content={isCopied ? copiedLabel : "Copy"}>
 			<Button
 				aria-label="Copy to clipboard"
-				className={cn("size-7 p-0", className)}
+				className={cn("aspect-square px-0", className)}
 				onClick={() => copyToClipboard(value)}
+				size={size}
 				variant={variant}
 				{...rest}
 			>
