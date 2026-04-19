@@ -12,11 +12,11 @@ import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Field } from "@/components/ds/field";
+import { Divider } from "@/components/ds/divider";
 
 function LoginPage() {
 	const router = useRouter();
@@ -110,7 +110,7 @@ function LoginPage() {
 								{lastUsed === "github" && (
 									<Badge
 										className="absolute -top-3 -right-0.5 z-10 rounded-full px-1 py-0 text-[10px]"
-										variant="secondary"
+										variant="muted"
 									>
 										Last used
 									</Badge>
@@ -129,7 +129,7 @@ function LoginPage() {
 								{lastUsed === "google" && (
 									<Badge
 										className="absolute -top-3 -right-0.5 z-10 rounded-full px-1 py-0 text-[10px]"
-										variant="secondary"
+										variant="muted"
 									>
 										Last used
 									</Badge>
@@ -152,7 +152,7 @@ function LoginPage() {
 								{lastUsed === "magic-link" && (
 									<Badge
 										className="absolute -top-3 -right-0.5 z-10 rounded-full px-1 py-0 text-[10px]"
-										variant="secondary"
+										variant="muted"
 									>
 										Last used
 									</Badge>
@@ -160,17 +160,20 @@ function LoginPage() {
 							</div>
 						</div>
 						<div className="relative flex w-full items-center justify-center gap-3">
-							<Separator className="flex-1 opacity-70" />
+							<Divider className="flex-1 opacity-70" />
 							<p className="text-nowrap font-medium text-muted-foreground/50 text-sm">
 								Or
 							</p>
-							<Separator className="flex-1 opacity-70" />
+							<Divider className="flex-1 opacity-70" />
 						</div>
 						<form className="space-y-5" onSubmit={handleEmailPasswordLogin}>
 							<div className="relative space-y-3">
-								<Label className="font-medium text-foreground" htmlFor="email">
+								<Field.Label
+									className="font-medium text-foreground"
+									htmlFor="email"
+								>
 									Email<span className="text-primary">*</span>
-								</Label>
+								</Field.Label>
 								<Input
 									autoComplete="email"
 									id="email"
@@ -184,7 +187,7 @@ function LoginPage() {
 								{lastUsed === "email" && (
 									<Badge
 										className="absolute top-5 right-0 -translate-y-1/2 rounded-full px-1 py-0 text-[10px]"
-										variant="secondary"
+										variant="muted"
 									>
 										Last used
 									</Badge>
@@ -192,12 +195,12 @@ function LoginPage() {
 							</div>
 							<div className="space-y-3">
 								<div className="flex items-center justify-between">
-									<Label
+									<Field.Label
 										className="font-medium text-foreground"
 										htmlFor="password"
 									>
 										Password<span className="text-primary">*</span>
-									</Label>
+									</Field.Label>
 								</div>
 								<div className="relative">
 									<Input

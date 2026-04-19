@@ -1,14 +1,14 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
-import { WarningIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 
 function VerificationNeededPage() {
 	const [email] = useQueryState("email", parseAsString.withDefault(""));
@@ -61,18 +61,11 @@ function VerificationNeededPage() {
 						</div>
 						<Button
 							className="w-full"
-							disabled={isLoading}
+							loading={isLoading}
 							onClick={sendVerificationEmail}
 							type="button"
 						>
-							{isLoading ? (
-								<>
-									<SpinnerIcon className="mr-2 size-4 animate-spin" />
-									Sending...
-								</>
-							) : (
-								"Resend verification email"
-							)}
+							{isLoading ? "Sending..." : "Resend verification email"}
 						</Button>
 					</div>
 				</div>

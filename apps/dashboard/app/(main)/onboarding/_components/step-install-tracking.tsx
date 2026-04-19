@@ -20,10 +20,10 @@ import html from "shiki/langs/html.mjs";
 import tsx from "shiki/langs/tsx.mjs";
 import vesper from "shiki/themes/vesper.mjs";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ds/card";
+import { Tabs } from "@/components/ds/tabs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
@@ -416,7 +416,7 @@ export function StepInstallTracking({
 						: "border-amber-500/30 bg-amber-500/5"
 				)}
 			>
-				<CardContent className="flex items-center justify-between p-3">
+				<Card.Content className="flex items-center justify-between p-3">
 					<div className="flex items-center gap-3">
 						{isSetup ? (
 							<PulseIcon className="size-5 text-success" weight="duotone" />
@@ -430,7 +430,7 @@ export function StepInstallTracking({
 							<span className="font-medium text-sm">
 								{isSetup ? "Tracking Active" : "Awaiting Installation"}
 							</span>
-							<Badge variant={isSetup ? "green" : "amber"}>
+							<Badge variant={isSetup ? "success" : "warning"}>
 								{isSetup ? "Live" : "Pending"}
 							</Badge>
 						</div>
@@ -447,26 +447,26 @@ export function StepInstallTracking({
 						/>
 						{isRefreshing ? "Checking..." : "Check Status"}
 					</Button>
-				</CardContent>
+				</Card.Content>
 			</Card>
 
-			<Tabs className="w-full" defaultValue="ai" variant="underline">
-				<TabsList>
-					<TabsTrigger value="ai">
+			<Tabs className="w-full" defaultValue="ai">
+				<Tabs.List>
+					<Tabs.Tab value="ai">
 						<SparkleIcon className="size-3.5" weight="duotone" />
 						Install with AI
-					</TabsTrigger>
-					<TabsTrigger value="npm">
+					</Tabs.Tab>
+					<Tabs.Tab value="npm">
 						<PackageIcon className="size-3.5" weight="duotone" />
 						SDK Package
-					</TabsTrigger>
-					<TabsTrigger value="script">
+					</Tabs.Tab>
+					<Tabs.Tab value="script">
 						<CodeIcon className="size-3.5" weight="duotone" />
 						Script Tag
-					</TabsTrigger>
-				</TabsList>
+					</Tabs.Tab>
+				</Tabs.List>
 
-				<TabsContent className="mt-4 space-y-4" value="ai">
+				<Tabs.Panel className="mt-4 space-y-4" value="ai">
 					<p className="text-pretty text-muted-foreground text-sm">
 						Let your AI assistant install Databuddy for you. Copy the setup
 						prompt into your tool of choice.
@@ -527,19 +527,19 @@ export function StepInstallTracking({
 					<p className="text-center text-muted-foreground text-xs">
 						Works with any AI assistant that accepts text prompts
 					</p>
-				</TabsContent>
+				</Tabs.Panel>
 
-				<TabsContent className="mt-4 space-y-4" value="npm">
-					<Tabs className="w-full" defaultValue="bun" variant="underline">
-						<TabsList>
+				<Tabs.Panel className="mt-4 space-y-4" value="npm">
+					<Tabs className="w-full" defaultValue="bun">
+						<Tabs.List>
 							{Object.keys(INSTALL_COMMANDS).map((manager) => (
-								<TabsTrigger className="text-xs" key={manager} value={manager}>
+								<Tabs.Tab className="text-xs" key={manager} value={manager}>
 									{manager}
-								</TabsTrigger>
+								</Tabs.Tab>
 							))}
-						</TabsList>
+						</Tabs.List>
 						{Object.entries(INSTALL_COMMANDS).map(([manager, command]) => (
-							<TabsContent className="mt-3" key={manager} value={manager}>
+							<Tabs.Panel className="mt-3" key={manager} value={manager}>
 								<CodeBlock
 									code={command}
 									copied={copiedBlockId === `${manager}-install`}
@@ -547,7 +547,7 @@ export function StepInstallTracking({
 										handleCopy(command, `${manager}-install`, "Copied!")
 									}
 								/>
-							</TabsContent>
+							</Tabs.Panel>
 						))}
 					</Tabs>
 
@@ -561,9 +561,9 @@ export function StepInstallTracking({
 							onCopy={() => handleCopy(npmCode, "npm-code", "Code copied!")}
 						/>
 					</div>
-				</TabsContent>
+				</Tabs.Panel>
 
-				<TabsContent className="mt-4 space-y-3" value="script">
+				<Tabs.Panel className="mt-4 space-y-3" value="script">
 					<p className="text-muted-foreground text-sm">
 						Add this to the{" "}
 						<code className="rounded bg-accent px-1.5 py-0.5 font-mono text-xs">
@@ -578,7 +578,7 @@ export function StepInstallTracking({
 							handleCopy(trackingCode, "script-tag", "Script tag copied!")
 						}
 					/>
-				</TabsContent>
+				</Tabs.Panel>
 			</Tabs>
 
 			<div className="flex items-center gap-2">

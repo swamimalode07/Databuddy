@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import Iridescence from "@/components/bits/Iridiscence";
 import { Logo } from "@/components/layout/logo";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 
 export default function AuthLayout({
 	children,

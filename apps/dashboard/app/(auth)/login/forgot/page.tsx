@@ -1,17 +1,17 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { EyeIcon } from "@phosphor-icons/react";
-import { EyeSlashIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
+import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ds/field";
 
 function ForgotPasswordPage() {
 	const router = useRouter();
@@ -124,12 +124,12 @@ function ForgotPasswordPage() {
 					<div className="relative z-10">
 						<form className="space-y-5" onSubmit={handleSendOTP}>
 							<div className="space-y-3">
-								<Label
+								<Field.Label
 									className="font-medium text-foreground"
 									htmlFor="forgot-email"
 								>
 									Email<span className="text-primary">*</span>
-								</Label>
+								</Field.Label>
 								<Input
 									autoComplete="email"
 									id="forgot-email"
@@ -141,15 +141,10 @@ function ForgotPasswordPage() {
 									value={email}
 								/>
 							</div>
-							<Button className="w-full" disabled={isLoading} type="submit">
-								{isLoading ? (
-									<>
-										<SpinnerIcon className="mr-2 size-4 animate-spin" />
-										Sending verification code...
-									</>
-								) : (
-									"Send verification code"
-								)}
+							<Button className="w-full" loading={isLoading} type="submit">
+								{isLoading
+									? "Sending verification code..."
+									: "Send verification code"}
 							</Button>
 						</form>
 					</div>
@@ -183,24 +178,20 @@ function ForgotPasswordPage() {
 					<form className="space-y-5" onSubmit={handleResetPassword}>
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<Label className="font-medium text-foreground" htmlFor="otp">
+								<Field.Label
+									className="font-medium text-foreground"
+									htmlFor="otp"
+								>
 									Verification code<span className="text-primary">*</span>
-								</Label>
+								</Field.Label>
 								<Button
 									className="h-auto p-0 text-accent-foreground/60 text-xs duration-200 hover:text-accent-foreground"
-									disabled={isResending}
+									loading={isResending}
 									onClick={handleResendOTP}
 									type="button"
 									variant="ghost"
 								>
-									{isResending ? (
-										<>
-											<SpinnerIcon className="mr-1 size-3 animate-spin" />
-											Sending...
-										</>
-									) : (
-										"Resend code"
-									)}
+									{isResending ? "Sending..." : "Resend code"}
 								</Button>
 							</div>
 							<Input
@@ -217,9 +208,12 @@ function ForgotPasswordPage() {
 							/>
 						</div>
 						<div className="space-y-3">
-							<Label className="font-medium text-foreground" htmlFor="password">
+							<Field.Label
+								className="font-medium text-foreground"
+								htmlFor="password"
+							>
 								New password<span className="text-primary">*</span>
-							</Label>
+							</Field.Label>
 							<div className="relative">
 								<Input
 									autoComplete="new-password"
@@ -248,12 +242,12 @@ function ForgotPasswordPage() {
 							</div>
 						</div>
 						<div className="space-y-3">
-							<Label
+							<Field.Label
 								className="font-medium text-foreground"
 								htmlFor="confirm-password"
 							>
 								Confirm password<span className="text-primary">*</span>
-							</Label>
+							</Field.Label>
 							<div className="relative">
 								<Input
 									autoComplete="new-password"
@@ -285,15 +279,8 @@ function ForgotPasswordPage() {
 								</Button>
 							</div>
 						</div>
-						<Button className="w-full" disabled={isLoading} type="submit">
-							{isLoading ? (
-								<>
-									<SpinnerIcon className="mr-2 size-4 animate-spin" />
-									Resetting password...
-								</>
-							) : (
-								"Reset password"
-							)}
+						<Button className="w-full" loading={isLoading} type="submit">
+							{isLoading ? "Resetting password..." : "Reset password"}
 						</Button>
 						<Button
 							className="w-full"

@@ -2,18 +2,14 @@
 
 import { track } from "@databuddy/sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	EnvelopeSimpleIcon,
-	SpinnerIcon,
-	UsersIcon,
-} from "@phosphor-icons/react";
+import { EnvelopeSimpleIcon, UsersIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ds/badge";
+import { Button } from "@/components/ds/button";
 import {
 	Form,
 	FormControl,
@@ -143,15 +139,12 @@ export function StepInviteTeam() {
 						)}
 					/>
 					<Button
-						disabled={isInviting || !form.formState.isValid}
-						size="default"
+						disabled={!form.formState.isValid}
+						loading={isInviting}
+						size="md"
 						type="submit"
 					>
-						{isInviting ? (
-							<SpinnerIcon className="size-4 animate-spin" />
-						) : (
-							"Invite"
-						)}
+						Invite
 					</Button>
 				</form>
 			</Form>
@@ -166,7 +159,7 @@ export function StepInviteTeam() {
 							<Badge
 								className="gap-1.5 px-2 py-1"
 								key={invite.email}
-								variant="secondary"
+								variant="muted"
 							>
 								<EnvelopeSimpleIcon className="size-3" weight="duotone" />
 								<span className="text-xs">{invite.email}</span>

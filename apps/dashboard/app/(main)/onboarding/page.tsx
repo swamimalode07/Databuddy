@@ -1,10 +1,10 @@
 "use client";
 
 import { track } from "@databuddy/sdk";
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { OnboardingStepIndicator } from "./_components/onboarding-step-indicator";
 import { StepCreateWebsite } from "./_components/step-create-website";

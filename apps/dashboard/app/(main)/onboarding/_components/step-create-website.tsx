@@ -2,12 +2,12 @@
 
 import { track } from "@databuddy/sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GlobeIcon, SpinnerIcon } from "@phosphor-icons/react";
+import { GlobeIcon } from "@phosphor-icons/react/dist/ssr";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 import {
 	Form,
 	FormControl,
@@ -150,17 +150,11 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 					/>
 					<Button
 						className="w-full"
-						disabled={!(isValid && isDirty) || createWebsiteMutation.isPending}
+						disabled={!(isValid && isDirty)}
+						loading={createWebsiteMutation.isPending}
 						type="submit"
 					>
-						{createWebsiteMutation.isPending ? (
-							<>
-								<SpinnerIcon className="mr-2 size-4 animate-spin" />
-								Creating...
-							</>
-						) : (
-							"Create website"
-						)}
+						{createWebsiteMutation.isPending ? "Creating..." : "Create website"}
 					</Button>
 				</form>
 			</Form>

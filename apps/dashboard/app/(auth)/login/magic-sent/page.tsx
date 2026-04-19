@@ -1,14 +1,14 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { EnvelopeIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { EnvelopeIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 
 function MagicSentPage() {
 	const [email] = useQueryState("email", parseAsString.withDefault(""));
@@ -64,18 +64,11 @@ function MagicSentPage() {
 						</div>
 						<Button
 							className="w-full"
-							disabled={isLoading}
+							loading={isLoading}
 							onClick={handleResend}
 							type="button"
 						>
-							{isLoading ? (
-								<>
-									<SpinnerIcon className="mr-2 size-4 animate-spin" />
-									Sending...
-								</>
-							) : (
-								"Resend magic link"
-							)}
+							{isLoading ? "Sending..." : "Resend magic link"}
 						</Button>
 					</div>
 				</div>

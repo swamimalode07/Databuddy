@@ -7,9 +7,9 @@ import {
 	LightningIcon,
 	RocketLaunchIcon,
 	UsersIcon,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 
 const FEATURES = [
 	{

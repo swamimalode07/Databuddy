@@ -1,17 +1,17 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { SparkleIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ds/field";
 
 function MagicLinkPage() {
 	const router = useRouter();
@@ -63,12 +63,12 @@ function MagicLinkPage() {
 				<div className="relative z-10">
 					<form className="space-y-5" onSubmit={handleMagicLinkLogin}>
 						<div className="space-y-3">
-							<Label
+							<Field.Label
 								className="font-medium text-foreground"
 								htmlFor="magic-email"
 							>
 								Email<span className="text-primary">*</span>
-							</Label>
+							</Field.Label>
 							<Input
 								autoComplete="email"
 								id="magic-email"
@@ -87,12 +87,9 @@ function MagicLinkPage() {
 								in instantly — no password needed.
 							</p>
 						</div>
-						<Button className="w-full" disabled={isLoading} type="submit">
+						<Button className="w-full" loading={isLoading} type="submit">
 							{isLoading ? (
-								<>
-									<SpinnerIcon className="mr-2 size-4 animate-spin" />
-									Sending magic link...
-								</>
+								"Sending magic link..."
 							) : (
 								<>
 									<SparkleIcon className="mr-2 size-4" />

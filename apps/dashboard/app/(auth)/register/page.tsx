@@ -17,14 +17,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Field } from "@/components/ds/field";
+import { Divider } from "@/components/ds/divider";
+import { Tooltip } from "@/components/ds/tooltip";
 import VisuallyHidden from "@/components/ui/visuallyhidden";
 
 function RegisterPageContent() {
@@ -291,19 +286,19 @@ function RegisterPageContent() {
 
 			<div className="relative">
 				<div className="relative flex items-center justify-center gap-3">
-					<Separator className="flex-1 opacity-70" />
+					<Divider className="flex-1 opacity-70" />
 					<p className="text-nowrap font-medium text-muted-foreground/50 text-sm">
 						Or
 					</p>
-					<Separator className="flex-1 opacity-70" />
+					<Divider className="flex-1 opacity-70" />
 				</div>
 			</div>
 
 			<form className="space-y-5" onSubmit={handleSubmit}>
 				<div className="space-y-3">
-					<Label className="font-medium text-foreground" htmlFor="name">
+					<Field.Label className="font-medium text-foreground" htmlFor="name">
 						Full name<span className="text-primary">*</span>
-					</Label>
+					</Field.Label>
 					<Input
 						autoComplete="name"
 						disabled={isLoading}
@@ -318,9 +313,9 @@ function RegisterPageContent() {
 				</div>
 
 				<div className="space-y-3">
-					<Label className="font-medium text-foreground" htmlFor="email">
+					<Field.Label className="font-medium text-foreground" htmlFor="email">
 						Email address<span className="text-primary">*</span>
-					</Label>
+					</Field.Label>
 					<Input
 						autoComplete="email"
 						disabled={isLoading}
@@ -337,20 +332,22 @@ function RegisterPageContent() {
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<div className="space-y-3">
 						<div className="flex items-center gap-2">
-							<Label className="font-medium text-foreground" htmlFor="password">
+							<Field.Label
+								className="font-medium text-foreground"
+								htmlFor="password"
+							>
 								Password<span className="text-primary">*</span>
-							</Label>
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<InfoIcon className="size-4 text-muted-foreground" />
-									</TooltipTrigger>
-									<TooltipContent>
+							</Field.Label>
+							<Tooltip
+								content={
+									<>
 										<p>Password must be at</p>
 										<p>least 8 characters long</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
+									</>
+								}
+							>
+								<InfoIcon className="size-4 text-muted-foreground" />
+							</Tooltip>
 						</div>
 						<div className="relative">
 							<Input
@@ -383,12 +380,12 @@ function RegisterPageContent() {
 					</div>
 
 					<div className="space-y-3">
-						<Label
+						<Field.Label
 							className="whitespace-nowrap font-medium text-foreground"
 							htmlFor="confirmPassword"
 						>
 							Confirm password<span className="text-primary">*</span>
-						</Label>
+						</Field.Label>
 						<div className="relative">
 							<Input
 								autoComplete="new-password"
@@ -442,7 +439,7 @@ function RegisterPageContent() {
 							id="terms"
 							onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
 						/>
-						<Label
+						<Field.Label
 							className="text-[13px] text-muted-foreground leading-relaxed"
 							htmlFor="terms"
 						>
@@ -482,7 +479,7 @@ function RegisterPageContent() {
 									Privacy
 								</Link>
 							</span>
-						</Label>
+						</Field.Label>
 					</div>
 				</div>
 
