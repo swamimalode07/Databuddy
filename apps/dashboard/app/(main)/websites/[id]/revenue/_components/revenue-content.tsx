@@ -28,6 +28,7 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { Button } from "@/components/ds/button";
 import { Sheet } from "@/components/ds/sheet";
 import { Input } from "@/components/ui/input";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -199,7 +200,14 @@ function RevenueSettingsSheet({
 	const [showPaddleSecret, setShowPaddleSecret] = useState(false);
 	const [expandedSection, setExpandedSection] =
 		useState<ExpandedSection>("webhooks");
-	const [copiedUrl, setCopiedUrl] = useState<"stripe" | "paddle" | null>(null);
+	const { isCopied: copiedStripeUrl, copyToClipboard: copyStripeUrl } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Webhook URL copied"),
+		});
+	const { isCopied: copiedPaddleUrl, copyToClipboard: copyPaddleUrl } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Webhook URL copied"),
+		});
 
 	const { data: config, isLoading } = useQuery({
 		queryKey: ["revenue-config", websiteId],
@@ -262,13 +270,6 @@ function RevenueSettingsSheet({
 
 	const toggleSection = (section: ExpandedSection) => {
 		setExpandedSection((prev) => (prev === section ? null : section));
-	};
-
-	const handleCopyUrl = (url: string, provider: "stripe" | "paddle") => {
-		navigator.clipboard.writeText(url);
-		setCopiedUrl(provider);
-		toast.success("Webhook URL copied");
-		setTimeout(() => setCopiedUrl(null), 2000);
 	};
 
 	const webhookHash = config?.webhookHash;
@@ -344,13 +345,11 @@ function RevenueSettingsSheet({
 													{stripeUrl}
 												</code>
 												<Button
-													onClick={() =>
-														stripeUrl && handleCopyUrl(stripeUrl, "stripe")
-													}
+													onClick={() => stripeUrl && copyStripeUrl(stripeUrl)}
 													size="sm"
 													variant="ghost"
 												>
-													{copiedUrl === "stripe" ? (
+													{copiedStripeUrl ? (
 														<CheckIcon className="size-4 text-success" />
 													) : (
 														<ClipboardIcon
@@ -382,13 +381,11 @@ function RevenueSettingsSheet({
 													{paddleUrl}
 												</code>
 												<Button
-													onClick={() =>
-														paddleUrl && handleCopyUrl(paddleUrl, "paddle")
-													}
+													onClick={() => paddleUrl && copyPaddleUrl(paddleUrl)}
 													size="sm"
 													variant="ghost"
 												>
-													{copiedUrl === "paddle" ? (
+													{copiedPaddleUrl ? (
 														<CheckIcon className="size-4 text-success" />
 													) : (
 														<ClipboardIcon

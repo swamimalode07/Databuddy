@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet } from "@/components/ds/sheet";
 import { Switch } from "@/components/ds/switch";
 import { Text } from "@/components/ds/text";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import { type ApiKeyListItem, SCOPE_OPTIONS } from "./api-key-types";
@@ -61,7 +62,7 @@ export function ApiKeyDetailDialog({
 }: ApiKeyDetailDialogProps) {
 	const queryClient = useQueryClient();
 	const [newSecret, setNewSecret] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
+	const { isCopied, copyToClipboard } = useCopyToClipboard();
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const { data: fullKey } = useQuery({
@@ -105,7 +106,6 @@ export function ApiKeyDetailDialog({
 		setTimeout(() => {
 			lastResetKeyId.current = null;
 			setNewSecret(null);
-			setCopied(false);
 			form.reset();
 		}, 200);
 	};
@@ -158,19 +158,6 @@ export function ApiKeyDetailDialog({
 			handleClose();
 		},
 	});
-
-	const handleCopy = async () => {
-		if (!newSecret) {
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(newSecret);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch {
-			// fallback
-		}
-	};
 
 	const onSubmit = form.handleSubmit((values) => {
 		if (!apiKey) {
@@ -255,10 +242,10 @@ export function ApiKeyDetailDialog({
 											</code>
 											<button
 												className="absolute top-2 right-2 inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-interactive-hover hover:text-foreground"
-												onClick={handleCopy}
+												onClick={() => copyToClipboard(newSecret)}
 												type="button"
 											>
-												{copied ? (
+												{isCopied ? (
 													<CheckCircle
 														className="text-success"
 														size={13}

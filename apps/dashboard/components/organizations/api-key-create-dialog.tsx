@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ds/select";
 import { Sheet } from "@/components/ds/sheet";
 import { Text } from "@/components/ds/text";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { orpc } from "@/lib/orpc";
 import { type ApiKeyAccessEntry, SCOPE_OPTIONS } from "./api-key-types";
 
@@ -60,7 +61,7 @@ export function ApiKeyCreateDialog({
 		prefix: string;
 		start: string;
 	} | null>(null);
-	const [copied, setCopied] = useState(false);
+	const { isCopied, copyToClipboard } = useCopyToClipboard();
 
 	const { data: websites } = useQuery({
 		...orpc.websites.list.queryOptions({ input: { organizationId } }),
@@ -91,21 +92,7 @@ export function ApiKeyCreateDialog({
 			setWebsiteAccess([]);
 			setWebsiteToAdd(undefined);
 			setCreated(null);
-			setCopied(false);
 		}, 200);
-	};
-
-	const handleCopy = async () => {
-		if (!created?.secret) {
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(created.secret);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch {
-			// fallback
-		}
 	};
 
 	const toggleGlobalScope = (scope: ApiScope) => {
@@ -207,10 +194,10 @@ export function ApiKeyCreateDialog({
 									</code>
 									<button
 										className="absolute top-2.5 right-2.5 inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-interactive-hover hover:text-foreground"
-										onClick={handleCopy}
+										onClick={() => copyToClipboard(created.secret)}
 										type="button"
 									>
-										{copied ? (
+										{isCopied ? (
 											<CheckCircle
 												className="text-success"
 												size={13}

@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useMutation } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { setPasswordForOAuthUser } from "@/app/actions/users";
 import { Button } from "@/components/ds/button";
@@ -25,6 +25,7 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
 
 type TwoFactorStep =
@@ -77,7 +78,6 @@ export function TwoFactorDialog({
 	const [backupCodes, setBackupCodes] = useState<string[]>([]);
 	const [verifyCode, setVerifyCode] = useState("");
 	const [showSecret, setShowSecret] = useState(false);
-	const [copiedBackup, setCopiedBackup] = useState(false);
 
 	useEffect(() => {
 		if (!open) {
@@ -90,7 +90,6 @@ export function TwoFactorDialog({
 			setBackupCodes([]);
 			setVerifyCode("");
 			setShowSecret(false);
-			setCopiedBackup(false);
 		}
 	}, [open, initialStep]);
 
@@ -197,18 +196,14 @@ export function TwoFactorDialog({
 		},
 	});
 
-	const handleCopyBackupCodes = useCallback(async () => {
-		const codesText = backupCodes.join("\n");
-		await navigator.clipboard.writeText(codesText);
-		setCopiedBackup(true);
-		toast.success("Backup codes copied to clipboard");
-		setTimeout(() => setCopiedBackup(false), 2000);
-	}, [backupCodes]);
+	const { isCopied: copiedBackup, copyToClipboard: copyBackupCodes } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Backup codes copied to clipboard"),
+		});
 
-	const handleCopySecret = useCallback(async () => {
-		await navigator.clipboard.writeText(secret);
-		toast.success("Secret key copied to clipboard");
-	}, [secret]);
+	const { copyToClipboard: copySecret } = useCopyToClipboard({
+		onCopy: () => toast.success("Secret key copied to clipboard"),
+	});
 
 	const isPending =
 		setPasswordMutation.isPending ||
@@ -369,7 +364,7 @@ export function TwoFactorDialog({
 														{secret}
 													</code>
 													<Button
-														onClick={handleCopySecret}
+														onClick={() => copySecret(secret)}
 														size="sm"
 														variant="ghost"
 													>
@@ -478,7 +473,7 @@ export function TwoFactorDialog({
 									<div className="mb-2 flex items-center justify-between">
 										<Text variant="label">Backup Codes</Text>
 										<Button
-											onClick={handleCopyBackupCodes}
+											onClick={() => copyBackupCodes(backupCodes.join("\n"))}
 											size="sm"
 											variant="ghost"
 										>
@@ -566,7 +561,7 @@ export function TwoFactorDialog({
 						<>
 							<Button
 								className="flex-1"
-								onClick={handleCopyBackupCodes}
+								onClick={() => copyBackupCodes(backupCodes.join("\n"))}
 								variant="secondary"
 							>
 								{copiedBackup ? (

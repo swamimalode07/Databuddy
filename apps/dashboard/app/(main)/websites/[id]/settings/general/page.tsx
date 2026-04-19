@@ -21,6 +21,7 @@ import { Divider } from "@/components/ds/divider";
 import { Switch } from "@/components/ds/switch";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { WebsiteDialog } from "@/components/website-dialog";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
 	updateWebsiteCache,
 	useDeleteWebsite,
@@ -62,7 +63,6 @@ export default function GeneralSettingsPage() {
 
 	const [showEditDialog, setShowEditDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-	const [copiedWebsiteId, setCopiedWebsiteId] = useState(false);
 
 	const toggleMutation = useMutation({
 		...orpc.websites.togglePublic.mutationOptions(),
@@ -70,6 +70,14 @@ export default function GeneralSettingsPage() {
 			updateWebsiteCache(queryClient, updatedWebsite);
 		},
 	});
+
+	const { isCopied: copiedId, copyToClipboard: copyId } = useCopyToClipboard({
+		onCopy: () => toast.success("Website ID copied to clipboard"),
+	});
+	const { isCopied: copiedLink, copyToClipboard: copyLink } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Link copied to clipboard!"),
+		});
 
 	const isPublic = websiteData?.isPublic ?? false;
 	const shareableLink = websiteData
@@ -102,13 +110,6 @@ export default function GeneralSettingsPage() {
 		}
 	}, [websiteData, websiteId, deleteWebsiteMutation, router]);
 
-	const handleCopyWebsiteId = useCallback(() => {
-		navigator.clipboard.writeText(websiteId);
-		setCopiedWebsiteId(true);
-		toast.success("Website ID copied to clipboard");
-		setTimeout(() => setCopiedWebsiteId(false), 2000);
-	}, [websiteId]);
-
 	const handleTogglePublic = useCallback(() => {
 		if (!websiteData) {
 			return;
@@ -122,14 +123,6 @@ export default function GeneralSettingsPage() {
 			}
 		);
 	}, [websiteData, websiteId, isPublic, toggleMutation]);
-
-	const handleCopyLink = useCallback(() => {
-		if (!shareableLink) {
-			return;
-		}
-		navigator.clipboard.writeText(shareableLink);
-		toast.success("Link copied to clipboard!");
-	}, [shareableLink]);
 
 	if (!websiteData) {
 		return (
@@ -154,11 +147,11 @@ export default function GeneralSettingsPage() {
 									{websiteId}
 								</code>
 								<Button
-									onClick={handleCopyWebsiteId}
+									onClick={() => copyId(websiteId)}
 									size="sm"
 									variant="secondary"
 								>
-									{copiedWebsiteId ? (
+									{copiedId ? (
 										<>
 											<CheckIcon className="size-3.5" weight="bold" />
 											Copied
@@ -240,11 +233,18 @@ export default function GeneralSettingsPage() {
 										</code>
 										<Button
 											aria-label="Copy public overview link"
-											onClick={handleCopyLink}
+											onClick={() => copyLink(shareableLink)}
 											size="sm"
 											variant="ghost"
 										>
-											<ClipboardIcon className="size-4" />
+											{copiedLink ? (
+												<CheckIcon
+													className="size-4 text-success"
+													weight="bold"
+												/>
+											) : (
+												<ClipboardIcon className="size-4" />
+											)}
 										</Button>
 									</div>
 									<NoticeBanner

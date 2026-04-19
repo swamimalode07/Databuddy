@@ -9,7 +9,7 @@ import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { Badge } from "@/components/ds/badge";
@@ -18,6 +18,7 @@ import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Field } from "@/components/ds/field";
 import { Skeleton } from "@/components/ds/skeleton";
 import { Switch } from "@/components/ds/switch";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -57,18 +58,13 @@ function StatusPageActions({
 	const [isTransferOpen, setIsTransferOpen] = useState(false);
 	const [includeMonitors, setIncludeMonitors] = useState(true);
 
+	const { copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("URL copied to clipboard"),
+	});
+
 	const transferMutation = useMutation({
 		...orpc.statusPage.transfer.mutationOptions(),
 	});
-
-	const handleCopyUrl = useCallback(async () => {
-		try {
-			await navigator.clipboard.writeText(url);
-			toast.success("URL copied to clipboard");
-		} catch {
-			toast.error("Failed to copy URL");
-		}
-	}, [url]);
 
 	const handleTransfer = async (targetOrganizationId: string) => {
 		try {
@@ -115,7 +111,10 @@ function StatusPageActions({
 						<PencilSimpleIcon className="size-4" weight="duotone" />
 						Edit Details
 					</DropdownMenu.Item>
-					<DropdownMenu.Item className="gap-2" onClick={handleCopyUrl}>
+					<DropdownMenu.Item
+						className="gap-2"
+						onClick={() => copyToClipboard(url)}
+					>
 						<CopyIcon className="size-4" weight="duotone" />
 						Copy URL
 					</DropdownMenu.Item>

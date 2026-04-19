@@ -16,6 +16,7 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { type Link, useDeleteLink } from "@/hooks/use-links";
 import { fromNow, localDayjs } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -92,17 +93,16 @@ function LinkRow({
 		link.expiresAt && localDayjs(link.expiresAt).isBefore(localDayjs());
 	const shortUrl = `${BASE_URL}/${link.slug}`;
 
+	const { copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("Link copied"),
+	});
+
 	const handleCopy = useCallback(
-		async (e?: React.MouseEvent) => {
+		(e?: React.MouseEvent) => {
 			e?.stopPropagation();
-			try {
-				await navigator.clipboard.writeText(`https://${shortUrl}`);
-				toast.success("Link copied");
-			} catch {
-				toast.error("Failed to copy");
-			}
+			copyToClipboard(`https://${shortUrl}`);
 		},
-		[shortUrl]
+		[copyToClipboard, shortUrl]
 	);
 
 	return (

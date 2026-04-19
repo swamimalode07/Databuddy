@@ -4,7 +4,6 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr";
 import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ds/badge";
 import { Dialog } from "@/components/ds/dialog";
@@ -15,6 +14,7 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ds/skeleton";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getFeatureLabel } from "@/lib/feature-gates";
 import { orpc } from "@/lib/orpc";
@@ -34,16 +34,11 @@ interface InviteLink {
 }
 
 function InviteLinkRow({ link }: { link: InviteLink }) {
-	const [copied, setCopied] = useState(false);
 	const url = `${globalThis.location?.origin ?? ""}/invite/${link.token}`;
 	const isRedeemed = link.status === "redeemed";
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(url);
-		setCopied(true);
-		toast.success("Invite link copied to clipboard");
-		setTimeout(() => setCopied(false), 2000);
-	};
+	const { isCopied, copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("Invite link copied to clipboard"),
+	});
 
 	return (
 		<div className="group flex items-center gap-3 rounded border bg-card px-3 py-2.5">
@@ -57,10 +52,10 @@ function InviteLinkRow({ link }: { link: InviteLink }) {
 				<button
 					aria-label="Copy invite link"
 					className="flex size-7 shrink-0 items-center justify-center rounded border bg-secondary text-foreground transition-colors hover:bg-accent"
-					onClick={handleCopy}
+					onClick={() => copyToClipboard(url)}
 					type="button"
 				>
-					{copied ? (
+					{isCopied ? (
 						<CheckIcon className="size-3.5 text-green-600" weight="bold" />
 					) : (
 						<CopyIcon className="size-3.5" weight="duotone" />

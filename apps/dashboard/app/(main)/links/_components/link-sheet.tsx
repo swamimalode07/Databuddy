@@ -12,6 +12,7 @@ import { Button } from "@/components/ds/button";
 import { Form } from "@/components/ui/form";
 import { Sheet } from "@/components/ds/sheet";
 import { Tabs } from "@/components/ds/tabs";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { type Link, useCreateLink, useUpdateLink } from "@/hooks/use-links";
 import dayjs from "@/lib/dayjs";
 import { LINKS_BASE_URL, LINKS_FULL_URL } from "./link-constants";
@@ -217,17 +218,9 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 		}
 	};
 
-	const handleCopyLink = useCallback(async () => {
-		if (!link?.slug) {
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(`${LINKS_FULL_URL}/${link.slug}`);
-			toast.success("Link copied to clipboard");
-		} catch {
-			toast.error("Failed to copy link");
-		}
-	}, [link?.slug]);
+	const { copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("Link copied to clipboard"),
+	});
 
 	const isPending =
 		createLinkMutation.isPending || updateLinkMutation.isPending;
@@ -354,7 +347,9 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 											</div>
 											<Button
 												className="shrink-0"
-												onClick={handleCopyLink}
+												onClick={() =>
+													copyToClipboard(`${LINKS_FULL_URL}/${link.slug}`)
+												}
 												size="sm"
 												type="button"
 												variant="secondary"

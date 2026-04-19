@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/context-menu";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { Skeleton } from "@/components/ds/skeleton";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDeleteWebsite } from "@/hooks/use-websites";
 import { formatNumber } from "@/lib/formatters";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
@@ -104,15 +105,13 @@ export const WebsiteCard = memo(
 			window.open(`/websites/${website.id}`, "_blank", "noopener,noreferrer");
 		}, [website.id]);
 
-		const handleCopyLink = useCallback(async () => {
-			const url = `${window.location.origin}/websites/${website.id}`;
-			try {
-				await navigator.clipboard.writeText(url);
-				toast.success("Link copied to clipboard");
-			} catch {
-				toast.error("Failed to copy link");
-			}
-		}, [website.id]);
+		const { copyToClipboard } = useCopyToClipboard({
+			onCopy: () => toast.success("Link copied to clipboard"),
+		});
+
+		const handleCopyLink = useCallback(() => {
+			copyToClipboard(`${window.location.origin}/websites/${website.id}`);
+		}, [copyToClipboard, website.id]);
 
 		const handleEdit = useCallback(() => {
 			setShowEditDialog(true);

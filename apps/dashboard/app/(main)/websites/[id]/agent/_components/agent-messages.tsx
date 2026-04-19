@@ -6,7 +6,6 @@ import {
 	CopyIcon,
 } from "@phosphor-icons/react";
 import type { UIMessage } from "ai";
-import { useCallback, useState } from "react";
 import { AIComponent } from "@/components/ai-elements/ai-component";
 import {
 	Message,
@@ -33,6 +32,7 @@ import {
 } from "@/components/ai-elements/unicode-spinner";
 import { Button } from "@/components/ui/button";
 import { useChat } from "@/contexts/chat-context";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { parseContentSegments } from "@/lib/ai-components";
 import { formatToolLabel } from "@/lib/tool-display";
 import { cn } from "@/lib/utils";
@@ -299,19 +299,8 @@ function AssistantActions({
 	canRegenerate: boolean;
 	onRegenerate: () => void;
 }) {
-	const [copied, setCopied] = useState(false);
 	const text = getMessageText(message);
-
-	const handleCopy = useCallback(async () => {
-		if (!text) {
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(text);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1500);
-		} catch {}
-	}, [text]);
+	const { isCopied, copyToClipboard } = useCopyToClipboard();
 
 	if (!text) {
 		return null;
@@ -320,14 +309,14 @@ function AssistantActions({
 	return (
 		<div className="-ml-1.5 flex items-center gap-0.5 pt-1 opacity-60 transition-opacity focus-within:opacity-100 group-hover/message:opacity-100">
 			<Button
-				aria-label={copied ? "Copied" : "Copy response"}
+				aria-label={isCopied ? "Copied" : "Copy response"}
 				className="size-7 text-muted-foreground hover:text-foreground"
-				onClick={handleCopy}
+				onClick={() => copyToClipboard(text)}
 				size="icon"
 				type="button"
 				variant="ghost"
 			>
-				{copied ? (
+				{isCopied ? (
 					<CheckIcon className="size-3.5" weight="bold" />
 				) : (
 					<CopyIcon className="size-3.5" weight="duotone" />

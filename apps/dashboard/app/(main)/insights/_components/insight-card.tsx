@@ -30,6 +30,7 @@ import {
 import { InsightMetrics } from "@/components/insight-metrics";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Skeleton } from "@/components/ds/skeleton";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
 	changePercentChipClassName,
 	formatSignedChangePercent,
@@ -204,27 +205,13 @@ export function InsightCard({
 
 	const analyticsLabel = pathHint ? "View events" : "Overview";
 
-	const copyAgentPromptAction = async () => {
-		try {
-			await navigator.clipboard.writeText(buildInsightAgentCopyText(insight));
-			toast.success("Copied prompt for agent");
-		} catch {
-			toast.error("Could not copy");
-		}
-	};
+	const { copyToClipboard: copyPrompt } = useCopyToClipboard({
+		onCopy: () => toast.success("Copied prompt for agent"),
+	});
 
-	const copyLinkAction = async () => {
-		const url = buildInsightShareUrl(insight.id);
-		if (!url) {
-			return;
-		}
-		try {
-			await navigator.clipboard.writeText(url);
-			toast.success("Copied link to this insight");
-		} catch {
-			toast.error("Could not copy link");
-		}
-	};
+	const { copyToClipboard: copyLink } = useCopyToClipboard({
+		onCopy: () => toast.success("Copied link to this insight"),
+	});
 
 	return (
 		<div
@@ -384,13 +371,20 @@ export function InsightCard({
 										<DropdownMenu.Item
 											onClick={(e) => {
 												e.stopPropagation();
-												copyAgentPromptAction();
+												copyPrompt(buildInsightAgentCopyText(insight));
 											}}
 										>
 											<CopyIcon className="size-4" weight="duotone" />
 											Copy prompt
 										</DropdownMenu.Item>
-										<DropdownMenu.Item onClick={copyLinkAction}>
+										<DropdownMenu.Item
+											onClick={() => {
+												const url = buildInsightShareUrl(insight.id);
+												if (url) {
+													copyLink(url);
+												}
+											}}
+										>
 											<LinkIcon className="size-4" weight="duotone" />
 											Copy link
 										</DropdownMenu.Item>

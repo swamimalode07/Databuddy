@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Copy, FloppyDisk } from "@phosphor-icons/react/dist/ssr";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
@@ -9,6 +9,7 @@ import { Divider } from "@/components/ds/divider";
 import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ds/text";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
 import { ApiKeysSection } from "./api-keys-section";
 import { DangerZoneSection } from "./danger-zone-section";
@@ -23,20 +24,12 @@ export function GeneralSettings({
 	const [name, setName] = useState(organization.name);
 	const [slug, setSlug] = useState(organization.slug);
 	const [isSaving, setIsSaving] = useState(false);
-	const [copiedOrgId, setCopiedOrgId] = useState(false);
 
 	const { updateOrganization } = useOrganizations();
-
-	const handleCopyOrgId = useCallback(async () => {
-		try {
-			await navigator.clipboard.writeText(organization.id);
-			setCopiedOrgId(true);
-			toast.success("Copied to clipboard");
-			setTimeout(() => setCopiedOrgId(false), 2000);
-		} catch {
-			toast.error("Failed to copy");
-		}
-	}, [organization.id]);
+	const { isCopied: copiedOrgId, copyToClipboard: copyOrgId } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Copied to clipboard"),
+		});
 
 	useEffect(() => {
 		setName(organization.name);
@@ -115,7 +108,7 @@ export function GeneralSettings({
 									</Text>
 								</div>
 								<Button
-									onClick={handleCopyOrgId}
+									onClick={() => copyOrgId(organization.id)}
 									size="sm"
 									variant={copiedOrgId ? "primary" : "secondary"}
 								>

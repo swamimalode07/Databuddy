@@ -44,6 +44,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { formatTime, fromNow } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
@@ -454,15 +455,20 @@ export function EventsStreamContent({
 		setSearchQuery,
 	]);
 
-	const handleCopyEvent = useCallback((event: RecentCustomEvent) => {
-		const copyData = {
-			event_name: event.event_name,
-			path: event.path,
-			timestamp: event.timestamp,
-			properties: event.properties,
-		};
-		navigator.clipboard.writeText(JSON.stringify(copyData, null, 2));
-	}, []);
+	const { copyToClipboard } = useCopyToClipboard();
+
+	const handleCopyEvent = useCallback(
+		(event: RecentCustomEvent) => {
+			const copyData = {
+				event_name: event.event_name,
+				path: event.path,
+				timestamp: event.timestamp,
+				properties: event.properties,
+			};
+			copyToClipboard(JSON.stringify(copyData, null, 2));
+		},
+		[copyToClipboard]
+	);
 
 	const handlePropertyKeyChange = useCallback(
 		(value: string) => {
