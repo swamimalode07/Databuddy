@@ -131,16 +131,20 @@ describe("SimpleQueryBuilder.compile", () => {
 		const filters: Filter[] = [
 			{ field: "device_type", op: "eq", value: "desktop" },
 		];
-		const { sql } = compile({}, { filters });
-		expect(sql).toContain("device_type = '' OR lower(device_type) = 'desktop'");
+		const { sql, params } = compile({}, { filters });
+		expect(sql).toContain(
+			"(device_type = '' OR lower(device_type) = {f0:String})"
+		);
+		expect(params.f0).toBe("desktop");
 	});
 
 	it("handles mobile device_type filter", () => {
 		const filters: Filter[] = [
 			{ field: "device_type", op: "eq", value: "mobile" },
 		];
-		const { sql } = compile({}, { filters });
-		expect(sql).toContain("lower(device_type) = 'mobile'");
+		const { sql, params } = compile({}, { filters });
+		expect(sql).toContain("lower(device_type) = {f0:String}");
+		expect(params.f0).toBe("mobile");
 	});
 
 	it("throws on disallowed filter field", () => {
@@ -164,13 +168,13 @@ describe("SimpleQueryBuilder.compile", () => {
 	it("throws on SQL injection in groupBy", () => {
 		expect(() =>
 			compile({}, { groupBy: ["path; DROP TABLE analytics.events"] })
-		).toThrow("dangerous keyword");
+		).toThrow("not permitted");
 	});
 
 	it("throws on SQL injection in orderBy", () => {
 		expect(() =>
 			compile({}, { orderBy: "total DESC; DELETE FROM analytics.events" })
-		).toThrow("dangerous keyword");
+		).toThrow("not permitted");
 	});
 
 	it("normalizes referrer filter values", () => {
