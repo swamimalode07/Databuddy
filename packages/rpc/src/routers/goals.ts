@@ -159,11 +159,15 @@ export const goalsRouter = {
 				throw rpcError.notFound("goal", input.id);
 			}
 
-			await withWorkspace(context, {
-				websiteId: goal.websiteId,
-				permissions: ["read"],
-				allowPublicAccess: true,
-			});
+			try {
+				await withWorkspace(context, {
+					websiteId: goal.websiteId,
+					permissions: ["read"],
+					allowPublicAccess: true,
+				});
+			} catch {
+				throw rpcError.notFound("goal", input.id);
+			}
 
 			return goal;
 		}),
