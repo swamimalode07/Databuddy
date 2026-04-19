@@ -781,57 +781,50 @@ export function DesignShowcase() {
 	);
 }
 
+const NAV_ITEMS = [
+	{ id: "general", label: "General", icon: User },
+	{ id: "notifications", label: "Notifications", icon: Bell },
+	{ id: "appearance", label: "Appearance", icon: Palette },
+	{ id: "security", label: "Security", icon: ShieldCheck },
+] as const;
+
+type SettingsSection = (typeof NAV_ITEMS)[number]["id"];
+
 function SettingsMockup() {
+	const [active, setActive] = useState<SettingsSection>("general");
 	const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
 	return (
-		<Card>
-			<Card.Header>
-				<div className="flex items-center gap-2">
+		<div className="flex overflow-hidden rounded-xl border border-border/60">
+			<nav className="flex w-56 shrink-0 flex-col gap-1 border-border/60 border-r bg-muted/30 p-3">
+				<div className="flex items-center gap-2 px-2 pb-3">
 					<Gear className="size-4 text-muted-foreground" />
-					<Card.Title>Settings</Card.Title>
+					<Text variant="label">Settings</Text>
 				</div>
-				<Card.Description>
-					Manage your account and preferences.
-				</Card.Description>
-			</Card.Header>
-			<Card.Content className="p-0">
-				<Tabs defaultValue="general">
-					<div className="border-border/60 border-b px-6">
-						<Tabs.List>
-							<Tabs.Tab
-								className="inline-flex items-center gap-1.5"
-								value="general"
-							>
-								<User className="size-3" />
-								General
-							</Tabs.Tab>
-							<Tabs.Tab
-								className="inline-flex items-center gap-1.5"
-								value="notifications"
-							>
-								<Bell className="size-3" />
-								Notifications
-							</Tabs.Tab>
-							<Tabs.Tab
-								className="inline-flex items-center gap-1.5"
-								value="appearance"
-							>
-								<Palette className="size-3" />
-								Appearance
-							</Tabs.Tab>
-							<Tabs.Tab
-								className="inline-flex items-center gap-1.5"
-								value="security"
-							>
-								<ShieldCheck className="size-3" />
-								Security
-							</Tabs.Tab>
-						</Tabs.List>
-					</div>
+				{NAV_ITEMS.map((item) => (
+					<button
+						className={`flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-left font-medium text-xs transition-colors ${active === item.id ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-interactive-hover hover:text-foreground"}`}
+						key={item.id}
+						onClick={() => setActive(item.id)}
+						type="button"
+					>
+						<item.icon className="size-3.5" />
+						{item.label}
+					</button>
+				))}
+			</nav>
 
-					<Tabs.Panel className="p-6" value="general">
+			<div className="flex min-w-0 flex-1 flex-col">
+				<div className="flex-1 p-6">
+					{active === "general" && (
 						<div className="flex flex-col gap-6">
+							<div className="flex flex-col gap-1">
+								<Text variant="heading">General</Text>
+								<Text tone="muted" variant="caption">
+									Manage your profile and account details.
+								</Text>
+							</div>
+							<Divider />
 							<div className="flex items-center gap-4">
 								<Avatar alt="Iza Nassiri" size="lg" />
 								<div className="flex flex-col gap-1">
@@ -844,7 +837,6 @@ function SettingsMockup() {
 									Change avatar
 								</Button>
 							</div>
-							<Divider />
 							<div className="grid gap-6 sm:grid-cols-2">
 								<Field>
 									<Field.Label>Full name</Field.Label>
@@ -892,14 +884,21 @@ function SettingsMockup() {
 								</Field.Description>
 							</Field>
 						</div>
-					</Tabs.Panel>
+					)}
 
-					<Tabs.Panel className="p-6" value="notifications">
+					{active === "notifications" && (
 						<div className="flex flex-col gap-6">
 							<div className="flex flex-col gap-1">
-								<Text variant="label">Email notifications</Text>
+								<Text variant="heading">Notifications</Text>
 								<Text tone="muted" variant="caption">
 									Choose which updates you want to receive.
+								</Text>
+							</div>
+							<Divider />
+							<div className="flex flex-col gap-1">
+								<Text variant="label">Email</Text>
+								<Text tone="muted" variant="caption">
+									Delivered to your inbox.
 								</Text>
 							</div>
 							<div className="flex flex-col gap-4">
@@ -925,9 +924,9 @@ function SettingsMockup() {
 							</div>
 							<Divider />
 							<div className="flex flex-col gap-1">
-								<Text variant="label">In-app notifications</Text>
+								<Text variant="label">In-app</Text>
 								<Text tone="muted" variant="caption">
-									Control what appears in your notification center.
+									Appears in your notification center.
 								</Text>
 							</div>
 							<div className="flex flex-col gap-4">
@@ -958,10 +957,17 @@ function SettingsMockup() {
 								</Field.Description>
 							</Field>
 						</div>
-					</Tabs.Panel>
+					)}
 
-					<Tabs.Panel className="p-6" value="appearance">
+					{active === "appearance" && (
 						<div className="flex flex-col gap-6">
+							<div className="flex flex-col gap-1">
+								<Text variant="heading">Appearance</Text>
+								<Text tone="muted" variant="caption">
+									Customize how the dashboard looks and feels.
+								</Text>
+							</div>
+							<Divider />
 							<div className="flex flex-col gap-1">
 								<Text variant="label">Theme</Text>
 								<Text tone="muted" variant="caption">
@@ -1028,10 +1034,17 @@ function SettingsMockup() {
 								</Field>
 							</div>
 						</div>
-					</Tabs.Panel>
+					)}
 
-					<Tabs.Panel className="p-6" value="security">
+					{active === "security" && (
 						<div className="flex flex-col gap-6">
+							<div className="flex flex-col gap-1">
+								<Text variant="heading">Security</Text>
+								<Text tone="muted" variant="caption">
+									Protect your account and manage sessions.
+								</Text>
+							</div>
+							<Divider />
 							<div className="flex flex-col gap-1">
 								<Text variant="label">Password</Text>
 								<Text tone="muted" variant="caption">
@@ -1144,13 +1157,14 @@ function SettingsMockup() {
 								))}
 							</div>
 						</div>
-					</Tabs.Panel>
-				</Tabs>
-			</Card.Content>
-			<Card.Footer>
-				<Button variant="secondary">Cancel</Button>
-				<Button>Save changes</Button>
-			</Card.Footer>
-		</Card>
+					)}
+				</div>
+
+				<div className="flex justify-end gap-2 border-border/60 border-t px-6 py-4">
+					<Button variant="secondary">Cancel</Button>
+					<Button>Save changes</Button>
+				</div>
+			</div>
+		</div>
 	);
 }
