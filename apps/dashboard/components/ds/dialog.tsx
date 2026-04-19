@@ -1,0 +1,134 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { Dialog as BaseDialog } from "@base-ui-components/react/dialog";
+import { IconXmarkOutline24 } from "nucleo-core-outline-24";
+import type { ComponentPropsWithoutRef } from "react";
+
+function Root(props: ComponentPropsWithoutRef<typeof BaseDialog.Root>) {
+	return <BaseDialog.Root {...props} />;
+}
+
+function Trigger(props: ComponentPropsWithoutRef<typeof BaseDialog.Trigger>) {
+	return <BaseDialog.Trigger {...props} />;
+}
+
+function Content({
+	className,
+	children,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Popup>) {
+	return (
+		<BaseDialog.Portal>
+			<BaseDialog.Backdrop
+				className={cn(
+					"fixed inset-0 z-50 bg-black/40",
+					"transition-opacity duration-(--duration-quick) ease-(--ease-smooth)",
+					"data-starting-style:opacity-0",
+					"data-ending-style:opacity-0"
+				)}
+			/>
+			<BaseDialog.Popup
+				className={cn(
+					"fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2",
+					"overflow-hidden rounded-lg border border-border/60 bg-card shadow-lg",
+					"transition-all duration-(--duration-quick) ease-(--ease-smooth)",
+					"data-starting-style:scale-95 data-starting-style:opacity-0",
+					"data-ending-style:scale-95 data-ending-style:opacity-0",
+					className
+				)}
+				{...rest}
+			>
+				{children}
+			</BaseDialog.Popup>
+		</BaseDialog.Portal>
+	);
+}
+
+function Header({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
+	return (
+		<div
+			className={cn("flex flex-col gap-1 bg-muted px-5 py-4", className)}
+			{...rest}
+		/>
+	);
+}
+
+function Body({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
+	return <div className={cn("px-5 py-4", className)} {...rest} />;
+}
+
+function Footer({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
+	return (
+		<div
+			className={cn(
+				"angled-rectangle-gradient flex items-center justify-end gap-2 bg-muted px-5 py-3",
+				className
+			)}
+			{...rest}
+		/>
+	);
+}
+
+function Title({
+	className,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Title>) {
+	return (
+		<BaseDialog.Title
+			className={cn("font-semibold text-foreground text-xs", className)}
+			{...rest}
+		/>
+	);
+}
+
+function Description({
+	className,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Description>) {
+	return (
+		<BaseDialog.Description
+			className={cn("text-[11px] text-muted-foreground", className)}
+			{...rest}
+		/>
+	);
+}
+
+function Close({
+	className,
+	children,
+	...rest
+}: ComponentPropsWithoutRef<typeof BaseDialog.Close>) {
+	if (children) {
+		return (
+			<BaseDialog.Close
+				render={children as React.ReactElement<Record<string, unknown>>}
+				{...rest}
+			/>
+		);
+	}
+	return (
+		<BaseDialog.Close
+			className={cn(
+				"absolute top-3 right-3 inline-flex size-6 items-center justify-center rounded-md text-muted-foreground",
+				"transition-colors duration-(--duration-instant) ease-(--ease-smooth)",
+				"hover:bg-interactive-hover hover:text-foreground",
+				className
+			)}
+			{...rest}
+		>
+			<IconXmarkOutline24 className="size-3.5" />
+		</BaseDialog.Close>
+	);
+}
+
+export const Dialog = Object.assign(Root, {
+	Trigger,
+	Content,
+	Header,
+	Body,
+	Footer,
+	Title,
+	Description,
+	Close,
+});
