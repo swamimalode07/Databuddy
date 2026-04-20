@@ -167,6 +167,9 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}-${{ matrix.platform.arch }}
 
       - name: Scan image for vulnerabilities
+        if: always() && steps.build.outcome != 'cancelled'
+        env:
+          TRIVY_PLATFORM: ${{ matrix.platform.os }}
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ steps.version.outputs.tag }}-${{ matrix.platform.arch }}
@@ -177,14 +180,16 @@ jobs:
 
       - name: Upload scan results to GitHub Security
         uses: github/codeql-action/upload-sarif@b25d0ebf40e5b63ee81e1bd6e5d2a12b7c2aeb61 # v4
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: trivy-results.sarif
 
       - name: Install cosign
+        if: always() && steps.build.outcome != 'cancelled'
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4
 
       - name: Sign image
+        if: always() && steps.build.outcome != 'cancelled'
         run: cosign sign --yes ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ steps.version.outputs.tag }}-${{ matrix.platform.arch }}
 
   manifest:
