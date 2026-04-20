@@ -8,7 +8,6 @@ import { EyeSlashIcon } from "@phosphor-icons/react";
 import { GithubLogoIcon } from "@phosphor-icons/react";
 import { GoogleLogoIcon } from "@phosphor-icons/react";
 import { InfoIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -16,9 +15,11 @@ import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Checkbox } from "@/components/ds/checkbox";
-import { Input } from "@/components/ds/input";
-import { Field } from "@/components/ds/field";
 import { Divider } from "@/components/ds/divider";
+import { Field } from "@/components/ds/field";
+import { Input } from "@/components/ds/input";
+import { Spinner } from "@/components/ds/spinner";
+import { Text } from "@/components/ds/text";
 import { Tooltip } from "@/components/ds/tooltip";
 import VisuallyHidden from "@/components/ui/visuallyhidden";
 
@@ -164,98 +165,78 @@ function RegisterPageContent() {
 		}
 	};
 
-	// Render header content based on current registration step
 	const renderHeaderContent = () => {
 		switch (registrationStep) {
 			case "verification-needed":
 				return (
 					<>
-						<h1 className="font-medium text-2xl text-foreground">
+						<Text as="h1" className="text-balance font-medium text-2xl">
 							Verify your email
-						</h1>
-						<p className="mt-2 text-muted-foreground text-sm">
+						</Text>
+						<Text tone="muted">
 							Please check your email:{" "}
 							<span className="font-medium text-accent-foreground">
 								{formData.email}
 							</span>{" "}
 							and click the verification link to activate your account. If you
 							don't see the email, check your spam folder.
-						</p>
+						</Text>
 					</>
 				);
 			case "success":
 				return (
 					<>
-						<h1 className="font-medium text-2xl text-foreground">Success!</h1>
-						<p className="mt-1 text-muted-foreground text-sm">
+						<Text as="h1" className="text-balance font-medium text-2xl">
+							Success!
+						</Text>
+						<Text tone="muted">
 							Your account has been created successfully. You can now sign in to
 							access your dashboard.
-						</p>
+						</Text>
 					</>
 				);
 			default:
 				return (
 					<>
-						<h1 className="font-medium text-2xl text-foreground">
+						<Text as="h1" className="text-balance font-medium text-2xl">
 							Create your account
-						</h1>
-						<p className="mt-1 text-muted-foreground text-sm">
+						</Text>
+						<Text tone="muted">
 							Sign up to start building better products with Databuddy
-						</p>
+						</Text>
 					</>
 				);
 		}
 	};
 
-	// Split render content into smaller components
 	const renderVerificationContent = () => (
-		<div className="space-y-5">
-			<div className="flex flex-col space-y-3">
-				<Button
-					className="w-full"
-					disabled={isLoading}
-					onClick={resendVerificationEmail}
-					size="lg"
-				>
-					{isLoading ? (
-						<>
-							<SpinnerIcon className="mr-2 size-4 animate-spin" />
-							Sending...
-						</>
-					) : (
-						<>
-							<span className="hidden sm:inline">
-								Resend verification email
-							</span>
-							<span className="sm:hidden">Resend email</span>
-						</>
-					)}
-				</Button>
-
-				<Button
-					onClick={() => setRegistrationStep("form")}
-					size="lg"
-					variant="ghost"
-				>
-					<CaretLeftIcon className="size-3" weight="bold" />
-					<span className="hidden sm:inline">Back to registration</span>
-					<span className="sm:hidden">Back</span>
-				</Button>
-			</div>
+		<div className="flex flex-col gap-3">
+			<Button
+				className="w-full"
+				loading={isLoading}
+				onClick={resendVerificationEmail}
+				size="lg"
+			>
+				<span className="hidden sm:inline">Resend verification email</span>
+				<span className="sm:hidden">Resend email</span>
+			</Button>
+			<Button
+				onClick={() => setRegistrationStep("form")}
+				size="lg"
+				variant="ghost"
+			>
+				<CaretLeftIcon className="size-3" weight="bold" />
+				<span className="hidden sm:inline">Back to registration</span>
+				<span className="sm:hidden">Back</span>
+			</Button>
 		</div>
 	);
 
 	const renderSuccessContent = () => (
-		<div className="space-y-5">
-			<Button
-				className="w-full"
-				onClick={() => router.push("/login")}
-				size="lg"
-			>
-				<span className="hidden sm:inline">Continue to login</span>
-				<span className="sm:hidden">Continue</span>
-			</Button>
-		</div>
+		<Button className="w-full" onClick={() => router.push("/login")} size="lg">
+			<span className="hidden sm:inline">Continue to login</span>
+			<span className="sm:hidden">Continue</span>
+		</Button>
 	);
 
 	const renderFormContent = () => (
@@ -265,18 +246,15 @@ function RegisterPageContent() {
 					disabled={isLoading}
 					onClick={() => handleSocialLogin("github")}
 					size="lg"
-					type="button"
 					variant="outline"
 				>
 					<GithubLogoIcon className="size-4" />
 					Sign up with GitHub
 				</Button>
-
 				<Button
 					disabled={isLoading}
 					onClick={() => handleSocialLogin("google")}
 					size="lg"
-					type="button"
 					variant="outline"
 				>
 					<GoogleLogoIcon className="size-4" />
@@ -284,25 +262,22 @@ function RegisterPageContent() {
 				</Button>
 			</div>
 
-			<div className="relative">
-				<div className="relative flex items-center justify-center gap-3">
-					<Divider className="flex-1 opacity-70" />
-					<p className="text-nowrap font-medium text-muted-foreground/50 text-sm">
-						Or
-					</p>
-					<Divider className="flex-1 opacity-70" />
-				</div>
+			<div className="flex items-center gap-3">
+				<Divider className="flex-1 opacity-70" />
+				<Text className="text-nowrap text-muted-foreground/50" variant="label">
+					Or
+				</Text>
+				<Divider className="flex-1 opacity-70" />
 			</div>
 
 			<form className="space-y-5" onSubmit={handleSubmit}>
-				<div className="space-y-3">
-					<Field.Label className="font-medium text-foreground" htmlFor="name">
+				<Field>
+					<Field.Label>
 						Full name<span className="text-primary">*</span>
 					</Field.Label>
 					<Input
 						autoComplete="name"
 						disabled={isLoading}
-						id="name"
 						name="name"
 						onChange={handleChange}
 						placeholder="Enter your name"
@@ -310,16 +285,15 @@ function RegisterPageContent() {
 						type="text"
 						value={formData.name}
 					/>
-				</div>
+				</Field>
 
-				<div className="space-y-3">
-					<Field.Label className="font-medium text-foreground" htmlFor="email">
+				<Field>
+					<Field.Label>
 						Email address<span className="text-primary">*</span>
 					</Field.Label>
 					<Input
 						autoComplete="email"
 						disabled={isLoading}
-						id="email"
 						name="email"
 						onChange={handleChange}
 						placeholder="Enter your email"
@@ -327,15 +301,12 @@ function RegisterPageContent() {
 						type="email"
 						value={formData.email}
 					/>
-				</div>
+				</Field>
 
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<div className="space-y-3">
+					<Field>
 						<div className="flex items-center gap-2">
-							<Field.Label
-								className="font-medium text-foreground"
-								htmlFor="password"
-							>
+							<Field.Label>
 								Password<span className="text-primary">*</span>
 							</Field.Label>
 							<Tooltip
@@ -353,7 +324,6 @@ function RegisterPageContent() {
 							<Input
 								autoComplete="new-password"
 								disabled={isLoading}
-								id="password"
 								minLength={8}
 								name="password"
 								onChange={handleChange}
@@ -367,7 +337,6 @@ function RegisterPageContent() {
 								className="absolute top-0 right-0 h-full px-3 text-muted-foreground hover:bg-transparent"
 								onClick={() => setShowPassword(!showPassword)}
 								size="sm"
-								type="button"
 								variant="ghost"
 							>
 								{showPassword ? (
@@ -377,20 +346,16 @@ function RegisterPageContent() {
 								)}
 							</Button>
 						</div>
-					</div>
+					</Field>
 
-					<div className="space-y-3">
-						<Field.Label
-							className="whitespace-nowrap font-medium text-foreground"
-							htmlFor="confirmPassword"
-						>
+					<Field>
+						<Field.Label className="whitespace-nowrap">
 							Confirm password<span className="text-primary">*</span>
 						</Field.Label>
 						<div className="relative">
 							<Input
 								autoComplete="new-password"
 								disabled={isLoading}
-								id="confirmPassword"
 								minLength={8}
 								name="confirmPassword"
 								onChange={handleChange}
@@ -406,7 +371,6 @@ function RegisterPageContent() {
 								className="absolute top-0 right-0 h-full px-3 text-muted-foreground hover:bg-transparent"
 								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 								size="sm"
-								type="button"
 								variant="ghost"
 							>
 								{showConfirmPassword ? (
@@ -416,7 +380,7 @@ function RegisterPageContent() {
 								)}
 							</Button>
 						</div>
-					</div>
+					</Field>
 				</div>
 
 				<VisuallyHidden>
@@ -430,83 +394,70 @@ function RegisterPageContent() {
 					/>
 				</VisuallyHidden>
 
-				<div className="space-y-3">
-					<div className="flex items-center gap-2">
-						<Checkbox
-							checked={acceptTerms}
-							className="cursor-pointer data-[state=checked]:border-brand-purple/50 data-[state=checked]:bg-brand-purple data-[state=unchecked]:bg-input"
-							disabled={isLoading}
-							id="terms"
-							onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-						/>
-						<Field.Label
-							className="text-[13px] text-muted-foreground leading-relaxed"
-							htmlFor="terms"
-						>
-							<span className="hidden sm:inline">
-								I agree to the{" "}
-								<Link
-									className="font-medium text-accent-foreground duration-200 hover:text-accent-foreground/80"
-									href="https://www.databuddy.cc/terms"
-									target="_blank"
-								>
-									Terms of Service
-								</Link>{" "}
-								and{" "}
-								<Link
-									className="font-medium text-accent-foreground duration-200 hover:text-accent-foreground/80"
-									href="https://www.databuddy.cc/privacy"
-									target="_blank"
-								>
-									Privacy Policy
-								</Link>
-							</span>
-							<span className="sm:hidden">
-								I agree to{" "}
-								<Link
-									className="font-medium text-primary hover:text-primary/80"
-									href="https://www.databuddy.cc/terms"
-									target="_blank"
-								>
-									Terms
-								</Link>{" "}
-								&{" "}
-								<Link
-									className="font-medium text-primary hover:text-primary/80"
-									href="https://www.databuddy.cc/privacy"
-									target="_blank"
-								>
-									Privacy
-								</Link>
-							</span>
-						</Field.Label>
-					</div>
+				<div className="flex items-center gap-2">
+					<Checkbox
+						checked={acceptTerms}
+						className="cursor-pointer data-[state=checked]:border-brand-purple/50 data-[state=checked]:bg-brand-purple data-[state=unchecked]:bg-input"
+						disabled={isLoading}
+						id="terms"
+						onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+					/>
+					<Field.Label
+						className="text-[11px] text-muted-foreground leading-relaxed"
+						htmlFor="terms"
+					>
+						<span className="hidden sm:inline">
+							I agree to the{" "}
+							<Link
+								className="font-medium text-accent-foreground duration-200 hover:text-accent-foreground/80"
+								href="https://www.databuddy.cc/terms"
+								target="_blank"
+							>
+								Terms of Service
+							</Link>{" "}
+							and{" "}
+							<Link
+								className="font-medium text-accent-foreground duration-200 hover:text-accent-foreground/80"
+								href="https://www.databuddy.cc/privacy"
+								target="_blank"
+							>
+								Privacy Policy
+							</Link>
+						</span>
+						<span className="sm:hidden">
+							I agree to{" "}
+							<Link
+								className="font-medium text-primary hover:text-primary/80"
+								href="https://www.databuddy.cc/terms"
+								target="_blank"
+							>
+								Terms
+							</Link>{" "}
+							&{" "}
+							<Link
+								className="font-medium text-primary hover:text-primary/80"
+								href="https://www.databuddy.cc/privacy"
+								target="_blank"
+							>
+								Privacy
+							</Link>
+						</span>
+					</Field.Label>
 				</div>
 
 				<Button
-					className="relative mt-4 w-full"
-					disabled={isLoading}
+					className="mt-4 w-full"
+					loading={isLoading}
 					size="lg"
 					type="submit"
 				>
-					{isLoading ? (
-						<>
-							<SpinnerIcon className="mr-2 size-4 animate-spin" />
-							<span className="hidden sm:inline">Creating account...</span>
-							<span className="sm:hidden">Creating...</span>
-						</>
-					) : (
-						<>
-							<span className="hidden sm:inline">Create account</span>
-							<span className="sm:hidden">Sign up</span>
-						</>
-					)}
+					<span className="hidden sm:inline">Create account</span>
+					<span className="sm:hidden">Sign up</span>
 				</Button>
 			</form>
 		</div>
 	);
 
-	// Render content based on current registration step
 	const renderContent = () => {
 		switch (registrationStep) {
 			case "verification-needed":
@@ -520,16 +471,14 @@ function RegisterPageContent() {
 
 	return (
 		<>
-			<div className="mb-8 px-6 text-left">{renderHeaderContent()}</div>
-			<div className="relative overflow-hidden px-6">
-				<div className="relative z-10">{renderContent()}</div>
-			</div>
+			<div className="mb-8 space-y-1.5 px-6">{renderHeaderContent()}</div>
+			<div className="px-6">{renderContent()}</div>
 			{registrationStep === "form" && (
 				<div className="mt-4 text-center">
-					<p className="text-muted-foreground text-sm">
+					<Text tone="muted">
 						Already have an account?{" "}
 						<Link
-							className="h-auto flex-1 cursor-pointer p-0 text-right font-medium text-[13px] text-accent-foreground duration-200 hover:text-accent-foreground/60"
+							className="font-medium text-accent-foreground duration-200 hover:text-accent-foreground/60"
 							href={
 								callback
 									? `/login?callback=${encodeURIComponent(callback)}`
@@ -538,7 +487,7 @@ function RegisterPageContent() {
 						>
 							Sign in
 						</Link>
-					</p>
+					</Text>
 				</div>
 			)}
 		</>
@@ -549,11 +498,8 @@ export default function RegisterPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-dvh items-center justify-center bg-background">
-					<div className="relative">
-						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
-					</div>
+				<div className="flex h-40 items-center justify-center">
+					<Spinner size="lg" />
 				</div>
 			}
 		>

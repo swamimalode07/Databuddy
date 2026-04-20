@@ -2,11 +2,12 @@
 
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { ShieldWarningIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense } from "react";
 import { Button } from "@/components/ds/button";
+import { Spinner } from "@/components/ds/spinner";
+import { Text } from "@/components/ds/text";
 
 const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
 	account_already_linked_to_different_user: {
@@ -84,47 +85,41 @@ function AuthErrorPage() {
 
 	return (
 		<>
-			<div className="mb-8 space-y-1 px-6 text-left">
-				<h1 className="font-medium text-2xl text-foreground">
+			<div className="mb-8 space-y-1.5 px-6">
+				<Text as="h1" className="text-balance font-medium text-2xl">
 					{errorInfo.title}
-				</h1>
-				<p className="text-muted-foreground text-sm">
-					Something went wrong with your request
-				</p>
+				</Text>
+				<Text tone="muted">Something went wrong with your request</Text>
 			</div>
-			<div className="relative px-6">
-				<div className="relative z-10">
-					<div className="space-y-5">
-						<div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-							<ShieldWarningIcon className="size-5 shrink-0 text-destructive" />
-							<p className="text-muted-foreground text-sm">
-								{errorInfo.description}
-							</p>
-						</div>
 
-						{errorCode && (
-							<div className="rounded border border-border bg-muted/30 px-3 py-2">
-								<p className="font-mono text-muted-foreground text-xs">
-									Error: {errorCode}
-								</p>
-							</div>
-						)}
-
-						<Button asChild className="w-full">
-							<Link href="/login">Back to login</Link>
-						</Button>
-					</div>
+			<div className="space-y-5 px-6">
+				<div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+					<ShieldWarningIcon className="size-5 shrink-0 text-destructive" />
+					<Text tone="muted">{errorInfo.description}</Text>
 				</div>
+
+				{errorCode && (
+					<div className="rounded border border-border bg-muted/30 px-3 py-2">
+						<Text mono tone="muted" variant="caption">
+							Error: {errorCode}
+						</Text>
+					</div>
+				)}
+
+				<Button asChild className="w-full">
+					<Link href="/login">Back to login</Link>
+				</Button>
 			</div>
-			<div className="mt-5 flex flex-col flex-wrap items-center justify-center gap-4 px-5 text-center lg:flex-row">
+
+			<div className="mt-5 flex flex-wrap items-center justify-center gap-4 px-6">
 				<Link
-					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
+					className="text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="/register"
 				>
 					Create an account instead
 				</Link>
 				<Link
-					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
+					className="text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="https://www.databuddy.cc"
 				>
 					<ArrowLeftIcon className="mr-1 inline size-3" />
@@ -139,11 +134,8 @@ export default function Page() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-dvh items-center justify-center bg-background">
-					<div className="relative">
-						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
-					</div>
+				<div className="flex h-40 items-center justify-center">
+					<Spinner size="lg" />
 				</div>
 			}
 		>

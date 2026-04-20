@@ -4,14 +4,16 @@ import { authClient } from "@databuddy/auth/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
 import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
-import { Input } from "@/components/ds/input";
 import { Field } from "@/components/ds/field";
+import { Input } from "@/components/ds/input";
+import { OtpInput } from "@/components/ds/otp-input";
+import { Spinner } from "@/components/ds/spinner";
+import { Text } from "@/components/ds/text";
 
 function ForgotPasswordPage() {
 	const router = useRouter();
@@ -112,46 +114,40 @@ function ForgotPasswordPage() {
 	if (step === "email") {
 		return (
 			<>
-				<div className="mb-8 space-y-1 px-6 text-left">
-					<h1 className="font-medium text-2xl text-foreground">
+				<div className="mb-8 space-y-1.5 px-6">
+					<Text as="h1" className="text-balance font-medium text-2xl">
 						Reset your password
-					</h1>
-					<p className="text-muted-foreground text-sm">
+					</Text>
+					<Text tone="muted">
 						We&apos;ll send you a verification code to reset your password
-					</p>
+					</Text>
 				</div>
-				<div className="relative px-6">
-					<div className="relative z-10">
-						<form className="space-y-5" onSubmit={handleSendOTP}>
-							<div className="space-y-3">
-								<Field.Label
-									className="font-medium text-foreground"
-									htmlFor="forgot-email"
-								>
-									Email<span className="text-primary">*</span>
-								</Field.Label>
-								<Input
-									autoComplete="email"
-									id="forgot-email"
-									name="email"
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder="Enter your email"
-									required
-									type="email"
-									value={email}
-								/>
-							</div>
-							<Button className="w-full" loading={isLoading} type="submit">
-								{isLoading
-									? "Sending verification code..."
-									: "Send verification code"}
-							</Button>
-						</form>
-					</div>
+
+				<div className="space-y-5 px-6">
+					<form className="space-y-5" onSubmit={handleSendOTP}>
+						<Field>
+							<Field.Label>
+								Email<span className="text-primary">*</span>
+							</Field.Label>
+							<Input
+								autoComplete="email"
+								name="email"
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="Enter your email"
+								required
+								type="email"
+								value={email}
+							/>
+						</Field>
+						<Button className="w-full" loading={isLoading} type="submit">
+							Send verification code
+						</Button>
+					</form>
 				</div>
-				<div className="mt-5 flex flex-col flex-wrap items-center justify-center gap-4 px-5 text-center lg:flex-row">
+
+				<div className="mt-5 flex items-center justify-center px-6">
 					<Link
-						className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
+						className="text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 						href="/login"
 					>
 						<ArrowLeftIcon className="mr-1 inline size-3" />
@@ -164,60 +160,47 @@ function ForgotPasswordPage() {
 
 	return (
 		<>
-			<div className="mb-8 space-y-1 px-6 text-left">
-				<h1 className="font-medium text-2xl text-foreground">
+			<div className="mb-8 space-y-1.5 px-6">
+				<Text as="h1" className="text-balance font-medium text-2xl">
 					Reset your password
-				</h1>
-				<p className="text-muted-foreground text-sm">
+				</Text>
+				<Text tone="muted">
 					Enter the verification code sent to{" "}
 					<strong className="text-foreground">{email}</strong>
-				</p>
+				</Text>
 			</div>
-			<div className="relative px-6">
-				<div className="relative z-10">
-					<form className="space-y-5" onSubmit={handleResetPassword}>
-						<div className="space-y-3">
-							<div className="flex items-center justify-between">
-								<Field.Label
-									className="font-medium text-foreground"
-									htmlFor="otp"
-								>
-									Verification code<span className="text-primary">*</span>
-								</Field.Label>
-								<Button
-									className="h-auto p-0 text-accent-foreground/60 text-xs duration-200 hover:text-accent-foreground"
-									loading={isResending}
-									onClick={handleResendOTP}
-									type="button"
-									variant="ghost"
-								>
-									{isResending ? "Sending..." : "Resend code"}
-								</Button>
-							</div>
-							<Input
-								autoComplete="one-time-code"
-								id="otp"
-								inputMode="numeric"
-								maxLength={6}
-								name="otp"
-								onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-								placeholder="000000"
-								required
-								type="text"
-								value={otp}
-							/>
-						</div>
-						<div className="space-y-3">
-							<Field.Label
-								className="font-medium text-foreground"
-								htmlFor="password"
-							>
+
+			<div className="space-y-5 px-6">
+				<form className="space-y-5" onSubmit={handleResetPassword}>
+					<div className="space-y-1.5">
+						<Field.Label htmlFor="otp">
+							Verification code<span className="text-primary">*</span>
+						</Field.Label>
+						<OtpInput
+							autoComplete="one-time-code"
+							id="otp"
+							name="otp"
+							onChange={setOtp}
+							value={otp}
+						/>
+						<Button
+							className="h-auto p-0 text-xs"
+							loading={isResending}
+							onClick={handleResendOTP}
+							variant="ghost"
+						>
+							Didn&apos;t receive a code? Resend
+						</Button>
+					</div>
+
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<Field>
+							<Field.Label>
 								New password<span className="text-primary">*</span>
 							</Field.Label>
 							<div className="relative">
 								<Input
 									autoComplete="new-password"
-									id="password"
 									name="password"
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="••••••••"
@@ -230,7 +213,6 @@ function ForgotPasswordPage() {
 									className="absolute top-0 right-0 h-full px-3 text-muted-foreground hover:bg-transparent"
 									onClick={() => setShowPassword(!showPassword)}
 									size="sm"
-									type="button"
 									variant="ghost"
 								>
 									{showPassword ? (
@@ -240,18 +222,15 @@ function ForgotPasswordPage() {
 									)}
 								</Button>
 							</div>
-						</div>
-						<div className="space-y-3">
-							<Field.Label
-								className="font-medium text-foreground"
-								htmlFor="confirm-password"
-							>
+						</Field>
+
+						<Field>
+							<Field.Label className="whitespace-nowrap">
 								Confirm password<span className="text-primary">*</span>
 							</Field.Label>
 							<div className="relative">
 								<Input
 									autoComplete="new-password"
-									id="confirm-password"
 									name="confirm-password"
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									placeholder="••••••••"
@@ -268,7 +247,6 @@ function ForgotPasswordPage() {
 									className="absolute top-0 right-0 h-full px-3 text-muted-foreground hover:bg-transparent"
 									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 									size="sm"
-									type="button"
 									variant="ghost"
 								>
 									{showConfirmPassword ? (
@@ -278,25 +256,18 @@ function ForgotPasswordPage() {
 									)}
 								</Button>
 							</div>
-						</div>
-						<Button className="w-full" loading={isLoading} type="submit">
-							{isLoading ? "Resetting password..." : "Reset password"}
-						</Button>
-						<Button
-							className="w-full"
-							disabled={isLoading}
-							onClick={() => setStep("email")}
-							type="button"
-							variant="ghost"
-						>
-							Back
-						</Button>
-					</form>
-				</div>
+						</Field>
+					</div>
+
+					<Button className="w-full" loading={isLoading} type="submit">
+						Reset password
+					</Button>
+				</form>
 			</div>
-			<div className="mt-5 flex flex-col flex-wrap items-center justify-center gap-4 px-5 text-center lg:flex-row">
+
+			<div className="mt-5 flex items-center justify-center px-6">
 				<Link
-					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
+					className="text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="/login"
 				>
 					<ArrowLeftIcon className="mr-1 inline size-3" />
@@ -311,11 +282,8 @@ export default function Page() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-dvh items-center justify-center bg-background">
-					<div className="relative">
-						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
-					</div>
+				<div className="flex h-40 items-center justify-center">
+					<Spinner size="lg" />
 				</div>
 			}
 		>

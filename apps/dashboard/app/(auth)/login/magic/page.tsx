@@ -3,15 +3,16 @@
 import { authClient } from "@databuddy/auth/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
-import { Input } from "@/components/ds/input";
 import { Field } from "@/components/ds/field";
+import { Input } from "@/components/ds/input";
+import { Spinner } from "@/components/ds/spinner";
+import { Text } from "@/components/ds/text";
 
 function MagicLinkPage() {
 	const router = useRouter();
@@ -51,58 +52,48 @@ function MagicLinkPage() {
 
 	return (
 		<>
-			<div className="mb-8 space-y-1 px-6 text-left">
-				<h1 className="font-medium text-2xl text-foreground">
+			<div className="mb-8 space-y-1.5 px-6">
+				<Text as="h1" className="text-balance font-medium text-2xl">
 					Sign in with magic link
-				</h1>
-				<p className="text-muted-foreground text-sm">
-					No password needed — just use your email
-				</p>
+				</Text>
+				<Text tone="muted">No password needed — just use your email</Text>
 			</div>
-			<div className="relative px-6">
-				<div className="relative z-10">
-					<form className="space-y-5" onSubmit={handleMagicLinkLogin}>
-						<div className="space-y-3">
-							<Field.Label
-								className="font-medium text-foreground"
-								htmlFor="magic-email"
-							>
-								Email<span className="text-primary">*</span>
-							</Field.Label>
-							<Input
-								autoComplete="email"
-								id="magic-email"
-								name="email"
-								onChange={(e) => setEmail(e.target.value)}
-								placeholder="Enter your email"
-								required
-								type="email"
-								value={email}
-							/>
-						</div>
-						<div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 text-sm">
-							<SparkleIcon className="size-4 shrink-0 text-foreground" />
-							<p className="text-muted-foreground">
-								We&apos;ll send a secure link to your email that will sign you
-								in instantly — no password needed.
-							</p>
-						</div>
-						<Button className="w-full" loading={isLoading} type="submit">
-							{isLoading ? (
-								"Sending magic link..."
-							) : (
-								<>
-									<SparkleIcon className="mr-2 size-4" />
-									Send magic link
-								</>
-							)}
-						</Button>
-					</form>
-				</div>
+
+			<div className="space-y-5 px-6">
+				<form className="space-y-5" onSubmit={handleMagicLinkLogin}>
+					<Field>
+						<Field.Label>
+							Email<span className="text-primary">*</span>
+						</Field.Label>
+						<Input
+							autoComplete="email"
+							name="email"
+							onChange={(e) => setEmail(e.target.value)}
+							placeholder="Enter your email"
+							required
+							type="email"
+							value={email}
+						/>
+					</Field>
+
+					<div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+						<SparkleIcon className="size-4 shrink-0 text-foreground" />
+						<Text tone="muted">
+							We&apos;ll send a secure link to your email that will sign you in
+							instantly — no password needed.
+						</Text>
+					</div>
+
+					<Button className="w-full" loading={isLoading} type="submit">
+						<SparkleIcon className="size-4" />
+						Send magic link
+					</Button>
+				</form>
 			</div>
-			<div className="mt-5 flex flex-col flex-wrap items-center justify-center gap-4 px-5 text-center lg:flex-row">
+
+			<div className="mt-5 flex items-center justify-center px-6">
 				<Link
-					className="h-auto flex-1 cursor-pointer p-0 text-right text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
+					className="text-[13px] text-accent-foreground/60 duration-200 hover:text-accent-foreground"
 					href="/login"
 				>
 					<ArrowLeftIcon className="mr-1 inline size-3" />
@@ -117,11 +108,8 @@ export default function Page() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-dvh items-center justify-center bg-background">
-					<div className="relative">
-						<div className="absolute inset-0 animate-ping rounded-full bg-primary/20 blur-xl" />
-						<SpinnerIcon className="relative size-8 animate-spin text-primary" />
-					</div>
+				<div className="flex h-40 items-center justify-center">
+					<Spinner size="lg" />
 				</div>
 			}
 		>
