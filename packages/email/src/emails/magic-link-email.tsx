@@ -11,7 +11,7 @@ interface MagicLinkEmailProps {
 
 export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => (
 	<EmailLayout
-		preview="Your magic link to sign in"
+		preview="Click to sign in instantly. This link is single-use."
 		tagline="Sign in to Databuddy"
 	>
 		<Section className="text-center">

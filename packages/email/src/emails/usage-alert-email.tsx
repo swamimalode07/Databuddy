@@ -27,7 +27,7 @@ export const UsageAlertEmail = ({
 
 	return (
 		<EmailLayout
-			preview={`Usage alert: ${thresholdLabel} of your ${featureName} ${isPercentage ? "allowance" : "limit"} reached`}
+			preview={`You've used ${thresholdLabel} of your ${featureName.toLowerCase()}. Upgrade to avoid interruption.`}
 			tagline="Usage Alert"
 		>
 			<Section className="text-center">

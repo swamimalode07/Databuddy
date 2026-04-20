@@ -160,8 +160,8 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 			to: emails,
 			subject:
 				kind === "down"
-					? `[Databuddy] ${siteLabel} is down`
-					: `[Databuddy] ${siteLabel} is back up`,
+					? `[DOWN] ${siteLabel} is unreachable (HTTP ${options.data.http_code || "timeout"})`
+					: `[Recovered] ${siteLabel} is back up`,
 			react: UptimeAlertEmail({
 				kind,
 				siteLabel,

@@ -213,7 +213,7 @@ export const auth = betterAuth({
 				await resend.emails.send({
 					from: "no-reply@databuddy.cc",
 					to: targetUser.email,
-					subject: "Confirm account deletion",
+					subject: "[Action required] Confirm account deletion",
 					react: DeleteAccountEmail({ url }),
 				});
 			},
@@ -284,7 +284,7 @@ export const auth = betterAuth({
 			await resend.emails.send({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
-				subject: "Reset your password",
+				subject: "[Action required] Reset your password",
 				react: ResetPasswordEmail({ url }),
 			});
 		},
@@ -315,7 +315,7 @@ export const auth = betterAuth({
 			await resend.emails.send({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
-				subject: "Verify your email",
+				subject: "[Action required] Verify your email to get started",
 				react: VerificationEmail({ url }),
 			});
 		},
@@ -351,13 +351,13 @@ export const auth = betterAuth({
 
 				const resend = new Resend(process.env.RESEND_API_KEY as string);
 
-				let subject = "Your verification code";
+				let subject = `${otp} is your verification code`;
 				if (type === "sign-in") {
-					subject = "Sign in to Databuddy";
+					subject = `${otp} — Sign in to Databuddy`;
 				} else if (type === "email-verification") {
-					subject = "Verify your email address";
+					subject = `${otp} — Verify your email`;
 				} else if (type === "forget-password") {
-					subject = "Reset your password";
+					subject = `${otp} — Reset your password`;
 				}
 
 				resend.emails
@@ -389,7 +389,7 @@ export const auth = betterAuth({
 				resend.emails.send({
 					from: "no-reply@databuddy.cc",
 					to: email,
-					subject: "Login to Databuddy",
+					subject: "Your sign-in link for Databuddy",
 					react: MagicLinkEmail({ url }),
 				});
 			},
@@ -439,7 +439,7 @@ export const auth = betterAuth({
 				await resend.emails.send({
 					from: "no-reply@databuddy.cc",
 					to: email,
-					subject: `You're invited to join ${organization.name}`,
+					subject: `${inviter.user.name ?? "Someone"} invited you to join ${organization.name}`,
 					react: InvitationEmail({
 						inviterName: inviter.user.name ?? "",
 						organizationName: organization.name,

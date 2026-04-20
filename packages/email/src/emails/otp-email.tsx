@@ -8,7 +8,10 @@ interface OtpEmailProps {
 }
 
 export const OtpEmail = ({ otp }: OtpEmailProps) => (
-	<EmailLayout preview="Your verification code" tagline="Verification Code">
+	<EmailLayout
+		preview={`Your code is ${otp}. It expires in 10 minutes.`}
+		tagline="Verification Code"
+	>
 		<Section className="text-center">
 			<Heading
 				className="m-0 mb-3 font-semibold text-xl tracking-tight"

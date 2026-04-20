@@ -292,7 +292,7 @@ function RegisterPageContent() {
 						Email address<span className="text-primary">*</span>
 					</Field.Label>
 					<Input
-						autoComplete="email"
+						autoComplete="username email"
 						disabled={isLoading}
 						name="email"
 						onChange={handleChange}

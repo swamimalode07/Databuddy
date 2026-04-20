@@ -120,7 +120,11 @@ export const UptimeAlertEmail = ({
 
 	return (
 		<EmailLayout
-			preview={isDown ? `${safe} is unreachable` : `${safe} is back online`}
+			preview={
+				isDown
+					? `${safe} failed health check — HTTP ${httpCode || "timeout"}`
+					: `${safe} is responding normally again`
+			}
 			tagline={isDown ? "Uptime alert" : "Site recovered"}
 		>
 			<Section className="text-center">

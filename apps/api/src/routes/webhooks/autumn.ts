@@ -184,7 +184,7 @@ function handleLimitReached(
 		customerId: customer_id,
 		cooldownKey: feature_id,
 		alertType: limit_type,
-		subject: `You've reached your ${featureName} limit`,
+		subject: `[Action required] ${featureName} limit reached — upgrade to continue tracking`,
 		react: UsageLimitEmail({
 			featureName,
 			thresholdType: "limit_reached",
@@ -212,7 +212,7 @@ function handleUsageAlert(data: UsageAlertData): Promise<WebhookResult> {
 		customerId: customer_id,
 		cooldownKey: `${feature_id}_alert_${usage_alert.threshold}`,
 		alertType: `usage_alert_${usage_alert.threshold_type}`,
-		subject: `${featureName} usage alert: ${label} reached`,
+		subject: `[Action required] You've used ${label} of your ${featureName.toLowerCase()}`,
 		react: UsageAlertEmail({
 			featureName,
 			threshold: usage_alert.threshold,

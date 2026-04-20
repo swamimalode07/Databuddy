@@ -36,7 +36,7 @@ export const UsageLimitEmail = ({
 
 	return (
 		<EmailLayout
-			preview={`You've reached your ${featureName} limit`}
+			preview={`${usageFormatted}/${limitFormatted} ${featureName.toLowerCase()} used. Tracking pauses at ${graceFormatted}.`}
 			tagline="Usage Alert"
 		>
 			<Section className="text-center">

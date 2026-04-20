@@ -11,7 +11,7 @@ interface VerificationEmailProps {
 
 export const VerificationEmail = ({ url }: VerificationEmailProps) => (
 	<EmailLayout
-		preview="Verify your email address"
+		preview="Click to verify and start using Databuddy. Link expires in 24 hours."
 		tagline="Welcome to Databuddy"
 	>
 		<Section className="text-center">

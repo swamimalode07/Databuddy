@@ -11,7 +11,7 @@ interface DeleteAccountEmailProps {
 
 export const DeleteAccountEmail = ({ url }: DeleteAccountEmailProps) => (
 	<EmailLayout
-		preview="Confirm your account deletion"
+		preview="This action is irreversible. All data will be permanently removed."
 		tagline="Account Deletion Request"
 	>
 		<Section className="text-center">
