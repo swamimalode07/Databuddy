@@ -94,7 +94,9 @@ export function StepInviteTeam() {
 					<UsersIcon className="size-5 text-primary" weight="duotone" />
 				</div>
 				<div>
-					<h2 className="text-balance font-semibold text-lg">Invite your team</h2>
+					<h2 className="text-balance font-semibold text-lg">
+						Invite your team
+					</h2>
 					<p className="text-pretty text-muted-foreground text-sm">
 						Add a teammate now or skip ahead and handle invites later from
 						settings.
@@ -169,7 +171,11 @@ export function StepInviteTeam() {
 					</p>
 					<div className="flex flex-wrap gap-2">
 						{sentInvites.map((invite) => (
-							<Badge className="gap-1.5 px-2 py-1" key={invite.email} variant="muted">
+							<Badge
+								className="gap-1.5 px-2 py-1"
+								key={invite.email}
+								variant="muted"
+							>
 								<EnvelopeSimpleIcon className="size-3" weight="duotone" />
 								<span className="text-xs">
 									{invite.email} · {roleLabel(invite.role as FormData["role"])}

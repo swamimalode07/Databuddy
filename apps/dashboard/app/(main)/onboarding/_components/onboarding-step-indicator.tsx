@@ -43,7 +43,7 @@ export function OnboardingStepIndicator({
 						<div className="flex items-start gap-2.5">
 							<div
 								className={cn(
-									"mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums",
+									"mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full font-semibold text-[10px] tabular-nums",
 									isCompleted
 										? "bg-emerald-600 text-white"
 										: isCurrent
@@ -59,7 +59,7 @@ export function OnboardingStepIndicator({
 							</div>
 							<div className="min-w-0">
 								<p className="truncate font-medium text-[13px]">{step.title}</p>
-								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+								<p className="mt-0.5 text-[11px] text-muted-foreground leading-4">
 									{isCompleted
 										? "Completed"
 										: isCurrent

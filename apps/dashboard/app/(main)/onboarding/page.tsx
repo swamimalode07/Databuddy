@@ -263,54 +263,54 @@ export default function OnboardingPage() {
 					</Card.Header>
 
 					<div className="p-4 sm:p-6 lg:p-8">
-							<Card className="border-border/60">
-								<Card.Header className="gap-1.5 border-border/60 border-b bg-muted/20 px-5 py-4 sm:px-6">
-									<div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-										<span className="font-medium">
-											Step {currentStep + 1} of {STEPS.length}
-										</span>
-										<span aria-hidden className="text-border">
-											/
-										</span>
-										<span>
-											{completedSteps.has(currentStepConfig.id)
-												? "Completed"
-												: "Active"}
-										</span>
-									</div>
-									<p className="font-medium text-[15px] text-foreground sm:text-base">
-										{currentStepConfig.title}
-									</p>
-									<p className="max-w-2xl text-pretty text-muted-foreground text-sm leading-5">
-										{currentStepConfig.description}
-									</p>
-								</Card.Header>
+						<Card className="border-border/60">
+							<Card.Header className="gap-1.5 border-border/60 border-b bg-muted/20 px-5 py-4 sm:px-6">
+								<div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+									<span className="font-medium">
+										Step {currentStep + 1} of {STEPS.length}
+									</span>
+									<span aria-hidden className="text-border">
+										/
+									</span>
+									<span>
+										{completedSteps.has(currentStepConfig.id)
+											? "Completed"
+											: "Active"}
+									</span>
+								</div>
+								<p className="font-medium text-[15px] text-foreground sm:text-base">
+									{currentStepConfig.title}
+								</p>
+								<p className="max-w-2xl text-pretty text-muted-foreground text-sm leading-5">
+									{currentStepConfig.description}
+								</p>
+							</Card.Header>
 
-								<Card.Content className="px-5 py-5 sm:px-6 sm:py-6">
-									<div className="mx-auto max-w-3xl">{renderStep()}</div>
-								</Card.Content>
+							<Card.Content className="px-5 py-5 sm:px-6 sm:py-6">
+								<div className="mx-auto max-w-3xl">{renderStep()}</div>
+							</Card.Content>
 
-								{showBottomNav && (
-									<Card.Footer className="justify-between border-border/60 border-t bg-muted/20 px-5 py-3.5 sm:px-6">
-										<Button
-											className={isFirstStep ? "invisible" : ""}
-											disabled={isFirstStep}
-											onClick={goBack}
-											variant="ghost"
-										>
-											<ArrowLeftIcon className="size-4" weight="bold" />
-											Back
-										</Button>
-										<Button disabled={!canContinue} onClick={handleContinue}>
-											{STEPS[currentStep].id === "tracking" &&
-											!completedSteps.has("tracking")
-												? "Skip for now"
-												: "Continue"}
-											<ArrowRightIcon className="size-4" weight="bold" />
-										</Button>
-									</Card.Footer>
-								)}
-							</Card>
+							{showBottomNav && (
+								<Card.Footer className="justify-between border-border/60 border-t bg-muted/20 px-5 py-3.5 sm:px-6">
+									<Button
+										className={isFirstStep ? "invisible" : ""}
+										disabled={isFirstStep}
+										onClick={goBack}
+										variant="ghost"
+									>
+										<ArrowLeftIcon className="size-4" weight="bold" />
+										Back
+									</Button>
+									<Button disabled={!canContinue} onClick={handleContinue}>
+										{STEPS[currentStep].id === "tracking" &&
+										!completedSteps.has("tracking")
+											? "Skip for now"
+											: "Continue"}
+										<ArrowRightIcon className="size-4" weight="bold" />
+									</Button>
+								</Card.Footer>
+							)}
+						</Card>
 					</div>
 				</Card>
 			</div>

@@ -90,7 +90,9 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 					<GlobeIcon className="size-5 text-primary" weight="duotone" />
 				</div>
 				<div>
-					<h2 className="text-balance font-semibold text-lg">Add your website</h2>
+					<h2 className="text-balance font-semibold text-lg">
+						Add your website
+					</h2>
 					<p className="text-pretty text-muted-foreground text-sm">
 						Use the production domain you want Databuddy to associate with this
 						workspace.
