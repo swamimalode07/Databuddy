@@ -1,9 +1,10 @@
 "use client";
 
-import { CheckCircleIcon } from "@phosphor-icons/react";
-import { CircleIcon } from "@phosphor-icons/react";
-import { PlusIcon } from "@phosphor-icons/react";
-import { XIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
+import { CircleIcon } from "@phosphor-icons/react/dist/ssr";
+import { GitBranchIcon } from "@phosphor-icons/react/dist/ssr";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ds/button";
@@ -49,9 +50,15 @@ export function DependencySelector({
 
 	if (selectableFlags.length === 0 && value.length === 0) {
 		return (
-			<p className="py-4 text-center text-muted-foreground text-sm">
-				No other flags available
-			</p>
+			<div className="rounded-lg border border-dashed bg-accent/50 p-4 text-center">
+				<GitBranchIcon
+					className="mx-auto mb-2 size-6 text-muted-foreground"
+					weight="duotone"
+				/>
+				<p className="text-balance text-muted-foreground text-xs">
+					No other flags available to set as dependencies.
+				</p>
+			</div>
 		);
 	}
 
