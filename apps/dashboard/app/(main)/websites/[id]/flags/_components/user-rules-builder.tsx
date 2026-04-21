@@ -113,7 +113,7 @@ function RuleRow({
 		TARGET_TYPES.find((t) => t.value === rule.type)?.icon ?? UserIcon;
 
 	return (
-		<div className="space-y-2 rounded-lg border border-border/60 bg-card p-3">
+		<div className="space-y-2 rounded-md border border-border/60 p-3">
 			<div className="flex items-center gap-2">
 				<Select
 					onValueChange={(v) => handleTypeChange(v as UserRule["type"])}
@@ -134,7 +134,7 @@ function RuleRow({
 
 				{rule.type === "property" && (
 					<Input
-						className="w-24"
+						className="w-28"
 						onChange={(e) => onUpdate({ field: e.target.value })}
 						placeholder="field…"
 						value={rule.field || ""}
@@ -151,7 +151,7 @@ function RuleRow({
 					}
 					value={rule.operator}
 				>
-					<Select.Trigger className="w-auto bg-transparent">
+					<Select.Trigger className="w-auto">
 						<Select.Value />
 					</Select.Trigger>
 					<Select.Content>
@@ -171,7 +171,7 @@ function RuleRow({
 				/>
 
 				<button
-					className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+					className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:text-destructive"
 					onClick={onRemove}
 					type="button"
 				>
@@ -250,11 +250,11 @@ export function UserRulesBuilder({ rules, onChange }: UserRulesBuilderProps) {
 			))}
 
 			<Button
-				className="w-full"
+				className="w-full text-muted-foreground"
 				onClick={addRule}
 				size="sm"
 				type="button"
-				variant="ghost"
+				variant="secondary"
 			>
 				<PlusIcon className="size-3.5" />
 				Add Rule

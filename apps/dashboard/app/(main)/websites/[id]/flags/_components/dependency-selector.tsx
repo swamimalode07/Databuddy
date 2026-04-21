@@ -63,7 +63,7 @@ export function DependencySelector({
 	}
 
 	return (
-		<div className="space-y-2">
+		<div className="space-y-3">
 			{selectedFlags.length > 0 && (
 				<div className="flex flex-wrap gap-1.5">
 					<AnimatePresence mode="popLayout">
@@ -72,7 +72,10 @@ export function DependencySelector({
 							return (
 								<motion.div
 									animate={{ opacity: 1, scale: 1 }}
-									className="group inline-flex items-center gap-1.5 rounded-md bg-secondary px-2 py-1 text-foreground text-xs"
+									className={cn(
+										"group inline-flex items-center gap-1.5 rounded-md border bg-card px-2 py-1 text-foreground text-xs shadow-sm",
+										isActive ? "border-success/40" : "border-warning/40"
+									)}
 									exit={{ opacity: 0, scale: 0.9 }}
 									initial={{ opacity: 0, scale: 0.9 }}
 									key={flag.key}
@@ -84,14 +87,16 @@ export function DependencySelector({
 											isActive ? "bg-success" : "bg-warning"
 										)}
 									/>
-									<span>{flag.name || flag.key}</span>
+									<span className="max-w-28 truncate font-medium">
+										{flag.name || flag.key}
+									</span>
 									<button
 										aria-label={`Remove ${flag.name || flag.key}`}
-										className="cursor-pointer text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+										className="cursor-pointer text-muted-foreground transition-colors hover:text-destructive"
 										onClick={() => handleRemove(flag.key)}
 										type="button"
 									>
-										<XIcon className="size-3" />
+										<XIcon className="size-3" weight="bold" />
 									</button>
 								</motion.div>
 							);
@@ -105,18 +110,24 @@ export function DependencySelector({
 					<Popover.Trigger
 						render={
 							<Button
-								className="text-muted-foreground"
+								className="w-full text-muted-foreground"
 								size="sm"
 								type="button"
-								variant="ghost"
+								variant="secondary"
 							/>
 						}
 					>
 						<PlusIcon className="size-3.5" />
-						Add dependency
+						{value.length > 0 ? "Add more dependencies" : "Add dependency"}
 					</Popover.Trigger>
-					<Popover.Content className="w-64 p-2" side="bottom">
-						<div className="mb-2">
+					<Popover.Content className="w-72 p-2" side="bottom">
+						<div className="mb-2 px-2 pt-1">
+							<Popover.Title>Dependencies</Popover.Title>
+							<Popover.Description>
+								Flags that must be active for this flag to evaluate
+							</Popover.Description>
+						</div>
+						<div className="mb-2 px-0.5">
 							<Input
 								onChange={(e) => setSearch(e.target.value)}
 								placeholder="Search flags…"
@@ -124,7 +135,7 @@ export function DependencySelector({
 							/>
 						</div>
 						<div
-							className="max-h-40 space-y-0.5 overflow-y-auto"
+							className="max-h-64 space-y-0.5 overflow-y-auto"
 							onTouchMove={(e) => e.stopPropagation()}
 							onWheel={(e) => e.stopPropagation()}
 						>
@@ -165,12 +176,6 @@ export function DependencySelector({
 						</div>
 					</Popover.Content>
 				</Popover>
-			)}
-
-			{value.length > 0 && (
-				<p className="text-muted-foreground text-xs">
-					This flag requires all dependencies to be active
-				</p>
 			)}
 		</div>
 	);
