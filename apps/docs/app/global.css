@@ -146,6 +146,7 @@
 }
 
 .dark {
+<<<<<<< HEAD
   --background: #19191d;
   --foreground: #e7e8eb;
   --card: #1e1e23;
@@ -155,6 +156,17 @@
   --primary: #e7e8eb;
   --primary-foreground: #27282d;
   --secondary: #2a2a31;
+=======
+  --background: #18181C;
+  --foreground: #E7E8EB;
+  --card: #1E1E23;
+  --card-foreground: #E7E8EB;
+  --popover: #2A2A31;
+  --popover-foreground: #E7E8EB;
+  --primary: #E7E8EB;
+  --primary-foreground: #27282D;
+  --secondary: #2A2A31;
+>>>>>>> feature/landing-revamp
   --secondary-brighter: #323239;
   --secondary-brightest: #3a3a42;
   --secondary-foreground: #8b80bf;
@@ -689,4 +701,39 @@ body {
 
 .animate-marquee {
   animation: marquee 25s linear infinite;
+}
+
+/* FAQ section hover and open state styles  */
+.accordion-item {
+  position: relative;
+  border-top: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 50%, transparent);
+  transition: background 0.2s;
+}
+
+.accordion-item:hover {
+  background: color-mix(in oklab, var(--background) 80%, transparent);
+}
+
+.accordion-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    #facc15,
+    #ec4899,
+    #6366f1
+  );
+
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.accordion-item:hover::before,
+.accordion-item[data-state="open"]::before {
+  opacity: 1;
 }

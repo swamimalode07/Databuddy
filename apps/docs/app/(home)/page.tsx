@@ -74,11 +74,11 @@ export default async function HomePage() {
 				</Section>
 
 				<Section
-					className="border-border border-t border-b bg-background/50 py-8 sm:py-10 lg:py-12"
+					className="border-border border-t border-b "
 					customPaddings
 					id="trust"
 				>
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className="mx-auto w-full max-w-400 px-4 sm:px-6 lg:px-8">
 						<TrustedBy />
 					</div>
 				</Section>

@@ -11,6 +11,7 @@ import {
 	MarqueeFade,
 	MarqueeItem,
 } from "@/components/ui/kibo-ui/marquee";
+import { SectionBullet } from "../icons/section-bullet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const testimonials = [
@@ -97,10 +98,7 @@ function TestimonialCardContent({
 	) : null;
 
 	return (
-		<div className="group relative flex h-[190px] w-[280px] shrink-0 flex-col justify-between overflow-hidden rounded-none border border-border/50 bg-card/50 shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-primary/20 hover:bg-card/80 hover:shadow-primary/5 hover:shadow-xl sm:h-[210px] sm:w-[320px] md:h-[230px] md:w-[350px] lg:h-[250px] lg:w-[400px]">
-			{/* Subtle gradient overlay on hover */}
-			<div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
+		<div className="group relative flex h-[190px] w-[280px] shrink-0 flex-col justify-between overflow-hidden rounded-none border border-border/50 bg-card shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-primary/20 hover:bg-card/80 hover:shadow-primary/5 hover:shadow-xl sm:h-[210px] sm:w-[320px] md:h-[230px] md:w-[350px] lg:h-[250px] lg:w-[400px]">
 			<p className="relative z-10 text-pretty px-4 pt-4 font-normal text-muted-foreground text-sm leading-relaxed tracking-tight duration-300 group-hover:text-foreground sm:px-5 sm:pt-5 sm:text-base md:px-6 md:pt-6 md:text-lg lg:px-7 lg:pt-7">
 				"{testimonial.description}"
 			</p>
@@ -133,7 +131,7 @@ function TestimonialCardContent({
 				) : null}
 			</div>
 
-			<div className="pointer-events-none absolute inset-0">
+			{/* <div className="pointer-events-none absolute inset-0">
 				<div className="absolute top-0 left-0 size-2">
 					<div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
 					<div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
@@ -150,7 +148,7 @@ function TestimonialCardContent({
 					<div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
 					<div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 }
@@ -184,7 +182,7 @@ function SlidingTestimonials({
 	reverse?: boolean;
 }): ReactElement {
 	return (
-		<Marquee className="relative w-full [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+		<Marquee className="relative w-full">
 			<MarqueeFade side="left" />
 			<MarqueeFade side="right" />
 			<MarqueeContent
@@ -208,14 +206,19 @@ export default function Testimonials(): ReactElement {
 	return (
 		<div className="relative max-w-full">
 			{/* Header Section */}
-			<div className="mb-10 px-4 text-center sm:mb-12 sm:px-6 md:px-8 lg:mb-16">
-				<h2 className="mb-4 font-semibold text-2xl leading-tight tracking-tight sm:mb-5 sm:text-3xl md:text-4xl lg:text-5xl">
-					Don't take our word for it
-				</h2>
-				<p className="mx-auto max-w-2xl px-2 text-base text-muted-foreground sm:px-0 sm:text-lg lg:text-xl">
-					From PostHog, GA4, and Framer Analytics — here's what teams found
-					after switching.
-				</p>
+			<div className="mb-10 flex gap-2 px-4 text-start sm:mb-12 sm:px-6 md:px-0 lg:mb-16">
+				<span className="mt-2">
+					<SectionBullet color="#714075" />
+				</span>
+				<div>
+					<h2 className="mb-2 font-semibold text-3xl leading-tight tracking-tight sm:mb-2 sm:text-3xl md:text-4xl lg:text-5xl">
+						What developers are saying
+					</h2>
+					<p className="max-w-2xl px-2 text-base text-muted-foreground sm:px-0 sm:text-lg lg:text-xl">
+						Join thousands of developers who trust Databuddy for their analytics
+						needs.
+					</p>
+				</div>
 			</div>
 
 			{/* Testimonials Marquee */}
