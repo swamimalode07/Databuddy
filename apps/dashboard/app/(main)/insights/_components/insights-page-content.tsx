@@ -40,7 +40,7 @@ import dayjs from "@/lib/dayjs";
 import { formatNumber } from "@/lib/formatters";
 import {
 	clearInsightsHistory,
-	INSIGHT_QUERY_KEYS,
+	insightQueries,
 	type InsightsAiResponse,
 	type InsightsHistoryPage,
 } from "@/lib/insight-api";
@@ -291,13 +291,13 @@ export function InsightsPageContent() {
 					hasMore: false,
 				};
 				queryClient.setQueryData<InsightsAiResponse>(
-					[INSIGHT_QUERY_KEYS.ai, orgId],
+					insightQueries.ai(orgId).queryKey,
 					emptyAi
 				);
-				queryClient.setQueryData([INSIGHT_QUERY_KEYS.historyInfinite, orgId], {
-					pages: [emptyHistoryPage],
-					pageParams: [0],
-				});
+				queryClient.setQueryData(
+					insightQueries.historyInfinite(orgId).queryKey,
+					{ pages: [emptyHistoryPage], pageParams: [0] }
+				);
 				await queryClient.invalidateQueries({
 					queryKey: orpc.insights.getVotes.key(),
 				});

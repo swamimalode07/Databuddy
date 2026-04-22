@@ -49,6 +49,8 @@ export interface LinkStats {
 	totalClicks: number;
 }
 
+const EMPTY_LINKS: Link[] = [];
+
 export const getLinksListKey = (): QueryKey =>
 	orpc.links.list.queryKey({ input: {} });
 
@@ -94,7 +96,7 @@ export function useLinks(options?: { enabled?: boolean }) {
 	});
 
 	return {
-		links: query.data ?? [],
+		links: query.data ?? EMPTY_LINKS,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
 		isError: query.isError,

@@ -7,7 +7,6 @@ export function useMonitorsLight(options?: { enabled?: boolean }) {
 	const query = useQuery({
 		...orpc.uptime.listSchedules.queryOptions({ input: {} }),
 		enabled: options?.enabled !== false,
-		staleTime: 5 * 60 * 1000,
 	});
 
 	return {

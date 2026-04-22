@@ -315,7 +315,7 @@ function AgentCreditBalance() {
 					!(isEmpty || isLow) &&
 						"border-border/60 bg-card text-muted-foreground hover:border-border hover:text-foreground"
 				)}
-				onClick={() => router.push("/billing")}
+				onClick={() => router.push(isEmpty ? "/billing#topup" : "/billing")}
 				type="button"
 			>
 				<SparkleIcon className="size-3" weight="duotone" />
