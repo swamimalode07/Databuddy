@@ -24,12 +24,12 @@ pre-commit:
       run: |
         echo "Blocked: staged file(s) may contain secrets:" && echo "{staged_files}" | tr ' ' '\n' | sed 's/^/  - /' && exit 1
     format:
-      glob: "*.{js,jsx,ts,tsx,json,jsonc,css,scss}"
+      glob: "**/*.{js,jsx,ts,tsx,json,jsonc,css,scss}"
       exclude: "bun.lock|*.gen.*"
       stage_fixed: true
       run: bunx ultracite fix {staged_files}
     check-types:
-      glob: "*.{ts,tsx}"
+      glob: "**/*.{ts,tsx}"
       run: bun run check-types
 
 commit-msg:
@@ -42,6 +42,6 @@ pre-push:
   parallel: true
   commands:
     test:
-      glob: "*.{ts,tsx}"
+      glob: "**/*.{ts,tsx}"
       run: bun run test
 
