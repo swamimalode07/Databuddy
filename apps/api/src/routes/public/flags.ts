@@ -1,10 +1,10 @@
+import { mergeWideEvent, record } from "@/lib/tracing";
 import { and, db, eq, isNull, or } from "@databuddy/db";
 import { flags } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import { Elysia, t } from "elysia";
 import { useLogger } from "evlog/elysia";
 import { LRUCache } from "lru-cache";
-import { mergeWideEvent, record } from "@/lib/tracing";
 
 const memCache = new LRUCache<string, object>({ max: 500, ttl: 5000 });
 
@@ -263,7 +263,7 @@ export function parseProperties(
 
 	try {
 		return JSON.parse(propertiesJson);
-	} catch (_error) {
+	} catch {
 		return {};
 	}
 }
@@ -331,7 +331,7 @@ function getContextValue(
 	if (rule.field) {
 		return String(context.properties?.[rule.field] ?? "");
 	}
-	return undefined;
+	return;
 }
 
 export function evaluateRule(rule: FlagRule, context: UserContext): boolean {

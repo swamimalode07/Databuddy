@@ -78,11 +78,12 @@ export function FlagsProvider({ children, ...config }: FlagsProviderProps) {
 		}
 	}, [manager, config]);
 
-	useEffect(() => {
-		return () => {
+	useEffect(
+		() => () => {
 			manager.destroy();
-		};
-	}, [manager]);
+		},
+		[manager]
+	);
 
 	const store = useSyncExternalStore(
 		manager.subscribe,

@@ -36,15 +36,16 @@ function EventsStreamView() {
 		{ enabled: hasQueryId }
 	);
 
-	const renderEventName = useCallback((event: RecentCustomEvent) => {
-		return (
+	const renderEventName = useCallback(
+		(event: RecentCustomEvent) => (
 			<div className="flex items-center gap-1.5">
 				<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
 					{event.event_name}
 				</span>
 			</div>
-		);
-	}, []);
+		),
+		[]
+	);
 
 	return (
 		<EventsStreamContent

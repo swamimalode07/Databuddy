@@ -25,7 +25,7 @@ function resolveShareColumnTitle(
 	shareColumnTooltip: string | undefined
 ): string | undefined {
 	if (columnId !== "percentage") {
-		return undefined;
+		return;
 	}
 	if (shareColumnTooltip !== undefined) {
 		return shareColumnTooltip.length > 0 ? shareColumnTooltip : undefined;
@@ -75,7 +75,7 @@ function getRowPercentage(row: PercentageRow): number {
 
 function getShareBarStyle(percentage: number): React.CSSProperties | undefined {
 	if (percentage <= 0) {
-		return undefined;
+		return;
 	}
 	const solidEnd = Math.max(0, percentage - 4);
 	return {

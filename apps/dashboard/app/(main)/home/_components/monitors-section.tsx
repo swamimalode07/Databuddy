@@ -82,11 +82,13 @@ function MonitorRow({
 		[]
 	);
 
-	const queryIdOptions = useMemo(() => {
-		return monitor.websiteId
-			? { websiteId: monitor.websiteId }
-			: { scheduleId: monitor.id };
-	}, [monitor.websiteId, monitor.id]);
+	const queryIdOptions = useMemo(
+		() =>
+			monitor.websiteId
+				? { websiteId: monitor.websiteId }
+				: { scheduleId: monitor.id },
+		[monitor.websiteId, monitor.id]
+	);
 
 	const heatmapQueries = useMemo(
 		() => [

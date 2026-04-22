@@ -237,7 +237,7 @@ function parseSinceShorthand(since: string): Date | undefined {
 		case "last_90d":
 			return now.subtract(90, "day").toDate();
 		default:
-			return undefined;
+			return;
 	}
 }
 
