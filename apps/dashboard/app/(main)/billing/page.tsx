@@ -25,9 +25,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useCustomer } from "autumn-js/react";
 import { useRouter } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
+import { BillingControlsCard } from "./components/billing-controls-card";
 import { CancelSubscriptionDialog } from "./components/cancel-subscription-dialog";
 import { ConsumptionChart } from "./components/consumption-chart";
 import { ErrorState } from "./components/empty-states";
+import { TopupCard } from "./components/topup-card";
 import { UsageBreakdownTable } from "./components/usage-breakdown-table";
 import { UsageRow } from "./components/usage-row";
 import { useBilling, useBillingData } from "./hooks/use-billing";
@@ -339,6 +341,9 @@ export default function BillingPage() {
 						</div>
 					</Card.Content>
 				</Card>
+
+				{!isFree && <TopupCard />}
+				{!isFree && <BillingControlsCard />}
 
 				{showAddOns && (
 					<Card>
