@@ -4,6 +4,7 @@ import { useInsightsFeed } from "@/app/(main)/insights/hooks/use-insights-feed";
 import { useInsightsLocalState } from "@/app/(main)/insights/hooks/use-insights-local-state";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import { Button } from "@/components/ds/button";
+import { Card } from "@/components/ds/card";
 import { GhostTriggerButton } from "@/components/ds/control-shell";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import type { Insight, InsightSeverity } from "@/lib/insight-types";
@@ -162,7 +163,6 @@ export function CockpitSignals(): ReactElement {
 	const selectedSortLabel =
 		SORT_OPTIONS.find((o) => o.value === sortMode)?.label ?? "Priority";
 
-	const sectionRef = useRef<HTMLElement>(null);
 	const hasScrolledToHash = useRef(false);
 
 	const scrollToHashInsight = useCallback(() => {
@@ -201,19 +201,15 @@ export function CockpitSignals(): ReactElement {
 	const visibleCount = filteredInsights.length;
 
 	return (
-		<section
-			aria-label="Signals"
-			className="overflow-hidden rounded border bg-card"
-			ref={sectionRef}
-		>
-			<div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+		<Card aria-label="Signals">
+			<Card.Header className="flex-row items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
 					<SparkleIcon
 						aria-hidden
 						className="size-4 text-primary"
 						weight="duotone"
 					/>
-					<h3 className="font-semibold text-foreground text-sm">Signals</h3>
+					<Card.Title className="text-sm">Signals</Card.Title>
 				</div>
 				{insights.length > 0 && (
 					<span className="text-muted-foreground text-xs tabular-nums">
@@ -221,10 +217,10 @@ export function CockpitSignals(): ReactElement {
 						{insights.length === 1 ? "signal" : "signals"}
 					</span>
 				)}
-			</div>
+			</Card.Header>
 
 			{showFilterBar && (
-				<div className="flex items-center gap-2 border-b px-4 py-2">
+				<div className="flex items-center gap-2 border-b px-5 py-2">
 					{websites.length > 1 && (
 						<DropdownMenu>
 							<DropdownMenu.Trigger
@@ -418,7 +414,7 @@ export function CockpitSignals(): ReactElement {
 					)}
 				</>
 			)}
-		</section>
+		</Card>
 	);
 }
 
@@ -434,7 +430,7 @@ function InsightsFetchStatusRow({
 	return (
 		<div
 			aria-live="polite"
-			className="flex h-10 shrink-0 items-center gap-2 border-b px-4"
+			className="flex h-10 shrink-0 items-center gap-2 border-b px-5"
 			role="status"
 		>
 			{variant === "refresh" ? (
