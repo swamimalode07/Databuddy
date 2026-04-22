@@ -10,6 +10,7 @@ import {
 	InvitationEmail,
 	MagicLinkEmail,
 	OtpEmail,
+	render,
 	ResetPasswordEmail,
 	VerificationEmail,
 } from "@databuddy/email";
@@ -214,7 +215,7 @@ export const auth = betterAuth({
 					from: "no-reply@databuddy.cc",
 					to: targetUser.email,
 					subject: "[Action required] Confirm account deletion",
-					react: DeleteAccountEmail({ url }),
+					html: await render(DeleteAccountEmail({ url })),
 				});
 			},
 			beforeDelete: async (userToDelete) => {
@@ -285,7 +286,7 @@ export const auth = betterAuth({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
 				subject: "[Action required] Reset your password",
-				react: ResetPasswordEmail({ url }),
+				html: await render(ResetPasswordEmail({ url })),
 			});
 		},
 	},
@@ -316,7 +317,7 @@ export const auth = betterAuth({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
 				subject: "[Action required] Verify your email to get started",
-				react: VerificationEmail({ url }),
+				html: await render(VerificationEmail({ url })),
 			});
 		},
 	},
@@ -360,12 +361,13 @@ export const auth = betterAuth({
 					subject = `${otp} — Reset your password`;
 				}
 
+				const otpHtml = await render(OtpEmail({ otp }));
 				resend.emails
 					.send({
 						from: "no-reply@databuddy.cc",
 						to: email,
 						subject,
-						react: OtpEmail({ otp }),
+						html: otpHtml,
 					})
 					.catch((error) => {
 						console.error("Failed to send OTP email:", error);
@@ -390,7 +392,7 @@ export const auth = betterAuth({
 					from: "no-reply@databuddy.cc",
 					to: email,
 					subject: "Your sign-in link for Databuddy",
-					react: MagicLinkEmail({ url }),
+					html: await render(MagicLinkEmail({ url })),
 				});
 			},
 		}),
@@ -440,11 +442,13 @@ export const auth = betterAuth({
 					from: "no-reply@databuddy.cc",
 					to: email,
 					subject: `${inviter.user.name ?? "Someone"} invited you to join ${organization.name}`,
-					react: InvitationEmail({
-						inviterName: inviter.user.name ?? "",
-						organizationName: organization.name,
-						invitationLink,
-					}),
+					html: await render(
+						InvitationEmail({
+							inviterName: inviter.user.name ?? "",
+							organizationName: organization.name,
+							invitationLink,
+						})
+					),
 				});
 			},
 		}),
