@@ -282,13 +282,15 @@ export function CockpitSignals(): ReactElement {
 					</DropdownMenu>
 
 					<DropdownMenu>
-						<DropdownMenu.Trigger>
-							<GhostTriggerButton className="[--control-h:--spacing(6)] [--control-px:--spacing(2)]">
-								<ArrowsDownUpIcon className="size-3.5 shrink-0" />
-								{selectedSortLabel}
-								<CaretDownIcon className="size-3 shrink-0" weight="fill" />
-							</GhostTriggerButton>
-						</DropdownMenu.Trigger>
+						<DropdownMenu.Trigger
+							render={
+								<GhostTriggerButton className="[--control-h:--spacing(6)] [--control-px:--spacing(2)]">
+									<ArrowsDownUpIcon className="size-3.5 shrink-0" />
+									{selectedSortLabel}
+									<CaretDownIcon className="size-3 shrink-0" weight="fill" />
+								</GhostTriggerButton>
+							}
+						/>
 						<DropdownMenu.Content align="start">
 							{SORT_OPTIONS.map((opt) => (
 								<DropdownMenu.Item
