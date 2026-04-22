@@ -3,7 +3,6 @@
 import {
 	DeviceMobileIcon,
 	DeviceTabletIcon,
-	LaptopIcon,
 	MonitorIcon,
 } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
@@ -40,31 +39,30 @@ interface BrowserEntry {
 	visitors: number;
 }
 
-interface ScreenResolutionEntry {
+interface ViewportEntry {
 	name: string;
+	device_type?: string;
 	pageviews?: number;
 	percentage?: number;
 	visitors: number;
 }
 
-function getDeviceInfo(width: number, height: number, isValid: boolean) {
-	if (!isValid) {
-		return { type: "Unknown", Icon: MonitorIcon };
+function getDeviceIcon(deviceType: string | undefined) {
+	const normalized = (deviceType || "").toLowerCase();
+	if (normalized === "mobile") {
+		return DeviceMobileIcon;
 	}
-	const longSide = Math.max(width, height);
-	const shortSide = Math.min(width, height);
-	const aspect = longSide / shortSide;
+	if (normalized === "tablet") {
+		return DeviceTabletIcon;
+	}
+	return MonitorIcon;
+}
 
-	if (shortSide <= 480) {
-		return { type: "Mobile", Icon: DeviceMobileIcon };
+function formatDeviceType(deviceType: string | undefined) {
+	if (!deviceType) {
+		return "Desktop";
 	}
-	if (shortSide <= 1024 && aspect < 1.5) {
-		return { type: "Tablet", Icon: DeviceTabletIcon };
-	}
-	if (longSide > 1920) {
-		return { type: "Desktop", Icon: MonitorIcon };
-	}
-	return { type: "Laptop", Icon: LaptopIcon };
+	return deviceType.charAt(0).toUpperCase() + deviceType.slice(1).toLowerCase();
 }
 
 function ScreenOutline({ ratio }: { ratio: number }) {
@@ -313,7 +311,7 @@ export function WebsiteAudienceTab({
 		[addFilter]
 	);
 
-	const resolutions: ScreenResolutionEntry[] =
+	const resolutions: ViewportEntry[] =
 		deviceData.screen_resolution || [];
 
 	return (
@@ -412,13 +410,14 @@ export function WebsiteAudienceTab({
 									const [width, height] = item.name.split("x").map(Number);
 									const isValid =
 										Number.isFinite(width) && Number.isFinite(height);
-									const { type, Icon } = getDeviceInfo(width, height, isValid);
+									const Icon = getDeviceIcon(item.device_type);
+									const type = formatDeviceType(item.device_type);
 									const ratio = isValid && height > 0 ? width / height : 16 / 9;
 
 									return (
 										<div
 											className="flex flex-col gap-3 rounded border border-border/60 bg-card p-4"
-											key={`${item.name}-${item.visitors}`}
+											key={`${item.name}-${item.device_type ?? "x"}-${item.visitors}`}
 										>
 											<div className="flex items-center justify-between gap-2">
 												<div className="flex min-w-0 items-center gap-2">
