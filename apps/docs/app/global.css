@@ -146,17 +146,6 @@
 }
 
 .dark {
-<<<<<<< HEAD
-  --background: #19191d;
-  --foreground: #e7e8eb;
-  --card: #1e1e23;
-  --card-foreground: #e7e8eb;
-  --popover: #2a2a31;
-  --popover-foreground: #e7e8eb;
-  --primary: #e7e8eb;
-  --primary-foreground: #27282d;
-  --secondary: #2a2a31;
-=======
   --background: #18181C;
   --foreground: #E7E8EB;
   --card: #1E1E23;
@@ -166,7 +155,6 @@
   --primary: #E7E8EB;
   --primary-foreground: #27282D;
   --secondary: #2A2A31;
->>>>>>> feature/landing-revamp
   --secondary-brighter: #323239;
   --secondary-brightest: #3a3a42;
   --secondary-foreground: #8b80bf;

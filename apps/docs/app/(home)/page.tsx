@@ -78,7 +78,7 @@ export default async function HomePage() {
 					customPaddings
 					id="trust"
 				>
-					<div className="mx-auto w-full max-w-400 px-4 sm:px-6 lg:px-8">
+					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 						<TrustedBy />
 					</div>
 				</Section>
