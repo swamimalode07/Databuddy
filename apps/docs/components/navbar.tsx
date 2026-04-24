@@ -22,7 +22,7 @@ export const Navbar = ({ stars }: NavbarProps) => {
 
 	return (
 		<>
-			<header className="sticky inset-x-0 top-0 z-40 flex flex-col border-border/25 border-b bg-background/80 pt-[env(safe-area-inset-top,0px)] backdrop-blur-sm">
+			<header className="fixed inset-x-0 top-0 z-40 flex flex-col bg-transparent pt-[env(safe-area-inset-top,0px)]">
 				<nav>
 					<div className="mx-auto w-full  px-4 sm:px-6 lg:px-8">
 						<div className="flex h-16 items-center justify-between">
@@ -51,7 +51,7 @@ export const Navbar = ({ stars }: NavbarProps) => {
 								<ul className="flex items-center gap-1">
 									<NavbarGithubDesktopLink stars={stars} />
 									<li aria-hidden className="mx-2 h-5 w-px bg-border" />
-									<NavLink external href="https://app.databuddy.cc/login">
+									<NavLink external href="https://app.databuddy.cc/login" className="text-foreground">
 										Log in
 									</NavLink>
 									<li className="ml-2">
