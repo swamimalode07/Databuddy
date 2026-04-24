@@ -9,6 +9,7 @@ import {
 	HeartbeatIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ComponentType } from "react";
 import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -30,7 +31,7 @@ const FEATURE_ITEMS: FeatureItem[] = [
 	{
 		title: "Error Tracking",
 		description: "Stack traces, context, and real-time alerts",
-		href: "/error-tracking",
+		href: "/errors",
 		icon: BugIcon,
 	},
 	{
@@ -54,6 +55,7 @@ export function NavbarFeaturesMenu({
 }: {
 	onNavigateAction?: () => void;
 }) {
+	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const closeTimer = useRef<ReturnType<typeof setTimeout>>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
@@ -89,10 +91,10 @@ export function NavbarFeaturesMenu({
 				aria-expanded={open}
 				aria-haspopup="true"
 				className={cn(
-					"flex items-center gap-1 px-4 py-4 font-medium text-sm transition-colors",
+					"flex items-center gap-1 rounded px-3 py-2 font-medium text-sm transition-colors",
 					open
-						? "text-foreground"
-						: "text-muted-foreground hover:text-foreground"
+						? "bg-muted/60 text-foreground"
+						: "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
 				)}
 				onClick={() => setOpen((prev) => !prev)}
 				onKeyDown={handleKeyDown}
@@ -153,6 +155,18 @@ export function NavbarFeaturesMenu({
 							</div>
 						</Link>
 					))}
+					<div className="mt-1 border-border/50 border-t px-1 pt-1">
+						<Link
+							className="flex w-full items-center gap-2 rounded px-3 py-2 transition-colors hover:bg-muted/50"
+							href={"/changelog"}
+							role="menuitem"
+							type="button"
+						>
+							<span className="text-sm" style={{ color: "var(--brand-amber)" }}>
+								Changelog
+							</span>
+						</Link>
+					</div>
 				</div>
 			</div>
 		</li>

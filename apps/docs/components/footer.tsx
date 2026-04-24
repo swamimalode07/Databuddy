@@ -1,61 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { FaDiscord, FaXTwitter } from "react-icons/fa6";
-import { IoMdMail } from "react-icons/io";
-import { CCPAIcon } from "./icons/ccpa";
-import { GDPRIcon } from "./icons/gdpr";
-import { SciFiButton } from "./landing/scifi-btn";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "./landing/wordmark";
 import { LogoContent } from "./logo";
 import { NewsletterForm } from "./newsletter-form";
 
 export function Footer() {
 	return (
-		<footer className="border-border border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-			<div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+		<footer className="border-border border-t bg-background/95 pt-10 backdrop-blur supports-backdrop-filter:bg-background/60 sm:pt-12 lg:pt-14">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				{/* CTA Section */}
-				<div className="mb-12 text-center">
-					<h2 className="mb-6 font-medium text-2xl leading-tight sm:text-3xl">
-						You're just one click away.
+				{/*<div className="py-32 text-center sm:py-36 lg:py-44">
+					<h2 className="mb-5 text-balance font-semibold text-3xl text-foreground leading-snug sm:text-4xl lg:text-5xl">
+						Better analytics start with one script.
 					</h2>
 					<div className="flex items-center justify-center gap-3">
-						<SciFiButton asChild>
-							<a href="https://app.databuddy.cc/login">
-								START TRACKING FOR FREE
-							</a>
-						</SciFiButton>
-						<SciFiButton asChild>
-							<Link href="/contact">TALK TO THE TEAM</Link>
-						</SciFiButton>
+						<Button asChild className="rounded text-md">
+							<Link href="https://app.databuddy.cc/login">Start Free</Link>
+						</Button>
+						<Button asChild className="rounded text-md" variant="secondary">
+							<Link href="/contact">Contact Us</Link>
+						</Button>
 					</div>
-				</div>
+				</div> */}
 
-				<div className="mb-10 flex flex-col items-start justify-between gap-4 border border-border bg-card/30 p-5 sm:flex-row sm:items-center sm:p-6">
-					<div className="space-y-1">
-						<p className="font-medium text-foreground text-sm">
-							Get product updates
-						</p>
-						<p className="text-muted-foreground text-xs">
-							New features, tips, and privacy-first analytics insights. No spam.
-						</p>
-					</div>
-					<div className="w-full sm:w-auto">
-						<NewsletterForm />
-					</div>
-				</div>
-
-				<div className="grid grid-cols-2 gap-8 sm:gap-10 md:grid-cols-4">
-					<div className="col-span-2 space-y-4 md:col-span-1">
+				<div className="grid grid-cols-2 gap-x-8 gap-y-8 sm:grid-cols-[1fr_1fr_1fr_1fr_minmax(0,18rem)]">
+					<div className="hidden space-y-4 sm:block">
 						<LogoContent />
-						<p className="text-muted-foreground text-sm sm:text-base">
-							Privacy-first web analytics without compromising user data.
-						</p>
 					</div>
 
 					<div className="space-y-4">
-						<h3 className="font-semibold text-base sm:text-lg">Product</h3>
-						<ul className="space-y-2 text-sm sm:text-base">
+						<h3 className="font-semibold text-sm">Product</h3>
+						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									className="text-muted-foreground hover:text-foreground"
@@ -100,8 +77,8 @@ export function Footer() {
 					</div>
 
 					<div className="space-y-4">
-						<h3 className="font-semibold text-base sm:text-lg">Company</h3>
-						<ul className="space-y-2 text-sm sm:text-base">
+						<h3 className="font-semibold text-sm">Company</h3>
+						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									className="text-muted-foreground hover:text-foreground"
@@ -134,6 +111,40 @@ export function Footer() {
 									Contact
 								</Link>
 							</li>
+						</ul>
+					</div>
+
+					<div className="space-y-4">
+						<h3 className="font-semibold text-sm">Connect</h3>
+						<ul className="space-y-2 text-sm">
+							<li>
+								<Link
+									className="text-muted-foreground hover:text-foreground"
+									href="mailto:support@databuddy.cc"
+								>
+									Email
+								</Link>
+							</li>
+							<li>
+								<Link
+									className="text-muted-foreground hover:text-foreground"
+									href="https://discord.gg/JTk7a38tCZ"
+									rel="noopener"
+									target="_blank"
+								>
+									Discord
+								</Link>
+							</li>
+							<li>
+								<Link
+									className="text-muted-foreground hover:text-foreground"
+									href="https://x.com/trydatabuddy"
+									rel="noopener"
+									target="_blank"
+								>
+									X
+								</Link>
+							</li>
 							<li>
 								<Link
 									className="text-muted-foreground hover:text-foreground"
@@ -147,102 +158,97 @@ export function Footer() {
 						</ul>
 					</div>
 
-					<div className="col-span-2 space-y-4 md:col-span-1">
-						<h3 className="font-semibold text-base sm:text-lg">Connect</h3>
-						<ul className="space-y-3 text-sm sm:text-base">
+					<div className="order-5 col-span-2 space-y-4 sm:order-none sm:col-span-1">
+						<h3 className="font-semibold text-sm">Newsletter</h3>
+						<p className="text-muted-foreground text-sm">
+							Get the latest analytics insights, product updates, and tips.
+						</p>
+						<NewsletterForm />
+					</div>
+
+					{/* Legal — mobile only, paired with Newsletter in the 2-col grid */}
+					<div className="order-4 space-y-4 sm:hidden">
+						<h3 className="font-semibold text-sm">Legal</h3>
+						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
-									className="group flex items-center gap-3 text-muted-foreground hover:text-foreground"
-									href="mailto:support@databuddy.cc"
+									className="text-muted-foreground hover:text-foreground"
+									href="/privacy"
 								>
-									<IoMdMail className="size-5" />
-									support@databuddy.cc
+									Privacy
 								</Link>
 							</li>
 							<li>
 								<Link
-									className="group flex items-center gap-3 text-muted-foreground hover:text-foreground"
-									href="https://discord.gg/JTk7a38tCZ"
-									rel="noopener"
-									target="_blank"
+									className="text-muted-foreground hover:text-foreground"
+									href="/terms"
 								>
-									<FaDiscord className="size-5" />
-									Discord
+									Terms
 								</Link>
 							</li>
 							<li>
 								<Link
-									className="group flex items-center gap-3 text-muted-foreground hover:text-foreground"
-									href="https://x.com/trydatabuddy"
-									rel="noopener"
-									target="_blank"
+									className="text-muted-foreground hover:text-foreground"
+									href="/dpa"
 								>
-									<FaXTwitter className="size-5" />X
+									DPA
+								</Link>
+							</li>
+							<li>
+								<Link
+									className="text-muted-foreground hover:text-foreground"
+									href="/data-policy"
+								>
+									Data Policy
 								</Link>
 							</li>
 						</ul>
 					</div>
-				</div>
 
-				<div className="mt-6">
-					<div className="flex flex-col gap-4">
-						<div className="flex items-center gap-6">
+					{/* Bottom bar — mobile: copyright + theme toggle full width */}
+					<div className="order-6 col-span-2 flex items-center justify-between pb-8 sm:hidden">
+						<p className="text-muted-foreground/70 text-xs">
+							© {new Date().getFullYear()} Databuddy
+						</p>
+						<ThemeToggle />
+					</div>
+
+					{/* Bottom bar — desktop only */}
+					<div className="col-span-1 hidden items-center pt-6 pb-8 sm:flex">
+						<p className="text-muted-foreground/70 text-sm">
+							© {new Date().getFullYear()} Databuddy
+						</p>
+					</div>
+					<div className="col-span-4 hidden items-center gap-4 pt-6 pb-8 sm:flex">
+						<div className="flex items-center gap-4 whitespace-nowrap">
 							<Link
-								aria-label="CCPA Compliance"
-								className="text-muted-foreground/90 transition-colors hover:text-muted-foreground"
-								href="/"
-							>
-								<CCPAIcon className="size-9" />
-							</Link>
-							<Link
-								aria-label="GDPR Compliance"
-								className="text-muted-foreground/90 transition-colors hover:text-muted-foreground"
-								href="/"
-							>
-								<GDPRIcon className="size-11" />
-							</Link>
-						</div>
-						<div className="flex flex-wrap items-center gap-4">
-							<Link
-								className="text-muted-foreground/70 text-xs hover:text-muted-foreground sm:text-sm"
+								className="text-muted-foreground/60 text-sm hover:text-muted-foreground"
 								href="/privacy"
 							>
-								Privacy Policy
+								Privacy
 							</Link>
-							<span className="text-muted-foreground/50 text-xs">•</span>
 							<Link
-								className="text-muted-foreground/70 text-xs hover:text-muted-foreground sm:text-sm"
+								className="text-muted-foreground/60 text-sm hover:text-muted-foreground"
 								href="/data-policy"
 							>
 								Data Policy
 							</Link>
-							<span className="text-muted-foreground/50 text-xs">•</span>
 							<Link
-								className="text-muted-foreground/70 text-xs hover:text-muted-foreground sm:text-sm"
+								className="text-muted-foreground/60 text-sm hover:text-muted-foreground"
 								href="/dpa"
 							>
 								DPA
 							</Link>
-							<span className="text-muted-foreground/50 text-xs">•</span>
 							<Link
-								className="text-muted-foreground/70 text-xs hover:text-muted-foreground sm:text-sm"
+								className="text-muted-foreground/60 text-sm hover:text-muted-foreground"
 								href="/terms"
 							>
-								Terms of Service
+								Terms
 							</Link>
 						</div>
-					</div>
-				</div>
-
-				{/* Copyright Row */}
-				<div className="mt-4 flex flex-col items-center justify-between gap-4 border-border border-t pt-4 sm:flex-row">
-					<p className="text-muted-foreground text-sm sm:text-base">
-						© {new Date().getFullYear()} Databuddy
-					</p>
-					<div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-						<p className="text-muted-foreground text-sm sm:text-base">
-							Privacy-first analytics
-						</p>
+						<div className="ml-auto">
+							<ThemeToggle />
+						</div>
 					</div>
 				</div>
 				<Wordmark />

@@ -2,6 +2,7 @@
 
 import {
 	ActivityIcon,
+	ArrowRightIcon,
 	Bug,
 	CursorClick,
 	Flag,
@@ -11,6 +12,7 @@ import {
 	WarningCircle,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
 	Area,
@@ -34,6 +36,7 @@ const BentoCard = ({
 	className,
 	headerClassName,
 	contentClassName,
+	href,
 }: {
 	title: string;
 	description?: string;
@@ -42,6 +45,7 @@ const BentoCard = ({
 	className?: string;
 	headerClassName?: string;
 	contentClassName?: string;
+	href?: string;
 }) => (
 	<motion.div
 		className={cn(
@@ -54,20 +58,29 @@ const BentoCard = ({
 		whileInView={{ opacity: 1, y: 0 }}
 	>
 		<CardHeader className={cn("relative z-20 px-6 py-4", headerClassName)}>
-			<div className="flex items-center gap-3">
-				<div className="flex size-8 items-center justify-center bg-secondary/40 ring-1 ring-border">
+			<div className="flex items-start justify-between gap-3">
+				{/* <div className="flex size-8 items-center justify-center bg-secondary/40 ring-1 ring-border">
 					<Icon className="size-4 text-muted-foreground" weight="duotone" />
-				</div>
+				</div> */}
 				<div className="flex flex-col gap-0.5">
-					<CardTitle className="font-medium font-mono text-foreground text-sm">
+					<CardTitle className="font-medium text-foreground text-lg sm:text-xl">
 						{title}
 					</CardTitle>
 					{description && (
-						<p className="font-mono text-muted-foreground text-xs">
+						<p className="text-muted-foreground text-sm sm:text-base">
 							{description}
 						</p>
 					)}
 				</div>
+				{href && (
+					<Link
+						aria-label={"Learn more about " + title}
+						className="z-30 flex size-10 shrink-0 items-center justify-center rounded border border-border/50 bg-card text-muted-foreground shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:border-border hover:text-foreground"
+						href={href}
+					>
+						<ArrowRightIcon className="size-5" weight="fill" />
+					</Link>
+				)}
 			</div>
 		</CardHeader>
 		<CardContent className={cn("relative z-10 p-6 pt-0", contentClassName)}>
@@ -152,7 +165,7 @@ const FunnelsFeature = () => {
 							lastShapeType="rectangle"
 						>
 							<LabelList
-								className="fill-muted-foreground font-medium font-mono text-xs"
+								className="fill-muted-foreground font-mono font-normal text-xs"
 								dataKey="name"
 								offset={20}
 								position="right"
@@ -221,10 +234,11 @@ const RealTimeFeature = () => {
 					</span>
 				</div>
 				<motion.div
-					animate={{ opacity: 1, y: 0 }}
+					animate={{ opacity: 1, scale: 1 }}
 					className="font-medium font-mono text-2xl text-foreground tracking-tighter"
-					initial={{ opacity: 0.5, y: 5 }}
+					initial={{ opacity: 1, scale: 0.95 }}
 					key={liveUsers}
+					transition={{ duration: 0.2 }}
 				>
 					{liveUsers}
 				</motion.div>
@@ -658,79 +672,96 @@ const CustomEventsFeature = () => {
 
 export default function Bento() {
 	return (
-		<div className="grid h-full w-full grid-cols-1 gap-4 p-1 md:grid-cols-12">
-			{/* Funnels - Large Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-2"
-				description="Track user journeys through your app"
-				icon={Funnel}
-				title="Conversion Funnels"
-			>
-				<FunnelsFeature />
-			</BentoCard>
+		<div className="w-full">
+			<div className="mb-12 text-center lg:mb-16 lg:text-left">
+				<h2 className="mx-auto max-w-4xl text-balance font-semibold text-3xl leading-tight sm:text-4xl lg:mx-0 lg:text-5xl">
+					<span className="text-muted-foreground">
+						Raw data is not insight,{" "}
+					</span>
+					<span className="text-foreground">context is</span>
+				</h2>
+				<p className="mt-3 max-w-2xl text-pretty text-base text-muted-foreground sm:px-0 sm:text-base lg:text-lg">
+					A single analytics platform to see how users find you, what they do,
+					where they drop off, and what breaks along the way.
+				</p>
+			</div>
+			<div className="grid h-full w-full grid-cols-1 gap-4 p-1 md:grid-cols-12">
+				{/* Funnels - Large Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-2"
+					description="Track user journeys through your app"
+					icon={Funnel}
+					title="Conversion Funnels"
+				>
+					<FunnelsFeature />
+				</BentoCard>
 
-			{/* Real-time - Medium Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-1"
-				contentClassName="px-0 pb-0"
-				description="See who's on your site right now"
-				icon={ActivityIcon}
-				title="Real-time"
-			>
-				<RealTimeFeature />
-			</BentoCard>
+				{/* Real-time - Medium Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-1"
+					contentClassName="px-0 pb-0"
+					description="See who's on your site right now"
+					icon={ActivityIcon}
+					title="Real-time"
+				>
+					<RealTimeFeature />
+				</BentoCard>
 
-			{/* Sessions - Medium Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-2"
-				description="Watch real user sessions"
-				icon={Users}
-				title="Live Sessions"
-			>
-				<SessionsFeature />
-			</BentoCard>
+				{/* Sessions - Medium Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-2"
+					description="Watch real user sessions"
+					icon={Users}
+					title="Live Sessions"
+				>
+					<SessionsFeature />
+				</BentoCard>
 
-			{/* Web Vitals - Small Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-1"
-				contentClassName="pb-0"
-				description="Monitor core performance metrics"
-				icon={Gauge}
-				title="Web Vitals"
-			>
-				<WebVitalsFeature />
-			</BentoCard>
+				{/* Web Vitals - Small Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-1"
+					contentClassName="pb-0"
+					description="Monitor core performance metrics"
+					href="/web-vitals"
+					icon={Gauge}
+					title="Web Vitals"
+				>
+					<WebVitalsFeature />
+				</BentoCard>
 
-			{/* Error Tracking - Medium Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-1"
-				contentClassName="pb-0"
-				description="Catch and fix bugs fast"
-				icon={Bug}
-				title="Error Tracking"
-			>
-				<ErrorTrackingFeature />
-			</BentoCard>
+				{/* Error Tracking - Medium Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-1"
+					contentClassName="pb-0"
+					description="Catch and fix bugs fast"
+					href="/errors"
+					icon={Bug}
+					title="Error Tracking"
+				>
+					<ErrorTrackingFeature />
+				</BentoCard>
 
-			{/* Feature Flags - Small Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-1"
-				description="Roll out features safely"
-				icon={Flag}
-				title="Feature Flags"
-			>
-				<FeatureFlagsFeature />
-			</BentoCard>
+				{/* Feature Flags - Small Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-1"
+					description="Roll out features safely"
+					href="/feature-flags"
+					icon={Flag}
+					title="Feature Flags"
+				>
+					<FeatureFlagsFeature />
+				</BentoCard>
 
-			{/* Custom Events - Small Card */}
-			<BentoCard
-				className="h-full md:col-span-4 md:row-span-1"
-				description="Track what matters to you"
-				icon={CursorClick}
-				title="Events"
-			>
-				<CustomEventsFeature />
-			</BentoCard>
+				{/* Custom Events - Small Card */}
+				<BentoCard
+					className="h-full md:col-span-4 md:row-span-1"
+					description="Track what matters to you"
+					icon={CursorClick}
+					title="Events"
+				>
+					<CustomEventsFeature />
+				</BentoCard>
+			</div>
 		</div>
 	);
 }
