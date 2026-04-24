@@ -105,7 +105,7 @@ export async function getPreviousMonitorStatus(
 	siteId: string
 ): Promise<number | undefined> {
 	if (!process.env.CLICKHOUSE_URL) {
-		return undefined;
+		return;
 	}
 	try {
 		const rows = await chQuery<{ status: number }>(
@@ -118,12 +118,12 @@ export async function getPreviousMonitorStatus(
 		);
 		const row = rows[0];
 		if (row === undefined) {
-			return undefined;
+			return;
 		}
 		return row.status;
 	} catch (error) {
 		captureError(error, { error_step: "clickhouse_previous_status" });
-		return undefined;
+		return;
 	}
 }
 

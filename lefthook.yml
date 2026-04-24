@@ -31,6 +31,12 @@ pre-commit:
     check-types:
       glob: "**/*.{ts,tsx}"
       run: bun run check-types
+    lockfile-check:
+      glob:
+        - "**/package.json"
+        - "bun.lock"
+      run: bun install --frozen-lockfile
+      fail_text: "bun.lock is out of sync with package.json. Run: bun install && git add bun.lock"
 
 commit-msg:
   commands:

@@ -15,7 +15,7 @@ import {
 	VerificationEmail,
 } from "@databuddy/email";
 import { SlackProvider } from "@databuddy/notifications";
-import { getRedisCache, rateLimit } from "@databuddy/redis";
+import { getRedisCache, ratelimit } from "@databuddy/redis";
 import { createId } from "@databuddy/shared/utils/ids";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
@@ -32,12 +32,14 @@ import { Resend } from "resend";
 import { ac, admin, member, owner, viewer } from "./permissions";
 
 function generateOrgSlug(name: string): string {
-	return name
+	const base = name
 		.toLowerCase()
 		.replace(/[^a-z0-9\s-]/g, "")
 		.replace(/\s+/g, "-")
 		.replace(/-+/g, "-")
 		.slice(0, 48);
+	const suffix = createId().slice(0, 6);
+	return `${base}-${suffix}`;
 }
 
 function getOrgNameFromUser(userName: string, email: string): string {
@@ -116,8 +118,6 @@ export const auth = betterAuth({
 				const value = await getRedisCache().get(key);
 				return value ? JSON.parse(value) : null;
 			},
-			// TTL is 2x the longest window so counters survive the full window
-			// without lingering indefinitely.
 			set: async (key, value) => {
 				await getRedisCache().set(key, JSON.stringify(value), "EX", 120);
 			},
@@ -147,22 +147,33 @@ export const auth = betterAuth({
 						createdUser.email
 					);
 
-					await db.transaction(async (tx) => {
-						await tx.insert(organizationTable).values({
-							id: orgId,
-							name: orgName,
-							slug: generateOrgSlug(orgName),
-							createdAt: new Date(),
-						});
+					try {
+						await db.transaction(async (tx) => {
+							await tx.insert(organizationTable).values({
+								id: orgId,
+								name: orgName,
+								slug: generateOrgSlug(orgName),
+								createdAt: new Date(),
+							});
 
-						await tx.insert(memberTable).values({
-							id: createId(),
-							organizationId: orgId,
-							userId: createdUser.id,
-							role: "owner",
-							createdAt: new Date(),
+							await tx.insert(memberTable).values({
+								id: createId(),
+								organizationId: orgId,
+								userId: createdUser.id,
+								role: "owner",
+								createdAt: new Date(),
+							});
 						});
-					});
+					} catch (error) {
+						log.error({
+							service: "auth",
+							auth_hook: "user.create.after",
+							auth_user_id: createdUser.id,
+							auth_org_id: orgId,
+							error: error instanceof Error ? error.message : String(error),
+						});
+						return;
+					}
 
 					notifySignUpSlackAction({
 						userId: createdUser.id,
@@ -195,10 +206,12 @@ export const auth = betterAuth({
 							};
 						}
 					} catch (error) {
-						console.error(
-							"Failed to set active organization for session:",
-							error
-						);
+						log.error({
+							service: "auth",
+							auth_hook: "session.create.before",
+							auth_user_id: sessionData.userId,
+							error: error instanceof Error ? error.message : String(error),
+						});
 					}
 
 					return { data: sessionData };
@@ -270,7 +283,7 @@ export const auth = betterAuth({
 		autoSignIn: false,
 		requireEmailVerification: process.env.NODE_ENV === "production",
 		sendResetPassword: async ({ user, url }: { user: any; url: string }) => {
-			const { success } = await rateLimit(`reset:${user.email}`, 3, 3600);
+			const { success } = await ratelimit(`reset:${user.email}`, 3, 3600);
 			if (!success) {
 				log.warn({
 					service: "auth",
@@ -301,7 +314,7 @@ export const auth = betterAuth({
 			user: any;
 			url: string;
 		}) => {
-			const { success } = await rateLimit(`verify:${user.email}`, 3, 900);
+			const { success } = await ratelimit(`verify:${user.email}`, 3, 900);
 			if (!success) {
 				log.warn({
 					service: "auth",
@@ -338,7 +351,7 @@ export const auth = betterAuth({
 		}),
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
-				const { success } = await rateLimit(`otp:${email}`, 3, 900);
+				const { success } = await ratelimit(`otp:${email}`, 3, 900);
 				if (!success) {
 					log.warn({
 						service: "auth",
@@ -376,7 +389,7 @@ export const auth = betterAuth({
 		}),
 		magicLink({
 			sendMagicLink: async ({ email, url }) => {
-				const { success } = await rateLimit(`magic:${email}`, 3, 900);
+				const { success } = await ratelimit(`magic:${email}`, 3, 900);
 				if (!success) {
 					log.warn({
 						service: "auth",
@@ -421,7 +434,7 @@ export const auth = betterAuth({
 				organization,
 				invitation,
 			}) => {
-				const { success } = await rateLimit(
+				const { success } = await ratelimit(
 					`invite:${organization.id}`,
 					5,
 					3600

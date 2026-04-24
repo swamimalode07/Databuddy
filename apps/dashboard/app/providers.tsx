@@ -5,7 +5,7 @@ import { FlagsProvider } from "@databuddy/sdk/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { OrganizationsProvider } from "@/components/providers/organizations-provider";
 import { useToastTracking } from "@/hooks/toast-hooks";
 import { getQueryClient } from "@/lib/query-client";
@@ -37,9 +37,12 @@ function FlagsProviderWrapper({ children }: { children: React.ReactNode }) {
 	const clientId =
 		process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID ?? "OXmNQsViBT-FOS_wZCTHc";
 
-	const user = session?.user
-		? { userId: session.user.id, email: session.user.email }
-		: undefined;
+	const userId = session?.user?.id;
+	const userEmail = session?.user?.email;
+	const user = useMemo(
+		() => (userId ? { userId, email: userEmail } : undefined),
+		[userId, userEmail]
+	);
 
 	return (
 		<FlagsProvider
