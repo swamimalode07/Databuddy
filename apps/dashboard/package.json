@@ -1,6 +1,6 @@
 {
   "name": "@databuddy/dashboard",
-  "version": "0.1.0",
+  "version": "0.1.1-beta.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -11,8 +11,6 @@
   "dependencies": {
     "@ai-sdk/react": "^3.0.118",
     "@base-ui-components/react": "^1.0.0-rc.0",
-    "@cossistant/next": "^0.0.29",
-    "@cossistant/react": "^0.0.29",
     "@databuddy/api-keys": "workspace:*",
     "@databuddy/auth": "workspace:*",
     "@databuddy/db": "workspace:*",
@@ -21,6 +19,8 @@
     "@databuddy/rpc": "workspace:*",
     "@databuddy/sdk": "workspace:*",
     "@databuddy/shared": "workspace:*",
+    "@databuddy/devtools": "workspace:*",
+    "@databuddy/ui": "workspace:*",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@json-render/react": "^0.2.0",

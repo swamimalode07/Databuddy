@@ -327,7 +327,7 @@ export function InsightsPageContent() {
 		<>
 			<div
 				aria-busy={isLoading || cockpitLoading || websitesLoading}
-				className="h-full overflow-y-auto"
+				className="flex h-full flex-col overflow-y-auto"
 			>
 				<PageHeader
 					count={isLoading ? undefined : insights.length}

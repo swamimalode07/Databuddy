@@ -3,7 +3,7 @@ import { Button } from "@/components/ds/button";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
 import { Logo } from "@/components/layout/logo";
-import { CaretLeftIcon } from "@phosphor-icons/react/ssr";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Suspense } from "react";
 

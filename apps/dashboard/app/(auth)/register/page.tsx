@@ -158,7 +158,7 @@ function RegisterPageContent() {
 					},
 				},
 			});
-		} catch (_error) {
+		} catch {
 			toast.error("Login failed. Please try again.");
 			setIsLoading(false);
 		}

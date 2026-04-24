@@ -1,8 +1,8 @@
+import { acceptMarkdownOverHtml } from "@/app/api/pricing/accept-markdown";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { acceptMarkdownOverHtml } from "@/app/api/pricing/accept-markdown";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
 	const path = request.nextUrl.pathname;
 	if (path !== "/pricing" && path !== "/pricing/") {
 		return NextResponse.next();

@@ -200,13 +200,14 @@ export function OrganizationSelector() {
 				<DropdownMenu.Trigger
 					className="w-full text-left focus-visible:outline-none"
 					disabled={isSwitching}
-				>
-					<OrganizationSelectorTrigger
-						activeOrganization={activeOrganization}
-						isOpen={isOpen}
-						isSettingActiveOrganization={isSwitching}
-					/>
-				</DropdownMenu.Trigger>
+					render={
+						<OrganizationSelectorTrigger
+							activeOrganization={activeOrganization}
+							isOpen={isOpen}
+							isSettingActiveOrganization={isSwitching}
+						/>
+					}
+				/>
 				<DropdownMenu.Content
 					align="start"
 					className="w-72 rounded-none border-t-0 border-l-0 bg-sidebar p-0"

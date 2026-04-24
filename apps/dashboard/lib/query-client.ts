@@ -2,10 +2,6 @@ import { trackError } from "@databuddy/sdk";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { isAbortError } from "@/lib/is-abort-error";
-import {
-	dehydrateDefaults,
-	hydrateDefaults,
-} from "@/lib/orpc-dehydrate-serializer";
 
 const SILENCED_ERROR_CODES = new Set([
 	"UNAUTHORIZED",
@@ -76,8 +72,6 @@ export function makeQueryClient() {
 			mutations: {
 				retry: false,
 			},
-			dehydrate: dehydrateDefaults,
-			hydrate: hydrateDefaults,
 		},
 		queryCache: new QueryCache({
 			onError: (error, query) => {
