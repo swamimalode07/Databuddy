@@ -44,7 +44,7 @@ import {
 	UsersThreeIcon,
 	WarningIcon,
 	WaveformIcon,
-} from "@phosphor-icons/react/ssr";
+} from "@phosphor-icons/react/dist/ssr";
 import type { Category, NavigationEntry, NavigationSection } from "./types";
 
 const createNavItem = (
