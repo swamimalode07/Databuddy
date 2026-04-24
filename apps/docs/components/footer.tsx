@@ -9,27 +9,36 @@ import { NewsletterForm } from "./newsletter-form";
 import { GDPRIcon } from "./icons/gdpr";
 import { CCPAIcon } from "./icons/ccpa";
 import { SciFiButton } from "./landing/scifi-btn";
+import { Button } from "./ui/button";
 
 export function Footer() {
 	return (
 		<footer className="border-border border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
 			<div className="mx-auto flex max-w-360 flex-col gap-8 px-4 pt-10 sm:px-6 lg:px-8">
 				{/* CTA Section */}
-				<div
-					className="relative flex h-70 w-full items-start rounded-lg bg-center bg-cover md:h-80"
-					style={{
-						backgroundImage: "url('/brand/gradients/cta-bg.png')",
-					}}
-				>
+				<div className="relative flex h-70 w-full items-start overflow-hidden rounded-lg md:h-80">
+					<Image
+						alt=""
+						aria-hidden
+						className="pointer-events-none object-fill"
+						fill
+						priority={false}
+						sizes="(min-width: 1440px) 1440px, 100vw"
+						src="/brand/gradients/gradient-bg-1.jpg"
+					/>
+					<div
+						aria-hidden
+						className="pointer-events-none absolute inset-0 bg-black/30"
+					/>
 					<Image
 						alt="logo"
-						className="pointer-events-none absolute top-1/2 right-16 hidden -translate-y-1/2 opacity-80 lg:block"
+						className="pointer-events-none absolute top-1/2 right-16 z-10 hidden -translate-y-1/2 opacity-80 lg:block"
 						height={180}
 						src="/brand/logomark/white.svg"
 						width={180}
 					/>
-					<div className="max-w-5xl px-8 pt-8 sm:px-16 md:pt-16">
-						<h2 className="mb-2 text-left font-medium text-2xl leading-tight sm:text-4xl">
+					<div className="relative z-10 max-w-5xl px-8 pt-8 sm:px-16 md:pt-16">
+						<h2 className="mb-2 text-left text-white font-medium text-2xl leading-tight sm:text-4xl">
 							All the analytics you need. One click away
 						</h2>
 
@@ -38,13 +47,17 @@ export function Footer() {
 							script.
 						</p>
 						<div className="flex gap-4">
-							<SciFiButton asChild>
+							<Button asChild>
 								<a href="https://app.databuddy.cc/login">START FREE</a>
-							</SciFiButton>
+							</Button>
 
-							<SciFiButton asChild>
+							<Button
+								asChild
+								className="bg-transparent text-white hover:bg-white/10 hover:text-white"
+								variant="secondary"
+							>
 								<Link href="/contact">CONTACT US</Link>
-							</SciFiButton>
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -62,7 +75,7 @@ export function Footer() {
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-8 sm:gap-10 md:grid-cols-4">
+				<div className="grid grid-cols-2 gap-8 sm:gap-10 md:grid-cols-5">
 					<div className="col-span-2 space-y-4 md:col-span-1">
 						<LogoContent />
 					</div>
@@ -249,14 +262,7 @@ export function Footer() {
 						</p>
 						<ThemeToggle />
 					</div>
-
-					{/* Bottom bar — desktop only */}
-					<div className="col-span-1 hidden items-center pt-6 pb-8 sm:flex">
-						<p className="text-muted-foreground/70 text-sm">
-							© {new Date().getFullYear()} Databuddy
-						</p>
-					</div>
-					<div className="col-span-4 hidden items-center gap-4 pt-6 pb-8 sm:flex">
+					<div className="col-span-2 hidden items-center gap-4 pt-6 pb-8 sm:flex md:col-span-5">
 						<div className="flex items-center gap-4 whitespace-nowrap">
 							<Link
 								aria-label="CCPA Compliance"

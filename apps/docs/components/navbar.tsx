@@ -22,9 +22,9 @@ export const Navbar = ({ stars }: NavbarProps) => {
 
 	return (
 		<>
-			<header className="fixed inset-x-0 top-0 z-40 flex flex-col border-border/25 border-b bg-transparent pt-[env(safe-area-inset-top,0px)] backdrop-blur-sm [transform:translateZ(0)]">
+			<header className="sticky inset-x-0 top-0 z-40 flex flex-col border-border/25 border-b bg-background/80 pt-[env(safe-area-inset-top,0px)] backdrop-blur-sm">
 				<nav>
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className="mx-auto w-full  px-4 sm:px-6 lg:px-8">
 						<div className="flex h-16 items-center justify-between">
 							<BrandContextMenu>
 								<div className="shrink-0 transition-opacity hover:opacity-90">
@@ -131,10 +131,6 @@ export const Navbar = ({ stars }: NavbarProps) => {
 					</div>
 				</div>
 			</header>
-			{/* <div
-				aria-hidden
-				className="h-[calc(4rem+env(safe-area-inset-top,0px))] shrink-0"
-			/> */}
 		</>
 	);
 };

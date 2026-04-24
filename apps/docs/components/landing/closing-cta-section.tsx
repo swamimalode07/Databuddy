@@ -66,7 +66,7 @@ export function ClosingCtaSection({
 					</Button>
 					<Button
 						asChild
-						className="px-6 py-5 text-base sm:px-8"
+						className="px-6 py-5 text-base sm:px-8  bg-transparent text-white hover:bg-white/10 hover:text-white"
 						variant="secondary"
 					>
 						<Link href={secondaryCta.href}>{secondaryCta.label}</Link>

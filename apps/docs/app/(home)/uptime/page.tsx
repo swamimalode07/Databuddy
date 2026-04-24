@@ -13,6 +13,7 @@ import {
 import { StructuredData } from "@/components/structured-data";
 import { Button } from "@/components/ui/button";
 import { SciFiButton } from "@/components/landing/scifi-btn";
+import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
 export const metadata: Metadata = {
 	title: "Uptime Monitoring (coming Q3 2026) | Databuddy",
@@ -200,12 +201,16 @@ export default function UptimePage() {
 							<SciFiButton asChild className="px-6 py-5 text-base sm:px-8">
 								<a href="https://app.databuddy.cc/login">
 									Get early access
-									<ArrowRightIcon className="ml-2 size-4" weight="bold" />
+									<ArrowRightIcon className="ml-2 size-4" />
 								</a>
 							</SciFiButton>
 						</div>
-						<FaqSection eyebrow="FAQ" items={[...FAQ_ITEMS]} />
+						
 					</div>
+				</Section>
+
+				<Section id="faq" className="border-border border-b">
+				    <FaqSection eyebrow="FAQ" items={[...FAQ_ITEMS]} />
 				</Section>
 
 				<ClosingCtaSection
