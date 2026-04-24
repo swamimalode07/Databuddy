@@ -53,7 +53,16 @@ export const Databuddy = defineComponent({
 
 		const injectScript = () => {
 			const clientId = detectClientId(props.clientId);
-			if (!clientId || props.disabled || isScriptInjected()) {
+			if (!clientId) {
+				if (!props.disabled && props.debug) {
+					console.warn(
+						"Databuddy: No client ID found. Please provide clientId prop or set NEXT_PUBLIC_DATABUDDY_CLIENT_ID / NUXT_PUBLIC_DATABUDDY_CLIENT_ID / VITE_DATABUDDY_CLIENT_ID environment variable."
+					);
+				}
+				return;
+			}
+
+			if (props.disabled || isScriptInjected()) {
 				return;
 			}
 
