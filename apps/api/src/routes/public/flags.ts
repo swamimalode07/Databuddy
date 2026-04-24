@@ -212,7 +212,12 @@ const getCachedFlagsForClient = cacheable(
 );
 
 const getCachedFlagsForUser = cacheable(
-	async (userId: string, environment?: string) => {
+	async (userId: string, clientId: string, environment?: string) => {
+		const scopeCondition = or(
+			eq(flags.websiteId, clientId),
+			eq(flags.organizationId, clientId)
+		);
+
 		const environmentCondition = environment
 			? eq(flags.environment, environment)
 			: isNull(flags.environment);
@@ -222,7 +227,8 @@ const getCachedFlagsForUser = cacheable(
 				isNull(flags.deletedAt),
 				eq(flags.status, "active"),
 				environmentCondition,
-				eq(flags.userId, userId)
+				eq(flags.userId, userId),
+				scopeCondition
 			),
 			with: {
 				flagsToTargetGroups: {
@@ -664,8 +670,10 @@ export const flagsRoute = new Elysia({ prefix: "/v1/flags" })
 				if (!flag && context.userId) {
 					const uid = context.userId;
 					const userFlags = await record("getCachedFlagsForUser", () =>
-						fromMemory(`fu:${uid}:${query.environment || ""}`, () =>
-							getCachedFlagsForUser(uid, query.environment)
+						fromMemory(
+							`fu:${uid}:${query.clientId}:${query.environment || ""}`,
+							() =>
+								getCachedFlagsForUser(uid, query.clientId, query.environment)
 						)
 					);
 					flag = userFlags.find((f) => f.key === query.key) ?? null;
@@ -758,8 +766,10 @@ export const flagsRoute = new Elysia({ prefix: "/v1/flags" })
 				if (context.userId) {
 					const uid = context.userId;
 					const userFlags = await record("getCachedFlagsForUser", () =>
-						fromMemory(`fu:${uid}:${query.environment || ""}`, () =>
-							getCachedFlagsForUser(uid, query.environment)
+						fromMemory(
+							`fu:${uid}:${query.clientId}:${query.environment || ""}`,
+							() =>
+								getCachedFlagsForUser(uid, query.clientId, query.environment)
 						)
 					);
 					if (userFlags.length > 0) {
