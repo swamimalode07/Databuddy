@@ -9,36 +9,29 @@ import {
 	watch,
 } from "vue";
 
-const optionalBoolean = {
-	type: Boolean,
-	required: false,
-	default: undefined,
-} as const;
+const optionalBoolean = { type: Boolean, default: undefined } as const;
 
 export const Databuddy = defineComponent({
 	props: {
-		apiUrl: { type: String, required: false },
-		batchSize: { type: Number, required: false },
-		batchTimeout: { type: Number, required: false },
-		clientId: { type: String, required: false },
-		clientSecret: { type: String, required: false },
+		apiUrl: String,
+		batchSize: Number,
+		batchTimeout: Number,
+		clientId: String,
+		clientSecret: String,
 		debug: optionalBoolean,
 		disabled: optionalBoolean,
 		enableBatching: optionalBoolean,
 		enableRetries: optionalBoolean,
-		filter: {
-			type: Function as PropType<(event: unknown) => boolean>,
-			required: false,
-		},
+		filter: Function as PropType<(event: unknown) => boolean>,
 		ignoreBotDetection: optionalBoolean,
-		initialRetryDelay: { type: Number, required: false },
-		maskPatterns: { type: Array as PropType<string[]>, required: false },
-		maxRetries: { type: Number, required: false },
-		samplingRate: { type: Number, required: false },
-		scriptUrl: { type: String, required: false },
-		sdk: { type: String, required: false },
-		sdkVersion: { type: String, required: false },
-		skipPatterns: { type: Array as PropType<string[]>, required: false },
+		initialRetryDelay: Number,
+		maskPatterns: Array as PropType<string[]>,
+		maxRetries: Number,
+		samplingRate: Number,
+		scriptUrl: String,
+		sdk: String,
+		sdkVersion: String,
+		skipPatterns: Array as PropType<string[]>,
 		trackAttributes: optionalBoolean,
 		trackErrors: optionalBoolean,
 		trackHashChanges: optionalBoolean,
@@ -79,13 +72,8 @@ export const Databuddy = defineComponent({
 			}
 		};
 
-		onMounted(() => {
-			injectScript();
-		});
-
-		onUnmounted(() => {
-			removeScript();
-		});
+		onMounted(injectScript);
+		onUnmounted(removeScript);
 
 		watch(
 			() => props,
