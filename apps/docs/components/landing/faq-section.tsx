@@ -7,6 +7,7 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { SectionBullet } from "../icons/section-bullet";
 
 export interface FaqItem {
 	answer: string;
@@ -29,49 +30,41 @@ export function FaqSection({
 	className,
 }: FaqSectionProps) {
 	return (
-		<div
-			className={cn(
-				"mx-auto grid w-full max-w-7xl gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16",
-				className
-			)}
-		>
-			<div
-				className={cn(
-					"lg:col-span-4 lg:pt-1",
-					subtitle ? "space-y-2" : undefined
-				)}
-			>
-				{eyebrow ? (
-					<p className="mb-2 font-medium font-mono text-[10px] text-muted-foreground uppercase tracking-widest sm:text-[11px]">
-						{eyebrow}
-					</p>
-				) : null}
-				<h2 className="text-balance font-semibold text-3xl leading-tight sm:text-4xl lg:text-5xl">
-					{title}
-				</h2>
-				{subtitle ? (
-					<p className="text-pretty text-muted-foreground text-sm sm:text-base">
-						{subtitle}
-					</p>
-				) : null}
-			</div>
+		<div className={cn("mx-auto w-full max-w-5xl", className)}>
+			<div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
+				{/* Left: sticky title block */}
+				<div className="flex gap-4 sm:sticky sm:top-8 sm:w-94 sm:shrink-0 sm:self-start">
+					<span className="mt-2">
+						<SectionBullet color="#CD5F20" />
+					</span>
+					<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
+						{title}
+					</h2>
+					{subtitle ? (
+						<p className="mt-2 text-pretty text-muted-foreground text-sm sm:text-base">
+							{subtitle}
+						</p>
+					) : null}
+				</div>
 
-			<Accordion className="w-full lg:col-span-8" collapsible type="single">
-				{items.map((faq) => (
-					<AccordionItem
-						className="border-l-4 border-l-transparent bg-background/50 duration-200 hover:border-l-primary/20 hover:bg-background/80"
-						key={faq.question}
-						value={faq.question}
-					>
-						<AccordionTrigger className="px-5 py-4 text-left font-normal text-sm hover:no-underline sm:px-6 sm:py-5 sm:text-base">
-							{faq.question}
-						</AccordionTrigger>
-						<AccordionContent className="px-5 pb-4 text-muted-foreground text-sm leading-relaxed sm:px-6 sm:pb-5">
-							{faq.answer}
-						</AccordionContent>
-					</AccordionItem>
-				))}
-			</Accordion>
+				{/* Right: accordion */}
+				<Accordion className="w-full min-w-0" collapsible type="single">
+					{items.map((faq) => (
+						<AccordionItem
+							className="accordion-item"
+							key={faq.question}
+							value={faq.question}
+						>
+							<AccordionTrigger className="px-5 py-4 text-left font-normal text-sm hover:no-underline sm:px-6 sm:py-5 sm:text-base">
+								{faq.question}
+							</AccordionTrigger>
+							<AccordionContent className="px-5 pb-4 text-muted-foreground text-sm leading-relaxed sm:px-6 sm:pb-5">
+								{faq.answer}
+							</AccordionContent>
+						</AccordionItem>
+					))}
+				</Accordion>
+			</div>
 		</div>
 	);
 }

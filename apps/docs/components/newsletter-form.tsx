@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, PaperPlaneIcon } from "@phosphor-icons/react";
+import { CheckIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 
 type FormStatus = "idle" | "loading" | "success" | "error";
@@ -71,7 +71,7 @@ export function NewsletterForm() {
 					disabled={status === "loading"}
 					type="submit"
 				>
-					<PaperPlaneIcon className="size-3.5" weight="fill" />
+					<PaperPlaneTiltIcon className="size-3.5" weight="fill" />
 				</button>
 			</form>
 			{status === "error" && errorMessage ? (

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandContextMenu } from "@/components/brand-context-menu";
 import { Logo } from "./logo";
 import { NavLink } from "./nav-link";
@@ -32,8 +32,8 @@ export const Navbar = ({ stars }: NavbarProps) => {
 								</div>
 							</BrandContextMenu>
 
-							<div className="hidden md:block">
-								<ul className="flex items-center gap-1">
+							<div className="pointer-events-none absolute inset-x-0 hidden justify-center md:flex">
+								<ul className="pointer-events-auto flex h-16 items-center gap-6">
 									<NavbarFeaturesMenu />
 									{navMenu.map((menu) => (
 										<NavLink
@@ -44,6 +44,11 @@ export const Navbar = ({ stars }: NavbarProps) => {
 											{menu.name}
 										</NavLink>
 									))}
+								</ul>
+							</div>
+
+							<div className="ml-auto hidden md:block">
+								<ul className="flex items-center gap-1">
 									<NavbarGithubDesktopLink stars={stars} />
 									<li aria-hidden className="mx-2 h-5 w-px bg-border" />
 									<NavLink external href="https://app.databuddy.cc/login">
@@ -60,10 +65,12 @@ export const Navbar = ({ stars }: NavbarProps) => {
 								</ul>
 							</div>
 
-							<NavbarMobileMenuButton
-								isOpen={isMobileMenuOpen}
-								onToggleAction={() => setIsMobileMenuOpen((open) => !open)}
-							/>
+							<div className="ml-auto md:hidden">
+								<NavbarMobileMenuButton
+									isOpen={isMobileMenuOpen}
+									onToggleAction={() => setIsMobileMenuOpen((open) => !open)}
+								/>
+							</div>
 						</div>
 					</div>
 				</nav>
@@ -124,10 +131,10 @@ export const Navbar = ({ stars }: NavbarProps) => {
 					</div>
 				</div>
 			</header>
-			<div
+			{/* <div
 				aria-hidden
 				className="h-[calc(4rem+env(safe-area-inset-top,0px))] shrink-0"
-			/>
+			/> */}
 		</>
 	);
 };

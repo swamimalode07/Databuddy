@@ -29,7 +29,7 @@ export interface GithubStarsBadgeProps {
 export function GithubStarsBadge({ stars }: GithubStarsBadgeProps) {
 	return (
 		<span
-			className="rounded-full border border-border/50 bg-muted/50 px-2.5 py-0.5 font-medium text-foreground/90 text-xs"
+			className="rounded-full px-1 py-1 font-medium text-base text-foreground"
 			title="GitHub stars"
 		>
 			{stars.toLocaleString()} ★

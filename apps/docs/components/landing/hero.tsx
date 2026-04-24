@@ -1,12 +1,21 @@
 "use client";
 
 import { ArrowsOutSimpleIcon } from "@phosphor-icons/react";
+<<<<<<< HEAD
+=======
+import { motion } from "motion/react";
+>>>>>>> feature/landing-revamp
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+<<<<<<< HEAD
 import { Button } from "../ui/button";
 import { Gradient } from "./gradient";
+=======
+import BackgroundFlow from "./backgroundFlow";
+import { SciFiButton } from "./scifi-btn";
+>>>>>>> feature/landing-revamp
 
 const tabs = [
 	{ id: "overview", label: "Overview", path: "" },
@@ -80,93 +89,83 @@ export default function Hero({
 	};
 
 	return (
-		<section className="relative flex w-full flex-col items-center overflow-visible">
-			{/*
-				Absolute (not fixed): only fills this hero; scrolls away with the section.
-				Negative top pulls into the nav spacer so color can read behind the transparent navbar.
-				Do not put z-index on this <section> — it can break stacking vs the gradient.
-			*/}
-			<div
-				aria-hidden
-				className="pointer-events-none absolute inset-x-0 top-[calc(-4rem-env(safe-area-inset-top,0px))] bottom-0 z-0 w-full sm:left-1/2 sm:w-[min(132vw,2400px)] sm:max-w-none sm:-translate-x-1/2 lg:inset-x-0 lg:w-full lg:translate-x-0"
-			>
-				<Gradient />
-			</div>
+		<section className="relative mx-auto flex w-full max-w-500 flex-col items-center">
+			{/* <Spotlight transform="translateX(-60%) translateY(-50%)" /> */}
+			<BackgroundFlow />
+			<div className="mx-auto w-full max-w-400 px-4 pt-26 pb-8 sm:px-14 sm:pt-20 lg:px-20 lg:pt-38">
+				<div className="mx-auto flex max-w-360 flex-col items-start space-y-2 text-left">
+					<motion.h1
+						animate={{ opacity: 1, y: 0 }}
+						className="z-10 text-balance font-semibold text-3xl sm:text-5xl md:text-6xl"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0 }}
+					>
+						Privacy-first analytics. One script, no cookies, no consent banners.
+					</motion.h1>
 
-			<div className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-28 pb-6 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
-				<div className="flex flex-col items-start space-y-5 sm:space-y-6">
-					<h1 className="text-balance font-bold text-5xl leading-[1.1] tracking-tight sm:text-6xl md:text-7xl lg:text-7xl">
-						Analytics that runs itself
-					</h1>
+					<motion.p
+						animate={{ opacity: 1, y: 0 }}
+						className="z-10 max-w-2xl text-muted-foreground text-sm sm:text-base lg:text-lg"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0.15 }}
+					>
+						Web analytics, error tracking, and feature flags in a single script
+						under 30 KB. GDPR compliant out of the box.
+					</motion.p>
 
-					<p className="max-w-3xl text-pretty font-normal text-base text-foreground leading-relaxed sm:text-base lg:text-lg">
-						Databuddy gives developers a single script to track web analytics,
-						catch errors, and ship features.{" "}
-					</p>
+					<motion.div
+						animate={{ opacity: 1, y: 0 }}
+						className="flex items-center gap-3 pt-2"
+						initial={{ opacity: 0, y: 20 }}
+						transition={{ duration: 0.4, delay: 0.3 }}
+					>
+						<SciFiButton asChild className="px-6 py-5">
+							<a href="https://app.databuddy.cc/login">Start free</a>
+						</SciFiButton>
 
-					<div className="flex items-center gap-3">
-						<Button asChild className="px-6 py-5 text-base sm:px-8">
-							<Link href="https://app.databuddy.cc/login">Start Free</Link>
-						</Button>
-						<Button
-							asChild
-							className="px-6 py-5 text-base sm:px-8"
-							variant="secondary"
-						>
-							<Link href="/demo">Live Demo</Link>
-						</Button>
-					</div>
+						<SciFiButton asChild className="px-6 py-5">
+							<Link href="/demo">Live demo</Link>
+						</SciFiButton>
+					</motion.div>
 				</div>
 
-				<div className="mt-8 w-full sm:mt-10">
-					<div className="group relative overflow-visible">
-						<div
-							aria-hidden
-							className="pointer-events-none absolute bottom-full z-30 translate-y-8.5 sm:right-2 sm:translate-y-11 md:right-8 md:translate-y-11"
-						>
-							<Image
-								alt=""
-								className="h-22 w-auto select-none drop-shadow-sm sm:h-26 lg:h-30"
-								height={220}
-								priority={false}
-								src="/brand/bunny/off-black.svg"
-								unoptimized
-								width={220}
-							/>
+				<div className="z-10 mt-5 space-y-0">
+					<div className="flex justify-center">
+						<div className="relative flex items-center gap-0 rounded-t-lg border-border border-b bg-background">
+							{tabs.map((tab) => {
+								const isActive = activeTab === tab.id;
+								return (
+									<button
+										className={cn(
+											"relative cursor-pointer px-4 py-3 font-medium text-sm transition-colors duration-200 sm:px-6 sm:py-3.5 sm:text-base",
+											isActive
+												? "text-foreground"
+												: "text-muted-foreground hover:text-foreground"
+										)}
+										key={tab.id}
+										onClick={() => selectTab(tab.id)}
+										type="button"
+									>
+										{tab.label}
+										{isActive ? (
+											<div className="absolute right-0 bottom-0 left-0 h-0.5 bg-foreground" />
+										) : null}
+									</button>
+								);
+							})}
 						</div>
-						<div className="flex justify-center overflow-x-auto">
-							<div
-								className="inline-flex max-w-full items-end rounded-t border border-border/50 bg-muted backdrop-blur-sm"
-								role="tablist"
-							>
-								{tabs.map((tab) => {
-									const isActive = activeTab === tab.id;
-									return (
-										<button
-											aria-selected={isActive}
-											className={cn(
-												"relative shrink-0 cursor-pointer px-3 py-2 font-medium text-xs transition-colors duration-200 sm:px-4 sm:py-2.5 sm:text-sm",
-												isActive
-													? "text-foreground"
-													: "text-muted-foreground hover:text-foreground"
-											)}
-											key={tab.id}
-											onClick={() => selectTab(tab.id)}
-											role="tab"
-											type="button"
-										>
-											{tab.label}
-											{isActive ? (
-												<div className="absolute right-2 bottom-0 left-2 h-px rounded bg-foreground sm:right-3 sm:left-3" />
-											) : null}
-										</button>
-									);
-								})}
-							</div>
-						</div>
+					</div>
 
-						<div className="relative px-1.5 pt-0 pb-1.5 sm:px-2 sm:pb-2">
-							<div className="relative min-h-[360px] overflow-hidden rounded bg-muted sm:min-h-[460px] lg:min-h-[540px]">
+					<div className="relative">
+						<Image
+							alt="bunny"
+							className="pointer-events-none absolute right-0 bottom-full z-30 mb-0 hidden w-40 max-w-[min(100%,10rem)] md:right-0 lg:right-20 lg:block"
+							height={160}
+							src="/brand/bunny/off-black.svg"
+							width={160}
+						/>
+						<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
+							<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">
 								{tabs.map((tab) => {
 									const isActive = activeTab === tab.id;
 									const src = loadedTabIds.has(tab.id)
@@ -177,7 +176,7 @@ export default function Hero({
 											allowFullScreen
 											aria-hidden={!isActive}
 											className={cn(
-												"h-[360px] w-full rounded border-0 bg-muted shadow-inner sm:h-[460px] lg:h-[540px]",
+												"h-[400px] w-full rounded border-0 bg-muted shadow-inner sm:h-[500px] lg:h-[600px]",
 												isActive
 													? "relative z-10"
 													: "pointer-events-none absolute inset-0 z-0 opacity-0"

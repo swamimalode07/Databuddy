@@ -22,7 +22,7 @@ export const Wordmark = () => {
 							gradientSize={100}
 							gradientTo="#B74677"
 							height={149}
-							strokeColor="#27282D"
+							strokeColor="#373840"
 							width={1166}
 						>
 							<defs>
