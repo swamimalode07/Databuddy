@@ -1,5 +1,7 @@
 import "./polyfills/compression";
 import { auth } from "@databuddy/auth";
+import { setChRecordFn } from "@databuddy/db/clickhouse";
+import { setCacheTraceFn } from "@databuddy/redis";
 import {
 	appRouter,
 	createAbortSignalInterceptor,
@@ -25,7 +27,7 @@ import {
 	flushBatchedApiDrain,
 } from "@/lib/evlog-api";
 import { initTccTracing, shutdownTccTracing } from "@/lib/tcc-otel";
-import { captureError } from "@/lib/tracing";
+import { captureError, record } from "@/lib/tracing";
 import { agent } from "./routes/agent";
 import { health } from "./routes/health";
 import { insights } from "./routes/insights";
@@ -41,6 +43,13 @@ initLogger({
 		rates: { info: 20, warn: 50, debug: 5 },
 		keep: [{ status: 400 }, { duration: 1500 }],
 	},
+});
+
+setChRecordFn(record);
+setCacheTraceFn((fields) => {
+	try {
+		useLogger().set(fields);
+	} catch {}
 });
 
 try {

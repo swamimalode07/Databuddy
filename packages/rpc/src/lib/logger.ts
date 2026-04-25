@@ -1,4 +1,5 @@
 import { log } from "evlog";
+import { useLogger as getRequestLogger } from "evlog/elysia";
 
 const base = { service: "rpc" as const };
 
@@ -29,3 +30,18 @@ export const logger = {
 	warn: (fieldsOrMessage: Fields | string, message?: string) =>
 		emit("warn", fieldsOrMessage, message),
 };
+
+export async function record<T>(
+	name: string,
+	fn: () => Promise<T> | T
+): Promise<T> {
+	const start = performance.now();
+	try {
+		return await fn();
+	} finally {
+		const ms = Math.round((performance.now() - start) * 100) / 100;
+		try {
+			getRequestLogger().set({ [`timing.${name}`]: ms });
+		} catch {}
+	}
+}

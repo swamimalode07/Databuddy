@@ -16,7 +16,7 @@ import { cacheable } from "@databuddy/redis";
 import type { PlanId } from "@databuddy/shared/types/features";
 import { z } from "zod";
 import { rpcError } from "../errors";
-import { logger } from "../lib/logger";
+import { logger, record } from "../lib/logger";
 import { type Context, os } from "../orpc";
 
 type Website = NonNullable<Awaited<ReturnType<typeof getWebsiteById>>>;
@@ -123,18 +123,22 @@ async function resolveUserWorkspace(
 		plan: PlanId;
 	}
 ): Promise<Omit<Workspace, "website" | "getCreatedBy">> {
-	const role = await getOrganizationRole(context.user.id, organizationId);
+	const role = await record("ws.getOrgRole", () =>
+		getOrganizationRole(context.user.id, organizationId)
+	);
 	if (!role) {
 		throw rpcError.forbidden("You are not a member of this organization");
 	}
 
 	if (options.permissions.length > 0) {
 		try {
-			const allowed = await checkPermissions(
-				context.headers,
-				options.resource as ResourceType,
-				options.permissions as PermissionFor<ResourceType>[],
-				organizationId
+			const allowed = await record("ws.checkPermissions", () =>
+				checkPermissions(
+					context.headers,
+					options.resource as ResourceType,
+					options.permissions as PermissionFor<ResourceType>[],
+					organizationId
+				)
 			);
 			if (!allowed) {
 				throw rpcError.forbidden(
@@ -224,7 +228,9 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 	let website: Website | null = null;
 
 	if (websiteId) {
-		const found = await getWebsiteById(websiteId);
+		const found = await record("ws.getWebsiteById", () =>
+			getWebsiteById(websiteId)
+		);
 		if (!found) {
 			throw rpcError.notFound("website", websiteId);
 		}
@@ -255,7 +261,7 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 		throw rpcError.badRequest("Workspace is required");
 	}
 
-	const plan = await getPlan(context);
+	const plan = await record("ws.getPlan", () => getPlan(context));
 	requirePlan(plan, requiredPlans);
 
 	const resolvedResource = websiteId
@@ -268,14 +274,16 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 	const getCreatedBy = () => _resolveCreatedBy(context, organizationId);
 
 	if (context.user) {
-		const ws = await resolveUserWorkspace(
-			context as Context & { user: User },
-			organizationId,
-			{
-				resource: resolvedResource,
-				permissions: resolvedPermissions,
-				plan,
-			}
+		const ws = await record("ws.resolveUser", () =>
+			resolveUserWorkspace(
+				context as Context & { user: User },
+				organizationId,
+				{
+					resource: resolvedResource,
+					permissions: resolvedPermissions,
+					plan,
+				}
+			)
 		);
 		return { ...ws, website, getCreatedBy };
 	}
