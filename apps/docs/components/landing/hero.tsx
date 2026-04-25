@@ -84,7 +84,7 @@ export default function Hero({
 		<section className="relative mx-auto flex w-full flex-col items-center">
 			{/* <Spotlight transform="translateX(-60%) translateY(-50%)" /> */}
 			<BackgroundFlow />
-			<div className="mx-auto w-full max-w-7xl px-4 pt-26 pb-8 sm:px-14 sm:pt-34 lg:px-8 lg:pt-38">
+			<div className="mx-auto w-full max-w-7xl px-4 pt-26 pb-8 sm:px-14 sm:pt-28 lg:px-8 lg:pt-28">
 				<div className="mx-auto flex max-w-7xl flex-col items-start space-y-2 text-left">
 					<motion.h1
 						animate={{ opacity: 1, y: 0 }}
