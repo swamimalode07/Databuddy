@@ -2,12 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Card } from "@/components/ds/card";
+import { TopBar } from "@/components/layout/top-bar";
+import { Skeleton } from "@/components/ds/skeleton";
 import { orpc } from "@/lib/orpc";
-import { FeedbackCreditsCard } from "./components/feedback-credits-card";
-import { FeedbackTable } from "./components/feedback-table";
+import { FeedbackList } from "./components/feedback-list";
+import { CreditsPanel } from "./components/credits-panel";
 import { RedeemDialog } from "./components/redeem-dialog";
-import { ShopRewardCard } from "./components/shop-reward-card";
+import { SubmitFeedbackDialog } from "./components/submit-feedback-dialog";
 
 const REWARD_TIERS = [
 	{ creditsRequired: 50, rewardType: "events", rewardAmount: 1000 },
@@ -24,49 +25,37 @@ export default function FeedbackPage() {
 	const [redeemTier, setRedeemTier] = useState<number | null>(null);
 
 	return (
-		<div className="flex-1 overflow-y-auto">
-			<div className="mx-auto max-w-2xl space-y-6 p-5">
-				<FeedbackCreditsCard
-					available={balance?.available ?? 0}
-					isLoading={isBalanceLoading}
-					totalEarned={balance?.totalEarned ?? 0}
-					totalSpent={balance?.totalSpent ?? 0}
-				/>
+		<div className="flex h-full flex-col">
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Feedback & Credits</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<SubmitFeedbackDialog />
+			</TopBar.Actions>
 
-				<FeedbackTable />
+			<div className="flex-1 overflow-y-auto">
+				<div className="mx-auto grid max-w-5xl gap-5 p-5 lg:grid-cols-[1fr_320px]">
+					<FeedbackList />
 
-				<Card>
-					<Card.Header>
-						<Card.Title>Credits Shop</Card.Title>
-						<Card.Description>
-							Exchange earned credits for extra event balance
-						</Card.Description>
-					</Card.Header>
-					<Card.Content>
-						<div className="grid gap-3 sm:grid-cols-2">
-							{REWARD_TIERS.map((tier, index) => (
-								<ShopRewardCard
-									availableCredits={balance?.available ?? 0}
-									creditsRequired={tier.creditsRequired}
-									isRedeeming={redeemTier === index}
-									key={tier.creditsRequired}
-									onRedeemAction={() => setRedeemTier(index)}
-									rewardAmount={tier.rewardAmount}
-									rewardType={tier.rewardType}
-								/>
-							))}
-						</div>
-					</Card.Content>
-				</Card>
+					<div className="space-y-5 lg:sticky lg:top-0 lg:self-start">
+						<CreditsPanel
+							available={balance?.available ?? 0}
+							isLoading={isBalanceLoading}
+							onRedeemAction={setRedeemTier}
+							redeemingTier={redeemTier}
+							tiers={REWARD_TIERS}
+							totalEarned={balance?.totalEarned ?? 0}
+							totalSpent={balance?.totalSpent ?? 0}
+						/>
+					</div>
+				</div>
 			</div>
 
 			{redeemTier !== null && (
 				<RedeemDialog
 					creditsRequired={REWARD_TIERS[redeemTier].creditsRequired}
 					onOpenChangeAction={(open) => {
-						if (!open) {
-							setRedeemTier(null);
-						}
+						if (!open) setRedeemTier(null);
 					}}
 					open
 					rewardAmount={REWARD_TIERS[redeemTier].rewardAmount}
