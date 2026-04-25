@@ -1,5 +1,6 @@
 import { auth, type User } from "@databuddy/auth";
 import type { Context } from "@databuddy/rpc";
+import type { AuthUser } from "./auth";
 import { db } from "./db";
 
 type TestUser = { id: string; name: string; email: string } & Partial<
@@ -58,4 +59,41 @@ export function context(overrides: ContextOverrides = {}): Context {
 		organizationId: overrides.organizationId ?? null,
 		headers: overrides.headers ?? new Headers(),
 	};
+}
+
+export function userContext(user: AuthUser, orgId: string): Context {
+	return context({
+		user: { id: user.id, name: "test", email: user.email },
+		organizationId: orgId,
+		headers: user.headers,
+	});
+}
+
+export function apiKeyContext(
+	orgId: string,
+	scopes: string[],
+	targetOrgId?: string
+): Context {
+	const apiKey: Context["apiKey"] = {
+		id: `key-${Math.random().toString(36).slice(2, 6)}`,
+		name: "Test Key",
+		prefix: "db_test",
+		start: "test",
+		keyHash: `hash-${Math.random().toString(36).slice(2, 6)}`,
+		userId: null,
+		organizationId: orgId,
+		type: "user",
+		scopes,
+		enabled: true,
+		revokedAt: null,
+		rateLimitEnabled: false,
+		rateLimitTimeWindow: null,
+		rateLimitMax: null,
+		expiresAt: null,
+		lastUsedAt: null,
+		metadata: {},
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	return context({ apiKey, organizationId: targetOrgId ?? orgId });
 }

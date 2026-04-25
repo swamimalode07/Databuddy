@@ -11,7 +11,7 @@ import { StepCreateWebsite } from "./_components/step-create-website";
 import { StepExplore } from "./_components/step-explore";
 import { StepInstallTracking } from "./_components/step-install-tracking";
 import { StepInviteTeam } from "./_components/step-invite-team";
-import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon, ArrowRightIcon } from "@databuddy/ui/icons";
 
 const STEPS = [
 	{

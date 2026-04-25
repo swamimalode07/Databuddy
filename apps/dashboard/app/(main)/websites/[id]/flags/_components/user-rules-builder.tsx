@@ -13,7 +13,7 @@ import {
 	TrashIcon,
 	UserIcon,
 	WrenchIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const TARGET_TYPES = [
 	{ value: "user_id", label: "User ID", icon: UserIcon },

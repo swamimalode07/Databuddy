@@ -14,7 +14,7 @@ import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
 } from "@/stores/jotai/filterAtoms";
-import { ArrowSquareOutIcon, FunnelIcon } from "@/components/icons/nucleo";
+import { ArrowSquareOutIcon, FunnelIcon } from "@databuddy/ui/icons";
 
 export default function EventsStreamPage() {
 	const params = useParams();

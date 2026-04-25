@@ -25,7 +25,7 @@ import {
 	ChartLineUpIcon,
 	LightningIcon,
 	ListBulletsIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const {
 	Area,

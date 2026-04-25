@@ -22,7 +22,7 @@ import { TagsInput } from "@/components/ds/tags-input";
 import { Text } from "@/components/ds/text";
 import { Textarea } from "@/components/ds/textarea";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { type ApiKeyListItem, SCOPE_OPTIONS } from "./api-key-types";
@@ -41,7 +41,7 @@ import {
 	GlobeIcon,
 	ProhibitIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface ApiKeySheetProps {
 	apiKey: ApiKeyListItem | null;

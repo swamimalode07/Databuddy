@@ -6,7 +6,7 @@ import { StatCard } from "@/components/analytics/stat-card";
 import { Card } from "@/components/ds/card";
 import { Select } from "@/components/ds/select";
 import { Text } from "@/components/ds/text";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import type {
 	ChartCurveType,
 	ChartSeriesKind,
@@ -36,7 +36,7 @@ import {
 	StackIcon,
 	SunIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const MOCK_CHART_DATA = [
 	{ date: "2024-01-01", value: 186 },

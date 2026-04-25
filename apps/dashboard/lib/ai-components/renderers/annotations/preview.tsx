@@ -14,7 +14,7 @@ import {
 	NoteIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface AnnotationPreviewData {
 	annotationType: "point" | "line" | "range";

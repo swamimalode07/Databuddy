@@ -22,7 +22,7 @@ import {
 	normalizeUrlInput,
 	stripProtocol,
 } from "./link-utils";
-import { ArrowLeftIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon } from "@databuddy/ui/icons";
 
 const deepLinkFormSchema = z.object({
 	name: z.string().min(1, "Name is required").max(255),

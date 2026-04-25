@@ -21,7 +21,7 @@ import {
 	ImageIcon,
 	VideoIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface OgData {
 	ogDescription: string;

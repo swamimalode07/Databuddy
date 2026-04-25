@@ -27,7 +27,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import {
 	Table,
 	TableBody,
@@ -37,7 +37,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { formatTime, fromNow } from "@/lib/time";
+import { formatTime, fromNow } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import {
@@ -48,7 +48,7 @@ import {
 	LinkIcon,
 	MagnifyingGlassIcon,
 	TagIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface RecentCustomEvent {
 	anonymous_id: string;

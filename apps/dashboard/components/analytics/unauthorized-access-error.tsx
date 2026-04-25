@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
-import { WarningIcon } from "@/components/icons/nucleo";
+import { WarningIcon } from "@databuddy/ui/icons";
 
 export function UnauthorizedAccessError() {
 	const router = useRouter();

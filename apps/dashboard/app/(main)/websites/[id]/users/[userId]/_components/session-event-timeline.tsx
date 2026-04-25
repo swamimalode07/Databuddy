@@ -2,14 +2,14 @@
 
 import type { SessionEvent } from "@databuddy/shared/types/sessions";
 import { Badge } from "@/components/ds/badge";
-import { formatLocalTime } from "@/lib/time";
+import { formatLocalTime } from "@databuddy/ui";
 import { cleanUrl, formatPropertyValue, getDisplayPath } from "./session-utils";
 import {
 	CursorClickIcon,
 	FileTextIcon,
 	LightningIcon,
 	TagIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SessionEventTimelineProps {
 	events: SessionEvent[];

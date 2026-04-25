@@ -23,7 +23,7 @@ import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { metricVisibilityAtom } from "@/stores/jotai/chartAtoms";
 import {
 	calculatePercentChange,
@@ -39,7 +39,7 @@ import {
 	GlobeIcon,
 	TimerIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const GeoMapSection = dynamic(() =>
 	import("./overview/_components/geo-map-section").then((mod) => ({

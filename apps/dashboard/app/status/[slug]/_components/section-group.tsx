@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { CaretDownIcon } from "@/components/icons/nucleo";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 
 interface SectionGroupProps {
 	children: React.ReactNode;

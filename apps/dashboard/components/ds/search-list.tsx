@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Command as CommandPrimitive } from "cmdk";
 import type { ComponentPropsWithoutRef } from "react";
-import { MagnifyingGlassIcon } from "@/components/icons/nucleo";
+import { MagnifyingGlassIcon } from "@databuddy/ui/icons";
 
 function Root({
 	className,

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
-import { ArrowLeftIcon, EnvelopeIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon, EnvelopeIcon } from "@databuddy/ui/icons";
 
 function MagicSentPage() {
 	const [email] = useQueryState("email", parseAsString.withDefault(""));

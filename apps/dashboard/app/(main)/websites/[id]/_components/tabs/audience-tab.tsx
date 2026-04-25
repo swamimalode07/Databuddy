@@ -4,7 +4,7 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { BrowserIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
@@ -21,7 +21,7 @@ import {
 	DeviceMobileIcon,
 	DeviceTabletIcon,
 	MonitorIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface BrowserVersion {
 	pageviews: number;

@@ -19,7 +19,7 @@ import {
 	LockSimpleIcon,
 	RocketLaunchIcon,
 	StarIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const PLAN_CONFIG: Record<
 	string,

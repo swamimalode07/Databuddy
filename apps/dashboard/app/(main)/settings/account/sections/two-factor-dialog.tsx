@@ -14,14 +14,15 @@ import { OtpInput } from "@/components/ds/otp-input";
 import { Text } from "@/components/ds/text";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
-import { KeyIcon, ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr";
 import {
 	CaretDownIcon,
 	CheckCircleIcon,
 	CopyIcon,
 	DeviceMobileIcon,
+	KeyIcon,
+	ShieldCheckIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type TwoFactorStep =
 	| "set-password"
@@ -222,10 +223,7 @@ export function TwoFactorDialog({
 
 						<Dialog.Body className="space-y-4">
 							<div className="flex items-start gap-2 rounded-md border border-blue-500/20 bg-blue-500/5 p-3">
-								<KeyIcon
-									className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400"
-									weight="duotone"
-								/>
+								<KeyIcon className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
 								<Text
 									className="text-blue-600 dark:text-blue-400"
 									variant="caption"
@@ -472,10 +470,7 @@ export function TwoFactorDialog({
 
 						<Dialog.Body className="space-y-4">
 							<div className="flex items-start gap-2 rounded-md border border-success/20 bg-success/5 p-3">
-								<ShieldCheckIcon
-									className="mt-0.5 size-4 shrink-0 text-success"
-									weight="duotone"
-								/>
+								<ShieldCheckIcon className="mt-0.5 size-4 shrink-0 text-success" />
 								<Text className="text-success" variant="caption">
 									Two-factor authentication is active. Your account has an extra
 									layer of security.

@@ -11,7 +11,7 @@ import {
 	UserIcon,
 	UsersThreeIcon,
 	WrenchIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface GroupItemProps {
 	group: TargetGroup;

@@ -1,6 +1,11 @@
 "use client";
 
-import { CheckIcon, CopyIcon, FloppyDiskIcon } from "@/components/icons/nucleo";
+import {
+	CheckIcon,
+	CopyIcon,
+	FloppyDiskIcon,
+	IdBadgeIcon,
+} from "@databuddy/ui/icons";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
@@ -77,14 +82,26 @@ export function GeneralSettings({
 
 	return (
 		<div className="flex h-full flex-col">
-			<TopBar.Title>
-				<h1 className="font-semibold text-sm">General</h1>
-			</TopBar.Title>
+			<TopBar.Breadcrumbs
+				items={[
+					{ label: "Settings", href: "/organizations/settings" },
+					{ label: "General" },
+				]}
+			/>
 			{hasChanges && (
 				<TopBar.Actions>
-					<Button loading={isSaving} onClick={handleSave} size="sm">
+					<Button
+						keyboard={{
+							display: "⌘S",
+							trigger: (e) => (e.metaKey || e.ctrlKey) && e.key === "s",
+							callback: handleSave,
+						}}
+						loading={isSaving}
+						onClick={handleSave}
+						size="sm"
+					>
 						<FloppyDiskIcon className="size-4 shrink-0" />
-						{isSaving ? "Saving…" : "Save Changes"}
+						Save Changes
 					</Button>
 				</TopBar.Actions>
 			)}
@@ -112,6 +129,9 @@ export function GeneralSettings({
 						</Card.Header>
 						<Card.Content className="space-y-5">
 							<div className="flex items-center gap-3 rounded bg-secondary px-4 py-3">
+								<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent">
+									<IdBadgeIcon className="size-4 text-muted-foreground" />
+								</div>
 								<div className="min-w-0 flex-1">
 									<p className="font-semibold text-foreground text-xs">
 										Workspace ID

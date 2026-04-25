@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { CountryFlag } from "@/components/icon";
 import { Card } from "@/components/ds/card";
 import type { BaseComponentProps } from "../types";
-import { GlobeIcon } from "@/components/icons/nucleo";
+import { GlobeIcon } from "@databuddy/ui/icons";
 
 const MapComponent = dynamic(
 	() =>

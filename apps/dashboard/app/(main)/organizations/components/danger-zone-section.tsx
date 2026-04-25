@@ -1,15 +1,13 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
+import { SettingsZone, SettingsZoneRow } from "@databuddy/ui";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { Dialog } from "@/components/ds/dialog";
 import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
-import { Text } from "@/components/ds/text";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
-
-import { SignOutIcon, TrashIcon, WarningIcon } from "@/components/icons/nucleo";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -99,56 +97,30 @@ export function DangerZoneSection({
 				</Card.Content>
 			</Card>
 
-			<Card className="border-destructive/20">
-				<Card.Content>
-					<div className="flex items-center justify-between gap-4">
-						<div className="flex items-start gap-3">
-							<div className="flex size-8 items-center justify-center rounded-md bg-destructive/10">
-								<WarningIcon className="size-4 shrink-0 text-destructive" />
-							</div>
-							<div>
-								<Text variant="label">
-									{isOwner === null
-										? "Loading..."
-										: isOwner
-											? "Delete Organization"
-											: "Leave Organization"}
-								</Text>
-								<Text tone="muted" variant="caption">
-									{isOwner === null
-										? "Checking permissions..."
-										: isOwner
-											? "Permanently delete this organization and all data"
-											: "You will lose access to all resources"}
-								</Text>
-							</div>
-						</div>
-						{isOwner === null ? (
-							<Button disabled size="sm" tone="danger">
-								Loading
-							</Button>
-						) : isOwner ? (
-							<Button
-								onClick={() => setShowDeleteDialog(true)}
-								size="sm"
-								tone="danger"
-							>
-								<TrashIcon className="size-4 shrink-0" />
-								Delete
-							</Button>
-						) : (
-							<Button
-								onClick={() => setShowLeaveDialog(true)}
-								size="sm"
-								tone="danger"
-							>
-								<SignOutIcon className="size-4 shrink-0" />
-								Leave
-							</Button>
-						)}
-					</div>
-				</Card.Content>
-			</Card>
+			<SettingsZone title="Danger Zone" variant="danger">
+				<SettingsZoneRow
+					action={{
+						label: isOwner === null ? "Loading" : isOwner ? "Delete" : "Leave",
+						disabled: isOwner === null,
+						onClick: () =>
+							isOwner ? setShowDeleteDialog(true) : setShowLeaveDialog(true),
+					}}
+					description={
+						isOwner === null
+							? "Checking permissions..."
+							: isOwner
+								? "Permanently delete this organization and all data"
+								: "You will lose access to all resources"
+					}
+					title={
+						isOwner === null
+							? "Loading..."
+							: isOwner
+								? "Delete Organization"
+								: "Leave Organization"
+					}
+				/>
+			</SettingsZone>
 
 			<Dialog
 				onOpenChange={(open) => {

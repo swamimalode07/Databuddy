@@ -10,7 +10,7 @@ import { Card } from "@/components/ds/card";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { useFunnels } from "@/hooks/use-funnels";
-import { fromNow } from "@/lib/time";
+import { fromNow } from "@databuddy/ui";
 import type { CreateFunnelData, Funnel } from "@/types/funnels";
 import type { BaseComponentProps, FunnelStepInput } from "../../types";
 import {
@@ -20,7 +20,7 @@ import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface FunnelItem {
 	createdAt?: string;

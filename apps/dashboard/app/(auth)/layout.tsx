@@ -5,7 +5,7 @@ import { Text } from "@/components/ds/text";
 import { Logo } from "@/components/layout/logo";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CaretLeftIcon } from "@/components/icons/nucleo";
+import { CaretLeftIcon } from "@databuddy/ui/icons";
 
 export default function AuthLayout({
 	children,

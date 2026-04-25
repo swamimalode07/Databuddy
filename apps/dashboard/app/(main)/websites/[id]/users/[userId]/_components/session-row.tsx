@@ -15,7 +15,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { fromNow } from "@/lib/time";
+import { fromNow } from "@databuddy/ui";
 import { getDeviceIcon } from "@/lib/utils";
 import { generateSessionName } from "./generate-session-name";
 import { SessionEventTimeline } from "./session-event-timeline";
@@ -23,7 +23,7 @@ import {
 	ArrowSquareOutIcon,
 	CaretDownIcon,
 	CaretRightIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function getEventSortPriority(eventName: string): number {
 	if (eventName === "page_exit") {

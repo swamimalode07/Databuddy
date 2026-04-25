@@ -15,7 +15,7 @@ import { Tabs } from "@/components/ds/tabs";
 import { Text } from "@/components/ds/text";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { type Link, useCreateLink, useUpdateLink } from "@/hooks/use-links";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { LINKS_BASE_URL, LINKS_FULL_URL } from "./link-constants";
 import type { LinkFormData } from "./link-form-schema";
 import { linkFormSchema } from "./link-form-schema";
@@ -45,7 +45,7 @@ import {
 	CopyIcon,
 	DeviceMobileIcon,
 	ImageIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const DEFAULT_UTM_PARAMS: UtmParams = {
 	utm_source: "",

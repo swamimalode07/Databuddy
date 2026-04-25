@@ -7,11 +7,7 @@ import { Button } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
 import { LINKS_FULL_URL } from "./link-constants";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
-import {
-	CopyIcon,
-	DownloadSimpleIcon,
-	ImageIcon,
-} from "@/components/icons/nucleo";
+import { CopyIcon, DownloadSimpleIcon, ImageIcon } from "@databuddy/ui/icons";
 
 type QrStyle = "squares" | "dots";
 

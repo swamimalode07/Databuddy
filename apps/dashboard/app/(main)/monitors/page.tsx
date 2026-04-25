@@ -10,7 +10,7 @@ import { FeatureInviteDialog } from "@/components/organizations/feature-invite-d
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ import {
 	HeartbeatIcon,
 	PlusIcon,
 	UserPlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface Monitor {
 	cacheBust: boolean;

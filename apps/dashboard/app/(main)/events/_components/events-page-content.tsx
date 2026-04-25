@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { classifyEventProperties } from "./classify-properties";
 import { EventsList } from "./events-list";
 import { useEventsPageContext } from "./events-page-context";
@@ -33,7 +33,7 @@ import {
 	TagIcon,
 	TrendUpIcon,
 	UserIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export function EventsPageContent() {
 	const { dateRange, isLoadingOrg, query } = useEventsPageContext();

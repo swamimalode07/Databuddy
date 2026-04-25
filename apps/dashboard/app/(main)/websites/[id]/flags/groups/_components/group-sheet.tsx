@@ -20,7 +20,7 @@ import {
 	type UserRule,
 } from "../../_components/types";
 import { UserRulesBuilder } from "../../_components/user-rules-builder";
-import { CheckIcon, UsersThreeIcon } from "@/components/icons/nucleo";
+import { CheckIcon, UsersThreeIcon } from "@databuddy/ui/icons";
 
 const groupFormSchema = z.object({
 	name: z.string().min(1, "Name is required").max(100),

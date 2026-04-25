@@ -8,7 +8,7 @@ import { Text } from "@/components/ds/text";
 import { KeyboardShortcuts } from "@/components/ui/keyboard-shortcuts";
 import { cn } from "@/lib/utils";
 import { ChatCircleIcon, KeyboardIcon } from "@phosphor-icons/react/dist/ssr";
-import { BookOpenIcon, PlayIcon } from "@/components/icons/nucleo";
+import { BookOpenIcon, PlayIcon } from "@databuddy/ui/icons";
 
 interface HelpDialogProps {
 	onOpenChangeAction: (open: boolean) => void;

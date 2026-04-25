@@ -20,7 +20,7 @@ import {
 	revenueMetricVisibilityAtom,
 	toggleRevenueMetricAtom,
 } from "@/stores/jotai/chartAtoms";
-import { ChartLineIcon } from "@/components/icons/nucleo";
+import { ChartLineIcon } from "@databuddy/ui/icons";
 
 const {
 	Area,

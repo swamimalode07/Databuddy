@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import {
 	MinusIcon,
 	PlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const MAX_OVERFLOW = 30;
 

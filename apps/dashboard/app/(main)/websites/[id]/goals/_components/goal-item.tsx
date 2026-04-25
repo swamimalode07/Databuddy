@@ -2,7 +2,7 @@
 
 import { List } from "@/components/ui/composables/list";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import type { Goal } from "@/hooks/use-goals";
 import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ import {
 	MouseMiddleClickIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface GoalItemProps {
 	analytics?: {

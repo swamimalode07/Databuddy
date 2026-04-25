@@ -4,7 +4,7 @@ import { GATED_FEATURES } from "@databuddy/shared/types/features";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { FeatureGate } from "@/components/feature-gate";
-import { SpinnerIcon } from "@/components/icons/nucleo";
+import { SpinnerIcon } from "@databuddy/ui/icons";
 
 const RetentionContentDynamic = dynamic(
 	() =>

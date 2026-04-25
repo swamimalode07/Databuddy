@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { InsightCard } from "@/app/(main)/insights/_components/insight-card";
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import type { Insight } from "@/lib/insight-types";
 import { cn } from "@/lib/utils";
 import {
@@ -11,7 +11,7 @@ import {
 	CheckCircleIcon,
 	LightbulbIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function InsightRowWrapper({ insight }: { insight: Insight }) {
 	const [expanded, setExpanded] = useState(false);

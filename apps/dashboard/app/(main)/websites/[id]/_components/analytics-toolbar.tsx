@@ -8,7 +8,7 @@ import { Button } from "@/components/ds/button";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { cn } from "@/lib/utils";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { FiltersSection } from "./filters/filters-section";
 
 const MAX_HOURLY_DAYS = 7;

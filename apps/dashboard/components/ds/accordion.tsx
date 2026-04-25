@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Collapsible as BaseCollapsible } from "@base-ui-components/react/collapsible";
-import { CaretDownIcon } from "@/components/icons/nucleo";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 import type { ComponentPropsWithoutRef } from "react";
 
 function Root({

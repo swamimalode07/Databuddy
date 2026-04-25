@@ -11,15 +11,11 @@ import {
 	HoverCardContent,
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Skeleton } from "@/components/ds/skeleton";
-import dayjs from "@/lib/dayjs";
+import { Skeleton } from "@databuddy/ui";
+import { dayjs } from "@databuddy/ui";
 import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import {
-	MinusIcon,
-	TrendDownIcon,
-	TrendUpIcon,
-} from "@/components/icons/nucleo";
+import { MinusIcon, TrendDownIcon, TrendUpIcon } from "@databuddy/ui/icons";
 
 interface MiniChartDataPoint {
 	date: string;

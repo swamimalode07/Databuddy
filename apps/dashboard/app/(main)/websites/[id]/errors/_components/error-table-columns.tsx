@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ds/badge";
-import { formatLocalTime } from "@/lib/time";
+import { formatLocalTime } from "@databuddy/ui";
 import { getErrorTypeIcon } from "./error-icons";
 import { getErrorCategory, getSeverityColor } from "./utils";
-import { BugIcon } from "@/components/icons/nucleo";
+import { BugIcon } from "@databuddy/ui/icons";
 
 interface CellInfo<T = unknown> {
 	getValue: () => T;

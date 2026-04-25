@@ -1,4 +1,4 @@
-import { localDayjs } from "@/lib/time";
+import { localDayjs } from "../time";
 
 export interface UptimeHeatmapDay {
 	date: Date;

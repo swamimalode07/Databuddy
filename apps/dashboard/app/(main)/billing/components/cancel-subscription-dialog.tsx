@@ -5,7 +5,7 @@ import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
 import { Dialog } from "@/components/ds/dialog";
 import { Textarea } from "@/components/ds/textarea";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import {
 	ArrowLeftIcon,
@@ -16,7 +16,7 @@ import {
 	QuestionIcon,
 	SmileyIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface CancelSubscriptionDialogProps {
 	currentPeriodEnd?: number;

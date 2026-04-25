@@ -8,7 +8,7 @@ import {
 	CheckCircleIcon,
 	WarningCircleIcon,
 	XCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface StatusRootProps {
 	children: ReactNode;

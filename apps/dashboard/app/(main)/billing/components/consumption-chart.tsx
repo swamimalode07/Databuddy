@@ -9,7 +9,7 @@ import { METRIC_COLORS } from "@/components/charts/metrics-constants";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Tabs } from "@/components/ds/tabs";
 import { Chart } from "@/components/ui/composables/chart";
 import {
@@ -22,7 +22,7 @@ import {
 	chartTooltipHeaderRowClassName,
 } from "@/lib/chart-presentation";
 import { calculateOverageCost, type OverageInfo } from "../utils/billing-utils";
-import { CalendarIcon } from "@/components/icons/nucleo";
+import { CalendarIcon } from "@databuddy/ui/icons";
 
 type ViewMode = "daily" | "cumulative";
 

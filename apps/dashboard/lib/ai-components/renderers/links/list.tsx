@@ -11,7 +11,7 @@ import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { type Link, useDeleteLink } from "@/hooks/use-links";
-import { fromNow, localDayjs } from "@/lib/time";
+import { fromNow, localDayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../../types";
 import {
@@ -22,7 +22,7 @@ import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const BASE_URL = "dby.sh";
 

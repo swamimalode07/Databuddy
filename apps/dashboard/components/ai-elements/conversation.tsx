@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { Button } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
-import { ArrowDownIcon } from "@/components/icons/nucleo";
+import { ArrowDownIcon } from "@databuddy/ui/icons";
 
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
 

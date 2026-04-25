@@ -13,7 +13,7 @@ import {
 	CircleIcon,
 	GitBranchIcon,
 	PlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const EMPTY_VALUES: string[] = [];
 const EMPTY_FLAGS: Flag[] = [];

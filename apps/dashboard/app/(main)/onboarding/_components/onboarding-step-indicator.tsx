@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { CheckIcon } from "@/components/icons/nucleo";
+import { CheckIcon } from "@databuddy/ui/icons";
 
 interface Step {
 	id: string;

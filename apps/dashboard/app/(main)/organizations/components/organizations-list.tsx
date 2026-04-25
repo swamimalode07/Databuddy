@@ -14,14 +14,14 @@ import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { cn, getOrganizationInitials } from "@/lib/utils";
 import {
 	BuildingsIcon,
 	CaretRightIcon,
 	CheckCircleIcon,
 	PlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;

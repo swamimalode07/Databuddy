@@ -5,7 +5,7 @@ import {
 	ArrowClockwiseIcon,
 	CheckCircleIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { TopBar } from "@/components/layout/top-bar";
 import { List } from "@/components/ui/composables/list";
 import { listQueryOutcome } from "@/lib/list-query-outcome";

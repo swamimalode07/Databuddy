@@ -12,7 +12,7 @@ import {
 	CaretDownIcon,
 	CaretLeftIcon,
 	CaretRightIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type CalendarComponents = NonNullable<
 	ComponentProps<typeof DayPicker>["components"]

@@ -31,7 +31,7 @@ import {
 	UserIcon,
 	UserSettingsIcon,
 	Users3Icon as UsersThreeIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import type { NavigationGroup, NavigationItem } from "./types";
 
 export const createNavItem = (
@@ -74,9 +74,7 @@ export const mainNavigation: NavigationGroup[] = [
 	{
 		label: "",
 		pinToBottom: true,
-		items: [
-			createNavItem("Settings", GearIcon, "/organizations/settings"),
-		],
+		items: [createNavItem("Settings", GearIcon, "/organizations/settings")],
 	},
 ];
 
@@ -226,8 +224,12 @@ export function getNavContext(pathname: string): NavContext {
 
 export function getNavigation(pathname: string): NavigationGroup[] {
 	const ctx = getNavContext(pathname);
-	if (ctx === "website") return websiteNavigation;
-	if (ctx === "settings") return settingsNavigation;
+	if (ctx === "website") {
+		return websiteNavigation;
+	}
+	if (ctx === "settings") {
+		return settingsNavigation;
+	}
 	return mainNavigation;
 }
 
@@ -235,6 +237,8 @@ export function getNavDirection(
 	prev: NavContext,
 	next: NavContext
 ): "left" | "right" | null {
-	if (prev === next) return null;
+	if (prev === next) {
+		return null;
+	}
 	return CONTEXT_DEPTH[next] > CONTEXT_DEPTH[prev] ? "left" : "right";
 }

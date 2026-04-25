@@ -4212,3 +4212,80 @@ export const SignOutIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 	)
 );
 SignOutIcon.displayName = "SignOutIcon";
+
+export const KeyIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				d="M6.64636 12.3536C6.64636 12.9056 6.19866 13.3536 5.64636 13.3536C5.09406 13.3536 4.64636 12.9056 4.64636 12.3536C4.64636 11.8016 5.09406 11.3536 5.64636 11.3536C6.19866 11.3536 6.64636 11.8016 6.64636 12.3536Z"
+				data-color="color-2"
+				fill="currentColor"
+				opacity="0.4"
+			/>
+			<path
+				d="M12.4216 2.75L7.27299 7.8984C6.9446 7.8112 6.6059 7.75 6.25 7.75C4.0408 7.75 2.25 9.5408 2.25 11.75C2.25 13.9592 4.0408 15.75 6.25 15.75C8.4592 15.75 10.25 13.959 10.25 11.75C10.25 11.394 10.1887 11.0554 10.1014 10.7271L12.25 8.5789V6.5074H14.321L15.25 5.5784V2.75H12.4216Z"
+				fill="none"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.5"
+			/>
+		</NucleoIcon>
+	)
+);
+KeyIcon.displayName = "KeyIcon";
+
+export const ShieldCheckIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				d="M9.305,1.848l5.25,1.68c.414,.133,.695,.518,.695,.952v6.52c0,3.03-4.684,4.748-5.942,5.155-.203,.066-.413,.066-.616,0-1.258-.407-5.942-2.125-5.942-5.155V4.48c0-.435,.281-.82,.695-.952l5.25-1.68c.198-.063,.411-.063,.61,0Z"
+				fill="none"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.5"
+			/>
+			<polyline
+				data-color="color-2"
+				fill="none"
+				points="6.497 9.75 8.106 11.25 11.503 6.75"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.5"
+			/>
+		</NucleoIcon>
+	)
+);
+ShieldCheckIcon.displayName = "ShieldCheckIcon";
+
+export const XMarkIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<line
+				fill="none"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.5"
+				x1="14"
+				x2="4"
+				y1="4"
+				y2="14"
+			/>
+			<line
+				fill="none"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.5"
+				x1="4"
+				x2="14"
+				y1="4"
+				y2="14"
+			/>
+		</NucleoIcon>
+	)
+);
+XMarkIcon.displayName = "XMarkIcon";

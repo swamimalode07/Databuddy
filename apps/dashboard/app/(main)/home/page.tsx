@@ -6,7 +6,7 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
 import { TopBar } from "@/components/layout/top-bar";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { WebsiteDialog } from "@/components/website-dialog";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
@@ -17,11 +17,7 @@ import { SummaryStats } from "./_components/summary-stats";
 import { useGlobalAnalytics } from "./hooks/use-global-analytics";
 import { usePulseStatus } from "./hooks/use-pulse-status";
 import { useSmartInsights } from "./hooks/use-smart-insights";
-import {
-	ArrowClockwiseIcon,
-	GlobeIcon,
-	PlusIcon,
-} from "@/components/icons/nucleo";
+import { ArrowClockwiseIcon, GlobeIcon, PlusIcon } from "@databuddy/ui/icons";
 
 function WebsiteCardSkeleton() {
 	return (

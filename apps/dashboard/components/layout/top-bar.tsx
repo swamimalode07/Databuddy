@@ -9,12 +9,24 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { authClient } from "@databuddy/auth/client";
+import { Avatar } from "@/components/ds/avatar";
 import { Button } from "@/components/ds/button";
+import { DropdownMenu } from "@/components/ds/dropdown-menu";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
+import {
+	BugIcon,
+	CalendarIcon,
+	EnvelopeIcon,
+	MagnifyingGlassIcon,
+	MsgContentIcon,
+} from "@databuddy/ui/icons";
 import { useCommandSearchOpenAction } from "@/components/ui/command-search";
+import { useRouter } from "next/navigation";
 import { PendingInvitationsButton } from "./pending-invitations-button";
+import { getInitials, ProfileDropdownContent } from "./profile-button-client";
 import { SidebarTrigger } from "./sidebar-layout";
-import { MagnifyingGlassIcon, MsgContentIcon } from "@/components/icons/nucleo";
-import Link from "next/link";
 
 type SlotMap = Map<string, ReactNode>;
 type Listener = () => void;
@@ -110,6 +122,53 @@ function TopBarActions({ children }: { children: ReactNode }) {
 	return null;
 }
 
+interface BreadcrumbItem {
+	href?: string;
+	label: string;
+}
+
+function TopBarBreadcrumbs({
+	items,
+	icon,
+}: {
+	icon?: ReactNode;
+	items: BreadcrumbItem[];
+}) {
+	const content = (
+		<nav aria-label="breadcrumb" className="flex items-center gap-2">
+			{icon && (
+				<span className="flex size-6 items-center justify-center rounded bg-secondary text-muted-foreground">
+					{icon}
+				</span>
+			)}
+			<ol className="flex items-center gap-1.5">
+				{items.map((item, i) => {
+					const isLast = i === items.length - 1;
+					return (
+						<li className="flex items-center gap-1.5" key={item.label}>
+							{i > 0 && <span className="text-muted-foreground/40">/</span>}
+							{isLast || !item.href ? (
+								<span className="font-semibold text-foreground text-sm">
+									{item.label}
+								</span>
+							) : (
+								<a
+									className="text-muted-foreground text-sm hover:text-foreground"
+									href={item.href}
+								>
+									{item.label}
+								</a>
+							)}
+						</li>
+					);
+				})}
+			</ol>
+		</nav>
+	);
+	useTopBarSlot("title", content);
+	return null;
+}
+
 export function TopBarProvider({ children }: { children: ReactNode }) {
 	const storeRef = useRef<TopBarStore | null>(null);
 	if (!storeRef.current) {
@@ -118,6 +177,92 @@ export function TopBarProvider({ children }: { children: ReactNode }) {
 
 	return (
 		<TopBarStoreContext value={storeRef.current}>{children}</TopBarStoreContext>
+	);
+}
+
+function HelpMenu() {
+	const router = useRouter();
+
+	return (
+		<DropdownMenu>
+			<DropdownMenu.Trigger
+				aria-label="Help & feedback"
+				className="flex size-8 items-center justify-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground"
+				render={<button type="button" />}
+			>
+				<MsgContentIcon className="size-4 shrink-0" />
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" className="w-48">
+				<DropdownMenu.Item onClick={() => router.push("/feedback")}>
+					<MsgContentIcon className="size-4 shrink-0" />
+					Feedback
+				</DropdownMenu.Item>
+				<DropdownMenu.Item
+					onClick={() => window.open("mailto:support@databuddy.cc", "_self")}
+				>
+					<EnvelopeIcon className="size-4 shrink-0" />
+					Contact Us
+				</DropdownMenu.Item>
+				<DropdownMenu.Item
+					onClick={() =>
+						window.open(
+							"https://github.com/databuddy-analytics/Databuddy/issues",
+							"_blank"
+						)
+					}
+				>
+					<BugIcon className="size-4 shrink-0" />
+					Report a Bug
+				</DropdownMenu.Item>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item
+					onClick={() =>
+						window.open("https://cal.com/databuddy/demo", "_blank")
+					}
+				>
+					<CalendarIcon className="size-4 shrink-0" />
+					Book a Meeting
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu>
+	);
+}
+
+function TopBarUserButton() {
+	const { data: session, isPending } = authClient.useSession();
+	const user = session?.user ?? null;
+	const [isOpen, setIsOpen] = useState(false);
+
+	if (isPending) {
+		return <Skeleton className="size-7 shrink-0 rounded-full" />;
+	}
+
+	if (!user) {
+		return null;
+	}
+
+	return (
+		<DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
+			<Tooltip content={user.email ?? "Account"} side="bottom">
+				<DropdownMenu.Trigger
+					aria-label="Profile menu"
+					className="flex size-7 items-center justify-center rounded-full hover:opacity-80"
+					render={<button type="button" />}
+				>
+					<Avatar
+						alt={user.name || "User"}
+						className="size-7"
+						fallback={getInitials(user.name, user.email)}
+						src={user.image || undefined}
+					/>
+				</DropdownMenu.Trigger>
+			</Tooltip>
+			<ProfileDropdownContent
+				isOpen={isOpen}
+				onClose={() => setIsOpen(false)}
+				user={user}
+			/>
+		</DropdownMenu>
 	);
 }
 
@@ -157,18 +302,9 @@ export function TopBar() {
 							⌘K
 						</kbd>
 					</Button>
-					<Button
-						aria-label="Feedback"
-						asChild
-						className="text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<Link href="/feedback">
-							<MsgContentIcon className="size-4 shrink-0" />
-						</Link>
-					</Button>
+					<HelpMenu />
 					{hasMounted && <PendingInvitationsButton />}
+					{hasMounted && <TopBarUserButton />}
 				</div>
 			</div>
 		</header>
@@ -177,3 +313,4 @@ export function TopBar() {
 
 TopBar.Title = TopBarTitle;
 TopBar.Actions = TopBarActions;
+TopBar.Breadcrumbs = TopBarBreadcrumbs;

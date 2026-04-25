@@ -14,7 +14,7 @@ import { isFlagSheetOpenAtom } from "@/stores/jotai/flagsAtoms";
 import { FlagSheet } from "./_components/flag-sheet";
 import { FlagsList, FlagsListSkeleton } from "./_components/flags-list";
 import type { Flag, TargetGroup } from "./_components/types";
-import { FlagIcon } from "@/components/icons/nucleo";
+import { FlagIcon } from "@databuddy/ui/icons";
 
 export default function FlagsPage() {
 	const { id } = useParams();

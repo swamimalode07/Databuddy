@@ -14,7 +14,7 @@ import {
 	CopyIcon,
 	PencilIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SavedFiltersMenuProps {
 	currentFilters: DynamicQueryFilter[];

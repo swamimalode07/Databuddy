@@ -3,10 +3,10 @@
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
 import type { Link } from "@/hooks/use-links";
-import { fromNow, localDayjs } from "@/lib/time";
+import { fromNow, localDayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { getDeepLinkApp } from "@databuddy/shared/constants/deep-link-apps";
 import NextLink from "next/link";
@@ -21,7 +21,7 @@ import {
 	LinkIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function copyShortUrl(slug: string) {
 	navigator.clipboard

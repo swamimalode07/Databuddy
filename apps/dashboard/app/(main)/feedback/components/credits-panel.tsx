@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
-import { LightningIcon, RobotIcon, TrendUpIcon } from "@/components/icons/nucleo";
+import { Skeleton } from "@databuddy/ui";
+import { LightningIcon, RobotIcon, TrendUpIcon } from "@databuddy/ui/icons";
 import { cn } from "@/lib/utils";
 
 interface RewardTier {
@@ -59,7 +59,8 @@ function TierRow({
 			<div className="flex items-center gap-2.5">
 				<Icon className="size-4 shrink-0 text-foreground" />
 				<p className="font-semibold text-sm tabular-nums">
-					{tier.rewardAmount.toLocaleString()} {REWARD_LABELS[tier.rewardType] ?? tier.rewardType}
+					{tier.rewardAmount.toLocaleString()}{" "}
+					{REWARD_LABELS[tier.rewardType] ?? tier.rewardType}
 				</p>
 			</div>
 			<Button
@@ -120,10 +121,10 @@ export function CreditsPanel({
 				<p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
 					Available Credits
 				</p>
-				<p className="mt-1 font-semibold text-3xl tabular-nums text-foreground">
+				<p className="mt-1 font-semibold text-3xl text-foreground tabular-nums">
 					{available.toLocaleString()}
 				</p>
-				<div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+				<div className="mt-3 flex items-center gap-4 text-muted-foreground text-xs">
 					<span className="flex items-center gap-1 tabular-nums">
 						<TrendUpIcon className="size-3.5 shrink-0 text-success" />
 						{totalEarned.toLocaleString()} earned

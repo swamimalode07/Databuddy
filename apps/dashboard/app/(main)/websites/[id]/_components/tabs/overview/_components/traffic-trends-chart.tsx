@@ -19,9 +19,9 @@ import {
 	type ChartInteractiveFeatures,
 	mergeChartInteractiveFeatures,
 } from "@/components/ui/composables/chart";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
-import { usePersistentState } from "@/hooks/use-persistent-state";
+import { usePersistentState } from "@databuddy/ui";
 import {
 	ANNOTATION_STORAGE_KEYS,
 	CHART_ANNOTATION_STYLES,
@@ -35,7 +35,7 @@ import {
 	chartRechartsLegendInteractiveWrapperStyle,
 } from "@/lib/chart-presentation";
 import { chartQueryOutcome } from "@/lib/chart-query-outcome";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ import {
 	NoteIcon,
 	WarningCircleIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const {
 	Area,

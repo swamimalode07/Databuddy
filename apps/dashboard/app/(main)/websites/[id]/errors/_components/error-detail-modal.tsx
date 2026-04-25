@@ -8,16 +8,11 @@ import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
 import { Sheet } from "@/components/ds/sheet";
 import { cn } from "@/lib/utils";
-import { formatDateTime, fromNow } from "@/lib/time";
+import { formatDateTime, fromNow } from "@databuddy/ui";
 import { getDeviceIcon } from "./error-icons";
 import type { RecentError } from "./types";
 import { getErrorCategory, getSeverityColor } from "./utils";
-import {
-	BugIcon,
-	CheckIcon,
-	CopyIcon,
-	StackIcon,
-} from "@/components/icons/nucleo";
+import { BugIcon, CheckIcon, CopyIcon, StackIcon } from "@databuddy/ui/icons";
 
 interface ErrorDetailModalProps {
 	error: RecentError;

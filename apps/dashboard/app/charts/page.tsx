@@ -8,7 +8,7 @@ import {
 	ChartLineIcon,
 	ChartPieIcon,
 	WaveformIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function generateChartData(days: number, baseValue: number, variance: number) {
 	const data: { date: string; value: number }[] = [];

@@ -30,7 +30,7 @@ import {
 	CommandIcon,
 	GlobeIcon,
 	MagnifyingGlassIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SearchItem {
 	alpha?: boolean;

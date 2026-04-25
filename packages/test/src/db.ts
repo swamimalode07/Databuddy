@@ -12,6 +12,19 @@ export type DB = NodePgDatabase<typeof schema>;
 let pool: Pool | null = null;
 let instance: DB | null = null;
 
+export const hasTestDb = await (async () => {
+	const p = new Pool({ connectionString: DATABASE_URL, max: 1 });
+	try {
+		const c = await p.connect();
+		c.release();
+		return true;
+	} catch {
+		return false;
+	} finally {
+		await p.end();
+	}
+})();
+
 export function db(): DB {
 	if (!instance) {
 		pool = new Pool({

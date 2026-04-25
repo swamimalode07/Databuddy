@@ -3,7 +3,7 @@
 import { generateId } from "ai";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ds/button";
-import { PlusIcon } from "@/components/icons/nucleo";
+import { PlusIcon } from "@databuddy/ui/icons";
 
 export function NewChatButton() {
 	const router = useRouter();

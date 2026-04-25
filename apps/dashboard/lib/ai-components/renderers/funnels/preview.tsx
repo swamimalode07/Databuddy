@@ -18,7 +18,7 @@ import {
 	FunnelIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface FunnelPreviewData {
 	description?: string | null;

@@ -27,7 +27,7 @@ import { Button } from "@/components/ds/button";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useWebsites } from "@/hooks/use-websites";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { formatNumber } from "@/lib/formatters";
 import {
 	clearInsightsHistory,
@@ -50,7 +50,7 @@ import {
 	TimerIcon,
 	TrashIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const insightsFocusSiteAtom = atomWithStorage<string | null>(
 	"insights.focus-site",

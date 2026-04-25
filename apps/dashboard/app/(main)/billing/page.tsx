@@ -6,10 +6,10 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { Divider } from "@/components/ds/divider";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Text } from "@/components/ds/text";
 import { useBillingContext } from "@/components/providers/billing-provider";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import { TOPUP_PRODUCT_ID } from "@databuddy/shared/billing/topup-math";
 import type { UsageResponse } from "@databuddy/shared/types/billing";
@@ -37,7 +37,7 @@ import {
 	CrownIcon,
 	PlusIcon,
 	TrendUpIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface OrgUsageData {
 	balance?: number | null;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ds/button";
 import { Dialog } from "@/components/ds/dialog";
 import { Select } from "@/components/ds/select";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
-import { ArrowSquareOutIcon, WarningIcon } from "@/components/icons/nucleo";
+import { ArrowSquareOutIcon, WarningIcon } from "@databuddy/ui/icons";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;

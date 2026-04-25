@@ -12,7 +12,7 @@ import {
 	HeartbeatIcon,
 	PencilIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const granularityLabels: Record<string, string> = {
 	minute: "1m",

@@ -6,15 +6,11 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
 import { TopBar } from "@/components/layout/top-bar";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import { WebsiteCard } from "./_components/website-card";
-import {
-	ArrowClockwiseIcon,
-	GlobeIcon,
-	PlusIcon,
-} from "@/components/icons/nucleo";
+import { ArrowClockwiseIcon, GlobeIcon, PlusIcon } from "@databuddy/ui/icons";
 
 const WebsiteDialog = dynamic(
 	() => import("@/components/website-dialog").then((mod) => mod.WebsiteDialog),

@@ -5,7 +5,7 @@ import { cloneElement, memo, type ReactElement, type ReactNode } from "react";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { cn } from "@/lib/utils";
-import { PlusIcon } from "@/components/icons/nucleo";
+import { PlusIcon } from "@databuddy/ui/icons";
 
 export interface EmptyStateAction {
 	label: string;

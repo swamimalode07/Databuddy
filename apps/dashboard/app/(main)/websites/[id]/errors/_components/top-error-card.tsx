@@ -1,11 +1,7 @@
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import type { ErrorType } from "./types";
-import {
-	BugIcon,
-	UsersIcon,
-	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+import { BugIcon, UsersIcon, WarningCircleIcon } from "@databuddy/ui/icons";
 
 interface TopErrorCardProps {
 	isLoading?: boolean;

@@ -9,7 +9,7 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
 import { useWebsiteTransferToOrg } from "@/hooks/use-website-transfer-to-org";
 import { useWebsite } from "@/hooks/use-websites";
@@ -19,7 +19,7 @@ import {
 	BuildingsIcon,
 	InfoIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function TransferPageContent() {
 	const params = useParams();

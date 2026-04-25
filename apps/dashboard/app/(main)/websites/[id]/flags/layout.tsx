@@ -7,9 +7,9 @@ import { useParams, usePathname } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { PageNavigation } from "@/components/layout/page-navigation";
 import { Badge } from "@/components/ds/badge";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
-import { useHydrated } from "@/hooks/use-hydrated";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
+import { useHydrated } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import { isAnalyticsRefreshingAtom } from "@/stores/jotai/filterAtoms";
 import {
@@ -28,7 +28,7 @@ import {
 	LayoutIcon,
 	PlusIcon,
 	UsersThreeIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function FlagsLayout({
 	children,

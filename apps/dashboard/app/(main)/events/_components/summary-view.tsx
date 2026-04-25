@@ -22,7 +22,7 @@ import {
 	ArrowClockwiseIcon,
 	ChartBarIcon,
 	ListBulletsIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SummaryViewProps {
 	events: ClassifiedEvent[];

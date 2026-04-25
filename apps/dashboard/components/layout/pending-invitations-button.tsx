@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ds/badge";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Tooltip } from "@/components/ds/tooltip";
-import dayjs from "@/lib/dayjs";
+import { Tooltip } from "@databuddy/ui";
+import { dayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { useUserInvitations } from "./hooks/use-user-invitations";
-import { BuildingsIcon, EnvelopeIcon } from "@/components/icons/nucleo";
+import { BuildingsIcon, EnvelopeIcon } from "@databuddy/ui/icons";
 
 export function PendingInvitationsButton() {
 	const [isOpen, setIsOpen] = useState(false);

@@ -3,7 +3,7 @@
 import type { ElementType } from "react";
 import { Badge } from "@/components/ds/badge";
 import { List } from "@/components/ui/composables/list";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import {
 	ArrowDownIcon,
@@ -13,7 +13,7 @@ import {
 	LightningIcon,
 	WarningCircleIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface AnomalyItemData {
 	baselineMean: number;

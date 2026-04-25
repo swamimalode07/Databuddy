@@ -20,7 +20,7 @@ import { Button } from "@/components/ds/button";
 import { EditGoalDialog } from "./_components/edit-goal-dialog";
 import { GoalItemSkeleton } from "./_components/goal-item";
 import { GoalsList } from "./_components/goals-list";
-import { PlusIcon, TrendDownIcon } from "@/components/icons/nucleo";
+import { PlusIcon, TrendDownIcon } from "@databuddy/ui/icons";
 
 function GoalsListSkeleton() {
 	return (

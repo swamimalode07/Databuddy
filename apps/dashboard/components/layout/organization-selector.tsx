@@ -15,9 +15,9 @@ import {
 	GearIcon,
 	PlusIcon,
 	SpinnerGapIcon,
-} from "@/components/icons/nucleo";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
+} from "@databuddy/ui/icons";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
 import { CreateOrganizationDialog } from "@/components/organizations/create-organization-dialog";
 import { useBillingContext } from "@/components/providers/billing-provider";
 import {
@@ -33,8 +33,12 @@ function filterOrganizations<T extends { name: string; slug?: string | null }>(
 	orgs: T[] | undefined,
 	query: string
 ): T[] {
-	if (!orgs?.length) return [];
-	if (!query) return orgs;
+	if (!orgs?.length) {
+		return [];
+	}
+	if (!query) {
+		return orgs;
+	}
 	const q = query.toLowerCase();
 	return orgs.filter(
 		(org) =>
@@ -54,7 +58,12 @@ function OrgDropdownItems({
 	onCreateClick: () => void;
 	onNavigate: (href: string) => void;
 	onSelect: (id: string) => void;
-	organizations: Array<{ id: string; name: string; slug?: string | null; logo?: string | null }>;
+	organizations: Array<{
+		id: string;
+		name: string;
+		slug?: string | null;
+		logo?: string | null;
+	}>;
 	planLabel: string | null;
 }) {
 	return (
@@ -63,7 +72,8 @@ function OrgDropdownItems({
 				<DropdownMenu.Item
 					className={cn(
 						"flex h-9 items-center gap-2.5 rounded px-2.5 text-sm",
-						activeId === org.id && "bg-accent font-semibold text-accent-foreground"
+						activeId === org.id &&
+							"bg-accent font-semibold text-accent-foreground"
 					)}
 					key={org.id}
 					onClick={() => onSelect(org.id)}
@@ -129,7 +139,9 @@ export function OrganizationSelector({
 	};
 
 	const handleSelectOrganization = async (organizationId: string) => {
-		if (organizationId === activeOrganization?.id) return;
+		if (organizationId === activeOrganization?.id) {
+			return;
+		}
 
 		setIsSwitching(true);
 		setIsOpen(false);
@@ -196,11 +208,16 @@ export function OrganizationSelector({
 					<DropdownMenu
 						onOpenChange={(open) => {
 							setIsOpen(open);
-							if (!open) setQuery("");
+							if (!open) {
+								setQuery("");
+							}
 						}}
 						open={isOpen}
 					>
-						<Tooltip content={activeOrganization?.name ?? "Workspace"} side="right">
+						<Tooltip
+							content={activeOrganization?.name ?? "Workspace"}
+							side="right"
+						>
 							<DropdownMenu.Trigger
 								className="flex size-9 items-center justify-center rounded bg-sidebar-accent/50 hover:bg-sidebar-accent"
 								disabled={isSwitching}
@@ -213,7 +230,12 @@ export function OrganizationSelector({
 								/>
 							</DropdownMenu.Trigger>
 						</Tooltip>
-						<DropdownMenu.Content align="start" className="w-56" side="right" sideOffset={8}>
+						<DropdownMenu.Content
+							align="start"
+							className="w-56"
+							side="right"
+							sideOffset={8}
+						>
 							{dropdownItems}
 						</DropdownMenu.Content>
 					</DropdownMenu>
@@ -232,7 +254,9 @@ export function OrganizationSelector({
 				<DropdownMenu
 					onOpenChange={(open) => {
 						setIsOpen(open);
-						if (!open) setQuery("");
+						if (!open) {
+							setQuery("");
+						}
 					}}
 					open={isOpen}
 				>
@@ -265,7 +289,11 @@ export function OrganizationSelector({
 							/>
 						)}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content align="start" className="min-w-60" sideOffset={4}>
+					<DropdownMenu.Content
+						align="start"
+						className="min-w-60"
+						sideOffset={4}
+					>
 						{dropdownItems}
 					</DropdownMenu.Content>
 				</DropdownMenu>

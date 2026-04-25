@@ -1,4 +1,4 @@
-import { InfoIcon } from "@/components/icons/nucleo";
+import { InfoIcon } from "@databuddy/ui/icons";
 
 interface TipProps {
 	description: string;

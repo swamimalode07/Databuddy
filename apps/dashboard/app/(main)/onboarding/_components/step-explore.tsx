@@ -11,7 +11,7 @@ import {
 	LightningIcon,
 	RocketLaunchIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const FEATURES = [
 	{

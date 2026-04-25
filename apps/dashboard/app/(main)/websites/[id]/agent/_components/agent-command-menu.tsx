@@ -17,7 +17,7 @@ import {
 	LightningIcon,
 	MagnifyingGlassIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const COMMAND_ICONS: Record<string, NavIcon> = {
 	"/analyze": MagnifyingGlassIcon,

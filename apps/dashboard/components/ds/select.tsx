@@ -4,7 +4,7 @@ import { useFieldContext } from "@/components/ds/field";
 import { cn } from "@/lib/utils";
 import { Select as BaseSelect } from "@base-ui-components/react/select";
 import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
-import { CheckIcon } from "@/components/icons/nucleo";
+import { CheckIcon } from "@databuddy/ui/icons";
 import {
 	Children,
 	Fragment,

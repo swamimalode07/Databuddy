@@ -10,7 +10,7 @@ import {
 	TestTubeIcon,
 	UsersIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface TemplateItemProps {
 	onUseAction: (template: FlagTemplate) => void;

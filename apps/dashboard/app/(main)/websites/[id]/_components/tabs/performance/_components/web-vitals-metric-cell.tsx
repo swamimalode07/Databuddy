@@ -4,7 +4,7 @@ import { formatPerformanceTime } from "../_utils/performance-utils";
 import {
 	CheckCircleIcon as CheckCircle,
 	WarningIcon as Warning,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface WebVitalsMetricCellProps {
 	metric: "lcp" | "fcp" | "fid" | "inp" | "cls";

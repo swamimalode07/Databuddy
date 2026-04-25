@@ -14,7 +14,7 @@ import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { useOrganizationInvitations } from "@/hooks/use-organization-invitations";
 import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
-import { EnvelopeSimpleIcon, UsersIcon } from "@/components/icons/nucleo";
+import { EnvelopeSimpleIcon, UsersIcon } from "@databuddy/ui/icons";
 
 const formSchema = z.object({
 	email: z.string().email("Enter a valid email address"),

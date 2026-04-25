@@ -10,7 +10,7 @@ import { Select } from "@/components/ds/select";
 import { LineSlider } from "@/components/ds/line-slider";
 import { cn } from "@/lib/utils";
 import type { VariantEditorProps } from "./types";
-import { PlusIcon, TrashIcon } from "@/components/icons/nucleo";
+import { PlusIcon, TrashIcon } from "@databuddy/ui/icons";
 
 export function VariantEditor({
 	variants,

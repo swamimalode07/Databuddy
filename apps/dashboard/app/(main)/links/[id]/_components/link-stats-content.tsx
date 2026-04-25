@@ -8,7 +8,7 @@ import { DataTable } from "@/components/table/data-table";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useLink, useLinkStats } from "@/hooks/use-links";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { formatNumber } from "@/lib/formatters";
 import { type ChartDataPoint, ClicksChart } from "./clicks-chart";
 import {
@@ -23,7 +23,7 @@ import {
 	GlobeIcon,
 	LinkIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface MiniChartDataPoint {
 	date: string;

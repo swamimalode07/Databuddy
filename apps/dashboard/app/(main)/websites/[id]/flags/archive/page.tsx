@@ -12,7 +12,7 @@ import { isFlagSheetOpenAtom } from "@/stores/jotai/flagsAtoms";
 import { FlagSheet } from "../_components/flag-sheet";
 import type { Flag } from "../_components/types";
 import { ArchivedFlagItem } from "./_components/archived-flag-item";
-import { ArchiveIcon } from "@/components/icons/nucleo";
+import { ArchiveIcon } from "@databuddy/ui/icons";
 
 const ArchivedFlagsListSkeleton = () => (
 	<div className="border-border border-t">

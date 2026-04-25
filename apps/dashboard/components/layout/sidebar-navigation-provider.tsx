@@ -12,7 +12,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useHydrated } from "@/hooks/use-hydrated";
+import { useHydrated } from "@databuddy/ui";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import {
 	getNavContext,

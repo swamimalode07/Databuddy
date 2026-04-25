@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Sheet } from "@/components/ds/sheet";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { operatorOptions } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
@@ -61,7 +61,7 @@ import {
 	SquaresFourIcon,
 	TextTIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export type { DashboardCardConfig } from "./utils/types";
 

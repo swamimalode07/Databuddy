@@ -14,7 +14,7 @@ import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { HeartbeatIcon, ListIcon, PlusIcon } from "@/components/icons/nucleo";
+import { HeartbeatIcon, ListIcon, PlusIcon } from "@databuddy/ui/icons";
 
 type Mode = "existing" | "create";
 

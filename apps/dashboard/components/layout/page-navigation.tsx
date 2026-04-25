@@ -4,7 +4,7 @@ import type { Icon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ArrowLeftIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon } from "@databuddy/ui/icons";
 
 interface TabItem {
 	count?: number;

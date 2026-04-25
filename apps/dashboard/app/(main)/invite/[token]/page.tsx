@@ -24,7 +24,7 @@ import {
 	TrendUpIcon,
 	WaveformIcon,
 	XCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type PhosphorIcon = ForwardRefExoticComponent<
 	IconProps & RefAttributes<SVGSVGElement>

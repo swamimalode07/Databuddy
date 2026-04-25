@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
-import { ArrowClockwiseIcon, WarningIcon } from "@/components/icons/nucleo";
+import { ArrowClockwiseIcon, WarningIcon } from "@databuddy/ui/icons";
 
 interface ErrorPageProps {
 	error: Error & { digest?: string };

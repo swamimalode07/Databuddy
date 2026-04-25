@@ -4,9 +4,9 @@ import { memo, useCallback, useState } from "react";
 import { ChartErrorBoundary } from "@/components/chart-error-boundary";
 import { Card } from "@/components/ds/card";
 import { Chart } from "@/components/ui/composables/chart";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
-import { ChartPieIcon } from "@/components/icons/nucleo";
+import { ChartPieIcon } from "@databuddy/ui/icons";
 
 const { Cell, Pie, PieChart, ResponsiveContainer, Sector } = Chart.Recharts;
 

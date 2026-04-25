@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import {
 	ArrowLeftIcon,
 	ArrowRightIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;

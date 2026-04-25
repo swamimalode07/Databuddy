@@ -8,7 +8,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import {
@@ -16,7 +16,7 @@ import {
 	CheckIcon,
 	ClockIcon,
 	InfinityIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface ExpirationPreset {
 	getDate: () => Date;

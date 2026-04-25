@@ -84,7 +84,7 @@ export function SidebarPanel({
 	return (
 		<nav
 			className={cn(
-				"fixed inset-y-0 left-0 z-50 hidden flex-col border-r border-sidebar-border/50 bg-sidebar md:flex",
+				"fixed inset-y-0 left-0 z-50 hidden flex-col border-sidebar-border/50 border-r bg-sidebar md:flex",
 				open ? "w-64" : "w-12",
 				className
 			)}

@@ -35,7 +35,7 @@ import {
 	RocketLaunchIcon,
 	StarIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const DISPLAYED_PLAN_IDS = ["hobby", "pro", "scale"] as const;
 const RECOMMENDED_PLAN_ID = "pro";

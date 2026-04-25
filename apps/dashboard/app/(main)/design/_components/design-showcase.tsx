@@ -20,14 +20,14 @@ import { Progress } from "@/components/ds/progress";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Select } from "@/components/ds/select";
 import { Sheet } from "@/components/ds/sheet";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Spinner } from "@/components/ds/spinner";
 import { StatusDot } from "@/components/ds/status-dot";
 import { Switch } from "@/components/ds/switch";
 import { Tabs } from "@/components/ds/tabs";
 import { Text } from "@/components/ds/text";
 import { Textarea } from "@/components/ds/textarea";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import {
 	Key,
 	Palette,
@@ -59,7 +59,7 @@ import {
 	UserIcon,
 	UsersThreeIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { ShowcaseRow, ShowcaseSection } from "./showcase-section";
 

@@ -8,7 +8,7 @@ import {
 	CaretRightIcon,
 	CheckIcon,
 	CircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function ContextMenu({
 	...props

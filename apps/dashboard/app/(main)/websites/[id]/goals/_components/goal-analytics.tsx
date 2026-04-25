@@ -8,7 +8,7 @@ import {
 	TargetIcon as Target,
 	TrendUpIcon as TrendUp,
 	UsersIcon as Users,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface GoalAnalyticsProps {
 	data: any;

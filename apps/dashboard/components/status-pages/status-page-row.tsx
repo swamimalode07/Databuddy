@@ -20,7 +20,7 @@ import {
 	DotsThreeIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface StatusPage {
 	createdAt: Date | string;

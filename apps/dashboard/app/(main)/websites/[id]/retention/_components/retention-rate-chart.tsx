@@ -13,9 +13,9 @@ import {
 	chartLegendPillDotClassName,
 	chartLegendPillLabelClassName,
 } from "@/lib/chart-presentation";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
-import { ChartLineIcon, SpinnerIcon } from "@/components/icons/nucleo";
+import { ChartLineIcon, SpinnerIcon } from "@databuddy/ui/icons";
 
 const {
 	Area,

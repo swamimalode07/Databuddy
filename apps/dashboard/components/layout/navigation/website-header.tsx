@@ -1,8 +1,8 @@
 import type { WebsiteBasic } from "@databuddy/shared/types/website";
 import Link from "next/link";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import { Skeleton } from "@/components/ds/skeleton";
-import { CaretLeftIcon, PlanetIcon } from "@/components/icons/nucleo";
+import { Skeleton } from "@databuddy/ui";
+import { CaretLeftIcon, PlanetIcon } from "@databuddy/ui/icons";
 
 interface WebsiteHeaderProps {
 	showBackButton?: boolean;

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { resolveFaviconCanonicalHost } from "@/lib/favicon-domain";
 import { cn } from "@/lib/utils";
-import { GlobeIcon } from "@/components/icons/nucleo";
+import { GlobeIcon } from "@databuddy/ui/icons";
 
 interface FaviconImageProps {
 	altText?: string;

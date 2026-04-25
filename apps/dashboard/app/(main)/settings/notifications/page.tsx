@@ -7,7 +7,7 @@ import {
 	PlusIcon,
 	TestTubeIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import { Card } from "@/components/ds/card";
 import { Dialog } from "@/components/ds/dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Switch } from "@/components/ds/switch";
 import { Text } from "@/components/ds/text";
 import { orpc } from "@/lib/orpc";

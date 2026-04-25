@@ -16,7 +16,7 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ import {
 	ArrowClockwiseIcon,
 	PlusIcon,
 	UserPlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function StatusPagesListPage() {
 	const { hasAccess, isLoading: isAccessLoading } =

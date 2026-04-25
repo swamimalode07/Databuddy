@@ -10,7 +10,7 @@ import {
 	DeviceTabletIcon,
 	LaptopIcon,
 	MonitorIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const errorIconClass = "size-3.5 text-destructive";
 const deviceIconClass = "size-3.5 text-muted-foreground";

@@ -13,7 +13,7 @@ import { Input } from "@/components/ds/input";
 import { Textarea } from "@/components/ds/textarea";
 import { Text } from "@/components/ds/text";
 import { orpc } from "@/lib/orpc";
-import { CaretDownIcon, PlusIcon } from "@/components/icons/nucleo";
+import { CaretDownIcon, PlusIcon } from "@databuddy/ui/icons";
 
 const CATEGORIES = [
 	{ value: "bug_report", label: "Bug Report" },

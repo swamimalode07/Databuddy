@@ -4,7 +4,7 @@ import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Button } from "@/components/ds/button";
 import { EmptyState } from "@/components/ds/empty-state";
 import { Select } from "@/components/ds/select";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Text } from "@/components/ds/text";
 import { useOrganizations } from "@/hooks/use-organizations";
 import type { Website } from "@/hooks/use-websites";
@@ -14,7 +14,7 @@ import {
 	ArrowsLeftRightIcon,
 	BuildingsIcon,
 	GlobeIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useWebsiteTransfer } from "../settings/danger/hooks/use-website-transfer";

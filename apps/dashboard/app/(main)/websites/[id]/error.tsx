@@ -6,7 +6,7 @@ import {
 	ArrowCounterClockwiseIcon,
 	HouseIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function WebsiteError({
 	error,

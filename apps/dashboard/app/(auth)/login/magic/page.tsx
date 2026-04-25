@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeftIcon, EnvelopeSimpleIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon, EnvelopeSimpleIcon } from "@databuddy/ui/icons";
 
 function MagicLinkPage() {
 	const router = useRouter();

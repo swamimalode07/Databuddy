@@ -21,7 +21,9 @@ const REWARD_TIERS = [
 ] as const;
 
 const EVENT_TIERS = REWARD_TIERS.filter((t) => t.rewardType === "events");
-const AGENT_TIERS = REWARD_TIERS.filter((t) => t.rewardType === "agent-credits");
+const AGENT_TIERS = REWARD_TIERS.filter(
+	(t) => t.rewardType === "agent-credits"
+);
 
 export default function FeedbackPage() {
 	const { data: balance, isLoading: isBalanceLoading } = useQuery(
@@ -62,7 +64,9 @@ export default function FeedbackPage() {
 				<RedeemDialog
 					creditsRequired={REWARD_TIERS[redeemTier].creditsRequired}
 					onOpenChangeAction={(open) => {
-						if (!open) setRedeemTier(null);
+						if (!open) {
+							setRedeemTier(null);
+						}
 					}}
 					open
 					rewardAmount={REWARD_TIERS[redeemTier].rewardAmount}

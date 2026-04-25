@@ -7,11 +7,11 @@ import { AnalyticsToolbar } from "@/app/(main)/websites/[id]/_components/analyti
 import { publicDashboardMarketingHref } from "@/app/public/public-dashboard-constants";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { Branding } from "@/components/logo/branding";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { WebsiteErrorState } from "@/components/website-error-state";
 import { useWebsite } from "@/hooks/use-websites";
 import { currentFilterWebsiteIdAtom } from "@/stores/jotai/filterAtoms";
-import { PlanetIcon } from "@/components/icons/nucleo";
+import { PlanetIcon } from "@databuddy/ui/icons";
 
 const poweredByLabelClass =
 	"shrink-0 text-balance font-medium text-muted-foreground text-sm";

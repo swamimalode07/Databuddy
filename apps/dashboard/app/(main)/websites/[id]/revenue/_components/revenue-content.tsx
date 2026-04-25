@@ -14,7 +14,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
@@ -43,7 +43,7 @@ import {
 	SpinnerIcon,
 	TrendUpIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface RevenueContentProps {
 	websiteId: string;

@@ -6,14 +6,14 @@ import { useMemo } from "react";
 import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
-import { formatDateOnly } from "@/lib/time";
-import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
-import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
+import { dayjs } from "@databuddy/ui";
+import { formatDateOnly } from "@databuddy/ui";
+import { buildUptimeHeatmapDays } from "@databuddy/ui/uptime";
+import { UptimeHeatmapStrip } from "@databuddy/ui/uptime";
 import { cn } from "@/lib/utils";
-import { HeartbeatIcon, LockIcon, PlusIcon } from "@/components/icons/nucleo";
+import { HeartbeatIcon, LockIcon, PlusIcon } from "@databuddy/ui/icons";
 
 interface MonitorsSectionProps {
 	activeMonitors: number;

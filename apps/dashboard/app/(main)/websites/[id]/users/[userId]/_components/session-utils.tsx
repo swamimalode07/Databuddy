@@ -3,7 +3,7 @@ import {
 	FileTextIcon,
 	LightningIcon,
 	TagIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export const getEventIconAndColor = (
 	eventName: string,

@@ -58,7 +58,7 @@ import {
 	TrashIcon,
 	UsersIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function InfoSection({
 	title,

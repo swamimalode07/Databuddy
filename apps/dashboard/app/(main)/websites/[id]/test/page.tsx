@@ -23,7 +23,7 @@ import {
 	FunnelIcon,
 	PencilSimpleIcon,
 	PlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const GRID_COLS = 4;
 const GRID_ROW_HEIGHT = 140;

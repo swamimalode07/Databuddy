@@ -15,7 +15,7 @@ import { Button, buttonVariants } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { Field } from "@/components/ds/field";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Switch } from "@/components/ds/switch";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { getStatusPageUrl } from "@/lib/app-url";
@@ -33,7 +33,7 @@ import {
 	HeartbeatIcon,
 	PlusIcon,
 	SirenIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function StatusPageDetailsPage() {
 	const params = useParams();

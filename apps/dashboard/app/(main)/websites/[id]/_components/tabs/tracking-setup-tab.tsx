@@ -46,7 +46,7 @@ import {
 	PackageIcon,
 	PulseIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface TrackingSetupTabProps {
 	websiteId: string;

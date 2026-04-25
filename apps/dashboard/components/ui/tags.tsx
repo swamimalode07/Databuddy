@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
 	PlusIcon,
 	XCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface TagsChatProps {
 	allowDuplicates?: boolean;

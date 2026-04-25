@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
-import { ArrowLeftIcon, WarningIcon } from "@/components/icons/nucleo";
+import { ArrowLeftIcon, WarningIcon } from "@databuddy/ui/icons";
 
 function VerificationNeededPage() {
 	const [email] = useQueryState("email", parseAsString.withDefault(""));

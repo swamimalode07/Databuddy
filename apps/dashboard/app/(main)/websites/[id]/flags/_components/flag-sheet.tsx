@@ -37,7 +37,7 @@ import {
 	UserIcon,
 	UsersIcon,
 	UsersThreeIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function ImplementationExamples({
 	flagKey,

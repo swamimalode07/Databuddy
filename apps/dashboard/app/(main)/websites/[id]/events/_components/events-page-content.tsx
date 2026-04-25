@@ -4,11 +4,11 @@ import { useAtom } from "jotai";
 import { use, useCallback, useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useCustomEventsData } from "@/hooks/use-custom-events";
 import { useDateFilters } from "@/hooks/use-date-filters";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { formatNumber } from "@/lib/formatters";
 import {
 	addDynamicFilterAtom,
@@ -34,7 +34,7 @@ import {
 	TagIcon,
 	UserIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface EventsPageContentProps {
 	params: Promise<{ id: string }>;

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import type { FunnelAnalyticsByReferrerResult } from "@/types/funnels";
 import {
@@ -10,7 +10,7 @@ import {
 	TargetIcon,
 	UsersIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface FunnelAnalyticsByReferrerProps {
 	data: { referrer_analytics: FunnelAnalyticsByReferrerResult[] } | undefined;

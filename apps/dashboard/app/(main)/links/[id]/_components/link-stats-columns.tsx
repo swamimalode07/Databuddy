@@ -6,7 +6,7 @@ import { ReferrerSourceCell } from "@/components/atomic/ReferrerSourceCell";
 import { CountryFlag } from "@/components/icon";
 import { PercentageBadge } from "@/components/ds/badge";
 import { formatNumber } from "@/lib/formatters";
-import { MapPinIcon } from "@/components/icons/nucleo";
+import { MapPinIcon } from "@databuddy/ui/icons";
 
 export interface SourceEntry {
 	clicks: number;

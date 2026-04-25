@@ -12,11 +12,7 @@ import {
 	getResetText,
 } from "../utils/feature-usage";
 import { PricingTiersTooltip } from "./pricing-tiers-tooltip";
-import {
-	ChartBarIcon,
-	DatabaseIcon,
-	UsersIcon,
-} from "@/components/icons/nucleo";
+import { ChartBarIcon, DatabaseIcon, UsersIcon } from "@databuddy/ui/icons";
 
 function formatCurrency(amount: number): string {
 	if (amount >= 1000) {

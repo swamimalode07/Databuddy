@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Annotation, AnnotationFormData } from "@/types/annotations";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeIcon, EyeSlashIcon, PlusIcon } from "@/components/icons/nucleo";
+import { EyeIcon, EyeSlashIcon, PlusIcon } from "@databuddy/ui/icons";
 
 interface EditModeProps {
 	annotation: Annotation;

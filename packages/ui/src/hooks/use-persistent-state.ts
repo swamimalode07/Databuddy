@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useHydrated } from "@/hooks/use-hydrated";
+import { useHydrated } from "./use-hydrated";
 
 /**
  * Custom hook for persisting state to localStorage with SSR compatibility.

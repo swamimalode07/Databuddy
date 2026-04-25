@@ -2,7 +2,7 @@
 
 import { RightSidebar } from "@/components/right-sidebar";
 import { SettingsSection } from "../_components/settings-section";
-import { ChartLineIcon } from "@/components/icons/nucleo";
+import { ChartLineIcon } from "@databuddy/ui/icons";
 
 export default function AnalyticsSettingsPage() {
 	return (

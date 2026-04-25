@@ -17,10 +17,10 @@ import {
 } from "@/components/ai-elements/markdown-table";
 import { Button } from "@/components/ds/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { PaperclipIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
-import { CaretLeftIcon, CaretRightIcon } from "@/components/icons/nucleo";
+import { CaretLeftIcon, CaretRightIcon } from "@databuddy/ui/icons";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 	from: UIMessage["role"];

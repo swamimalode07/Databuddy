@@ -26,7 +26,7 @@ import {
 	ChartBarIcon,
 	FunnelIcon,
 	ListBulletsIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SummaryViewProps {
 	events: ClassifiedEvent[];

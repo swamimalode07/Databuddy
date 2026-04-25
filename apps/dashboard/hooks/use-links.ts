@@ -1,7 +1,7 @@
 "use client";
 
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import type { Link } from "@databuddy/db/schema";
 import type { DateRange } from "@databuddy/shared/types/analytics";

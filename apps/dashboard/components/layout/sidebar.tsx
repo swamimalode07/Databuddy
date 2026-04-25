@@ -4,18 +4,24 @@ import {
 	FEATURE_METADATA,
 	type GatedFeatureId,
 } from "@databuddy/shared/types/features";
-import { authClient } from "@databuddy/auth/client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { Avatar } from "@/components/ds/avatar";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
+import { useRouter } from "next/navigation";
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useTransition,
+} from "react";
+import { Tooltip } from "@databuddy/ui";
 import {
 	ArrowLeftIcon,
 	ArrowSquareOutIcon,
+	CaretDownIcon,
 	LockSimpleIcon,
-} from "@/components/icons/nucleo";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
+	SpinnerIcon,
+} from "@databuddy/ui/icons";
 import { useBillingContext } from "@/components/providers/billing-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -23,17 +29,32 @@ import { MobileSidebar } from "./mobile-sidebar";
 import { isNavItemActive } from "./navigation/nav-item-active";
 import type { NavigationGroup, NavigationItem } from "./navigation/types";
 import { OrganizationSelector } from "./organization-selector";
-import { getInitials, ProfileDropdownContent } from "./profile-button-client";
 import { SidebarPanel, useSidebarLayout } from "./sidebar-layout";
 import { useSidebarNavigation } from "./sidebar-navigation-provider";
-import { ThemeToggle } from "./theme-toggle";
 
 const P = {
 	outer: "px-2",
 	outerCollapsed: "px-1.5",
 	item: "px-2.5",
-	icon: "size-[18px] shrink-0",
+	icon: "size-4 shrink-0",
 } as const;
+
+function useDelayedPending(isPending: boolean, delayMs = 150) {
+	const [show, setShow] = useState(false);
+	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+	useEffect(() => {
+		if (isPending) {
+			timerRef.current = setTimeout(() => setShow(true), delayMs);
+		} else {
+			clearTimeout(timerRef.current);
+			setShow(false);
+		}
+		return () => clearTimeout(timerRef.current);
+	}, [isPending, delayMs]);
+
+	return show;
+}
 
 function SidebarNavItem({
 	item,
@@ -53,9 +74,14 @@ function SidebarNavItem({
 	pathname: string;
 }) {
 	const active = isNavItemActive(item, pathname, currentWebsiteId);
+	const router = useRouter();
+	const [isPending, startTransition] = useTransition();
+	const showSpinner = useDelayedPending(isPending);
 
 	const fullPath = useMemo(() => {
-		if (item.rootLevel) return item.href;
+		if (item.rootLevel) {
+			return item.href;
+		}
 		if (isDemo) {
 			return item.href === ""
 				? `/demo/${currentWebsiteId}`
@@ -64,6 +90,19 @@ function SidebarNavItem({
 		return `/websites/${currentWebsiteId}${item.href}`;
 	}, [item.href, item.rootLevel, currentWebsiteId, isDemo]);
 
+	const handleClick = useCallback(
+		(e: React.MouseEvent) => {
+			if (item.external || item.disabled) {
+				return;
+			}
+			e.preventDefault();
+			startTransition(() => {
+				router.push(fullPath);
+			});
+		},
+		[item.external, item.disabled, fullPath, router]
+	);
+
 	if (item.production === false && process.env.NODE_ENV === "production") {
 		return null;
 	}
@@ -71,8 +110,14 @@ function SidebarNavItem({
 	const Icon = item.icon;
 	const base = cn(
 		"flex min-w-0 items-center rounded text-sm",
-		collapsed ? "size-9 justify-center" : "h-9 gap-3",
+		collapsed ? "size-9 justify-center" : "h-8 gap-2.5",
 		collapsed ? "" : P.item
+	);
+
+	const iconEl = showSpinner ? (
+		<SpinnerIcon aria-hidden className={cn(P.icon, "animate-spin")} />
+	) : (
+		<Icon aria-hidden className={P.icon} />
 	);
 
 	if (isLocked) {
@@ -97,20 +142,30 @@ function SidebarNavItem({
 			</div>
 		);
 		return collapsed ? (
-			<Tooltip content={`${item.name} (${lockedPlanName})`} side="right">{el}</Tooltip>
-		) : el;
+			<Tooltip content={`${item.name} (${lockedPlanName})`} side="right">
+				{el}
+			</Tooltip>
+		) : (
+			el
+		);
 	}
 
 	if (item.disabled) {
 		const el = (
 			<div aria-disabled className={cn(base, "cursor-not-allowed opacity-25")}>
 				<Icon aria-hidden className={P.icon} />
-				{!collapsed && <span className="min-w-0 flex-1 truncate">{item.name}</span>}
+				{!collapsed && (
+					<span className="min-w-0 flex-1 truncate">{item.name}</span>
+				)}
 			</div>
 		);
 		return collapsed ? (
-			<Tooltip content={item.name} side="right">{el}</Tooltip>
-		) : el;
+			<Tooltip content={item.name} side="right">
+				{el}
+			</Tooltip>
+		) : (
+			el
+		);
 	}
 
 	const LinkComponent = item.external ? "a" : Link;
@@ -126,11 +181,12 @@ function SidebarNavItem({
 				base,
 				"group",
 				active
-					? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
+					? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
 					: "text-sidebar-foreground/60 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
 			)}
+			onClick={item.external ? undefined : handleClick}
 		>
-			<Icon aria-hidden className={P.icon} />
+			{iconEl}
 			{!collapsed && (
 				<>
 					<span className="min-w-0 flex-1 truncate">{item.name}</span>
@@ -169,41 +225,54 @@ function SidebarNavItem({
 	);
 
 	return collapsed ? (
-		<Tooltip content={item.name} side="right">{el}</Tooltip>
-	) : el;
+		<Tooltip content={item.name} side="right">
+			{el}
+		</Tooltip>
+	) : (
+		el
+	);
 }
 
-function NavGroupLabel({ group, collapsed, isFirst }: { collapsed: boolean; group: NavigationGroup; isFirst: boolean }) {
-	if (collapsed) {
-		return isFirst ? null : <div className="mx-auto my-1.5 h-px w-5 bg-sidebar-border/30" />;
-	}
-	if (!(group.label || group.back)) return null;
+const COLLAPSED_GROUPS_KEY = "sidebar-collapsed-groups";
 
-	const spacing = isFirst ? "pt-1 pb-1.5" : "pt-4 pb-1.5";
+function useGroupCollapse(groupKey: string, hasActiveChild: boolean) {
+	const [isCollapsed, setIsCollapsed] = useState(false);
+	const initializedRef = useRef(false);
 
-	if (group.back) {
-		return (
-			<div className={cn("flex items-center gap-1.5 px-3", spacing)}>
-				<Link
-					className="flex items-center gap-1 font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider hover:text-sidebar-foreground/60"
-					href={group.back.href}
-				>
-					<ArrowLeftIcon className="size-3 shrink-0" />
-					{group.back.label}
-				</Link>
-				<span className="text-sidebar-foreground/15">/</span>
-				<span className="font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider">
-					{group.label}
-				</span>
-			</div>
-		);
-	}
+	useEffect(() => {
+		if (initializedRef.current) {
+			return;
+		}
+		initializedRef.current = true;
+		try {
+			const stored = JSON.parse(
+				localStorage.getItem(COLLAPSED_GROUPS_KEY) || "{}"
+			);
+			if (stored[groupKey] === true && !hasActiveChild) {
+				setIsCollapsed(true);
+			}
+		} catch {}
+	}, [groupKey, hasActiveChild]);
 
-	return (
-		<div className={cn("px-3 font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider", spacing)}>
-			{group.label}
-		</div>
-	);
+	const toggle = useCallback(() => {
+		setIsCollapsed((prev) => {
+			const next = !prev;
+			try {
+				const stored = JSON.parse(
+					localStorage.getItem(COLLAPSED_GROUPS_KEY) || "{}"
+				);
+				if (next) {
+					stored[groupKey] = true;
+				} else {
+					delete stored[groupKey];
+				}
+				localStorage.setItem(COLLAPSED_GROUPS_KEY, JSON.stringify(stored));
+			} catch {}
+			return next;
+		});
+	}, [groupKey]);
+
+	return { isCollapsed, toggle };
 }
 
 function NavGroup({
@@ -213,7 +282,7 @@ function NavGroup({
 	isDemo,
 	isFeatureEnabled,
 	isBillingLoading,
-	collapsed,
+	collapsed: sidebarCollapsed,
 	isFirst,
 }: {
 	collapsed: boolean;
@@ -226,134 +295,153 @@ function NavGroup({
 	pathname: string;
 }) {
 	const visibleItems = group.items.filter((item) => {
-		if (item.production === false && process.env.NODE_ENV === "production") return false;
-		if (item.hideFromDemo && isDemo) return false;
-		if (item.showOnlyOnDemo && !isDemo) return false;
+		if (item.production === false && process.env.NODE_ENV === "production") {
+			return false;
+		}
+		if (item.hideFromDemo && isDemo) {
+			return false;
+		}
+		if (item.showOnlyOnDemo && !isDemo) {
+			return false;
+		}
 		return true;
 	});
 
-	if (visibleItems.length === 0) return null;
+	const hasActiveChild = visibleItems.some((item) =>
+		isNavItemActive(item, pathname, currentWebsiteId)
+	);
+
+	const isCollapsible = !sidebarCollapsed && !!group.label && !group.back;
+
+	const { isCollapsed: groupCollapsed, toggle } = useGroupCollapse(
+		group.label || "",
+		hasActiveChild
+	);
+
+	if (visibleItems.length === 0) {
+		return null;
+	}
+
+	const labelEl = (() => {
+		if (sidebarCollapsed) {
+			return isFirst ? null : (
+				<div className="mx-auto my-1.5 h-px w-5 bg-sidebar-border/30" />
+			);
+		}
+		if (!(group.label || group.back)) {
+			return null;
+		}
+
+		const spacing = isFirst ? "pt-1 pb-1" : "pt-3 pb-1";
+
+		if (group.back) {
+			return (
+				<div className={cn("flex items-center gap-1.5 px-3", spacing)}>
+					<Link
+						className="flex items-center gap-1 font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider hover:text-sidebar-foreground/60"
+						href={group.back.href}
+					>
+						<ArrowLeftIcon className="size-3 shrink-0" />
+						{group.back.label}
+					</Link>
+					<span className="text-sidebar-foreground/15">/</span>
+					<span className="font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider">
+						{group.label}
+					</span>
+				</div>
+			);
+		}
+
+		if (isCollapsible) {
+			return (
+				<button
+					className={cn(
+						"flex w-full items-center justify-between px-3 font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider hover:text-sidebar-foreground/50",
+						spacing
+					)}
+					onClick={toggle}
+					type="button"
+				>
+					{group.label}
+					<CaretDownIcon
+						className={cn(
+							"size-3 shrink-0 transition-transform duration-200",
+							groupCollapsed && "-rotate-90"
+						)}
+					/>
+				</button>
+			);
+		}
+
+		return (
+			<div
+				className={cn(
+					"px-3 font-semibold text-[11px] text-sidebar-foreground/35 uppercase tracking-wider",
+					spacing
+				)}
+			>
+				{group.label}
+			</div>
+		);
+	})();
+
+	const itemsEl = visibleItems.map((item) => {
+		const locked =
+			!isBillingLoading &&
+			item.gatedFeature != null &&
+			!isFeatureEnabled(item.gatedFeature);
+
+		return (
+			<SidebarNavItem
+				collapsed={sidebarCollapsed}
+				currentWebsiteId={currentWebsiteId}
+				isDemo={isDemo}
+				isLocked={locked}
+				item={item}
+				key={`${item.name}::${item.href}`}
+				lockedPlanName={
+					locked && item.gatedFeature
+						? (FEATURE_METADATA[item.gatedFeature]?.minPlan?.toUpperCase() ??
+							null)
+						: null
+				}
+				pathname={pathname}
+			/>
+		);
+	});
 
 	return (
 		<div>
-			<NavGroupLabel collapsed={collapsed} group={group} isFirst={isFirst} />
-			<div className={cn("flex flex-col gap-0.5", collapsed ? cn("items-center", P.outerCollapsed) : P.outer)}>
-				{visibleItems.map((item) => {
-					const locked =
-						!isBillingLoading &&
-						item.gatedFeature != null &&
-						!isFeatureEnabled(item.gatedFeature);
-
-					return (
-						<SidebarNavItem
-							collapsed={collapsed}
-							currentWebsiteId={currentWebsiteId}
-							isDemo={isDemo}
-							isLocked={locked}
-							item={item}
-							key={`${item.name}::${item.href}`}
-							lockedPlanName={
-								locked && item.gatedFeature
-									? (FEATURE_METADATA[item.gatedFeature]?.minPlan?.toUpperCase() ?? null)
-									: null
-							}
-							pathname={pathname}
-						/>
-					);
-				})}
-			</div>
-		</div>
-	);
-}
-
-function SidebarUserFooter({ collapsed }: { collapsed: boolean }) {
-	const { data: session, isPending } = authClient.useSession();
-	const user = session?.user ?? null;
-	const [hasMounted, setHasMounted] = useState(false);
-	const [isOpen, setIsOpen] = useState(false);
-
-	useEffect(() => {
-		setHasMounted(true);
-	}, []);
-
-	if (!hasMounted || isPending) {
-		return (
-			<div className={cn(collapsed ? P.outerCollapsed : P.outer, "py-2")}>
+			{labelEl}
+			<div
+				className={cn(
+					isCollapsible && "grid transition-[grid-template-rows] duration-200",
+					isCollapsible &&
+						(groupCollapsed ? "grid-rows-[0fr]" : "grid-rows-[1fr]")
+				)}
+			>
 				<div
 					className={cn(
-						"flex items-center gap-2.5 rounded bg-sidebar-accent/50",
-						collapsed ? "size-9 justify-center" : "h-9 px-2.5"
+						"flex flex-col gap-0.5 overflow-hidden",
+						sidebarCollapsed ? cn("items-center", P.outerCollapsed) : P.outer
 					)}
 				>
-					<Skeleton className="size-6 shrink-0 rounded-full" />
-					{!collapsed && <Skeleton className="h-3 w-20 rounded" />}
+					{itemsEl}
 				</div>
-			</div>
-		);
-	}
-
-	if (!user) return null;
-
-	if (collapsed) {
-		return (
-			<div className={cn(P.outerCollapsed, "py-2")}>
-				<DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
-					<Tooltip content={user.name || user.email || "Account"} side="right">
-						<DropdownMenu.Trigger
-							className="flex size-9 items-center justify-center rounded bg-sidebar-accent/50 hover:bg-sidebar-accent"
-							render={<button type="button" />}
-						>
-							<Avatar
-								alt={user.name || "User"}
-								className="size-6 shrink-0"
-								fallback={getInitials(user.name, user.email)}
-								src={user.image || undefined}
-							/>
-						</DropdownMenu.Trigger>
-					</Tooltip>
-					<ProfileDropdownContent isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
-				</DropdownMenu>
-			</div>
-		);
-	}
-
-	return (
-		<div className={cn(P.outer, "py-2")}>
-			<div className="flex items-center gap-2 rounded bg-sidebar-accent/50 px-2.5 py-2">
-				<DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
-					<DropdownMenu.Trigger
-						className={cn(
-							"flex min-w-0 flex-1 items-center gap-2.5 rounded text-left hover:opacity-80",
-							isOpen && "opacity-80"
-						)}
-						render={<button type="button" />}
-					>
-						<Avatar
-							alt={user.name || "User"}
-							className="size-7 shrink-0"
-							fallback={getInitials(user.name, user.email)}
-							src={user.image || undefined}
-						/>
-						<div className="min-w-0 flex-1">
-							<p className="truncate font-semibold text-sidebar-foreground text-sm">
-								{user.name || "User"}
-							</p>
-							<p className="truncate text-sidebar-foreground/40 text-xs">
-								{user.email}
-							</p>
-						</div>
-					</DropdownMenu.Trigger>
-					<ProfileDropdownContent isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
-				</DropdownMenu>
-				<ThemeToggle />
 			</div>
 		</div>
 	);
 }
 
 export function Sidebar() {
-	const { navigation, currentWebsiteId, pathname, isDemo, navContext, transitionDirection } =
-		useSidebarNavigation();
+	const {
+		navigation,
+		currentWebsiteId,
+		pathname,
+		isDemo,
+		navContext,
+		transitionDirection,
+	} = useSidebarNavigation();
 	const { isFeatureEnabled, isLoading: isBillingLoading } = useBillingContext();
 	const { open } = useSidebarLayout();
 
@@ -385,21 +473,33 @@ export function Sidebar() {
 				<ScrollArea className="flex-1" key={navContext}>
 					<div className={cn("flex flex-col", slideClass)}>
 						{topGroups.map((group, i) => (
-							<NavGroup group={group} isFirst={i === 0} key={group.label || "__top"} {...groupProps} />
+							<NavGroup
+								group={group}
+								isFirst={i === 0}
+								key={group.label || "__top"}
+								{...groupProps}
+							/>
 						))}
 					</div>
 				</ScrollArea>
 
 				{bottomGroups.length > 0 && (
 					<div className={cn("flex flex-col py-2", slideClass)}>
-						{!collapsed && <div className={P.outer}><div className="mb-2 h-px bg-sidebar-border/30" /></div>}
+						{!collapsed && (
+							<div className={P.outer}>
+								<div className="mb-2 h-px bg-sidebar-border/30" />
+							</div>
+						)}
 						{bottomGroups.map((group) => (
-							<NavGroup group={group} isFirst key={group.label || "__pinned"} {...groupProps} />
+							<NavGroup
+								group={group}
+								isFirst
+								key={group.label || "__pinned"}
+								{...groupProps}
+							/>
 						))}
 					</div>
 				)}
-
-				<SidebarUserFooter collapsed={collapsed} />
 			</SidebarPanel>
 			<MobileSidebar />
 		</>

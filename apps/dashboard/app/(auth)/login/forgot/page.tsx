@@ -11,11 +11,7 @@ import { Input } from "@/components/ds/input";
 import { OtpInput } from "@/components/ds/otp-input";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
-import {
-	ArrowLeftIcon,
-	EyeIcon,
-	EyeSlashIcon,
-} from "@/components/icons/nucleo";
+import { ArrowLeftIcon, EyeIcon, EyeSlashIcon } from "@databuddy/ui/icons";
 
 function ForgotPasswordPage() {
 	const router = useRouter();

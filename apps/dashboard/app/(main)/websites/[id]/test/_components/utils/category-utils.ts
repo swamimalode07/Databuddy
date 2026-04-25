@@ -9,7 +9,7 @@ import {
 	SquaresFourIcon,
 	UsersIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 /** Icon mapping for query type categories */
 export const CATEGORY_ICONS: Record<string, ElementType> = {

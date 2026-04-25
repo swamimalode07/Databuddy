@@ -11,7 +11,7 @@ import { Dialog } from "@/components/ds/dialog";
 import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { getOperatorLabel } from "@/hooks/use-filters";
-import { FloppyDiskIcon } from "@/components/icons/nucleo";
+import { FloppyDiskIcon } from "@databuddy/ui/icons";
 
 const formSchema = z.object({
 	name: z

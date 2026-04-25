@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 
 export function clampBounceRate(value: number | null | undefined): number {
 	if (value == null || Number.isNaN(value)) {

@@ -13,7 +13,7 @@ import {
 } from "@/app/(main)/insights/lib/insight-meta";
 import { InsightMetrics } from "@/components/insight-metrics";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
 	changePercentChipClassName,
@@ -43,7 +43,7 @@ import {
 	TrendDownIcon,
 	TrendUpIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const TYPE_STYLES: Record<
 	InsightType,

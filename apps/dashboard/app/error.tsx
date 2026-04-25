@@ -8,7 +8,7 @@ import {
 	ArrowClockwiseIcon,
 	HouseIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const PARTICLES = [
 	{
@@ -56,7 +56,6 @@ export default function ErrorPage({
 	return (
 		<div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-background p-4 sm:p-6">
 			<style
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: static keyframes
 				dangerouslySetInnerHTML={{
 					__html: `
 						@keyframes float-a {

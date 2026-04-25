@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { LifebuoyIcon } from "@/components/icons/nucleo";
+import { ThemeToggle } from "@databuddy/ui/client";
+import { LifebuoyIcon } from "@databuddy/ui/icons";
 
 interface StatusNavbarProps {
 	logoUrl?: string | null;

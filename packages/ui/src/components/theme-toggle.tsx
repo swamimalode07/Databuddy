@@ -1,10 +1,10 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ds/button";
-import { Tooltip } from "@/components/ds/tooltip";
-import { cn } from "@/lib/utils";
-import { MonitorIcon, MoonIcon, SunIcon } from "@/components/icons/nucleo";
+import { Button } from "./button";
+import { Tooltip } from "./tooltip";
+import { cn } from "../lib/utils";
+import { MonitorIcon, MoonIcon, SunIcon } from "./icons/nucleo";
 
 const CYCLE = ["system", "light", "dark"] as const;
 

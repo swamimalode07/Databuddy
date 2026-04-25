@@ -9,7 +9,7 @@ import {
 	LaptopIcon,
 	QuestionIcon,
 	TelevisionIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const deviceTypeIconMap: Record<string, React.ElementType> = {
 	desktop: DesktopIcon,

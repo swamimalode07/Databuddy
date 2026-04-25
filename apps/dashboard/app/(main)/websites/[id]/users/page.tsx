@@ -1,10 +1,28 @@
 "use client";
 
+import { FaviconImage } from "@/components/analytics/favicon-image";
+import { Badge } from "@/components/ds/badge";
+import { EmptyState } from "@/components/ds/empty-state";
+import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
+import { TopBar } from "@/components/layout/top-bar";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { useDateFilters } from "@/hooks/use-date-filters";
+import { getDeviceIcon } from "@/lib/utils";
+import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import {
 	getCountryCode,
 	getCountryName,
 } from "@databuddy/shared/country-codes";
 import type { ProfileData } from "@databuddy/shared/types/analytics";
+import { dayjs, Skeleton, Tooltip } from "@databuddy/ui";
+import { GlobeIcon, UsersIcon } from "@databuddy/ui/icons";
 import {
 	type ColumnDef,
 	flexRender,
@@ -15,28 +33,8 @@ import { useAtomValue } from "jotai";
 import Image from "next/image";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TopBar } from "@/components/layout/top-bar";
-import { FaviconImage } from "@/components/analytics/favicon-image";
-import { EmptyState } from "@/components/ds/empty-state";
-import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
-import { Badge } from "@/components/ds/badge";
-import { Skeleton } from "@/components/ds/skeleton";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { Tooltip } from "@/components/ds/tooltip";
-import { useDateFilters } from "@/hooks/use-date-filters";
-import dayjs from "@/lib/dayjs";
-import { getDeviceIcon } from "@/lib/utils";
-import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import { generateProfileName } from "./[userId]/_components/generate-profile-name";
 import { useProfilesData } from "./use-users";
-import { GlobeIcon, UsersIcon } from "@/components/icons/nucleo";
 
 const wwwRegex = /^www\./;
 
@@ -431,13 +429,40 @@ export default function UsersPage() {
 						<TableBody>
 							{table.getRowModel().rows.map((row) => (
 								<TableRow
-									className="h-[49px] cursor-pointer"
+									className="h-[49px] cursor-pointer focus-visible:bg-accent/70 focus-visible:outline-none"
 									key={row.id}
 									onClick={() => {
 										router.push(
 											`/websites/${websiteId}/users/${row.original.visitor_id}`
 										);
 									}}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											e.currentTarget.click();
+											return;
+										}
+										if (e.key === "ArrowDown" || e.key === "j") {
+											e.preventDefault();
+											(
+												e.currentTarget.nextElementSibling as HTMLElement | null
+											)?.focus();
+											return;
+										}
+										if (e.key === "ArrowUp" || e.key === "k") {
+											e.preventDefault();
+											(
+												e.currentTarget
+													.previousElementSibling as HTMLElement | null
+											)?.focus();
+											return;
+										}
+										if (e.key === "Escape") {
+											e.preventDefault();
+											(e.currentTarget as HTMLElement).blur();
+										}
+									}}
+									tabIndex={0}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell

@@ -11,7 +11,7 @@ import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
 } from "@/stores/jotai/filterAtoms";
-import { WarningIcon } from "@/components/icons/nucleo";
+import { WarningIcon } from "@databuddy/ui/icons";
 
 export default function PublicDashboardPage() {
 	const { id } = useParams();

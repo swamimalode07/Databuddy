@@ -1,7 +1,7 @@
 "use client";
 
-import { Tooltip } from "@/components/ds/tooltip";
-import { cn } from "@/lib/utils";
+import { Tooltip } from "../../components/tooltip";
+import { cn } from "../utils";
 import { getUptimeHeatmapCellClass } from "./heatmap-cell-class";
 import { UptimeHeatmapDayTooltipBody } from "./heatmap-day-tooltip";
 import type { UptimeHeatmapDay } from "./heatmap-days";

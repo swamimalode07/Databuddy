@@ -27,7 +27,7 @@ import {
 	FunnelIcon,
 	LightbulbIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type SeverityFilter = "all" | InsightSeverity;
 type SortMode = "priority" | "newest" | "change";

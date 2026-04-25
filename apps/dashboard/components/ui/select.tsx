@@ -9,7 +9,7 @@ import {
 	CaretDownIcon,
 	CaretUpIcon,
 	CheckIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function Select({
 	...props

@@ -12,7 +12,7 @@ import {
 import { type BundledLanguage, codeToHtml, type ShikiTransformer } from "shiki";
 import { Button } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
-import { CheckIcon, CopyIcon } from "@/components/icons/nucleo";
+import { CheckIcon, CopyIcon } from "@databuddy/ui/icons";
 
 type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
 	code: string;

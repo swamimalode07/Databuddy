@@ -9,7 +9,7 @@ import { Badge } from "@/components/ds/badge";
 import { StatusDot } from "@/components/ds/status-dot";
 import { Button } from "@/components/ds/button";
 import { useDateFilters } from "@/hooks/use-date-filters";
-import { formatDateOnly, formatLocalTime } from "@/lib/time";
+import { formatDateOnly, formatLocalTime } from "@databuddy/ui";
 import { getDeviceIcon } from "@/lib/utils";
 import { generateProfileName } from "./_components/generate-profile-name";
 import { SessionRow } from "./_components/session-row";
@@ -24,7 +24,7 @@ import {
 	GlobeIcon,
 	SpinnerIcon,
 	UserIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function StatItem({
 	icon: Icon,

@@ -18,11 +18,7 @@ import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { GoalFilter } from "@databuddy/shared/types/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FunnelSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import {
-	GearIcon,
-	PlusIcon,
-	TargetIcon as Target,
-} from "@/components/icons/nucleo";
+import { GearIcon, PlusIcon, TargetIcon as Target } from "@databuddy/ui/icons";
 
 const defaultFilter: GoalFilter = {
 	field: "browser_name",

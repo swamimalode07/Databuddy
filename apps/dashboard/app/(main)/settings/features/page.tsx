@@ -2,7 +2,7 @@
 
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
-import { RocketIcon } from "@/components/icons/nucleo";
+import { RocketIcon } from "@databuddy/ui/icons";
 
 export default function FeaturesSettingsPage() {
 	return (

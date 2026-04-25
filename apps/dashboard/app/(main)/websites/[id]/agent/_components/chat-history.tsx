@@ -10,8 +10,8 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useChat } from "@/contexts/chat-context";
-import dayjs from "@/lib/dayjs";
+import { useChatSafe } from "@/contexts/chat-context";
+import { dayjs } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import { clearLastChatId, useChatList } from "./hooks/use-chat-db";
 import { ChatCircleDotsIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
@@ -21,7 +21,7 @@ import {
 	MagnifyingGlassIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type Chat = ReturnType<typeof useChatList>["chats"][number];
 
@@ -36,7 +36,7 @@ export function ChatHistory() {
 	const params = useParams();
 	const router = useRouter();
 	const websiteId = params.id as string;
-	const { id: currentChatId } = useChat();
+	const currentChatId = useChatSafe()?.id ?? null;
 	const { chats, isLoading, removeChat, renameChat } = useChatList(websiteId);
 
 	const filtered = useMemo(() => {

@@ -12,10 +12,10 @@ const PAGE_TITLES: Record<string, string> = {
 export function BillingHeader() {
 	const pathname = usePathname();
 	const title = PAGE_TITLES[pathname] ?? "Billing";
+	const items =
+		pathname === "/billing"
+			? [{ label: "Billing" }]
+			: [{ label: "Billing", href: "/billing" }, { label: title }];
 
-	return (
-		<TopBar.Title>
-			<h1 className="font-semibold text-sm">{title}</h1>
-		</TopBar.Title>
-	);
+	return <TopBar.Breadcrumbs items={items} />;
 }

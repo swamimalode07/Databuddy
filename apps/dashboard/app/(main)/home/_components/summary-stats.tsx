@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ds/badge";
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { StatusDot } from "@/components/ds/status-dot";
 import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ import {
 	TrendDownIcon,
 	TrendUpIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SummaryStatsProps {
 	activeMonitors: number;

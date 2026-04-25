@@ -7,7 +7,7 @@ import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { formatNumber } from "@/lib/formatters";
 import { useDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { RetentionCohortsGrid } from "./retention-cohorts-grid";
 import { RetentionRateChart } from "./retention-rate-chart";
 import {
@@ -16,7 +16,7 @@ import {
 	TableIcon,
 	UserPlusIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface RetentionContentProps {
 	websiteId: string;

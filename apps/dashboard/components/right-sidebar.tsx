@@ -2,10 +2,10 @@ import type { IconProps } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
 import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { Tip } from "@/components/ui/tip";
 import { cn } from "@/lib/utils";
-import { BookOpenIcon } from "@/components/icons/nucleo";
+import { BookOpenIcon } from "@databuddy/ui/icons";
 
 interface RightSidebarProps {
 	children: React.ReactNode;

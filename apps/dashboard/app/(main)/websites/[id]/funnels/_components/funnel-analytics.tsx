@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { StatCard } from "@/components/analytics/stat-card";
 import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import type {
 	FunnelAnalyticsByReferrerResult,
@@ -21,7 +21,7 @@ import {
 	TrendDownIcon,
 	UsersIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function createChartData(
 	timeSeries: FunnelTimeSeriesPoint[] | undefined,

@@ -13,9 +13,10 @@ import {
 	useUsageFeature,
 } from "@/components/providers/billing-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
-import { useChat, useChatLoading } from "@/contexts/chat-context";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
+import { TopBar } from "@/components/layout/top-bar";
+import { useChat, useChatLoading, useChatSafe } from "@/contexts/chat-context";
 import { useWebsite } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -31,7 +32,7 @@ import {
 	LightbulbIcon,
 	LightningIcon,
 	TableIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface AgentPageContentProps {
 	chatId: string;
@@ -93,8 +94,8 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 	return (
 		<div className="relative flex flex-1 overflow-hidden">
 			<div className="flex flex-1 flex-col overflow-hidden">
-				<header className="flex h-12 shrink-0 items-center gap-2.5 border-b bg-background px-4">
-					<div className="flex min-w-0 flex-1 items-center gap-2.5">
+				<TopBar.Title>
+					<div className="flex items-center gap-2.5">
 						<Avatar className="size-6 rounded">
 							<AvatarImage alt="Databunny avatar" src="/databunny.webp" />
 							<AvatarFallback className="rounded bg-primary/10 font-semibold text-[10px] text-primary">
@@ -108,13 +109,13 @@ export function AgentPageContent({ chatId, websiteId }: AgentPageContentProps) {
 							Alpha
 						</span>
 					</div>
-					<div className="flex shrink-0 items-center gap-1">
-						<AgentCreditBalance />
-						<span aria-hidden className="mx-1 h-4 w-px bg-border/60" />
-						<ChatHistory />
-						<NewChatButton />
-					</div>
-				</header>
+				</TopBar.Title>
+				<TopBar.Actions>
+					<AgentCreditBalance />
+					<span aria-hidden className="mx-1 h-4 w-px bg-border/60" />
+					<ChatHistory />
+					<NewChatButton />
+				</TopBar.Actions>
 
 				<Conversation className="flex-1 overscroll-none">
 					<ConversationContent
@@ -258,7 +259,8 @@ function WelcomeState({
 function AgentCreditBalance() {
 	const { balance, limit, unlimited } = useUsageFeature("agent_credits");
 	const { refetch, isLoading } = useBillingContext();
-	const { status } = useChat();
+	const chat = useChatSafe();
+	const status = chat?.status ?? "ready";
 	const router = useRouter();
 	const prevStatusRef = useRef(status);
 

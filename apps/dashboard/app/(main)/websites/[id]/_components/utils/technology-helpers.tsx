@@ -9,7 +9,7 @@ import {
 	LaptopIcon,
 	QuestionIcon,
 	TelevisionIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 // Regex patterns for browser name processing
 const MOBILE_PREFIX_REGEX = /^Mobile\s+/;

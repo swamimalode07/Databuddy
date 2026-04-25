@@ -10,7 +10,7 @@ import { Button } from "@/components/ds/button";
 import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { useCreateWebsite } from "@/hooks/use-websites";
-import { GlobeIcon } from "@/components/icons/nucleo";
+import { GlobeIcon } from "@databuddy/ui/icons";
 
 const domainRegex =
 	/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;

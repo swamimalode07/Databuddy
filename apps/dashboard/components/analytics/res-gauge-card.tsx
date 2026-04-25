@@ -3,8 +3,8 @@
 import { memo, useMemo } from "react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
 import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Skeleton } from "@databuddy/ui";
+import { Tooltip } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import {
 	calculateRES,
@@ -17,7 +17,7 @@ import {
 	TrendUpIcon,
 	WarningCircleIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface MetricInput {
 	metric_name: string;

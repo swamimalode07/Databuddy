@@ -30,7 +30,7 @@ import {
 	MagnifyingGlassIcon,
 	PlusIcon,
 	RocketIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function LinksPage() {
 	const [sheetLink, setSheetLink] = useState<Link | null>(null);

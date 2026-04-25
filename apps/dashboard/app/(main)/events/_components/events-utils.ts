@@ -1,4 +1,4 @@
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 
 export function formatDateLabel(
 	dateStr: string,

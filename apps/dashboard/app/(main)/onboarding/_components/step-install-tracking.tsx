@@ -24,7 +24,7 @@ import {
 	PulseIcon,
 	RobotIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { cn } from "@/lib/utils";
 import {
 	COPY_SUCCESS_TIMEOUT,
@@ -117,7 +117,7 @@ import {
 	PulseIcon,
 	RobotIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 track("signup_completed", { method: "google", plan: "pro" });
 \`\`\`
 

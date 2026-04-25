@@ -3,6 +3,7 @@ import type {
 	ProcessedMiniChartData,
 	Website,
 } from "@databuddy/shared/types/website";
+import { PrefetchZone } from "@/components/ds/prefetch-zone";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,7 +25,7 @@ import {
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDeleteWebsite } from "@/hooks/use-websites";
 import { formatNumber } from "@/lib/formatters";
@@ -43,7 +44,7 @@ import {
 	TrashIcon,
 	TrendDownIcon,
 	TrendUpIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface WebsiteCardProps {
 	activeUsers?: number;
@@ -156,7 +157,10 @@ export const WebsiteCard = memo(
 				<ContextMenu>
 					{/* Wrapper trigger: avoid merging Radix handlers onto Link (fixes stray click on RMB). */}
 					<ContextMenuTrigger asChild>
-						<div className="block h-full rounded outline-none focus-visible:outline-none">
+						<PrefetchZone
+							className="block h-full rounded outline-none focus-visible:outline-none"
+							href={`/websites/${website.id}`}
+						>
 							<Link
 								aria-label={`Open ${website.name} analytics`}
 								className="group block h-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -250,7 +254,7 @@ export const WebsiteCard = memo(
 									</Card.Content>
 								</Card>
 							</Link>
-						</div>
+						</PrefetchZone>
 					</ContextMenuTrigger>
 					<ContextMenuContent className="min-w-48 rounded border-border/50 bg-popover/95 p-0 shadow-lg backdrop-blur-sm">
 						<ContextMenuItem

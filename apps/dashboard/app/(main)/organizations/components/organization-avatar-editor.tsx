@@ -1,9 +1,6 @@
 "use client";
 
-import {
-	ArrowsClockwiseIcon,
-	PencilSimpleIcon,
-} from "@/components/icons/nucleo";
+import { ArrowsClockwiseIcon, PencilSimpleIcon } from "@databuddy/ui/icons";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { toast } from "sonner";

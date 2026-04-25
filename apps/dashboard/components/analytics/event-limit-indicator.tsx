@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ds/button";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { WarningIcon } from "@/components/icons/nucleo";
+import { WarningIcon } from "@databuddy/ui/icons";
 
 export function EventLimitIndicator() {
 	const pathname = usePathname();

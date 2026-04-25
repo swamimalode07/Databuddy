@@ -13,7 +13,7 @@ import {
 	PencilIcon,
 	TagIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface AnnotationsPanelProps {
 	annotations: Annotation[];

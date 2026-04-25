@@ -3,7 +3,7 @@
 import { PageNavigation } from "@/components/layout/page-navigation";
 import { EventsPageProvider } from "./_components/events-page-context";
 import { EventsPageHeader } from "./_components/events-page-header";
-import { ChartBarIcon, ListBulletsIcon } from "@/components/icons/nucleo";
+import { ChartBarIcon, ListBulletsIcon } from "@databuddy/ui/icons";
 
 export default function EventsLayout({
 	children,

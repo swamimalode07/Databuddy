@@ -9,12 +9,12 @@ import { FeatureAccessGate } from "@/components/feature-access-gate";
 import { MonitorSheet } from "@/components/monitors/monitor-sheet";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
-import { localDayjs } from "@/lib/time";
+import { localDayjs } from "@databuddy/ui";
 import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
 import { TopBar } from "@/components/layout/top-bar";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ import {
 	PencilIcon,
 	PlayIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface Schedule {
 	granularity: string;

@@ -33,7 +33,7 @@ import {
 	FunnelSimpleIcon,
 	XIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon, GearIcon, PlusIcon } from "@/components/icons/nucleo";
+import { FunnelIcon, GearIcon, PlusIcon } from "@databuddy/ui/icons";
 
 const defaultFilter: FunnelFilter = {
 	field: "browser_name",

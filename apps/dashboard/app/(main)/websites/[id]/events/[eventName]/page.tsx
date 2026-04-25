@@ -5,11 +5,11 @@ import { notFound, useParams } from "next/navigation";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { formatNumber } from "@/lib/formatters";
-import { formatTime, fromNow } from "@/lib/time";
+import { formatTime, fromNow } from "@databuddy/ui";
 import { useEventDetailData } from "./use-event-detail";
 import {
 	CalendarBlankIcon,
@@ -19,7 +19,7 @@ import {
 	TagIcon,
 	UserIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function EventDetailPage() {
 	const params = useParams();

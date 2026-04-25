@@ -14,11 +14,7 @@ import { Input } from "@/components/ds/input";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
 import { GithubMark, GoogleMark } from "@/components/ui/brand-icons";
-import {
-	EnvelopeSimpleIcon,
-	EyeIcon,
-	EyeSlashIcon,
-} from "@/components/icons/nucleo";
+import { EnvelopeSimpleIcon, EyeIcon, EyeSlashIcon } from "@databuddy/ui/icons";
 
 function LoginPage() {
 	const router = useRouter();

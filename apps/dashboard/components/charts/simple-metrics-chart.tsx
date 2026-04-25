@@ -11,7 +11,7 @@ import {
 import { chartSeriesColorAtIndex } from "@/lib/chart-presentation";
 import type { ChartQueryOutcome } from "@/lib/chart-query-outcome";
 import { cn } from "@/lib/utils";
-import { ChartLineIcon } from "@/components/icons/nucleo";
+import { ChartLineIcon } from "@databuddy/ui/icons";
 
 interface SimpleMetricsChartProps {
 	chartStepType?: ChartCurveType;

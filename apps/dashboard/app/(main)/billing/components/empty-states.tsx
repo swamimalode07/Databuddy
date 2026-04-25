@@ -5,7 +5,7 @@ import {
 	ArrowClockwiseIcon,
 	TrendUpIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export function EmptyUsageState() {
 	return (

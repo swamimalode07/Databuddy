@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ds/button";
 import { Dialog } from "@/components/ds/dialog";
-import { TrashIcon } from "@/components/icons/nucleo";
+import { TrashIcon } from "@databuddy/ui/icons";
 
 interface DeleteDialogProps {
 	cancelLabel?: string;

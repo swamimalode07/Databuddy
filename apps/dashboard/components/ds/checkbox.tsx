@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Checkbox as BaseCheckbox } from "@base-ui-components/react/checkbox";
-import { CheckIcon } from "@/components/icons/nucleo";
+import { CheckIcon } from "@databuddy/ui/icons";
 import { useId, type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 type CheckboxProps = ComponentPropsWithoutRef<typeof BaseCheckbox.Root> & {

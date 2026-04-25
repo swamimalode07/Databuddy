@@ -13,7 +13,7 @@ import {
 	ArrowRightIcon,
 	ArrowSquareOutIcon,
 	WarningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;

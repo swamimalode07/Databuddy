@@ -11,10 +11,10 @@ import { Input } from "@/components/ds/input";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Sheet } from "@/components/ds/sheet";
 import { Switch } from "@/components/ds/switch";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import { useWebsite } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
-import { InfoIcon } from "@/components/icons/nucleo";
+import { InfoIcon } from "@databuddy/ui/icons";
 
 type GranularityValue =
 	| "minute"

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { fromNow } from "@/lib/time";
+import { fromNow } from "@databuddy/ui";
 import type { BaseComponentProps } from "../../types";
 import {
 	CalendarIcon,
@@ -13,7 +13,7 @@ import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface AnnotationItem {
 	annotationType: "point" | "line" | "range";

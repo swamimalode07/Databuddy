@@ -1,7 +1,7 @@
 "use client";
 
 import { useHotkeys } from "react-hotkeys-hook";
-import { MagnifyingGlassPlusIcon, NoteIcon } from "@/components/icons/nucleo";
+import { MagnifyingGlassPlusIcon, NoteIcon } from "@databuddy/ui/icons";
 
 interface RangeSelectionPopupProps {
 	dateRange: {

@@ -13,7 +13,7 @@ import { Streamdown } from "streamdown";
 import { Shimmer } from "./shimmer";
 import { useThinkingPhrase } from "./thinking-phrases";
 import { UnicodeSpinner, useRandomThinkingVariant } from "./unicode-spinner";
-import { CaretDownIcon } from "@/components/icons/nucleo";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 
 interface ReasoningContextValue {
 	duration: number | undefined;

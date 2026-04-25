@@ -13,8 +13,8 @@ import { SimpleMetricsChart } from "@/components/charts/simple-metrics-chart";
 import { DataTable, type TabConfig } from "@/components/table/data-table";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import { usePersistentState } from "@/hooks/use-persistent-state";
-import dayjs from "@/lib/dayjs";
+import { usePersistentState } from "@databuddy/ui";
+import { dayjs } from "@databuddy/ui";
 import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
@@ -27,7 +27,7 @@ import {
 	createRegionColumns,
 	type VitalsBreakdownData,
 } from "./columns";
-import { HeartbeatIcon } from "@/components/icons/nucleo";
+import { HeartbeatIcon } from "@databuddy/ui/icons";
 
 interface VitalMetric {
 	avg_value: number;

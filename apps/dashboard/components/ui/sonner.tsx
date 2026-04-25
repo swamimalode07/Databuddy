@@ -8,7 +8,7 @@ import {
 	SpinnerIcon,
 	WarningCircleIcon,
 	XCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function Toaster({ ...props }: ToasterProps) {
 	const { theme = "system" } = useTheme();

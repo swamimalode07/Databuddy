@@ -6,7 +6,7 @@ import { use, useCallback } from "react";
 import { EmptyState } from "@/components/ds/empty-state";
 import { FeatureGate } from "@/components/feature-gate";
 import { useDateFilters } from "@/hooks/use-date-filters";
-import { formatDateOnly } from "@/lib/time";
+import { formatDateOnly } from "@databuddy/ui";
 import {
 	type DynamicQueryFilter,
 	dynamicQueryFiltersAtom,
@@ -26,7 +26,7 @@ import type {
 	ProcessedChartData,
 	RecentError,
 } from "./types";
-import { BugIcon } from "@/components/icons/nucleo";
+import { BugIcon } from "@databuddy/ui/icons";
 
 interface ErrorsPageContentProps {
 	params: Promise<{ id: string }>;

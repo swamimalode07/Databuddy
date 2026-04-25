@@ -10,7 +10,7 @@ import { Card } from "@/components/ds/card";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { type CreateGoalData, type Goal, useGoals } from "@/hooks/use-goals";
-import { fromNow } from "@/lib/time";
+import { fromNow } from "@databuddy/ui";
 import type { BaseComponentProps } from "../../types";
 import {
 	DotsThreeIcon,
@@ -20,7 +20,7 @@ import {
 	PlusIcon,
 	TargetIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface GoalItem {
 	createdAt?: string;

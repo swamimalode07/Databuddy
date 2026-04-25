@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ds/dialog";
 import { cn } from "@/lib/utils";
 import {
 	MagnifyingGlassIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function Command({
 	className,

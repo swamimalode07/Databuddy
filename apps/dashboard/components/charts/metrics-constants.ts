@@ -10,7 +10,7 @@ import {
 	PulseIcon,
 	TrendUpIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const createColorSet = (
 	primary: string,

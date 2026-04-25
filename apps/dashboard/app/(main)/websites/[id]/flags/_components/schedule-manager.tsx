@@ -21,7 +21,7 @@ import {
 	PlusIcon,
 	PowerIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type ScheduleType = "enable" | "disable" | "update_rollout";
 

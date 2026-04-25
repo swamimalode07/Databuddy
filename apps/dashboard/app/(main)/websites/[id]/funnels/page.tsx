@@ -25,11 +25,7 @@ import {
 	FunnelItemSkeleton,
 	FunnelsList,
 } from "./_components";
-import {
-	ArrowClockwiseIcon,
-	FunnelIcon,
-	PlusIcon,
-} from "@/components/icons/nucleo";
+import { ArrowClockwiseIcon, FunnelIcon, PlusIcon } from "@databuddy/ui/icons";
 
 const EditFunnelDialog = dynamic(
 	() =>

@@ -20,7 +20,7 @@ import {
 	LockIcon,
 	MagnifyingGlassIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface SearchItem {
 	icon: NavigationItem["icon"];

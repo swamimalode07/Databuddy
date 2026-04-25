@@ -12,11 +12,11 @@ import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { Switch } from "@/components/ds/switch";
 import { useWebsite } from "@/hooks/use-websites";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { DownloadIcon, FileCodeIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckIcon, FileTextIcon, TableIcon } from "@/components/icons/nucleo";
+import { CheckIcon, FileTextIcon, TableIcon } from "@databuddy/ui/icons";
 
 function downloadFile(blob: Blob, filename: string) {
 	const url = window.URL.createObjectURL(blob);

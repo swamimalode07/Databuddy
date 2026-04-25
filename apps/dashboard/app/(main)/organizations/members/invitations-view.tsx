@@ -12,8 +12,9 @@ import type {
 import {
 	ArrowClockwiseIcon,
 	EnvelopeIcon,
+	TrashIcon,
 	UserPlusIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { InvitationsSkeleton } from "../components/settings-skeletons";
 import { InvitationList } from "./invitation-list";
@@ -29,8 +30,13 @@ export function InvitationsView({
 		isLoading,
 		error,
 		isCancelling,
+		isClearingExpired,
+		isResending,
 		pendingCount,
+		expiredCount,
 		cancelInvitation,
+		clearExpiredInvitations,
+		resendInvitation,
 		refetch,
 	} = useOrganizationInvitations(organization.id);
 
@@ -72,21 +78,41 @@ export function InvitationsView({
 								: `${pendingCount} pending of ${totalCount} total`}
 						</Card.Description>
 					</div>
-					<Button
-						onClick={() => setShowInviteDialog(true)}
-						size="sm"
-						variant="secondary"
-					>
-						<UserPlusIcon size={14} />
-						Invite
-					</Button>
+					<div className="flex items-center gap-2">
+						{expiredCount > 0 && (
+							<Button
+								loading={isClearingExpired}
+								onClick={() => clearExpiredInvitations()}
+								size="sm"
+								variant="ghost"
+							>
+								<TrashIcon size={14} />
+								Clear expired
+							</Button>
+						)}
+						<Button
+							onClick={() => setShowInviteDialog(true)}
+							size="sm"
+							variant="secondary"
+						>
+							<UserPlusIcon size={14} />
+							Invite
+						</Button>
+					</div>
 				</Card.Header>
 				{totalCount > 0 && (
 					<Card.Content className="p-0">
 						<InvitationList
 							invitations={invitations}
 							isCancellingInvitation={isCancelling}
+							isResending={isResending}
 							onCancelInvitationAction={cancelInvitation}
+							onResendInvitation={(inv) =>
+								resendInvitation({
+									email: inv.email,
+									role: inv.role ?? "member",
+								})
+							}
 						/>
 					</Card.Content>
 				)}

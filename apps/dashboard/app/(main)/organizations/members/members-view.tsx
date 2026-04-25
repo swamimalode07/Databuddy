@@ -13,7 +13,7 @@ import {
 	ArrowClockwiseIcon,
 	UserPlusIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { MembersSkeleton } from "../components/settings-skeletons";
 import { MemberList } from "./member-list";

@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ds/empty-state";
 import type { GroupsListProps } from "../../_components/types";
 import { GroupItem } from "./group-item";
-import { UsersThreeIcon } from "@/components/icons/nucleo";
+import { UsersThreeIcon } from "@databuddy/ui/icons";
 
 export function GroupsList({
 	groups,

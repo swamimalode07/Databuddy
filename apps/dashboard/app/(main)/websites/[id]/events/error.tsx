@@ -6,7 +6,7 @@ import {
 	ArrowCounterClockwiseIcon,
 	ArrowLeftIcon,
 	LightningIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export default function EventsError({
 	error,

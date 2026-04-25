@@ -21,7 +21,7 @@ import {
 	MoonIcon,
 	SignOutIcon,
 	SunIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 import { useBillingContext } from "@/components/providers/billing-provider";
 import { useCommandSearchOpenAction } from "@/components/ui/command-search";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";

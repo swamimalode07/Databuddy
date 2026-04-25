@@ -1,7 +1,9 @@
+"use client";
+
 import { cn } from "../lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ButtonHTMLAttributes } from "react";
+import { type ButtonHTMLAttributes, useEffect, useRef, useState } from "react";
 import { Spinner } from "./spinner";
 
 const button = cva(
@@ -74,9 +76,16 @@ type CompatSize =
   | "icon"
   | "icon-sm";
 
+interface KeyboardShortcut {
+  display: string;
+  trigger: (e: KeyboardEvent) => boolean;
+  callback: (e: KeyboardEvent) => void | Promise<void>;
+}
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   Omit<VariantProps<typeof button>, "variant" | "size"> & {
     asChild?: boolean;
+    keyboard?: KeyboardShortcut;
     loading?: boolean;
     size?: CompatSize;
     variant?: CompatVariant;
@@ -142,25 +151,73 @@ export function Button({
   type = "button",
   loading,
   disabled,
+  keyboard,
   children,
   ...rest
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
+  const ref = useRef<HTMLButtonElement>(null);
+  const [lockedWidth, setLockedWidth] = useState<number>();
+  const isClickDisabled = disabled || loading;
+
+  useEffect(() => {
+    if (loading && ref.current && !lockedWidth) {
+      setLockedWidth(ref.current.offsetWidth);
+    } else if (!loading) {
+      setLockedWidth(undefined);
+    }
+  }, [loading, lockedWidth]);
+
+  useEffect(() => {
+    if (!keyboard || isClickDisabled) {
+      return;
+    }
+    const handler = (e: KeyboardEvent) => {
+      if (keyboard.trigger(e)) {
+        e.preventDefault();
+        keyboard.callback(e);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [keyboard, isClickDisabled]);
+
+  if (asChild) {
+    return (
+      <Comp
+        className={buttonVariants({ className, size, tone, variant })}
+        disabled={disabled}
+        type={type}
+        {...rest}
+      >
+        {children}
+      </Comp>
+    );
+  }
 
   return (
     <Comp
       className={buttonVariants({ className, size, tone, variant })}
-      disabled={disabled || loading}
+      disabled={disabled}
+      aria-disabled={isClickDisabled}
+      aria-busy={loading}
+      ref={ref}
+      style={lockedWidth ? { width: lockedWidth } : undefined}
       type={type}
+      onClick={loading ? undefined : rest.onClick}
       {...rest}
     >
       {loading ? (
-        <>
-          <Spinner size="sm" />
-          {children}
-        </>
+        <Spinner size="sm" />
       ) : (
-        children
+        <>
+          {children}
+          {keyboard && (
+            <kbd className="ml-1 rounded border bg-black/5 px-1.5 py-0.5 font-mono text-[10px] dark:bg-white/10">
+              {keyboard.display}
+            </kbd>
+          )}
+        </>
       )}
     </Comp>
   );

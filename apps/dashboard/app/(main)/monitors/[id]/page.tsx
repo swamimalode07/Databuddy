@@ -13,12 +13,12 @@ import { MonitorSheet } from "@/components/monitors/monitor-sheet";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { orpc } from "@/lib/orpc";
-import { fromNow, localDayjs } from "@/lib/time";
-import { LatencyChartChunkPlaceholder } from "@/lib/uptime/latency-chart-chunk-placeholder";
+import { fromNow, localDayjs } from "@databuddy/ui";
+import { LatencyChartChunkPlaceholder } from "@databuddy/ui/uptime";
 import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
 import { cn } from "@/lib/utils";
 import {
@@ -36,11 +36,11 @@ import {
 	PencilIcon,
 	PlayIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 const LatencyChart = dynamic(
 	() =>
-		import("@/lib/uptime/latency-chart").then((m) => ({
+		import("@databuddy/ui/uptime").then((m) => ({
 			default: m.LatencyChart,
 		})),
 	{

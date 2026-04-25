@@ -8,7 +8,7 @@ import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { useOrganizationInvitations } from "@/hooks/use-organization-invitations";
 import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
-import { UserPlusIcon } from "@/components/icons/nucleo";
+import { UserPlusIcon } from "@databuddy/ui/icons";
 import { useState } from "react";
 
 interface InviteMemberDialogProps {

@@ -17,7 +17,7 @@ import {
 import { SaveFilterDialog } from "./save-filter-dialog";
 import { SavedFiltersMenu } from "./saved-filters-menu";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
-import { FloppyDiskIcon, PencilIcon } from "@/components/icons/nucleo";
+import { FloppyDiskIcon, PencilIcon } from "@databuddy/ui/icons";
 
 function getFieldLabel(field: string): string {
 	return filterOptions.find((o) => o.value === field)?.label ?? field;

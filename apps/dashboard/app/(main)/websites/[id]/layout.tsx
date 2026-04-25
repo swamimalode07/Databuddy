@@ -25,7 +25,7 @@ import { AnalyticsToolbar } from "./_components/analytics-toolbar";
 import { AddFilterForm } from "./_components/filters/add-filters";
 import { WebsiteTrackingSetupTab } from "./_components/tabs/tracking-setup-tab";
 import { useTrackingSetup } from "./hooks/use-tracking-setup";
-import { ArrowClockwiseIcon } from "@/components/icons/nucleo";
+import { ArrowClockwiseIcon } from "@databuddy/ui/icons";
 
 const NO_TOOLBAR_ROUTES = [
 	"/assistant",

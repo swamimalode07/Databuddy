@@ -2,7 +2,7 @@
 
 import type { RefCallback } from "react";
 import { Badge } from "@/components/ds/badge";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import {
 	Table,
 	TableBody,
@@ -11,14 +11,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatLocalTime } from "@/lib/time";
+import { formatLocalTime } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import {
 	CheckCircleIcon,
 	ClockCounterClockwiseIcon,
 	WarningCircleIcon,
 	XCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface RecentActivityCheck {
 	error?: string;

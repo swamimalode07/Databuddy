@@ -8,7 +8,7 @@ import {
 } from "@/components/ai-elements/unicode-spinner";
 import { Button } from "@/components/ds/button";
 import { Textarea } from "@/components/ds/textarea";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import { useChat, usePendingQueue } from "@/contexts/chat-context";
 import { cn } from "@/lib/utils";
 import {
@@ -26,7 +26,7 @@ import {
 	StopIcon,
 	XIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { ClockCountdownIcon } from "@/components/icons/nucleo";
+import { ClockCountdownIcon } from "@databuddy/ui/icons";
 
 export function AgentInput() {
 	const { sendMessage, stop, status } = useChat();

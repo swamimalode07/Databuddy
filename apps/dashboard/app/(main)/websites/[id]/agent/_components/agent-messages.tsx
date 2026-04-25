@@ -32,11 +32,7 @@ import { parseContentSegments } from "@/lib/ai-components";
 import { formatToolLabel } from "@/lib/tool-display";
 import { cn } from "@/lib/utils";
 import { AgentErrorMessage } from "./agent-error-message";
-import {
-	ArrowsClockwiseIcon,
-	CheckIcon,
-	CopyIcon,
-} from "@/components/icons/nucleo";
+import { ArrowsClockwiseIcon, CheckIcon, CopyIcon } from "@databuddy/ui/icons";
 
 type MessagePart = UIMessage["parts"][number];
 

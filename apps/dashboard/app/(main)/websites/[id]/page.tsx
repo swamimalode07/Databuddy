@@ -14,7 +14,7 @@ import {
 import { WebsiteOverviewTab } from "./_components/tabs/overview-tab";
 import type { FullTabProps } from "./_components/utils/types";
 import { EmptyState } from "./_components/utils/ui-components";
-import { WarningIcon } from "@/components/icons/nucleo";
+import { WarningIcon } from "@databuddy/ui/icons";
 
 export default function WebsiteDetailsPage() {
 	const { id } = useParams();

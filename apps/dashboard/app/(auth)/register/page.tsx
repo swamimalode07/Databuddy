@@ -14,7 +14,7 @@ import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { Spinner } from "@/components/ds/spinner";
 import { Text } from "@/components/ds/text";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import { GithubMark, GoogleMark } from "@/components/ui/brand-icons";
 import VisuallyHidden from "@/components/ui/visuallyhidden";
 import {
@@ -22,7 +22,7 @@ import {
 	EyeIcon,
 	EyeSlashIcon,
 	InfoIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 function RegisterPageContent() {
 	const router = useRouter();

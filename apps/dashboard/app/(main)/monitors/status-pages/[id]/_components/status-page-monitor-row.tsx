@@ -17,7 +17,7 @@ import {
 	HeartbeatIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 type ToggleKey = "hideUrl" | "hideUptimePercentage" | "hideLatency";
 

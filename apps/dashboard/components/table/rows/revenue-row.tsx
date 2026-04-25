@@ -6,7 +6,7 @@ import {
 	CurrencyDollarIcon,
 	MapPinIcon,
 	QuestionIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 export interface RevenueEntry {
 	country_code?: string;

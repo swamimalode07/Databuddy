@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { CaretDownIcon } from "@/components/icons/nucleo";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 
 interface CollapsibleSectionProps {
 	badge?: number;

@@ -2,7 +2,7 @@
 
 import { RightSidebar } from "@/components/right-sidebar";
 import { ComingSoon } from "../_components/settings-section";
-import { PlugIcon } from "@/components/icons/nucleo";
+import { PlugIcon } from "@databuddy/ui/icons";
 
 export default function IntegrationsSettingsPage() {
 	return (

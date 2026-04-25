@@ -19,7 +19,7 @@ import {
 	PencilSimpleIcon,
 	TargetIcon,
 	TrashIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface GoalPreviewData {
 	description?: string | null;

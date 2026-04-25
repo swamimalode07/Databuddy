@@ -1,6 +1,5 @@
 "use client";
 
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -9,7 +8,7 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { CreateOrganizationDialog } from "@/components/organizations/create-organization-dialog";
 import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
 import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import {
 	activeOrganizationAtom,
 	isLoadingOrganizationsAtom,
@@ -20,19 +19,23 @@ import {
 	GearIcon,
 	GlobeIcon,
 	UsersIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
+
+type IconComponent = React.ForwardRefExoticComponent<
+	React.SVGProps<SVGSVGElement> & React.RefAttributes<SVGSVGElement>
+>;
 
 interface HeaderActionButton {
 	action: () => void;
 	disabled?: boolean;
-	icon: PhosphorIcon;
+	icon: IconComponent;
 	text: string;
 }
 
 interface PageInfo {
 	actionButton?: HeaderActionButton;
 	description: string;
-	icon: PhosphorIcon;
+	icon: IconComponent;
 	requiresOrg?: boolean;
 	title: string;
 }

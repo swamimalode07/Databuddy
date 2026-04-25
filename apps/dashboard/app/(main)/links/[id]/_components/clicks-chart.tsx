@@ -2,8 +2,8 @@
 
 import { EmptyState } from "@/components/ds/empty-state";
 import { Chart } from "@/components/ui/composables/chart";
-import dayjs from "@/lib/dayjs";
-import { ChartLineIcon } from "@/components/icons/nucleo";
+import { dayjs } from "@databuddy/ui";
+import { ChartLineIcon } from "@databuddy/ui/icons";
 
 export interface ChartDataPoint {
 	clicks: number;

@@ -23,7 +23,7 @@ import {
 	ShieldCheckIcon,
 	SlidersHorizontalIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { InfinityIcon } from "@/components/icons/nucleo";
+import { InfinityIcon } from "@databuddy/ui/icons";
 
 const EVENTS_FEATURE_ID = "events";
 

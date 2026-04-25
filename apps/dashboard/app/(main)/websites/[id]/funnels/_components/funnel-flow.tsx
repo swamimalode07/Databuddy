@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
-import { Tooltip } from "@/components/ds/tooltip";
+import { Tooltip } from "@databuddy/ui";
 import { cn } from "@/lib/utils";
 import type { FunnelStepAnalytics } from "@/types/funnels";
 import {
@@ -11,7 +11,7 @@ import {
 	CaretDownIcon,
 	CheckCircleIcon,
 	WarningCircleIcon,
-} from "@/components/icons/nucleo";
+} from "@databuddy/ui/icons";
 
 interface FunnelFlowProps {
 	steps: FunnelStepAnalytics[];

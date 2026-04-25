@@ -2,17 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
-import { Chart } from "@/components/ui/composables/chart";
-import { Skeleton } from "@/components/ds/skeleton";
-import { usePersistentState } from "@/hooks/use-persistent-state";
 import {
-	chartAxisTickDefault,
-	chartCartesianGridDefault,
-} from "@/lib/chart-presentation";
-import { cn } from "@/lib/utils";
-import { CaretDownIcon } from "@/components/icons/nucleo";
-
-const {
 	Area,
 	AreaChart,
 	CartesianGrid,
@@ -20,7 +10,11 @@ const {
 	Tooltip,
 	XAxis,
 	YAxis,
-} = Chart.Recharts;
+} from "recharts";
+import { Skeleton } from "../../components/skeleton";
+import { cn } from "../utils";
+import { usePersistentState } from "../../hooks/use-persistent-state";
+import { CaretDownIcon } from "../../components/icons/nucleo";
 
 interface LatencyDataPoint {
 	avg_response_time?: number;
@@ -37,86 +31,24 @@ interface LatencyChartProps {
 
 const CHART_BLOCK_MIN_PX = 168;
 
-const METRICS: Array<{
-	key: string;
-	label: string;
-	color: string;
-	formatValue: (v: number) => string;
-}> = [
+const METRICS = [
 	{
 		key: "p95_response_time",
 		label: "p95",
 		color: "var(--color-chart-4)",
-		formatValue: (v) => formatMs(v),
 	},
 	{
 		key: "avg_response_time",
 		label: "Avg",
 		color: "var(--color-chart-1)",
-		formatValue: (v) => formatMs(v),
 	},
-];
+] as const;
 
 function formatMs(ms: number): string {
 	if (ms >= 1000) {
 		return `${(ms / 1000).toFixed(1)}s`;
 	}
 	return `${Math.round(ms)}ms`;
-}
-
-function detectGranularity(data: ChartDataPoint[]): "hourly" | "daily" {
-	if (data.length < 2) {
-		return "daily";
-	}
-	const first = new Date(data.at(0)?.date ?? "").getTime();
-	const second = new Date(data.at(1)?.date ?? "").getTime();
-	const diffHours = (second - first) / (1000 * 60 * 60);
-	return diffHours < 20 ? "hourly" : "daily";
-}
-
-function formatTickDate(
-	dateStr: string,
-	granularity: "hourly" | "daily"
-): string {
-	try {
-		const d = new Date(dateStr);
-		if (granularity === "hourly") {
-			return d.toLocaleString("en-US", {
-				hour: "numeric",
-				minute: "2-digit",
-			});
-		}
-		return d.toLocaleDateString("en-US", {
-			month: "short",
-			day: "numeric",
-		});
-	} catch {
-		return dateStr;
-	}
-}
-
-function formatTooltipLabel(
-	dateStr: string,
-	granularity: "hourly" | "daily"
-): string {
-	try {
-		const d = new Date(dateStr);
-		if (granularity === "hourly") {
-			return d.toLocaleString("en-US", {
-				month: "short",
-				day: "numeric",
-				hour: "numeric",
-				minute: "2-digit",
-			});
-		}
-		return d.toLocaleDateString("en-US", {
-			weekday: "short",
-			month: "short",
-			day: "numeric",
-		});
-	} catch {
-		return dateStr;
-	}
 }
 
 interface ChartDataPoint {
@@ -143,22 +75,46 @@ function toChartData(data: LatencyDataPoint[]): ChartDataPoint[] {
 
 function computeSummary(chartData: ChartDataPoint[]) {
 	if (chartData.length === 0) {
-		return { current: null, avg: null, p95: null };
+		return { avg: null, p95: null };
 	}
-
 	const latest = chartData.at(-1);
 	const avgValues = chartData
 		.map((d) => d.avg_response_time)
 		.filter((v): v is number => v != null);
-
 	return {
-		current: latest?.avg_response_time ?? null,
 		avg:
 			avgValues.length > 0
 				? avgValues.reduce((a, b) => a + b, 0) / avgValues.length
 				: null,
 		p95: latest?.p95_response_time ?? null,
 	};
+}
+
+function detectGranularity(data: ChartDataPoint[]): "hourly" | "daily" {
+	if (data.length < 2) {
+		return "daily";
+	}
+	const first = new Date(data.at(0)?.date ?? "").getTime();
+	const second = new Date(data.at(1)?.date ?? "").getTime();
+	return (second - first) / (1000 * 60 * 60) < 20 ? "hourly" : "daily";
+}
+
+function formatTickDate(
+	dateStr: string,
+	granularity: "hourly" | "daily"
+): string {
+	try {
+		const d = new Date(dateStr);
+		if (granularity === "hourly") {
+			return d.toLocaleString("en-US", {
+				hour: "numeric",
+				minute: "2-digit",
+			});
+		}
+		return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+	} catch {
+		return dateStr;
+	}
 }
 
 export function LatencyChart({
@@ -173,7 +129,7 @@ export function LatencyChart({
 	return (
 		<div>
 			<button
-				className="flex min-h-10 w-full cursor-pointer items-center gap-3 border-t px-4 py-2.5 text-left hover:bg-accent/40 sm:px-6"
+				className="mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-sm px-2 py-2 text-left hover:bg-accent/40"
 				onClick={() => setIsOpen((prev) => !prev)}
 				type="button"
 			>
@@ -197,9 +153,7 @@ export function LatencyChart({
 							<span className="flex items-center gap-1">
 								<span
 									className="inline-block size-1.5 rounded-full"
-									style={{
-										backgroundColor: "var(--color-chart-1)",
-									}}
+									style={{ backgroundColor: "var(--color-chart-1)" }}
 								/>
 								{formatMs(summary.avg)}
 							</span>
@@ -207,9 +161,7 @@ export function LatencyChart({
 								<span className="flex items-center gap-1">
 									<span
 										className="inline-block size-1.5 rounded-full"
-										style={{
-											backgroundColor: "var(--color-chart-4)",
-										}}
+										style={{ backgroundColor: "var(--color-chart-4)" }}
 									/>
 									{formatMs(summary.p95)}
 								</span>
@@ -236,8 +188,11 @@ export function LatencyChart({
 						initial={{ height: 0, opacity: 0 }}
 						transition={{ duration: 0.2, ease: "easeOut" }}
 					>
-						<div className="px-4 pt-1 pb-4 sm:px-6">
-							<div className="w-full" style={{ minHeight: CHART_BLOCK_MIN_PX }}>
+						<div className="px-2 pt-2 pb-1">
+							<div
+								className="w-full"
+								style={{ minHeight: CHART_BLOCK_MIN_PX }}
+							>
 								{isLoading ? (
 									<Skeleton
 										className="w-full rounded"
@@ -263,6 +218,18 @@ export function LatencyChart({
 		</div>
 	);
 }
+
+const AXIS_TICK = {
+	fontSize: 11,
+	fill: "var(--muted-foreground)",
+} as const;
+
+const GRID = {
+	stroke: "var(--border)",
+	strokeDasharray: "2 4",
+	strokeOpacity: 0.35,
+	vertical: false,
+} as const;
 
 function LatencyAreaChart({ data }: { data: ChartDataPoint[] }) {
 	const granularity = useMemo(() => detectGranularity(data), [data]);
@@ -309,14 +276,14 @@ function LatencyAreaChart({ data }: { data: ChartDataPoint[] }) {
 							))}
 						</defs>
 
-						<CartesianGrid {...chartCartesianGridDefault} />
+						<CartesianGrid {...GRID} />
 
 						<XAxis
 							axisLine={false}
 							dataKey="date"
 							interval="preserveStartEnd"
 							minTickGap={40}
-							tick={chartAxisTickDefault}
+							tick={AXIS_TICK}
 							tickFormatter={(v: string) => formatTickDate(v, granularity)}
 							tickLine={false}
 							tickMargin={8}
@@ -325,29 +292,48 @@ function LatencyAreaChart({ data }: { data: ChartDataPoint[] }) {
 						<YAxis
 							axisLine={false}
 							domain={["dataMin", "auto"]}
-							tick={chartAxisTickDefault}
+							tick={AXIS_TICK}
 							tickFormatter={formatMs}
 							tickLine={false}
 							width={52}
 						/>
 
 						<Tooltip
-							content={({ active, payload, label }) => (
-								<Chart.Tooltip
-									active={active}
-									entries={Chart.createTooltipEntries(
-										payload as Array<{
-											dataKey: string;
-											value: number;
-											color: string;
-										}>,
-										METRICS
-									)}
-									formatLabelAction={(l) => formatTooltipLabel(l, granularity)}
-									label={label}
-								/>
-							)}
-							cursor={Chart.tooltipCursorLine}
+							content={({ active, payload, label }) => {
+								if (!active || !payload?.length) return null;
+								return (
+									<div className="rounded border border-border bg-popover p-2.5 shadow-lg">
+										<p className="mb-1.5 border-b border-border pb-1.5 text-muted-foreground text-xs">
+											{formatTickDate(String(label ?? ""), granularity)}
+										</p>
+										{payload.map((entry) => (
+											<div
+												className="flex items-center gap-2 text-xs"
+												key={String(entry.dataKey)}
+											>
+												<span
+													className="inline-block size-1.5 rounded-full"
+													style={{ backgroundColor: entry.color }}
+												/>
+												<span className="text-muted-foreground">
+													{METRICS.find((m) => m.key === entry.dataKey)
+														?.label ?? String(entry.dataKey ?? "")}
+												</span>
+												<span className="ml-auto font-mono tabular-nums">
+													{typeof entry.value === "number"
+														? formatMs(entry.value)
+														: "—"}
+												</span>
+											</div>
+										))}
+									</div>
+								);
+							}}
+							cursor={{
+								stroke: "var(--border)",
+								strokeWidth: 1,
+								strokeDasharray: "4 4",
+							}}
 						/>
 
 						{METRICS.map((m) => (
