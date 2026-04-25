@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { TopBar } from "@/components/layout/top-bar";
-import { Skeleton } from "@/components/ds/skeleton";
 import { orpc } from "@/lib/orpc";
 import { FeedbackList } from "./components/feedback-list";
 import { CreditsPanel } from "./components/credits-panel";
@@ -15,7 +14,14 @@ const REWARD_TIERS = [
 	{ creditsRequired: 100, rewardType: "events", rewardAmount: 2500 },
 	{ creditsRequired: 200, rewardType: "events", rewardAmount: 5000 },
 	{ creditsRequired: 500, rewardType: "events", rewardAmount: 15_000 },
+	{ creditsRequired: 25, rewardType: "agent-credits", rewardAmount: 10 },
+	{ creditsRequired: 75, rewardType: "agent-credits", rewardAmount: 35 },
+	{ creditsRequired: 150, rewardType: "agent-credits", rewardAmount: 80 },
+	{ creditsRequired: 400, rewardType: "agent-credits", rewardAmount: 250 },
 ] as const;
+
+const EVENT_TIERS = REWARD_TIERS.filter((t) => t.rewardType === "events");
+const AGENT_TIERS = REWARD_TIERS.filter((t) => t.rewardType === "agent-credits");
 
 export default function FeedbackPage() {
 	const { data: balance, isLoading: isBalanceLoading } = useQuery(
@@ -39,11 +45,12 @@ export default function FeedbackPage() {
 
 					<div className="space-y-5 lg:sticky lg:top-0 lg:self-start">
 						<CreditsPanel
+							agentTiers={AGENT_TIERS}
 							available={balance?.available ?? 0}
+							eventTiers={EVENT_TIERS}
 							isLoading={isBalanceLoading}
 							onRedeemAction={setRedeemTier}
 							redeemingTier={redeemTier}
-							tiers={REWARD_TIERS}
 							totalEarned={balance?.totalEarned ?? 0}
 							totalSpent={balance?.totalSpent ?? 0}
 						/>

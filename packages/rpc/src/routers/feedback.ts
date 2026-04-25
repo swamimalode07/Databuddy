@@ -97,6 +97,10 @@ const REWARD_TIERS = [
 	{ creditsRequired: 100, rewardType: "events", rewardAmount: 2500 },
 	{ creditsRequired: 200, rewardType: "events", rewardAmount: 5000 },
 	{ creditsRequired: 500, rewardType: "events", rewardAmount: 15_000 },
+	{ creditsRequired: 25, rewardType: "agent-credits", rewardAmount: 10 },
+	{ creditsRequired: 75, rewardType: "agent-credits", rewardAmount: 35 },
+	{ creditsRequired: 150, rewardType: "agent-credits", rewardAmount: 80 },
+	{ creditsRequired: 400, rewardType: "agent-credits", rewardAmount: 250 },
 ] as const;
 
 const categoryEnum = z.enum([
@@ -343,6 +347,9 @@ export const feedbackRouter = {
 				context.organizationId
 			);
 
+			const featureId =
+				tier.rewardType === "agent-credits" ? "agent-credits" : "events";
+
 			try {
 				const response = await fetch(
 					"https://api.useautumn.com/v1/balances.update",
@@ -354,7 +361,7 @@ export const feedbackRouter = {
 						},
 						body: JSON.stringify({
 							customer_id: customerId,
-							feature_id: "events",
+							feature_id: featureId,
 							add_to_balance: tier.rewardAmount,
 						}),
 					}

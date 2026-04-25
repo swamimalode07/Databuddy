@@ -3,7 +3,7 @@
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { Skeleton } from "@/components/ds/skeleton";
-import { LightningIcon, TrendUpIcon } from "@/components/icons/nucleo";
+import { LightningIcon, RobotIcon, TrendUpIcon } from "@/components/icons/nucleo";
 import { cn } from "@/lib/utils";
 
 interface RewardTier {
@@ -13,13 +13,66 @@ interface RewardTier {
 }
 
 interface CreditsPanelProps {
+	agentTiers: readonly RewardTier[];
 	available: number;
+	eventTiers: readonly RewardTier[];
 	isLoading: boolean;
 	onRedeemAction: (tierIndex: number) => void;
 	redeemingTier: number | null;
-	tiers: readonly RewardTier[];
 	totalEarned: number;
 	totalSpent: number;
+}
+
+const REWARD_LABELS: Record<string, string> = {
+	events: "Events",
+	"agent-credits": "Agent Credits",
+};
+
+const REWARD_ICONS: Record<string, typeof LightningIcon> = {
+	events: LightningIcon,
+	"agent-credits": RobotIcon,
+};
+
+function TierRow({
+	tier,
+	tierIndex,
+	available,
+	redeemingTier,
+	onRedeem,
+}: {
+	available: number;
+	onRedeem: (index: number) => void;
+	redeemingTier: number | null;
+	tier: RewardTier;
+	tierIndex: number;
+}) {
+	const canAfford = available >= tier.creditsRequired;
+	const Icon = REWARD_ICONS[tier.rewardType] ?? LightningIcon;
+
+	return (
+		<div
+			className={cn(
+				"flex items-center justify-between rounded bg-secondary px-3 py-2.5",
+				!canAfford && "opacity-40"
+			)}
+		>
+			<div className="flex items-center gap-2.5">
+				<Icon className="size-4 shrink-0 text-foreground" />
+				<p className="font-semibold text-sm tabular-nums">
+					{tier.rewardAmount.toLocaleString()} {REWARD_LABELS[tier.rewardType] ?? tier.rewardType}
+				</p>
+			</div>
+			<Button
+				disabled={!canAfford || redeemingTier === tierIndex}
+				loading={redeemingTier === tierIndex}
+				onClick={() => onRedeem(tierIndex)}
+				size="sm"
+				variant={canAfford ? "primary" : "secondary"}
+			>
+				{tier.creditsRequired}
+			</Button>
+		</div>
+	);
 }
 
 function BalanceSkeleton() {
@@ -42,7 +95,8 @@ export function CreditsPanel({
 	totalEarned,
 	totalSpent,
 	isLoading,
-	tiers,
+	eventTiers,
+	agentTiers,
 	onRedeemAction,
 	redeemingTier,
 }: CreditsPanelProps) {
@@ -52,7 +106,7 @@ export function CreditsPanel({
 				<BalanceSkeleton />
 				<div className="space-y-2 border-t p-4">
 					<Skeleton className="h-3 w-24 rounded" />
-					{[1, 2, 3, 4].map((n) => (
+					{[1, 2, 3].map((n) => (
 						<Skeleton className="h-14 w-full rounded" key={n} />
 					))}
 				</div>
@@ -82,39 +136,37 @@ export function CreditsPanel({
 
 			<div className="border-t p-4">
 				<p className="mb-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-					Redeem Credits
+					Event Balance
 				</p>
 				<div className="space-y-2">
-					{tiers.map((tier, index) => {
-						const canAfford = available >= tier.creditsRequired;
-						return (
-							<div
-								className={cn(
-									"flex items-center justify-between rounded bg-secondary px-3 py-2.5",
-									!canAfford && "opacity-40"
-								)}
-								key={tier.creditsRequired}
-							>
-								<div className="flex items-center gap-2.5">
-									<LightningIcon className="size-4 shrink-0 text-foreground" />
-									<div>
-										<p className="font-semibold text-sm tabular-nums">
-											{tier.rewardAmount.toLocaleString()} {tier.rewardType}
-										</p>
-									</div>
-								</div>
-								<Button
-									disabled={!canAfford || redeemingTier === index}
-									loading={redeemingTier === index}
-									onClick={() => onRedeemAction(index)}
-									size="sm"
-									variant={canAfford ? "primary" : "secondary"}
-								>
-									{tier.creditsRequired}
-								</Button>
-							</div>
-						);
-					})}
+					{eventTiers.map((tier, i) => (
+						<TierRow
+							available={available}
+							key={tier.creditsRequired}
+							onRedeem={onRedeemAction}
+							redeemingTier={redeemingTier}
+							tier={tier}
+							tierIndex={i}
+						/>
+					))}
+				</div>
+			</div>
+
+			<div className="border-t p-4">
+				<p className="mb-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+					Agent Credits
+				</p>
+				<div className="space-y-2">
+					{agentTiers.map((tier, i) => (
+						<TierRow
+							available={available}
+							key={tier.creditsRequired}
+							onRedeem={onRedeemAction}
+							redeemingTier={redeemingTier}
+							tier={tier}
+							tierIndex={eventTiers.length + i}
+						/>
+					))}
 				</div>
 			</div>
 		</Card>

@@ -49,8 +49,9 @@ export function RedeemDialog({
 				<Dialog.Header>
 					<Dialog.Title>Confirm Redemption</Dialog.Title>
 					<Dialog.Description>
-						This will deduct credits from your balance and add events to your
-						account.
+						This will deduct credits from your balance and add{" "}
+						{rewardType === "agent-credits" ? "agent credits" : "events"} to
+						your account.
 					</Dialog.Description>
 				</Dialog.Header>
 				<Dialog.Body className="space-y-2">
@@ -70,7 +71,7 @@ export function RedeemDialog({
 					</div>
 					<div className="flex items-center justify-between rounded-md bg-secondary px-4 py-3">
 						<Text tone="muted" variant="body">
-							Events added
+							{rewardType === "agent-credits" ? "Agent credits" : "Events"} added
 						</Text>
 						<Text className="text-success tabular-nums" variant="label">
 							+{rewardAmount.toLocaleString()} {rewardType}
