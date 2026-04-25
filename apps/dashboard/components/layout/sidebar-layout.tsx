@@ -6,6 +6,7 @@ import {
 	use,
 	useCallback,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 import { cn } from "@/lib/utils";
@@ -80,12 +81,20 @@ export function SidebarPanel({
 	className?: string;
 }) {
 	const { open } = useSidebarLayout();
+	const hasAnimated = useRef(false);
+
+	useEffect(() => {
+		hasAnimated.current = true;
+	}, []);
 
 	return (
 		<nav
 			className={cn(
-				"fixed inset-y-0 left-0 z-50 hidden flex-col border-r border-sidebar-border/50 bg-sidebar md:flex",
-				open ? "w-64" : "w-12",
+				"fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-sidebar-border/50 bg-sidebar md:flex",
+				hasAnimated.current
+					? "transition-transform duration-200 ease-out"
+					: "",
+				open ? "translate-x-0" : "-translate-x-[208px]",
 				className
 			)}
 		>
