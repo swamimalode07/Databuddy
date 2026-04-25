@@ -1,4 +1,4 @@
-const backgroundFlow = () => {
+const BackgroundFlow = () => {
 	return (
 		<div className="pointer-events-none absolute -top-20 right-0 bottom-0 left-0">
 			<svg
@@ -155,4 +155,4 @@ const backgroundFlow = () => {
 	);
 };
 
-export default backgroundFlow;
+export default BackgroundFlow;
