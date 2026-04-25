@@ -6,8 +6,8 @@ import { Spinner } from "./spinner";
 
 const button = cva(
   [
-    "inline-flex items-center justify-center gap-1.5",
-    "select-none whitespace-nowrap font-medium",
+    "inline-flex items-center justify-center gap-2",
+    "select-none whitespace-nowrap font-semibold",
     "rounded-md",
     "transition-[background-color,color,opacity,transform,filter,box-shadow] duration-(--duration-quick) ease-(--ease-smooth)",
     "motion-reduce:transition-none",
@@ -31,9 +31,9 @@ const button = cva(
         danger: "",
       },
       size: {
-        sm: "h-7 px-2.5 text-xs",
-        md: "h-8 px-3 text-xs",
-        lg: "h-9 px-4 text-sm",
+        sm: "h-8 px-3 text-xs",
+        md: "h-9 px-3.5 text-sm",
+        lg: "h-10 px-4 text-sm",
       },
     },
     compoundVariants: [
