@@ -1,7 +1,6 @@
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
 import {
 	BellIcon,
-	BookOpenIcon,
 	BoltLightningIcon as LightningIcon,
 	BugIcon,
 	ChartActivityIcon as PulseIcon,
@@ -24,18 +23,14 @@ import {
 	LinkIcon,
 	LockIcon,
 	MapPinIcon,
-	MediaPlayIcon,
-	MsgContentIcon,
 	OpenExternalIcon as ArrowSquareOutIcon,
 	ReceiptIcon,
 	RobotIcon,
-	RoadIcon,
 	TargetIcon,
 	TriangleWarningIcon as WarningIcon,
 	UserIcon,
 	UserSettingsIcon,
 	Users3Icon as UsersThreeIcon,
-	VolumeUpIcon,
 } from "@/components/icons/nucleo";
 import type { NavigationGroup, NavigationItem } from "./types";
 
@@ -54,7 +49,7 @@ export const createNavItem = (
 
 export const mainNavigation: NavigationGroup[] = [
 	{
-		label: "Overview",
+		label: "",
 		items: [
 			createNavItem("Home", HouseIcon, "/home"),
 			createNavItem("Websites", GlobeIcon, "/websites"),
@@ -62,7 +57,7 @@ export const mainNavigation: NavigationGroup[] = [
 		],
 	},
 	{
-		label: "Observability",
+		label: "Tracking",
 		items: [
 			createNavItem("Links", LinkIcon, "/links"),
 			createNavItem("Custom Events", LightningIcon, "/events"),
@@ -72,39 +67,8 @@ export const mainNavigation: NavigationGroup[] = [
 		label: "Monitoring",
 		flag: "monitors",
 		items: [
-			createNavItem("All Monitors", HeartbeatIcon, "/monitors"),
+			createNavItem("Monitors", HeartbeatIcon, "/monitors"),
 			createNavItem("Status Pages", GlobeSimpleIcon, "/monitors/status-pages"),
-		],
-	},
-	{
-		label: "Resources",
-		items: [
-			createNavItem(
-				"Documentation",
-				BookOpenIcon,
-				"https://databuddy.cc/docs",
-				{
-					external: true,
-				}
-			),
-			createNavItem(
-				"Video Guides",
-				MediaPlayIcon,
-				"https://youtube.com/@trydatabuddy",
-				{ external: true }
-			),
-			createNavItem(
-				"Roadmap",
-				RoadIcon,
-				"https://trello.com/b/SOUXD4wE/databuddy",
-				{ external: true }
-			),
-			createNavItem(
-				"Feedback",
-				VolumeUpIcon,
-				"https://databuddy.featurebase.app/",
-				{ external: true }
-			),
 		],
 	},
 	{
@@ -112,7 +76,6 @@ export const mainNavigation: NavigationGroup[] = [
 		pinToBottom: true,
 		items: [
 			createNavItem("Settings", GearIcon, "/organizations/settings"),
-			createNavItem("Billing", CreditCardIcon, "/billing"),
 		],
 	},
 ];
@@ -120,12 +83,21 @@ export const mainNavigation: NavigationGroup[] = [
 export const websiteNavigation: NavigationGroup[] = [
 	{
 		back: { href: "/websites", label: "Websites" },
-		label: "Web Analytics",
+		label: "",
 		items: [
 			createNavItem("Dashboard", ChartPieSliceIcon, "", { rootLevel: false }),
 			createNavItem("Audience", UsersThreeIcon, "/audience", {
 				rootLevel: false,
 			}),
+			createNavItem("Error Tracking", BugIcon, "/errors", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.ERROR_TRACKING,
+			}),
+		],
+	},
+	{
+		label: "Performance",
+		items: [
 			createNavItem("Web Vitals", GaugeIcon, "/vitals", {
 				rootLevel: false,
 				gatedFeature: GATED_FEATURES.WEB_VITALS,
@@ -133,10 +105,6 @@ export const websiteNavigation: NavigationGroup[] = [
 			createNavItem("Geographic", MapPinIcon, "/map", {
 				rootLevel: false,
 				gatedFeature: GATED_FEATURES.GEOGRAPHIC,
-			}),
-			createNavItem("Error Tracking", BugIcon, "/errors", {
-				rootLevel: false,
-				gatedFeature: GATED_FEATURES.ERROR_TRACKING,
 			}),
 			createNavItem("Anomalies", WarningIcon, "/anomalies", {
 				rootLevel: false,
@@ -151,7 +119,7 @@ export const websiteNavigation: NavigationGroup[] = [
 		],
 	},
 	{
-		label: "Product Analytics",
+		label: "Product",
 		items: [
 			createNavItem("Users", IdentificationBadgeIcon, "/users", {
 				rootLevel: false,
@@ -175,6 +143,11 @@ export const websiteNavigation: NavigationGroup[] = [
 				rootLevel: false,
 				flag: "revenue",
 			}),
+		],
+	},
+	{
+		label: "AI",
+		items: [
 			createNavItem("Databunny", RobotIcon, "/agent", {
 				alpha: true,
 				rootLevel: false,
@@ -182,7 +155,7 @@ export const websiteNavigation: NavigationGroup[] = [
 		],
 	},
 	{
-		label: "",
+		label: "Settings",
 		pinToBottom: true,
 		items: [
 			createNavItem("General", GearIcon, "/settings/general", {
@@ -211,12 +184,7 @@ export const settingsNavigation: NavigationGroup[] = [
 		items: [
 			createNavItem("General", GearIcon, "/organizations/settings"),
 			createNavItem("Members", UserIcon, "/organizations/members"),
-		],
-	},
-	{
-		label: "Billing",
-		items: [
-			createNavItem("Overview", CreditCardIcon, "/billing"),
+			createNavItem("Billing", CreditCardIcon, "/billing"),
 			createNavItem("Plans", CurrencyDollarIcon, "/billing/plans"),
 			createNavItem("Invoices", ReceiptIcon, "/billing/history"),
 		],
@@ -227,7 +195,6 @@ export const settingsNavigation: NavigationGroup[] = [
 			createNavItem("Profile", UserSettingsIcon, "/settings/account"),
 			createNavItem("Appearance", EyeIcon, "/settings/appearance"),
 			createNavItem("Notifications", BellIcon, "/settings/notifications"),
-			createNavItem("Feedback & Credits", MsgContentIcon, "/feedback"),
 		],
 	},
 ];
@@ -259,12 +226,8 @@ export function getNavContext(pathname: string): NavContext {
 
 export function getNavigation(pathname: string): NavigationGroup[] {
 	const ctx = getNavContext(pathname);
-	if (ctx === "website") {
-		return websiteNavigation;
-	}
-	if (ctx === "settings") {
-		return settingsNavigation;
-	}
+	if (ctx === "website") return websiteNavigation;
+	if (ctx === "settings") return settingsNavigation;
 	return mainNavigation;
 }
 
@@ -272,10 +235,6 @@ export function getNavDirection(
 	prev: NavContext,
 	next: NavContext
 ): "left" | "right" | null {
-	if (prev === next) {
-		return null;
-	}
-	const prevDepth = CONTEXT_DEPTH[prev];
-	const nextDepth = CONTEXT_DEPTH[next];
-	return nextDepth > prevDepth ? "left" : "right";
+	if (prev === next) return null;
+	return CONTEXT_DEPTH[next] > CONTEXT_DEPTH[prev] ? "left" : "right";
 }
