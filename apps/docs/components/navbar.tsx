@@ -22,7 +22,7 @@ export const Navbar = ({ stars }: NavbarProps) => {
 
 	return (
 		<>
-			<header className="fixed inset-x-0 top-0 z-40 flex flex-col bg-transparent pt-[env(safe-area-inset-top,0px)]">
+			<header className="fixed inset-x-0 top-0 z-40 flex flex-col bg-transparent backdrop-blur-md pt-[env(safe-area-inset-top,0px)]">
 				<nav>
 					<div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
 						<div className="flex h-16 items-center justify-between">
