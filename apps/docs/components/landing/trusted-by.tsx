@@ -133,7 +133,6 @@ const migratedOffOthers = [
 ];
 
 interface LogoGroupProps {
-	title: string;
 	companies: {
 		name: string;
 		url: string;
@@ -142,6 +141,7 @@ interface LogoGroupProps {
 		description?: string;
 		logoClass?: string;
 	}[];
+	title: string;
 }
 
 const LogoGroup = ({ title, companies }: LogoGroupProps) => {
@@ -183,19 +183,17 @@ const LogoGroup = ({ title, companies }: LogoGroupProps) => {
 	);
 };
 
-export const TrustedBy = () => {
-	return (
-		<div className="w-full">
-			<div className="grid grid-cols-1 sm:grid-cols-3">
-				<LogoGroup companies={juneCustomers} title="Customers from June" />
-				<LogoGroup
-					companies={analyticsMigrators}
-					title="Customers from Pendo, Mixpanel, Amplitude"
-				/>
-				<LogoGroup companies={migratedOffOthers} title="Migrated off others" />
-			</div>
+export const TrustedBy = () => (
+	<div className="mx-auto w-full max-w-7xl">
+		<div className="grid grid-cols-1 sm:grid-cols-3">
+			<LogoGroup companies={juneCustomers} title="Customers from June" />
+			<LogoGroup
+				companies={analyticsMigrators}
+				title="Customers from Pendo, Mixpanel, Amplitude"
+			/>
+			<LogoGroup companies={migratedOffOthers} title="Migrated off others" />
 		</div>
-	);
-};
+	</div>
+);
 
 export default TrustedBy;
