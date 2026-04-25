@@ -391,8 +391,8 @@ export function Sidebar() {
 				</ScrollArea>
 
 				{bottomGroups.length > 0 && (
-					<div className={cn("flex flex-col py-1", slideClass)}>
-						{!collapsed && <div className={cn(P.outer, "pb-1")}><div className="h-px bg-sidebar-border/30" /></div>}
+					<div className={cn("flex flex-col py-2", slideClass)}>
+						{!collapsed && <div className={P.outer}><div className="mb-2 h-px bg-sidebar-border/30" /></div>}
 						{bottomGroups.map((group) => (
 							<NavGroup group={group} isFirst key={group.label || "__pinned"} {...groupProps} />
 						))}
