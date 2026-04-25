@@ -30,7 +30,7 @@ export function FaqSection({
 	className,
 }: FaqSectionProps) {
 	return (
-		<div className={cn("mx-auto w-full max-w-5xl", className)}>
+		<div className={cn("mx-auto w-full max-w-7xl", className)}>
 			<div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
 				{/* Left: sticky title block */}
 				<div className="flex gap-4 sm:sticky sm:top-8 sm:w-94 sm:shrink-0 sm:self-start">
