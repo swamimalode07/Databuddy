@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import BackgroundFlow from "./backgroundFlow";
-import { SciFiButton } from "./scifi-btn";
+import { Button } from "../ui/button";
 
 const tabs = [
 	{ id: "overview", label: "Overview", path: "" },
@@ -111,13 +111,13 @@ export default function Hero({
 						initial={{ opacity: 0, y: 20 }}
 						transition={{ duration: 0.4, delay: 0.3 }}
 					>
-						<SciFiButton asChild className="px-6 py-5">
+						<Button variant="default" asChild className="px-6 py-5 font-semibold text-base">
 							<a href="https://app.databuddy.cc/login">Start free</a>
-						</SciFiButton>
+						</Button>
 
-						<SciFiButton asChild className="px-6 py-5">
+						<Button variant="outline" asChild className="px-6 py-5 font-semibold text-base">
 							<Link href="/demo">Live demo</Link>
-						</SciFiButton>
+						</Button>
 					</motion.div>
 				</div>
 
