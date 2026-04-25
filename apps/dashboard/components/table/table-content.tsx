@@ -1,8 +1,3 @@
-import {
-	CaretDownIcon,
-	CaretRightIcon,
-	DatabaseIcon,
-} from "@phosphor-icons/react";
 import { flexRender, type Table } from "@tanstack/react-table";
 import type React from "react";
 import { Fragment, memo, useCallback, useState } from "react";
@@ -16,6 +11,11 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { TableEmptyState } from "./table-empty-state";
+import {
+	CaretDownIcon,
+	CaretRightIcon,
+	DatabaseIcon,
+} from "@/components/icons/nucleo";
 
 const DEFAULT_SHARE_COLUMN_TITLE =
 	"Share of unique visitors in this breakdown. Row percentages may add up to more than 100% when the same user appears in multiple rows.";

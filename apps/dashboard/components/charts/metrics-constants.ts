@@ -1,3 +1,5 @@
+import { formatLocaleNumber } from "@/lib/format-locale-number";
+import { formatDuration } from "@/lib/utils";
 import {
 	BugIcon,
 	ClockIcon,
@@ -8,9 +10,7 @@ import {
 	PulseIcon,
 	TrendUpIcon,
 	UsersIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import { formatLocaleNumber } from "@/lib/format-locale-number";
-import { formatDuration } from "@/lib/utils";
+} from "@/components/icons/nucleo";
 
 const createColorSet = (
 	primary: string,

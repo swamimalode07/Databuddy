@@ -1,10 +1,9 @@
 "use client";
 
-import { SpinnerIcon } from "@phosphor-icons/react";
-import { TableIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/ds/empty-state";
 import dayjs from "@/lib/dayjs";
+import { SpinnerIcon, TableIcon } from "@/components/icons/nucleo";
 
 interface RetentionCohort {
 	cohort: string;

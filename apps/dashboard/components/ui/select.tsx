@@ -2,10 +2,14 @@
 
 import { useFieldContext } from "@/components/ds/field";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { CaretDownIcon, CaretUpIcon, CheckIcon } from "@phosphor-icons/react/dist/ssr";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
+import {
+	CaretDownIcon,
+	CaretUpIcon,
+	CheckIcon,
+} from "@/components/icons/nucleo";
 
 function Select({
 	...props

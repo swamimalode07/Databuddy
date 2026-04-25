@@ -1,11 +1,11 @@
 "use client";
 
-import { CircleNotch } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@/components/icons/nucleo";
 import { cn } from "../../lib/utils";
 
 export const Spinner = ({ className }: { className?: string }) => {
 	return (
-		<CircleNotch
+		<CircleNotchIcon
 			className={cn("animate-spin text-muted-foreground", className)}
 		/>
 	);

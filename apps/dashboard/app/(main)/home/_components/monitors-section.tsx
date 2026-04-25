@@ -1,8 +1,5 @@
 "use client";
 
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -16,6 +13,7 @@ import { formatDateOnly } from "@/lib/time";
 import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
 import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
 import { cn } from "@/lib/utils";
+import { HeartbeatIcon, LockIcon, PlusIcon } from "@/components/icons/nucleo";
 
 interface MonitorsSectionProps {
 	activeMonitors: number;

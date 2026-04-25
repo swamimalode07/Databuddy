@@ -1,19 +1,6 @@
 "use client";
 
-import {
-	ClockCountdownIcon,
-	CopyIcon,
-	DotsThreeIcon,
-	LinkIcon,
-	PencilSimpleIcon,
-	QrCodeIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
-import NextLink from "next/link";
-import { toast } from "sonner";
-import { getDeepLinkApp } from "@databuddy/shared/constants/deep-link-apps";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import { DeepLinkAppIcon } from "./deep-link-icons";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { EmptyState } from "@/components/ds/empty-state";
 import { Skeleton } from "@/components/ds/skeleton";
@@ -21,7 +8,20 @@ import { Tooltip } from "@/components/ds/tooltip";
 import type { Link } from "@/hooks/use-links";
 import { fromNow, localDayjs } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { getDeepLinkApp } from "@databuddy/shared/constants/deep-link-apps";
+import NextLink from "next/link";
+import { toast } from "sonner";
+import { DeepLinkAppIcon } from "./deep-link-icons";
 import { LINKS_BASE_URL, LINKS_FULL_URL } from "./link-constants";
+import { QrCodeIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ClockCountdownIcon,
+	CopyIcon,
+	DotsThreeIcon,
+	LinkIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 function copyShortUrl(slug: string) {
 	navigator.clipboard
@@ -197,7 +197,7 @@ export function LinksList({
 						onClick: onCreateLink,
 					}}
 					description="Create short links to track clicks and measure engagement across your marketing campaigns."
-					icon={<LinkIcon weight="duotone" />}
+					icon={<LinkIcon weight="regular" />}
 					title="No links yet"
 					variant="minimal"
 				/>

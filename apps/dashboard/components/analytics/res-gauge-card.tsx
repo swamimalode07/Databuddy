@@ -1,10 +1,5 @@
 "use client";
 
-import { CheckCircleIcon } from "@phosphor-icons/react";
-import { TrendDownIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
-import { WarningCircleIcon } from "@phosphor-icons/react";
-import { WarningIcon } from "@phosphor-icons/react";
 import { memo, useMemo } from "react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
 import { Card } from "@/components/ds/card";
@@ -16,6 +11,13 @@ import {
 	calculateRESTrend,
 	type MetricScoreData,
 } from "@/lib/vitals-scoring";
+import {
+	CheckCircleIcon,
+	TrendDownIcon,
+	TrendUpIcon,
+	WarningCircleIcon,
+	WarningIcon,
+} from "@/components/icons/nucleo";
 
 interface MetricInput {
 	metric_name: string;

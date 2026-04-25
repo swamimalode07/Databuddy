@@ -1,11 +1,5 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { BrowserIcon } from "@phosphor-icons/react";
-import { HeartbeatIcon } from "@phosphor-icons/react";
-import { PlusIcon } from "@phosphor-icons/react";
-import { SirenIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -32,6 +26,14 @@ import {
 	type StatusPageMonitor,
 	StatusPageMonitorRow,
 } from "./_components/status-page-monitor-row";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	ArrowSquareOutIcon,
+	HeartbeatIcon,
+	PlusIcon,
+	SirenIcon,
+} from "@/components/icons/nucleo";
 
 export default function StatusPageDetailsPage() {
 	const params = useParams();

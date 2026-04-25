@@ -1,8 +1,8 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { CaretDownIcon } from "@/components/icons/nucleo";
 
 interface CollapsibleSectionProps {
 	badge?: number;

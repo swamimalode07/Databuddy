@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import {
 	normalizeUrlInput,
 	stripProtocol,
 } from "./link-utils";
+import { ArrowLeftIcon } from "@/components/icons/nucleo";
 
 const deepLinkFormSchema = z.object({
 	name: z.string().min(1, "Name is required").max(255),

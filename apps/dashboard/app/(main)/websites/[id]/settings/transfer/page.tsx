@@ -1,10 +1,5 @@
 "use client";
 
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +13,13 @@ import { Skeleton } from "@/components/ds/skeleton";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
 import { useWebsiteTransferToOrg } from "@/hooks/use-website-transfer-to-org";
 import { useWebsite } from "@/hooks/use-websites";
+import {
+	ArrowRightIcon,
+	ArrowSquareOutIcon,
+	BuildingsIcon,
+	InfoIcon,
+	WarningIcon,
+} from "@/components/icons/nucleo";
 
 function TransferPageContent() {
 	const params = useParams();

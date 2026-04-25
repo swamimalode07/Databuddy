@@ -1,10 +1,5 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { TagIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
-import { UserIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
 import { EmptyState } from "@/components/ds/empty-state";
@@ -32,6 +27,13 @@ import type {
 	PropertyDistribution,
 	PropertyTopValue,
 } from "./types";
+import {
+	ArrowClockwiseIcon,
+	LightningIcon,
+	TagIcon,
+	TrendUpIcon,
+	UserIcon,
+} from "@/components/icons/nucleo";
 
 export function EventsPageContent() {
 	const { dateRange, isLoadingOrg, query } = useEventsPageContext();

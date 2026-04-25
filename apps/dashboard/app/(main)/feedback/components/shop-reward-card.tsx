@@ -1,9 +1,9 @@
 "use client";
 
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ds/button";
 import { Text } from "@/components/ds/text";
 import { cn } from "@/lib/utils";
+import { LightningIcon } from "@/components/icons/nucleo";
 
 interface ShopRewardCardProps {
 	availableCredits: number;

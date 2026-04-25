@@ -1,4 +1,4 @@
-import { InfoIcon } from "@phosphor-icons/react";
+import { InfoIcon } from "@/components/icons/nucleo";
 
 interface TipProps {
 	description: string;

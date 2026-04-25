@@ -1,9 +1,5 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react";
-import { DotsThreeIcon } from "@phosphor-icons/react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
 import { List } from "@/components/ui/composables/list";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { Skeleton } from "@/components/ds/skeleton";
@@ -14,6 +10,12 @@ import type {
 	FunnelFilter,
 	FunnelStep,
 } from "@/types/funnels";
+import {
+	CaretRightIcon,
+	DotsThreeIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 export interface FunnelItemData {
 	createdAt: string | Date;

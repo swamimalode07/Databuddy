@@ -1,14 +1,5 @@
 "use client";
 
-import {
-	ArrowRightIcon,
-	BrainIcon,
-	ChartBarIcon,
-	CoinsIcon,
-	LightbulbIcon,
-	LightningIcon,
-	TableIcon,
-} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -33,6 +24,14 @@ import { AgentMessages } from "./agent-messages";
 import { ChatHistory } from "./chat-history";
 import { setLastChatId } from "./hooks/use-chat-db";
 import { NewChatButton } from "./new-chat-button";
+import { BrainIcon, CoinsIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowRightIcon,
+	ChartBarIcon,
+	LightbulbIcon,
+	LightningIcon,
+	TableIcon,
+} from "@/components/icons/nucleo";
 
 interface AgentPageContentProps {
 	chatId: string;

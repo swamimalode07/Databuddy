@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ds/card";
 import { EmptyState } from "@/components/ds/empty-state";
@@ -10,6 +9,7 @@ import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import { FeedbackStatusBadge } from "./feedback-status-badge";
 import { SubmitFeedbackDialog } from "./submit-feedback-dialog";
+import { ChatTextIcon } from "@/components/icons/nucleo";
 
 const CATEGORY_LABELS: Record<string, string> = {
 	bug_report: "Bug Report",

@@ -8,7 +8,11 @@ import { Text } from "@/components/ds/text";
 import type { CancelInvitation } from "@/hooks/use-organizations";
 import dayjs from "@/lib/dayjs";
 import type { Invitation } from "@/hooks/use-organization-invitations";
-import { DotsThree, Envelope, XCircle } from "@phosphor-icons/react/dist/ssr";
+import {
+	DotsThreeIcon,
+	EnvelopeIcon,
+	XCircleIcon,
+} from "@/components/icons/nucleo";
 import { useState } from "react";
 
 interface InvitationToCancel {
@@ -56,7 +60,7 @@ function InvitationRow({
 	return (
 		<div className="flex items-center gap-3 px-5 py-3">
 			<div className="flex size-8 items-center justify-center rounded-full bg-secondary">
-				<Envelope className="text-muted-foreground" size={14} />
+				<EnvelopeIcon className="text-muted-foreground" size={14} />
 			</div>
 			<div className="min-w-0 flex-1">
 				<Text className="truncate" variant="label">
@@ -74,7 +78,7 @@ function InvitationRow({
 						className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-interactive-hover hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
 						disabled={isCancellingInvitation}
 					>
-						<DotsThree size={16} weight="bold" />
+						<DotsThreeIcon size={16} weight="bold" />
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end" side="bottom">
 						<DropdownMenu.Item
@@ -86,7 +90,7 @@ function InvitationRow({
 							}
 							variant="destructive"
 						>
-							<XCircle size={14} />
+							<XCircleIcon size={14} />
 							Cancel invitation
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>

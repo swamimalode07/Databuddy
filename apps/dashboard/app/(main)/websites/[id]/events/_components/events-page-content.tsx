@@ -1,11 +1,5 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { CalendarBlankIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { TagIcon } from "@phosphor-icons/react";
-import { UserIcon } from "@phosphor-icons/react";
-import { UsersIcon } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { use, useCallback, useMemo } from "react";
 import { StatCard } from "@/components/analytics";
@@ -33,6 +27,14 @@ import type {
 	PropertyDistribution,
 	PropertyTopValue,
 } from "./types";
+import {
+	ArrowClockwiseIcon,
+	CalendarBlankIcon,
+	LightningIcon,
+	TagIcon,
+	UserIcon,
+	UsersIcon,
+} from "@/components/icons/nucleo";
 
 interface EventsPageContentProps {
 	params: Promise<{ id: string }>;

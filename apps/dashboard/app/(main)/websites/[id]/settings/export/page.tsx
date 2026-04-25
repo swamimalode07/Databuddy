@@ -1,13 +1,6 @@
 "use client";
 
 import type { ExportFormat } from "@databuddy/rpc";
-import {
-	CheckIcon,
-	DownloadIcon,
-	FileCodeIcon,
-	FileTextIcon,
-	TableIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -22,6 +15,8 @@ import { useWebsite } from "@/hooks/use-websites";
 import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { DownloadIcon, FileCodeIcon } from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon, FileTextIcon, TableIcon } from "@/components/icons/nucleo";
 
 function downloadFile(blob: Blob, filename: string) {
 	const url = window.URL.createObjectURL(blob);

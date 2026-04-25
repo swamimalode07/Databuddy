@@ -4,7 +4,6 @@ import type {
 	DailyUsageByTypeRow,
 	UsageResponse,
 } from "@databuddy/shared/types/billing";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMemo, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -23,6 +22,7 @@ import {
 	chartTooltipHeaderRowClassName,
 } from "@/lib/chart-presentation";
 import { calculateOverageCost, type OverageInfo } from "../utils/billing-utils";
+import { CalendarIcon } from "@/components/icons/nucleo";
 
 type ViewMode = "daily" | "cumulative";
 

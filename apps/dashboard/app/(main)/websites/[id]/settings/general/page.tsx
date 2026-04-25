@@ -1,14 +1,5 @@
 "use client";
 
-import {
-	ArrowSquareOutIcon,
-	CheckIcon,
-	ClipboardIcon,
-	InfoIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -30,6 +21,15 @@ import {
 } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
 import { TOAST_MESSAGES } from "../../_components/shared/tracking-constants";
+import {
+	ArrowSquareOutIcon,
+	CheckIcon,
+	ClipboardIcon,
+	InfoIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 function SettingsRow({
 	label,

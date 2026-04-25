@@ -1,12 +1,14 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
-import { HouseIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect } from "react";
 import { Branding } from "@/components/logo/branding";
 import { Button } from "@/components/ds/button";
+import {
+	ArrowClockwiseIcon,
+	HouseIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 const PARTICLES = [
 	{

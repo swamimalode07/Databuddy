@@ -8,13 +8,6 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { type Link, useDeleteLink, useLinks } from "@/hooks/use-links";
 import { useFlags } from "@databuddy/sdk/react";
-import {
-	LinkIcon,
-	LinkSimpleIcon,
-	MagnifyingGlassIcon,
-	PlusIcon,
-	RocketIcon,
-} from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { DeepLinkSheet } from "./_components/deep-link-sheet";
@@ -31,6 +24,13 @@ import {
 	type TypeFilter,
 	useFilteredLinks,
 } from "./_components/use-filtered-links";
+import { LinkSimpleIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	LinkIcon,
+	MagnifyingGlassIcon,
+	PlusIcon,
+	RocketIcon,
+} from "@/components/icons/nucleo";
 
 export default function LinksPage() {
 	const [sheetLink, setSheetLink] = useState<Link | null>(null);

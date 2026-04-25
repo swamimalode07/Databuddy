@@ -2,15 +2,6 @@
 
 import { getCountryCode } from "@databuddy/shared/country-codes";
 import type { Session } from "@databuddy/shared/types/sessions";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { ChartLineIcon } from "@phosphor-icons/react";
-import { ClockIcon } from "@phosphor-icons/react";
-import { CursorClickIcon } from "@phosphor-icons/react";
-import { DevicesIcon } from "@phosphor-icons/react";
-import { EyeIcon } from "@phosphor-icons/react";
-import { GlobeIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
-import { UserIcon } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -23,6 +14,17 @@ import { getDeviceIcon } from "@/lib/utils";
 import { generateProfileName } from "./_components/generate-profile-name";
 import { SessionRow } from "./_components/session-row";
 import { useUserProfile } from "./use-user-profile";
+import {
+	ArrowLeftIcon,
+	ChartLineIcon,
+	ClockIcon,
+	CursorClickIcon,
+	DevicesIcon,
+	EyeIcon,
+	GlobeIcon,
+	SpinnerIcon,
+	UserIcon,
+} from "@/components/icons/nucleo";
 
 function StatItem({
 	icon: Icon,

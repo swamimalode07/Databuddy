@@ -1,8 +1,8 @@
 "use client";
 
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ds/button";
 import { Dialog } from "@/components/ds/dialog";
+import { TrashIcon } from "@/components/icons/nucleo";
 
 interface DeleteDialogProps {
 	cancelLabel?: string;

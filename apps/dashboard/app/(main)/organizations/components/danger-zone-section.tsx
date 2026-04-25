@@ -8,7 +8,8 @@ import { Field } from "@/components/ds/field";
 import { Input } from "@/components/ds/input";
 import { Text } from "@/components/ds/text";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
-import { SignOut, Trash, Warning } from "@phosphor-icons/react/dist/ssr";
+
+import { SignOutIcon, TrashIcon, WarningIcon } from "@/components/icons/nucleo";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -103,7 +104,11 @@ export function DangerZoneSection({
 					<div className="flex items-center justify-between gap-4">
 						<div className="flex items-start gap-3">
 							<div className="flex size-8 items-center justify-center rounded-md bg-destructive/10">
-								<Warning className="text-destructive" size={14} weight="fill" />
+								<WarningIcon
+									className="text-destructive"
+									size={14}
+									weight="fill"
+								/>
 							</div>
 							<div>
 								<Text variant="label">
@@ -132,7 +137,7 @@ export function DangerZoneSection({
 								size="sm"
 								tone="danger"
 							>
-								<Trash size={14} />
+								<TrashIcon size={14} />
 								Delete
 							</Button>
 						) : (
@@ -141,7 +146,7 @@ export function DangerZoneSection({
 								size="sm"
 								tone="danger"
 							>
-								<SignOut size={14} />
+								<SignOutIcon className="size-4 shrink-0" />
 								Leave
 							</Button>
 						)}

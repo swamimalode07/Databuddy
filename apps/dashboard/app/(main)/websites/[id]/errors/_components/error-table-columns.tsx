@@ -1,8 +1,8 @@
-import { BugIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ds/badge";
 import { formatLocalTime } from "@/lib/time";
 import { getErrorTypeIcon } from "./error-icons";
 import { getErrorCategory, getSeverityColor } from "./utils";
+import { BugIcon } from "@/components/icons/nucleo";
 
 interface CellInfo<T = unknown> {
 	getValue: () => T;

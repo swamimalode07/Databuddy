@@ -10,10 +10,10 @@ import type {
 	Organization,
 } from "@/hooks/use-organizations";
 import {
-	ArrowClockwise,
-	Envelope,
-	UserPlus,
-} from "@phosphor-icons/react/dist/ssr";
+	ArrowClockwiseIcon,
+	EnvelopeIcon,
+	UserPlusIcon,
+} from "@/components/icons/nucleo";
 import { useState } from "react";
 import { InvitationsSkeleton } from "../components/settings-skeletons";
 import { InvitationList } from "./invitation-list";
@@ -45,12 +45,12 @@ export function InvitationsView({
 					<EmptyState
 						action={
 							<Button onClick={() => refetch()} variant="secondary">
-								<ArrowClockwise size={14} />
+								<ArrowClockwiseIcon size={14} />
 								Try again
 							</Button>
 						}
 						description="Something went wrong while loading invitations"
-						icon={<Envelope weight="duotone" />}
+						icon={<EnvelopeIcon weight="duotone" />}
 						title="Failed to load"
 					/>
 				</Card.Content>
@@ -77,7 +77,7 @@ export function InvitationsView({
 						size="sm"
 						variant="secondary"
 					>
-						<UserPlus size={14} />
+						<UserPlusIcon size={14} />
 						Invite
 					</Button>
 				</Card.Header>

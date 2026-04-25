@@ -1,10 +1,10 @@
 "use client";
 
-import { LightningIcon } from "@phosphor-icons/react";
 import { TableEmptyState } from "@/components/table/table-empty-state";
 import { formatNumber } from "@/lib/formatters";
 import { EVENT_COLORS } from "./events-trend-chart";
 import type { CustomEventItem } from "./types";
+import { LightningIcon } from "@/components/icons/nucleo";
 
 interface EventsListProps {
 	eventColorMap?: Map<string, string>;

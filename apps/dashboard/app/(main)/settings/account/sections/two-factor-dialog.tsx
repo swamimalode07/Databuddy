@@ -1,15 +1,6 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	CaretDownIcon,
-	CheckCircleIcon,
-	CopyIcon,
-	DeviceMobileIcon,
-	KeyIcon,
-	ShieldCheckIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useMutation } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
@@ -23,6 +14,14 @@ import { OtpInput } from "@/components/ds/otp-input";
 import { Text } from "@/components/ds/text";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
+import { KeyIcon, ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CaretDownIcon,
+	CheckCircleIcon,
+	CopyIcon,
+	DeviceMobileIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 type TwoFactorStep =
 	| "set-password"

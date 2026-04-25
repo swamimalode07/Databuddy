@@ -1,10 +1,5 @@
 "use client";
 
-import {
-	CalendarDotsIcon,
-	CaretRightIcon,
-	CheckIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ds/button";
@@ -14,6 +9,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import dayjs from "@/lib/dayjs";
 import { formatLocalTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import {
+	CalendarDotsIcon,
+	CaretRightIcon,
+	CheckIcon,
+} from "@/components/icons/nucleo";
 
 interface PresetRange {
 	getValue: () => DateRange;

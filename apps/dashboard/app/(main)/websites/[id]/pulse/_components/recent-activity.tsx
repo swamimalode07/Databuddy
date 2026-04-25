@@ -1,9 +1,5 @@
 "use client";
 
-import { CheckCircleIcon } from "@phosphor-icons/react";
-import { ClockCounterClockwiseIcon } from "@phosphor-icons/react";
-import { WarningCircleIcon } from "@phosphor-icons/react";
-import { XCircleIcon } from "@phosphor-icons/react";
 import type { RefCallback } from "react";
 import { Badge } from "@/components/ds/badge";
 import { Skeleton } from "@/components/ds/skeleton";
@@ -17,6 +13,12 @@ import {
 } from "@/components/ui/table";
 import { formatLocalTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import {
+	CheckCircleIcon,
+	ClockCounterClockwiseIcon,
+	WarningCircleIcon,
+	XCircleIcon,
+} from "@/components/icons/nucleo";
 
 export interface RecentActivityCheck {
 	error?: string;

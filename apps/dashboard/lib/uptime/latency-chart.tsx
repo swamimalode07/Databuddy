@@ -1,6 +1,5 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { Chart } from "@/components/ui/composables/chart";
@@ -11,6 +10,7 @@ import {
 	chartCartesianGridDefault,
 } from "@/lib/chart-presentation";
 import { cn } from "@/lib/utils";
+import { CaretDownIcon } from "@/components/icons/nucleo";
 
 const {
 	Area,

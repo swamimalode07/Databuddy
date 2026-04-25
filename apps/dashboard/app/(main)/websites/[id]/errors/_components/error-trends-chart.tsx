@@ -1,9 +1,5 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	BugIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ds/button";
@@ -19,6 +15,7 @@ import {
 	chartRechartsLegendStaticLabelClassName,
 	chartRechartsLegendStaticWrapperStyleMerge,
 } from "@/lib/chart-presentation";
+import { ArrowCounterClockwiseIcon, BugIcon } from "@/components/icons/nucleo";
 
 const { Area, CartesianGrid, Legend, ReferenceArea, Tooltip, XAxis, YAxis } =
 	Chart.Recharts;

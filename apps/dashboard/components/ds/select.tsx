@@ -3,7 +3,8 @@
 import { useFieldContext } from "@/components/ds/field";
 import { cn } from "@/lib/utils";
 import { Select as BaseSelect } from "@base-ui-components/react/select";
-import { CaretUpDown, Check } from "@phosphor-icons/react/dist/ssr";
+import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon } from "@/components/icons/nucleo";
 import {
 	Children,
 	Fragment,
@@ -197,7 +198,7 @@ function Item({
 			{...rest}
 		>
 			<BaseSelect.ItemIndicator className="flex size-3.5 items-center justify-center">
-				<Check className="size-3" />
+				<CheckIcon className="size-3" />
 			</BaseSelect.ItemIndicator>
 			<BaseSelect.ItemText>{children}</BaseSelect.ItemText>
 		</BaseSelect.Item>

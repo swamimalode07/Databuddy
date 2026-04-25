@@ -1,15 +1,15 @@
+import Image from "next/image";
+import type React from "react";
+import { BrowserIcon, OSIcon } from "@/components/icon";
 import {
+	DesktopIcon,
 	DeviceMobileIcon,
 	DeviceTabletIcon,
-	DesktopIcon,
 	GlobeIcon,
 	LaptopIcon,
 	QuestionIcon,
 	TelevisionIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import Image from "next/image";
-import type React from "react";
-import { BrowserIcon, OSIcon } from "@/components/icon";
+} from "@/components/icons/nucleo";
 
 // Regex patterns for browser name processing
 const MOBILE_PREFIX_REGEX = /^Mobile\s+/;

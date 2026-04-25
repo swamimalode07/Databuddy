@@ -1,11 +1,5 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	BrowserIcon,
-	PlusIcon,
-	UserPlusIcon,
-} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +20,12 @@ import { Skeleton } from "@/components/ds/skeleton";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	PlusIcon,
+	UserPlusIcon,
+} from "@/components/icons/nucleo";
 
 export default function StatusPagesListPage() {
 	const { hasAccess, isLoading: isAccessLoading } =

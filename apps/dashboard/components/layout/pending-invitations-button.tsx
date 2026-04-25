@@ -1,6 +1,5 @@
 "use client";
 
-import { BuildingsIcon, EnvelopeIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ds/badge";
@@ -9,6 +8,7 @@ import { Tooltip } from "@/components/ds/tooltip";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
 import { useUserInvitations } from "./hooks/use-user-invitations";
+import { BuildingsIcon, EnvelopeIcon } from "@/components/icons/nucleo";
 
 export function PendingInvitationsButton() {
 	const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,7 @@ export function PendingInvitationsButton() {
 		<DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
 			<Tooltip
 				content={`${count} pending invitation${count === 1 ? "" : "s"}`}
-				side="right"
+				side="bottom"
 			>
 				<DropdownMenu.Trigger
 					aria-label={`${count} pending invitations`}
@@ -48,7 +48,7 @@ export function PendingInvitationsButton() {
 				</DropdownMenu.Trigger>
 			</Tooltip>
 
-			<DropdownMenu.Content align="start" className="w-72" side="right">
+			<DropdownMenu.Content align="end" className="w-72">
 				<DropdownMenu.Group>
 					<DropdownMenu.GroupLabel>Pending Invitations</DropdownMenu.GroupLabel>
 				</DropdownMenu.Group>

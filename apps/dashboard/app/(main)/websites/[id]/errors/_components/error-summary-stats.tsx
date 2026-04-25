@@ -1,13 +1,14 @@
-import {
-	ActivityIcon,
-	TrendUpIcon,
-	UsersIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
 import { Card } from "@/components/ds/card";
 import { Skeleton } from "@/components/ds/skeleton";
 import { cn } from "@/lib/utils";
 import type { ErrorSummary } from "./types";
+import { ActivityIcon } from "@phosphor-icons/react/dist/ssr";
+import type { NavIcon } from "@/components/layout/navigation/types";
+import {
+	TrendUpIcon,
+	UsersIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 type StatVariant = "default" | "destructive" | "warning";
 
@@ -31,7 +32,7 @@ function ErrorStatCard({
 }: {
 	title: string;
 	value: string;
-	icon: typeof WarningCircleIcon;
+	icon: NavIcon;
 	variant?: StatVariant;
 }) {
 	const styles = VARIANT_STYLES[variant];

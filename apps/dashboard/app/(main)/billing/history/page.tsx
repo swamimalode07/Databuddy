@@ -1,15 +1,5 @@
 "use client";
 
-import {
-	ArrowSquareOutIcon,
-	CaretLeftIcon,
-	CaretRightIcon,
-	CheckCircleIcon,
-	ClockIcon,
-	FileTextIcon,
-	ReceiptIcon,
-	XCircleIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type { Invoice } from "autumn-js";
 import { memo, useMemo, useState } from "react";
 import { Badge } from "@/components/ds/badge";
@@ -22,6 +12,16 @@ import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
 import { ErrorState } from "../components/empty-states";
 import { useBilling, useBillingData } from "../hooks/use-billing";
+import {
+	ArrowSquareOutIcon,
+	CaretLeftIcon,
+	CaretRightIcon,
+	CheckCircleIcon,
+	ClockIcon,
+	FileTextIcon,
+	ReceiptIcon,
+	XCircleIcon,
+} from "@/components/icons/nucleo";
 
 const PAGE_SIZE = 10;
 

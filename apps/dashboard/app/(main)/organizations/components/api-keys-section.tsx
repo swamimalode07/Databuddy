@@ -1,11 +1,5 @@
 "use client";
 
-import {
-	CaretDownIcon,
-	KeyIcon,
-	MagnifyingGlassIcon,
-	PlusIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Button, buttonVariants } from "@/components/ds/button";
@@ -19,6 +13,12 @@ import type { ApiKeyListItem } from "@/components/organizations/api-key-types";
 import type { Organization } from "@/hooks/use-organizations";
 import { orpc } from "@/lib/orpc";
 import { ApiKeyRow } from "./api-key-row";
+import { KeyIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CaretDownIcon,
+	MagnifyingGlassIcon,
+	PlusIcon,
+} from "@/components/icons/nucleo";
 
 type StatusFilter = "all" | "active" | "disabled" | "expired" | "revoked";
 type TypeFilter = "all" | "user" | "sdk" | "automation";

@@ -13,7 +13,8 @@ import type {
 } from "@/hooks/use-organizations";
 import { fromNow } from "@/lib/time";
 import { authClient } from "@databuddy/auth/client";
-import { CaretUpDown, Crown } from "@phosphor-icons/react/dist/ssr";
+import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
+import { CrownIcon } from "@/components/icons/nucleo";
 import { useState } from "react";
 
 interface MemberListProps {
@@ -66,7 +67,7 @@ function MemberRow({
 						</Text>
 					)}
 					{member.role === "owner" && (
-						<Crown
+						<CrownIcon
 							className="shrink-0 text-amber-500"
 							size={12}
 							weight="fill"

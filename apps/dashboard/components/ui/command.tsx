@@ -1,10 +1,12 @@
 "use client";
 
 import { Command as CommandPrimitive } from "cmdk";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 import type * as React from "react";
 import { Dialog } from "@/components/ds/dialog";
 import { cn } from "@/lib/utils";
+import {
+	MagnifyingGlassIcon,
+} from "@/components/icons/nucleo";
 
 function Command({
 	className,

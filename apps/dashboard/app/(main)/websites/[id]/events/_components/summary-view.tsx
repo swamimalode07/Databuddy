@@ -1,10 +1,5 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { ArrowRightIcon } from "@phosphor-icons/react";
-import { ChartBarIcon } from "@phosphor-icons/react";
-import { FunnelIcon } from "@phosphor-icons/react";
-import { ListBulletsIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -25,6 +20,13 @@ import type {
 	PropertyDistribution,
 	PropertyTopValue,
 } from "./types";
+import {
+	ArrowClockwiseIcon,
+	ArrowRightIcon,
+	ChartBarIcon,
+	FunnelIcon,
+	ListBulletsIcon,
+} from "@/components/icons/nucleo";
 
 interface SummaryViewProps {
 	events: ClassifiedEvent[];

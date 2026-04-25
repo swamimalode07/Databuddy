@@ -6,12 +6,14 @@ import {
 	GithubLogo,
 	GoogleLogo,
 	Key,
-	LinkBreak,
-	Link as LinkIcon,
 	ShieldCheck,
-	Trash,
-	WarningCircle,
 } from "@phosphor-icons/react/dist/ssr";
+import {
+	LinkBreakIcon,
+	LinkIcon,
+	TrashIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -274,7 +276,7 @@ function DeleteAccountDialog({
 				</Dialog.Header>
 				<Dialog.Body className="space-y-4">
 					<div className="flex items-start gap-3 rounded-lg border border-danger/20 bg-danger/5 p-3">
-						<WarningCircle
+						<WarningCircleIcon
 							className="mt-0.5 size-5 shrink-0 text-danger"
 							weight="duotone"
 						/>
@@ -649,7 +651,7 @@ export default function AccountSettingsPage() {
 																	size="sm"
 																	variant="ghost"
 																>
-																	<LinkBreak className="size-3.5" />
+																	<LinkBreakIcon className="size-3.5" />
 																	Unlink
 																</Button>
 															)}
@@ -717,7 +719,7 @@ export default function AccountSettingsPage() {
 									tone="danger"
 									variant="secondary"
 								>
-									<Trash className="size-3.5" weight="duotone" />
+									<TrashIcon className="size-3.5" weight="duotone" />
 									Delete Account
 								</Button>
 							</div>

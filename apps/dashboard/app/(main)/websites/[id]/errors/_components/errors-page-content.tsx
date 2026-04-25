@@ -1,7 +1,6 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { BugIcon } from "@phosphor-icons/react";
 import { useAtom, useAtomValue } from "jotai";
 import { use, useCallback } from "react";
 import { EmptyState } from "@/components/ds/empty-state";
@@ -27,6 +26,7 @@ import type {
 	ProcessedChartData,
 	RecentError,
 } from "./types";
+import { BugIcon } from "@/components/icons/nucleo";
 
 interface ErrorsPageContentProps {
 	params: Promise<{ id: string }>;

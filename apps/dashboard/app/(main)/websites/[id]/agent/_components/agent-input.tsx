@@ -1,12 +1,5 @@
 "use client";
 
-import {
-	BrainIcon,
-	ClockCountdownIcon,
-	PaperPlaneRightIcon,
-	StopIcon,
-	XIcon,
-} from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";
 import {
@@ -27,6 +20,13 @@ import {
 import { AgentCommandMenu } from "./agent-command-menu";
 import { type AgentCommand, filterCommands } from "./agent-commands";
 import { useEnterSubmit } from "./hooks/use-enter-submit";
+import {
+	BrainIcon,
+	PaperPlaneRightIcon,
+	StopIcon,
+	XIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import { ClockCountdownIcon } from "@/components/icons/nucleo";
 
 export function AgentInput() {
 	const { sendMessage, stop, status } = useChat();

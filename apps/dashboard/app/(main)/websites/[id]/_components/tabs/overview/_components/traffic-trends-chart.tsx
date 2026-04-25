@@ -1,12 +1,5 @@
 "use client";
 
-import { EyeIcon } from "@phosphor-icons/react";
-import { EyeSlashIcon } from "@phosphor-icons/react";
-import { NoteIcon } from "@phosphor-icons/react";
-import { XIcon } from "@phosphor-icons/react";
-import { ChartLineIcon } from "@phosphor-icons/react";
-import { WarningIcon } from "@phosphor-icons/react";
-import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";
@@ -57,6 +50,15 @@ import type {
 	CreateAnnotationData,
 } from "@/types/annotations";
 import type { DateRange } from "../../../utils/types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ChartLineIcon,
+	EyeIcon,
+	EyeSlashIcon,
+	NoteIcon,
+	WarningCircleIcon,
+	WarningIcon,
+} from "@/components/icons/nucleo";
 
 const {
 	Area,

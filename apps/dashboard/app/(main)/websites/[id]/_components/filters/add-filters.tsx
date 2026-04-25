@@ -3,8 +3,6 @@
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -22,6 +20,7 @@ import {
 } from "@/hooks/use-autocomplete";
 import { operatorOptions } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
+import { ArrowLeftIcon, FunnelIcon } from "@/components/icons/nucleo";
 
 function getOperatorDisplay(value: string): string {
 	const option = operatorOptions.find((o) => o.value === value);

@@ -7,9 +7,6 @@ import type {
 	SessionReferrer,
 	SessionRowProps,
 } from "@databuddy/shared/types/sessions";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { CaretDownIcon } from "@phosphor-icons/react";
-import { CaretRightIcon } from "@phosphor-icons/react";
 import React, { useCallback } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -22,6 +19,11 @@ import { fromNow } from "@/lib/time";
 import { getDeviceIcon } from "@/lib/utils";
 import { generateSessionName } from "./generate-session-name";
 import { SessionEventTimeline } from "./session-event-timeline";
+import {
+	ArrowSquareOutIcon,
+	CaretDownIcon,
+	CaretRightIcon,
+} from "@/components/icons/nucleo";
 
 function getEventSortPriority(eventName: string): number {
 	if (eventName === "page_exit") {

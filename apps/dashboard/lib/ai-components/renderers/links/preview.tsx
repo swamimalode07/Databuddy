@@ -1,12 +1,6 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
-import { ImageIcon } from "@phosphor-icons/react/dist/ssr";
-import { LinkIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
 import { Button } from "@/components/ds/button";
@@ -15,6 +9,14 @@ import { useChat } from "@/contexts/chat-context";
 import type { Link } from "@/hooks/use-links";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../../types";
+import {
+	CalendarIcon,
+	CheckIcon,
+	ImageIcon,
+	LinkIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 interface LinkPreviewData {
 	expiredRedirectUrl?: string | null;

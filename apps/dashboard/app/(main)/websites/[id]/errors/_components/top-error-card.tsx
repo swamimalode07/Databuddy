@@ -1,7 +1,11 @@
-import { BugIcon, UsersIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ds/card";
 import { Skeleton } from "@/components/ds/skeleton";
 import type { ErrorType } from "./types";
+import {
+	BugIcon,
+	UsersIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 interface TopErrorCardProps {
 	isLoading?: boolean;

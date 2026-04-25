@@ -1,12 +1,9 @@
-import {
-	ArrowSquareOutIcon,
-	QuestionIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type React from "react";
 import { StatusDot } from "@/components/ds/status-dot";
 import { Tooltip } from "@/components/ds/tooltip";
 import { cn } from "@/lib/utils";
 import { PERFORMANCE_THRESHOLDS } from "./analytics-helpers";
+import { ArrowSquareOutIcon, QuestionIcon } from "@/components/icons/nucleo";
 
 // Consistent border radius values
 export const BORDER_RADIUS = {

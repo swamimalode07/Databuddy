@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, FloppyDisk } from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon, CopyIcon, FloppyDiskIcon } from "@/components/icons/nucleo";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ds/button";
@@ -113,9 +113,9 @@ export function GeneralSettings({
 									variant={copiedOrgId ? "primary" : "secondary"}
 								>
 									{copiedOrgId ? (
-										<Check className="size-3.5" weight="bold" />
+										<CheckIcon className="size-3.5" weight="bold" />
 									) : (
-										<Copy className="size-3.5" />
+										<CopyIcon className="size-3.5" />
 									)}
 									{copiedOrgId ? "Copied" : "Copy"}
 								</Button>
@@ -168,7 +168,7 @@ export function GeneralSettings({
 						You have unsaved changes
 					</Text>
 					<Button loading={isSaving} onClick={handleSave} size="sm">
-						<FloppyDisk className="size-3.5" />
+						<FloppyDiskIcon className="size-3.5" />
 						{isSaving ? "Saving…" : "Save Changes"}
 					</Button>
 				</div>

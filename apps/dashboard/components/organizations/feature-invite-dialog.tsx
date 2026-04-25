@@ -1,8 +1,5 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr";
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ds/badge";
@@ -18,6 +15,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getFeatureLabel } from "@/lib/feature-gates";
 import { orpc } from "@/lib/orpc";
+import { CheckIcon, CopyIcon, HeartbeatIcon } from "@/components/icons/nucleo";
 
 interface FeatureInviteDialogProps {
 	flagKey: string;

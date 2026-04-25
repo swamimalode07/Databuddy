@@ -1,8 +1,10 @@
 "use client";
 
-import { CheckCircleIcon as CheckCircle } from "@phosphor-icons/react";
-import { WarningIcon as Warning } from "@phosphor-icons/react";
 import { formatPerformanceTime } from "../_utils/performance-utils";
+import {
+	CheckCircleIcon as CheckCircle,
+	WarningIcon as Warning,
+} from "@/components/icons/nucleo";
 
 interface WebVitalsMetricCellProps {
 	metric: "lcp" | "fcp" | "fid" | "inp" | "cls";

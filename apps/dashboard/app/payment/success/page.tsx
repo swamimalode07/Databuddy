@@ -1,7 +1,7 @@
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ds/button";
+import { CheckCircleIcon } from "@/components/icons/nucleo";
 
 export default function PaymentSuccess() {
 	return (

@@ -1,13 +1,5 @@
 "use client";
 
-import { BracketsSquareIcon } from "@phosphor-icons/react";
-import { CopyIcon } from "@phosphor-icons/react";
-import { FunnelIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { LinkIcon } from "@phosphor-icons/react";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { TagIcon } from "@phosphor-icons/react";
-import { XIcon } from "@phosphor-icons/react";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -47,6 +39,16 @@ import {
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { formatTime, fromNow } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	BracketsSquareIcon,
+	CopyIcon,
+	FunnelIcon,
+	LightningIcon,
+	LinkIcon,
+	MagnifyingGlassIcon,
+	TagIcon,
+} from "@/components/icons/nucleo";
 
 export interface RecentCustomEvent {
 	anonymous_id: string;

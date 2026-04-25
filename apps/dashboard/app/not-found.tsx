@@ -1,7 +1,7 @@
-import { HouseIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Branding } from "@/components/logo/branding";
 import { Button } from "@/components/ds/button";
+import { HouseIcon } from "@/components/icons/nucleo";
 
 const PARTICLES = [
 	{

@@ -1,16 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	AndroidLogoIcon,
-	AppleLogoIcon,
-	CalendarIcon,
-	CopyIcon,
-	DeviceMobileIcon,
-	ImageIcon,
-	LinkSimpleIcon,
-	QrCodeIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -44,6 +34,18 @@ import {
 	parseUtmFromUrl,
 	stripUtmFromUrl,
 } from "./utm-builder";
+import {
+	AndroidLogoIcon,
+	AppleLogoIcon,
+	LinkSimpleIcon,
+	QrCodeIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import {
+	CalendarIcon,
+	CopyIcon,
+	DeviceMobileIcon,
+	ImageIcon,
+} from "@/components/icons/nucleo";
 
 const DEFAULT_UTM_PARAMS: UtmParams = {
 	utm_source: "",

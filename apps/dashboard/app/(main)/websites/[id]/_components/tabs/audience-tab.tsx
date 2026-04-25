@@ -1,10 +1,5 @@
 "use client";
 
-import {
-	DeviceMobileIcon,
-	DeviceTabletIcon,
-	MonitorIcon,
-} from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { Card } from "@/components/ds/card";
@@ -22,6 +17,11 @@ import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { formatNumber } from "@/lib/formatters";
 import { PercentageBadge } from "../utils/technology-helpers";
 import type { FullTabProps } from "../utils/types";
+import {
+	DeviceMobileIcon,
+	DeviceTabletIcon,
+	MonitorIcon,
+} from "@/components/icons/nucleo";
 
 interface BrowserVersion {
 	pageviews: number;

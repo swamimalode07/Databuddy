@@ -1,14 +1,5 @@
 "use client";
 
-import {
-	ChatCircleDotsIcon,
-	CheckIcon,
-	ClockCounterClockwiseIcon,
-	MagnifyingGlassIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-	XIcon,
-} from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DeleteDialog } from "@/components/ds/delete-dialog";
@@ -23,6 +14,14 @@ import { useChat } from "@/contexts/chat-context";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
 import { clearLastChatId, useChatList } from "./hooks/use-chat-db";
+import { ChatCircleDotsIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CheckIcon,
+	ClockCounterClockwiseIcon,
+	MagnifyingGlassIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 type Chat = ReturnType<typeof useChatList>["chats"][number];
 

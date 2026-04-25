@@ -3,10 +3,13 @@
 import useEmblaCarousel, {
 	type UseEmblaCarouselType,
 } from "embla-carousel-react";
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import * as React from "react";
 import { Button } from "@/components/ds/button";
 import { cn } from "@/lib/utils";
+import {
+	ArrowLeftIcon,
+	ArrowRightIcon,
+} from "@/components/icons/nucleo";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;

@@ -1,9 +1,9 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react";
 import { EmptyState } from "@/components/ds/empty-state";
 import { Chart } from "@/components/ui/composables/chart";
 import dayjs from "@/lib/dayjs";
+import { ChartLineIcon } from "@/components/icons/nucleo";
 
 export interface ChartDataPoint {
 	clicks: number;

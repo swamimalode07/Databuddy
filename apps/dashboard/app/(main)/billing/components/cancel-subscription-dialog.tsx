@@ -1,13 +1,5 @@
 "use client";
 
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr";
-import { QuestionIcon } from "@phosphor-icons/react/dist/ssr";
-import { SmileyIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
@@ -15,6 +7,16 @@ import { Dialog } from "@/components/ds/dialog";
 import { Textarea } from "@/components/ds/textarea";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
+import {
+	ArrowLeftIcon,
+	CalendarIcon,
+	CurrencyDollarIcon,
+	GearIcon,
+	LightningIcon,
+	QuestionIcon,
+	SmileyIcon,
+	WarningCircleIcon,
+} from "@/components/icons/nucleo";
 
 interface CancelSubscriptionDialogProps {
 	currentPeriodEnd?: number;

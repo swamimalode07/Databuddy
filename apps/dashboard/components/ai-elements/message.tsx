@@ -1,12 +1,6 @@
 "use client";
 
 import type { FileUIPart, UIMessage } from "ai";
-import {
-	CaretLeftIcon,
-	CaretRightIcon,
-	PaperclipIcon,
-	XIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
 import {
@@ -25,6 +19,8 @@ import { Button } from "@/components/ds/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
 import { Tooltip } from "@/components/ds/tooltip";
 import { cn } from "@/lib/utils";
+import { PaperclipIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeftIcon, CaretRightIcon } from "@/components/icons/nucleo";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 	from: UIMessage["role"];

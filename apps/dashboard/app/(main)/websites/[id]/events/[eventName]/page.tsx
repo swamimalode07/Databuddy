@@ -1,12 +1,5 @@
 "use client";
 
-import { CalendarBlankIcon } from "@phosphor-icons/react";
-import { ClockIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { LinkIcon } from "@phosphor-icons/react";
-import { TagIcon } from "@phosphor-icons/react";
-import { UserIcon } from "@phosphor-icons/react";
-import { UsersIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useMemo } from "react";
@@ -18,6 +11,15 @@ import { useDateFilters } from "@/hooks/use-date-filters";
 import { formatNumber } from "@/lib/formatters";
 import { formatTime, fromNow } from "@/lib/time";
 import { useEventDetailData } from "./use-event-detail";
+import {
+	CalendarBlankIcon,
+	ClockIcon,
+	LightningIcon,
+	LinkIcon,
+	TagIcon,
+	UserIcon,
+	UsersIcon,
+} from "@/components/icons/nucleo";
 
 export default function EventDetailPage() {
 	const params = useParams();

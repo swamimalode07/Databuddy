@@ -1,13 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	EnvelopeSimpleIcon,
-	GlobeSimpleIcon,
-	PlusIcon,
-	SlackLogoIcon,
-	XIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -23,6 +16,12 @@ import { Sheet } from "@/components/ds/sheet";
 import { Switch } from "@/components/ds/switch";
 import { Text } from "@/components/ds/text";
 import { orpc } from "@/lib/orpc";
+import { SlackLogoIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	EnvelopeSimpleIcon,
+	GlobeSimpleIcon,
+	PlusIcon,
+} from "@/components/icons/nucleo";
 
 type DestType = "slack" | "email" | "webhook";
 

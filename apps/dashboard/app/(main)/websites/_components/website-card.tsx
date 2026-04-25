@@ -3,17 +3,6 @@ import type {
 	ProcessedMiniChartData,
 	Website,
 } from "@databuddy/shared/types/website";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { ArrowsLeftRightIcon } from "@phosphor-icons/react";
-import { CodeIcon } from "@phosphor-icons/react";
-import { CopyIcon } from "@phosphor-icons/react";
-import { EyeIcon } from "@phosphor-icons/react";
-import { GearIcon } from "@phosphor-icons/react";
-import { MinusIcon } from "@phosphor-icons/react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
-import { TrendDownIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,6 +31,19 @@ import { formatNumber } from "@/lib/formatters";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
 import MiniChart from "./mini-chart";
 import { TransferWebsiteDialog } from "./transfer-website-dialog";
+import {
+	ArrowSquareOutIcon,
+	ArrowsLeftRightIcon,
+	CodeIcon,
+	CopyIcon,
+	EyeIcon,
+	GearIcon,
+	MinusIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+	TrendDownIcon,
+	TrendUpIcon,
+} from "@/components/icons/nucleo";
 
 interface WebsiteCardProps {
 	activeUsers?: number;

@@ -1,11 +1,11 @@
 "use client";
 
-import { ClockIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useInterval } from "@/hooks/use-interval";
 import { guessTimezone } from "@/lib/dayjs";
 import { formatDateTime, localDayjs } from "@/lib/time";
+import { ClockIcon } from "@/components/icons/nucleo";
 
 const REFRESH_INTERVAL_SEC = 60;
 

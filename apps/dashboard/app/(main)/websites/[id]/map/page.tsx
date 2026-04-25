@@ -1,7 +1,6 @@
 "use client";
 
 import type { LocationData } from "@databuddy/shared/types/website";
-import { GlobeIcon } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
@@ -12,6 +11,7 @@ import { Skeleton } from "@/components/ds/skeleton";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import { useMapLocationData } from "./use-map";
+import { GlobeIcon } from "@/components/icons/nucleo";
 
 const MapComponent = dynamic(
 	() =>

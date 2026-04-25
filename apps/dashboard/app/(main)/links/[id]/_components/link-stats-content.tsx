@@ -1,11 +1,5 @@
 "use client";
 
-import {
-	CursorClickIcon,
-	GlobeIcon,
-	LinkIcon,
-	UsersIcon,
-} from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { StatCard } from "@/components/analytics";
@@ -24,6 +18,12 @@ import {
 	type GeoEntry,
 	type SourceEntry,
 } from "./link-stats-columns";
+import {
+	CursorClickIcon,
+	GlobeIcon,
+	LinkIcon,
+	UsersIcon,
+} from "@/components/icons/nucleo";
 
 interface MiniChartDataPoint {
 	date: string;

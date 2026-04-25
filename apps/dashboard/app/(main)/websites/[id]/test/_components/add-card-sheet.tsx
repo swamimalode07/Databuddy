@@ -4,19 +4,6 @@ import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { CustomQueryConfig } from "@databuddy/shared/types/custom-query";
 import type { QueryOutputField } from "@databuddy/shared/types/query";
-import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr";
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr";
-import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr";
-import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
-import { CodeIcon } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr";
-import { GaugeIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
-import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr";
-import { TextTIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { StatCardDisplayMode } from "@/components/analytics/stat-card";
 import { StatCard } from "@/components/analytics/stat-card";
@@ -60,6 +47,21 @@ import type {
 	DataSourceMode,
 	DateRangePreset,
 } from "./utils/types";
+import {
+	CalendarDotsIcon,
+	CaretDownIcon,
+	ChartBarIcon,
+	ChartLineUpIcon,
+	CheckIcon,
+	CodeIcon,
+	FunnelIcon,
+	GaugeIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+	SquaresFourIcon,
+	TextTIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 export type { DashboardCardConfig } from "./utils/types";
 

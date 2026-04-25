@@ -1,19 +1,5 @@
 "use client";
 
-import {
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineIcon,
-	CursorClickIcon,
-	DesktopIcon,
-	FunnelIcon,
-	MoonIcon,
-	PresentationChartIcon,
-	SquaresFourIcon,
-	StackIcon,
-	SunIcon,
-	UsersIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { StatCard } from "@/components/analytics/stat-card";
@@ -37,6 +23,20 @@ import {
 	useDefaultDateRange,
 } from "@/hooks/use-default-date-range";
 import { cn } from "@/lib/utils";
+import {
+	CaretDownIcon,
+	ChartBarIcon,
+	ChartLineIcon,
+	CursorClickIcon,
+	DesktopIcon,
+	FunnelIcon,
+	MoonIcon,
+	PresentationChartIcon,
+	SquaresFourIcon,
+	StackIcon,
+	SunIcon,
+	UsersIcon,
+} from "@/components/icons/nucleo";
 
 const MOCK_CHART_DATA = [
 	{ date: "2024-01-01", value: 186 },

@@ -1,8 +1,5 @@
 "use client";
 
-import { MinusIcon } from "@phosphor-icons/react";
-import { TrendDownIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
 import type { ElementType } from "react";
 import {
 	Chart,
@@ -18,6 +15,11 @@ import { Skeleton } from "@/components/ds/skeleton";
 import dayjs from "@/lib/dayjs";
 import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+import {
+	MinusIcon,
+	TrendDownIcon,
+	TrendUpIcon,
+} from "@/components/icons/nucleo";
 
 interface MiniChartDataPoint {
 	date: string;

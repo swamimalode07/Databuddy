@@ -1,10 +1,5 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
-import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr";
-import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr";
-import { LightningIcon } from "@phosphor-icons/react/dist/ssr";
-import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useMemo, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";
 import { useDynamicDasharray } from "@/components/charts/use-dynamic-dasharray";
@@ -24,6 +19,13 @@ import {
 	chartTooltipHeaderRowClassName,
 	chartTooltipMultiShellClassName,
 } from "@/lib/chart-presentation";
+import {
+	ArrowCounterClockwiseIcon,
+	ChartBarIcon,
+	ChartLineUpIcon,
+	LightningIcon,
+	ListBulletsIcon,
+} from "@/components/icons/nucleo";
 
 const {
 	Area,

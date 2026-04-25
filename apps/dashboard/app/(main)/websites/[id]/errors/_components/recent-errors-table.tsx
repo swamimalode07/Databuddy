@@ -1,6 +1,5 @@
 "use client";
 
-import { ClockIcon, CodeIcon, GlobeIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
 import { Tooltip } from "@/components/ds/tooltip";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -11,6 +10,7 @@ import { ErrorDetailModal } from "./error-detail-modal";
 import { getDeviceIcon, getErrorTypeIcon } from "./error-icons";
 import type { RecentError } from "./types";
 import { getErrorCategory } from "./utils";
+import { ClockIcon, CodeIcon, GlobeIcon } from "@/components/icons/nucleo";
 
 interface Props {
 	isLoading?: boolean;

@@ -1,6 +1,5 @@
 "use client";
 
-import { HeartbeatIcon } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
@@ -28,6 +27,7 @@ import {
 	createRegionColumns,
 	type VitalsBreakdownData,
 } from "./columns";
+import { HeartbeatIcon } from "@/components/icons/nucleo";
 
 interface VitalMetric {
 	avg_value: number;

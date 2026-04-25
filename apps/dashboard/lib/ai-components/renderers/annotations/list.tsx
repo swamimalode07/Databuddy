@@ -1,17 +1,19 @@
 "use client";
 
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
-import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr";
-import { NoteIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ds/badge";
 import { Button } from "@/components/ds/button";
 import { Card } from "@/components/ds/card";
 import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { fromNow } from "@/lib/time";
 import type { BaseComponentProps } from "../../types";
+import {
+	CalendarIcon,
+	DotsThreeIcon,
+	NoteIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+	TrashIcon,
+} from "@/components/icons/nucleo";
 
 interface AnnotationItem {
 	annotationType: "point" | "line" | "range";

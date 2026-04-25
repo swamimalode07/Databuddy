@@ -1,11 +1,11 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ds/badge";
 import { Text } from "@/components/ds/text";
 import type { ApiKeyListItem } from "@/components/organizations/api-key-types";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
+import { CaretRightIcon } from "@/components/icons/nucleo";
 
 interface ApiKeyRowProps {
 	apiKey: ApiKeyListItem;

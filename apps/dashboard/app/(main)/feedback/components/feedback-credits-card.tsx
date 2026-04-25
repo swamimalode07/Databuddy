@@ -1,13 +1,10 @@
 "use client";
 
-import {
-	CoinIcon,
-	ShoppingCartIcon,
-	TrendUpIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { Card } from "@/components/ds/card";
 import { Skeleton } from "@/components/ds/skeleton";
 import { Text } from "@/components/ds/text";
+import { CoinIcon, ShoppingCartIcon } from "@phosphor-icons/react/dist/ssr";
+import { TrendUpIcon } from "@/components/icons/nucleo";
 
 interface FeedbackCreditsCardProps {
 	available: number;

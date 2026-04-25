@@ -1,7 +1,5 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react";
-import { SpinnerIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/ds/empty-state";
 import { StatusDot } from "@/components/ds/status-dot";
@@ -17,6 +15,7 @@ import {
 } from "@/lib/chart-presentation";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
+import { ChartLineIcon, SpinnerIcon } from "@/components/icons/nucleo";
 
 const {
 	Area,

@@ -10,11 +10,11 @@ import { useOrganizations } from "@/hooks/use-organizations";
 import type { Website } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
 import {
-	ArrowRight,
-	ArrowsLeftRight,
-	Buildings,
-	Globe,
-} from "@phosphor-icons/react/dist/ssr";
+	ArrowRightIcon,
+	ArrowsLeftRightIcon,
+	BuildingsIcon,
+	GlobeIcon,
+} from "@/components/icons/nucleo";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useWebsiteTransfer } from "../settings/danger/hooks/use-website-transfer";
@@ -44,7 +44,7 @@ function WebsiteItem({
 				className="size-8"
 				domain={website.domain}
 				fallbackIcon={
-					<Globe
+					<GlobeIcon
 						className="absolute inset-0 m-auto text-muted-foreground"
 						size={20}
 						weight="duotone"
@@ -108,7 +108,7 @@ export function TransferAssets({ organizationId }: { organizationId: string }) {
 		return (
 			<EmptyState
 				description="This workspace has no websites to transfer"
-				icon={<ArrowsLeftRight weight="duotone" />}
+				icon={<ArrowsLeftRightIcon weight="duotone" />}
 				title="No websites"
 			/>
 		);
@@ -118,7 +118,7 @@ export function TransferAssets({ organizationId }: { organizationId: string }) {
 		<div className="space-y-4">
 			<div>
 				<div className="mb-2 flex items-center gap-2">
-					<Buildings
+					<BuildingsIcon
 						className="text-muted-foreground"
 						size={13}
 						weight="duotone"
@@ -176,7 +176,7 @@ export function TransferAssets({ organizationId }: { organizationId: string }) {
 				onClick={handleTransfer}
 				variant="secondary"
 			>
-				<ArrowRight size={14} />
+				<ArrowRightIcon size={14} />
 				Transfer Website
 			</Button>
 		</div>

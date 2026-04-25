@@ -5,9 +5,6 @@ import {
 	getCountryName,
 } from "@databuddy/shared/country-codes";
 import type { ProfileData } from "@databuddy/shared/types/analytics";
-import { GlobeIcon } from "@phosphor-icons/react";
-import { UsersIcon } from "@phosphor-icons/react";
-import { UsersThreeIcon } from "@phosphor-icons/react";
 import {
 	type ColumnDef,
 	flexRender,
@@ -18,7 +15,7 @@ import { useAtomValue } from "jotai";
 import Image from "next/image";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
+import { TopBar } from "@/components/layout/top-bar";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { EmptyState } from "@/components/ds/empty-state";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -39,6 +36,7 @@ import { getDeviceIcon } from "@/lib/utils";
 import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import { generateProfileName } from "./[userId]/_components/generate-profile-name";
 import { useProfilesData } from "./use-users";
+import { GlobeIcon, UsersIcon } from "@/components/icons/nucleo";
 
 const wwwRegex = /^www\./;
 
@@ -329,11 +327,9 @@ export default function UsersPage() {
 	if (isLoading && isInitialLoad) {
 		return (
 			<div className="flex h-full flex-col">
-				<PageHeader
-					description="Visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 					<div className="overflow-auto">
@@ -366,11 +362,9 @@ export default function UsersPage() {
 	if (isError) {
 		return (
 			<div className="flex h-full flex-col">
-				<PageHeader
-					description="Visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<div className="flex min-h-0 flex-1 flex-col items-center justify-center py-24 text-center text-muted-foreground">
 					<UsersIcon className="mb-4 size-12 opacity-50" />
@@ -386,11 +380,9 @@ export default function UsersPage() {
 	if (!allUsers || allUsers.length === 0) {
 		return (
 			<div className="flex h-full flex-col">
-				<PageHeader
-					description="Visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<EmptyState
 					description="Users appear here once visitors arrive."
@@ -404,12 +396,9 @@ export default function UsersPage() {
 
 	return (
 		<div className="flex h-full flex-col">
-			<PageHeader
-				count={allUsers.length}
-				description="View detailed visitor profiles and activity"
-				icon={<UsersThreeIcon />}
-				title="Users"
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Users</h1>
+			</TopBar.Title>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 				<div className="h-full overflow-auto" ref={setScrollContainerRef}>
