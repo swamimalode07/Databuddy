@@ -311,7 +311,7 @@ export function Footer() {
 				</div>
 
 				{/* Copyright Row */}
-				<div className="mt-4 flex flex-col items-start justify-between gap-4 border-border border-t pt-4 sm:flex-row sm:items-center">
+				<div className="mt-4 hidden flex-col items-start justify-between gap-4 border-border border-t pt-4 sm:flex sm:flex-row sm:items-center">
 					<p className="text-muted-foreground text-sm sm:text-base">
 						© {new Date().getFullYear()} Databuddy
 					</p>
