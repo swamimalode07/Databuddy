@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrandContextMenu } from "@/components/brand-context-menu";
 import { Logo } from "./logo";
 import { NavLink } from "./nav-link";
