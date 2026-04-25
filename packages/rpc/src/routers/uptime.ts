@@ -1,4 +1,4 @@
-import { and, db, eq } from "@databuddy/db";
+import { and, db, eq, withTransaction } from "@databuddy/db";
 import { uptimeSchedules } from "@databuddy/db/schema";
 import { ratelimit } from "@databuddy/redis";
 import { Client } from "@upstash/qstash";
@@ -278,29 +278,28 @@ export const uptimeRouter = {
 
 			const scheduleId = randomUUIDv7();
 
-			await db.insert(uptimeSchedules).values({
-				id: scheduleId,
-				organizationId,
-				websiteId: input.websiteId ?? null,
-				url: input.url,
-				name: input.name ?? null,
-				granularity: input.granularity,
-				cron: CRON_GRANULARITIES[input.granularity],
-				isPaused: false,
-				timeout: input.timeout ?? null,
-				cacheBust: input.cacheBust ?? false,
-				jsonParsingConfig: input.jsonParsingConfig ?? { enabled: true },
-			});
+			await withTransaction(async (tx) => {
+				await tx.insert(uptimeSchedules).values({
+					id: scheduleId,
+					organizationId,
+					websiteId: input.websiteId ?? null,
+					url: input.url,
+					name: input.name ?? null,
+					granularity: input.granularity,
+					cron: CRON_GRANULARITIES[input.granularity],
+					isPaused: false,
+					timeout: input.timeout ?? null,
+					cacheBust: input.cacheBust ?? false,
+					jsonParsingConfig: input.jsonParsingConfig ?? { enabled: true },
+				});
 
-			try {
-				await createQStashSchedule(scheduleId, input.granularity);
-			} catch (error) {
-				await db
-					.delete(uptimeSchedules)
-					.where(eq(uptimeSchedules.id, scheduleId));
-				logger.error({ scheduleId, error }, "QStash failed, rolled back");
-				throw rpcError.internal("Failed to create monitor");
-			}
+				try {
+					await createQStashSchedule(scheduleId, input.granularity);
+				} catch (error) {
+					logger.error({ scheduleId, error }, "QStash failed, rolling back");
+					throw rpcError.internal("Failed to create monitor");
+				}
+			});
 
 			triggerInitialCheck(scheduleId);
 			logger.info({ scheduleId, url: input.url }, "Schedule created");

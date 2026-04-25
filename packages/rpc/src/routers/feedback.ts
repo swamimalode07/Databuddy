@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "@databuddy/db";
+import { and, desc, eq, sql, withTransaction } from "@databuddy/db";
 import type { db as DbType } from "@databuddy/db";
 import { feedback, feedbackRedemptions } from "@databuddy/db/schema";
 import { randomUUIDv7 } from "bun";
@@ -329,24 +329,31 @@ export const feedbackRouter = {
 			}
 
 			const tier = REWARD_TIERS[input.tierIndex];
+			const userId = context.user.id;
+			const organizationId = context.organizationId;
 
-			const balance = await computeCreditsBalance(
-				context.db,
-				context.user.id,
-				context.organizationId
-			);
+			const redemptionId = randomUUIDv7();
 
-			if (balance.available < tier.creditsRequired) {
-				throw rpcError.badRequest(
-					`Not enough credits. You have ${balance.available} but need ${tier.creditsRequired}.`
-				);
-			}
+			await withTransaction(async (tx) => {
+				const balance = await computeCreditsBalance(tx, userId, organizationId);
 
-			const customerId = await getBillingCustomerId(
-				context.user.id,
-				context.organizationId
-			);
+				if (balance.available < tier.creditsRequired) {
+					throw rpcError.badRequest(
+						`Not enough credits. You have ${balance.available} but need ${tier.creditsRequired}.`
+					);
+				}
 
+				await tx.insert(feedbackRedemptions).values({
+					id: redemptionId,
+					userId,
+					organizationId,
+					creditsSpent: tier.creditsRequired,
+					rewardType: tier.rewardType,
+					rewardAmount: tier.rewardAmount,
+				});
+			});
+
+			const customerId = await getBillingCustomerId(userId, organizationId);
 			const featureId =
 				tier.rewardType === "agent-credits" ? "agent-credits" : "events";
 
@@ -372,14 +379,25 @@ export const feedbackRouter = {
 					throw new Error(`Autumn API ${response.status}: ${body}`);
 				}
 			} catch (error) {
+				await context.db
+					.delete(feedbackRedemptions)
+					.where(eq(feedbackRedemptions.id, redemptionId))
+					.catch((deleteError) => {
+						logger.error(
+							{ deleteError, redemptionId, userId },
+							"Failed to roll back redemption after Autumn failure"
+						);
+					});
+
 				const errorMessage =
 					error instanceof Error ? error.message : String(error);
 				logger.error(
 					{
 						error: errorMessage,
-						userId: context.user.id,
+						userId,
 						customerId,
 						tier,
+						redemptionId,
 					},
 					"Failed to update Autumn balance for credit redemption"
 				);
@@ -388,24 +406,15 @@ export const feedbackRouter = {
 				);
 			}
 
-			await context.db.insert(feedbackRedemptions).values({
-				id: randomUUIDv7(),
-				userId: context.user.id,
-				organizationId: context.organizationId,
-				creditsSpent: tier.creditsRequired,
-				rewardType: tier.rewardType,
-				rewardAmount: tier.rewardAmount,
-			});
-
 			const newBalance = await computeCreditsBalance(
 				context.db,
-				context.user.id,
-				context.organizationId
+				userId,
+				organizationId
 			);
 
 			logger.info(
 				{
-					userId: context.user.id,
+					userId,
 					creditsSpent: tier.creditsRequired,
 					rewardType: tier.rewardType,
 					rewardAmount: tier.rewardAmount,

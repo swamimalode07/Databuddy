@@ -1,4 +1,4 @@
-import { and, db, eq, inArray } from "@databuddy/db";
+import { and, db, eq, inArray, withTransaction } from "@databuddy/db";
 import { chQuery } from "@databuddy/db/clickhouse";
 import {
 	organization,
@@ -271,7 +271,7 @@ async function _fetchStatusPageData(
 			: Promise.resolve([]),
 	]);
 
-	const websiteMap = new Map(websiteRows.map((w) => [w.id, w]));
+	const websiteMap = new Map(websiteRows.map((w) => [w.id, w] as const));
 
 	const dailyBySite = new Map<string, DailyRow[]>();
 	for (const row of allDailyData) {
@@ -713,29 +713,31 @@ export const statusPageRouter = {
 				permissions: ["create"],
 			});
 
-			await db
-				.update(statusPages)
-				.set({
-					organizationId: input.targetOrganizationId,
-					updatedAt: new Date(),
-				})
-				.where(eq(statusPages.id, input.statusPageId));
+			await withTransaction(async (tx) => {
+				await tx
+					.update(statusPages)
+					.set({
+						organizationId: input.targetOrganizationId,
+						updatedAt: new Date(),
+					})
+					.where(eq(statusPages.id, input.statusPageId));
 
-			if (input.includeMonitors) {
-				const monitorIds = statusPage.statusPageMonitors.map(
-					(m: { uptimeScheduleId: string }) => m.uptimeScheduleId
-				);
+				if (input.includeMonitors) {
+					const monitorIds = statusPage.statusPageMonitors.map(
+						(m: { uptimeScheduleId: string }) => m.uptimeScheduleId
+					);
 
-				if (monitorIds.length > 0) {
-					await db
-						.update(uptimeSchedules)
-						.set({
-							organizationId: input.targetOrganizationId,
-							updatedAt: new Date(),
-						})
-						.where(inArray(uptimeSchedules.id, monitorIds));
+					if (monitorIds.length > 0) {
+						await tx
+							.update(uptimeSchedules)
+							.set({
+								organizationId: input.targetOrganizationId,
+								updatedAt: new Date(),
+							})
+							.where(inArray(uptimeSchedules.id, monitorIds));
+					}
 				}
-			}
+			});
 
 			await invalidateCacheableWithArgs("status-page", [statusPage.slug]);
 
