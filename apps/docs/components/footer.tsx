@@ -280,7 +280,7 @@ export function Footer() {
 						</div>
 						<div className="flex flex-wrap items-center gap-4">
 							<Link
-								className="text-muted-foreground/70 text-xs hover:text-muted-foreground sm:text-sm"
+								className="text-muted-foreground/60 text-sm hover:text-muted-foreground"
 								href="/privacy"
 							>
 								Privacy
