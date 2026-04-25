@@ -8,7 +8,6 @@ import { LogoContent } from "./logo";
 import { NewsletterForm } from "./newsletter-form";
 import { GDPRIcon } from "./icons/gdpr";
 import { CCPAIcon } from "./icons/ccpa";
-import { SciFiButton } from "./landing/scifi-btn";
 import { Button } from "./ui/button";
 
 export function Footer() {
@@ -38,7 +37,7 @@ export function Footer() {
 						width={180}
 					/>
 					<div className="relative z-10 max-w-5xl px-8 pt-8 sm:px-16 md:pt-16">
-						<h2 className="mb-2 text-left text-white font-medium text-2xl leading-tight sm:text-4xl">
+						<h2 className="mb-2 text-left font-medium text-2xl text-white leading-tight sm:text-4xl">
 							All the analytics you need. One click away
 						</h2>
 
