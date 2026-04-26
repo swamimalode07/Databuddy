@@ -64,6 +64,7 @@ const flags = createServerFlagsManager({
   environment: "production",
   cacheTtl: 60_000,      // 1 minute cache
   staleTime: 30_000,     // Revalidate after 30s
+  maxCacheSize: 5000,    // Cap in-memory cache entries
   debug: false
 });`}
 </CodeBlock>
@@ -78,6 +79,7 @@ const flags = createServerFlagsManager({
 | `environment` | `string` | - | Environment name |
 | `cacheTtl` | `number` | `60000` | Cache TTL in ms |
 | `staleTime` | `number` | `30000` | Revalidate after (ms) |
+| `maxCacheSize` | `number` | `5000` | Maximum in-memory cache entries |
 | `autoFetch` | `boolean` | `false` | Fetch all flags on init |
 | `debug` | `boolean` | `false` | Enable debug logging |
 | `disabled` | `boolean` | `false` | Disable flag evaluation |
@@ -117,6 +119,8 @@ Override user context for a specific check:
   properties: { role: "admin" }
 });`}
 </CodeBlock>
+
+Per-call user context is sent to the flags API for that evaluation and overrides the manager's default user. Cache entries are isolated by flag key, environment, and the full targeting context (`userId`, `email`, `organizationId`, `teamId`, and `properties`).
 
 ### fetchAllFlags(user?)
 
@@ -350,7 +354,8 @@ The server manager uses stale-while-revalidate caching:
   {`const flags = createServerFlagsManager({
   clientId: process.env.DATABUDDY_CLIENT_ID!,
   cacheTtl: 60_000,      // Cache valid for 1 minute
-  staleTime: 30_000      // Revalidate after 30 seconds
+  staleTime: 30_000,     // Revalidate after 30 seconds
+  maxCacheSize: 5000     // Evict old entries above this size
 });
 
 // First call: fetches from API
@@ -366,9 +371,11 @@ const result3 = await flags.getFlag("my-feature");
 const result4 = await flags.getFlag("my-feature");`}
 </CodeBlock>
 
+Expired entries are pruned during cache writes and reads. Long-lived shared managers should keep the default `maxCacheSize` or set a limit that matches their traffic shape, especially when passing per-request users.
+
 ## Request Batching
 
-Multiple concurrent flag requests are batched automatically:
+Multiple concurrent flag requests with the same API URL and targeting context are batched automatically:
 
 <CodeBlock language="tsx">
   {`// These 3 concurrent requests become 1 API call
@@ -378,6 +385,8 @@ const [flag1, flag2, flag3] = await Promise.all([
   flags.getFlag("feature-3")
 ]);`}
 </CodeBlock>
+
+Requests for different users, organizations, teams, properties, or environments are intentionally sent through separate batches so evaluations cannot mix targeting contexts.
 
 ## Request Deduplication
 
@@ -453,7 +462,8 @@ export function getFlags() {
   if (!flagsManager) {
     flagsManager = createServerFlagsManager({
       clientId: process.env.DATABUDDY_CLIENT_ID!,
-      autoFetch: true
+      autoFetch: true,
+      maxCacheSize: 5000
     });
   }
   return flagsManager;
