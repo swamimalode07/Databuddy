@@ -12,7 +12,6 @@
     "@databuddy/rpc": "workspace:*",
     "@databuddy/ui": "workspace:*",
     "@orpc/client": "^1.14.0",
-    "@phosphor-icons/react": "^2.1.10",
     "next": "catalog:",
     "next-themes": "^0.4.6",
     "react": "catalog:",

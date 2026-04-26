@@ -72,7 +72,7 @@ interface ScheduleData {
 	jsonParsingConfig?: { enabled: boolean } | null;
 	name: string | null;
 	organizationId: string;
-	qstashStatus: string;
+	schedulerStatus: string;
 	timeout: number | null;
 	url: string;
 	website?: {

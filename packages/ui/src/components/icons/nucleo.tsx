@@ -667,23 +667,6 @@ export const LightbulbIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 );
 LightbulbIcon.displayName = "LightbulbIcon";
 
-export const BoltLightningIcon = React.forwardRef<
-	SVGSVGElement,
-	NucleoIconProps
->((props, ref) => (
-	<NucleoIcon ref={ref} {...props}>
-		<path
-			clipRule="evenodd"
-			d="M5.67585 1.81984C5.8563 1.32701 6.32578 1 6.84901 1H11.019C11.8998 1 12.5011 1.88388 12.1844 2.70181L12.184 2.70281L11.0963 5.5H13.75C14.7808 5.5 15.3669 6.67577 14.7505 7.49942L7.85001 16.7C7.63299 16.9894 7.24039 17.0826 6.91644 16.9217C6.59249 16.7609 6.4295 16.3917 6.52886 16.044L8.25571 10H4.46602C3.59645 10 2.99323 9.13488 3.29298 8.31947"
-			data-color="color-2"
-			fill="currentColor"
-			fillOpacity="0.4"
-			fillRule="evenodd"
-		/>
-	</NucleoIcon>
-));
-BoltLightningIcon.displayName = "BoltLightningIcon";
-
 export const LinkIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 	(props, ref) => (
 		<NucleoIcon ref={ref} {...props}>
@@ -4235,31 +4218,6 @@ export const KeyIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 );
 KeyIcon.displayName = "KeyIcon";
 
-export const ShieldCheckIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
-	(props, ref) => (
-		<NucleoIcon ref={ref} {...props}>
-			<path
-				d="M9.305,1.848l5.25,1.68c.414,.133,.695,.518,.695,.952v6.52c0,3.03-4.684,4.748-5.942,5.155-.203,.066-.413,.066-.616,0-1.258-.407-5.942-2.125-5.942-5.155V4.48c0-.435,.281-.82,.695-.952l5.25-1.68c.198-.063,.411-.063,.61,0Z"
-				fill="none"
-				stroke="currentColor"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.5"
-			/>
-			<polyline
-				data-color="color-2"
-				fill="none"
-				points="6.497 9.75 8.106 11.25 11.503 6.75"
-				stroke="currentColor"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.5"
-			/>
-		</NucleoIcon>
-	)
-);
-ShieldCheckIcon.displayName = "ShieldCheckIcon";
-
 export const XMarkIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 	(props, ref) => (
 		<NucleoIcon ref={ref} {...props}>
@@ -4289,3 +4247,190 @@ export const XMarkIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
 	)
 );
 XMarkIcon.displayName = "XMarkIcon";
+
+export const MinusCircleIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				d="M9.00012 17C13.4184 17 17.0001 13.4183 17.0001 9C17.0001 4.58172 13.4184 1 9.00012 1C4.58184 1 1.00012 4.58172 1.00012 9C1.00012 13.4183 4.58184 17 9.00012 17Z"
+				data-color="color-2"
+				fill="currentColor"
+				opacity="0.4"
+			/>
+			<path
+				d="M12.2501 9.75H5.75012C5.33602 9.75 5.00012 9.4141 5.00012 9C5.00012 8.5859 5.33602 8.25 5.75012 8.25H12.2501C12.6642 8.25 13.0001 8.5859 13.0001 9C13.0001 9.4141 12.6642 9.75 12.2501 9.75Z"
+				fill="currentColor"
+			/>
+		</NucleoIcon>
+	)
+);
+MinusCircleIcon.displayName = "MinusCircleIcon";
+
+export const ShieldCheckIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				clipRule="evenodd"
+				d="M8.16963 1.22703C8.33372 1.16922 8.67031 1.05063 9.00028 1.05075C9.1795 1.05082 9.36084 1.079 9.53357 1.13368L14.7836 2.81368C15.5071 3.04612 16 3.71943 16 4.48V11C16 12.8725 14.6025 14.2314 13.2749 15.1143C12.1533 15.8602 10.9062 16.4082 9.63302 16.8379C9.57968 16.8559 9.49355 16.8849 9.40738 16.9058C9.09216 16.9819 8.76807 16.9684 8.46011 16.8683C7.80803 16.6572 6.25089 16.1022 4.84192 15.1909C3.47441 14.3064 2 12.9239 2 11V4.48C2 3.71932 2.49139 3.04506 3.21675 2.81358C4.86562 2.28594 6.53686 1.80232 8.16963 1.22703Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M11.9549 6.15141C12.2855 6.40097 12.3512 6.87128 12.1016 7.20187L8.70461 11.7019C8.57662 11.8714 8.38274 11.9787 8.17111 11.9972C7.95949 12.0156 7.74997 11.9434 7.59459 11.7986L5.98559 10.2986C5.68261 10.0161 5.66598 9.54155 5.94843 9.23858C6.23088 8.9356 6.70546 8.91896 7.00843 9.20141L8.00877 10.134L10.9044 6.29813C11.154 5.96754 11.6243 5.90185 11.9549 6.15141Z"
+				fill="currentColor"
+				fillRule="evenodd"
+			/>
+		</NucleoIcon>
+	)
+);
+ShieldCheckIcon.displayName = "ShieldCheckIcon";
+
+export const SignalIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				clipRule="evenodd"
+				d="M2.75 12C3.16421 12 3.5 12.3358 3.5 12.75V14.25C3.5 14.6642 3.16421 15 2.75 15C2.33579 15 2 14.6642 2 14.25V12.75C2 12.3358 2.33579 12 2.75 12Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M5.75 9.5C6.16421 9.5 6.5 9.83579 6.5 10.25V14.25C6.5 14.6642 6.16421 15 5.75 15C5.33579 15 5 14.6642 5 14.25V10.25C5 9.83579 5.33579 9.5 5.75 9.5Z"
+				fill="currentColor"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M9 7C9.41421 7 9.75 7.33579 9.75 7.75V14.25C9.75 14.6642 9.41421 15 9 15C8.58579 15 8.25 14.6642 8.25 14.25V7.75C8.25 7.33579 8.58579 7 9 7Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M12.25 4.5C12.6642 4.5 13 4.83579 13 5.25V14.25C13 14.6642 12.6642 15 12.25 15C11.8358 15 11.5 14.6642 11.5 14.25V5.25C11.5 4.83579 11.8358 4.5 12.25 4.5Z"
+				fill="currentColor"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M15.25 2C15.6642 2 16 2.33579 16 2.75V14.25C16 14.6642 15.6642 15 15.25 15C14.8358 15 14.5 14.6642 14.5 14.25V2.75C14.5 2.33579 14.8358 2 15.25 2Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+		</NucleoIcon>
+	)
+);
+SignalIcon.displayName = "SignalIcon";
+
+export const SignalOffIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				clipRule="evenodd"
+				d="M2.75 12C3.16421 12 3.5 12.3358 3.5 12.75V14.25C3.5 14.6642 3.16421 15 2.75 15C2.33579 15 2 14.6642 2 14.25V12.75C2 12.3358 2.33579 12 2.75 12Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M5.75 9.5C6.16421 9.5 6.5 9.83579 6.5 10.25V14.25C6.5 14.6642 6.16421 15 5.75 15C5.33579 15 5 14.6642 5 14.25V10.25C5 9.83579 5.33579 9.5 5.75 9.5Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M9 7C9.41421 7 9.75 7.33579 9.75 7.75V14.25C9.75 14.6642 9.41421 15 9 15C8.58579 15 8.25 14.6642 8.25 14.25V7.75C8.25 7.33579 8.58579 7 9 7Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+				fillRule="evenodd"
+			/>
+			<path
+				d="M12.25 15C12.6642 15 13 14.664 13 14.25C13 13.836 12.6642 13.5 12.25 13.5C11.8358 13.5 11.5 13.836 11.5 14.25C11.5 14.664 11.8358 15 12.25 15Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+			/>
+			<path
+				d="M15.25 15C15.6642 15 16 14.664 16 14.25C16 13.836 15.6642 13.5 15.25 13.5C14.8358 13.5 14.5 13.836 14.5 14.25C14.5 14.664 14.8358 15 15.25 15Z"
+				data-color="color-2"
+				fill="currentColor"
+				fillOpacity="0.4"
+			/>
+			<path
+				clipRule="evenodd"
+				d="M12.5303 2.21967C12.2374 1.92678 11.7626 1.92678 11.4697 2.21967C11.1768 2.51256 11.1768 2.98744 11.4697 3.28033L12.9393 4.75L11.4697 6.21967C11.1768 6.51256 11.1768 6.98744 11.4697 7.28033C11.7626 7.57322 12.2374 7.57322 12.5303 7.28033L14 5.81066L15.4697 7.28033C15.7626 7.57322 16.2374 7.57322 16.5303 7.28033C16.8232 6.98744 16.8232 6.51256 16.5303 6.21967L15.0607 4.75L16.5303 3.28033C16.8232 2.98744 16.8232 2.51256 16.5303 2.21967C16.2374 1.92678 15.7626 1.92678 15.4697 2.21967L14 3.68934L12.5303 2.21967Z"
+				fill="currentColor"
+				fillRule="evenodd"
+			/>
+		</NucleoIcon>
+	)
+);
+SignalOffIcon.displayName = "SignalOffIcon";
+
+export const BoltLightningIcon = React.forwardRef<
+	SVGSVGElement,
+	NucleoIconProps
+>((props, ref) => (
+	<NucleoIcon ref={ref} {...props}>
+		<path
+			clipRule="evenodd"
+			d="M5.67585 1.81984C5.8563 1.32701 6.32578 1 6.84901 1H11.019C11.8998 1 12.5011 1.88388 12.1844 2.70181L12.184 2.70281L11.0963 5.5H13.75C14.7808 5.5 15.3669 6.67577 14.7505 7.49942L7.85001 16.7C7.63299 16.9894 7.24039 17.0826 6.91644 16.9217C6.59249 16.7609 6.4295 16.3917 6.52886 16.044L8.25571 10H4.46602C3.59645 10 2.99323 9.13488 3.29298 8.31947"
+			data-color="color-2"
+			fill="currentColor"
+			fillOpacity="0.4"
+			fillRule="evenodd"
+		/>
+	</NucleoIcon>
+));
+BoltLightningIcon.displayName = "BoltLightningIcon";
+
+export const CircleInfoIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				d="M9 1C4.5889 1 1 4.5889 1 9C1 13.4111 4.5889 17 9 17C13.4111 17 17 13.4111 17 9C17 4.5889 13.4111 1 9 1Z"
+				data-color="color-2"
+				fill="currentColor"
+				opacity="0.4"
+			/>
+			<path
+				d="M9.75 12.75C9.75 13.1641 9.4141 13.5 9 13.5C8.5859 13.5 8.25 13.1641 8.25 12.75V9.5H7.75C7.3359 9.5 7 9.1641 7 8.75C7 8.3359 7.3359 8 7.75 8H8.5C9.1895 8 9.75 8.5605 9.75 9.25V12.75ZM9 6.75C8.448 6.75 8 6.301 8 5.75C8 5.199 8.448 4.75 9 4.75C9.552 4.75 10 5.199 10 5.75C10 6.301 9.552 6.75 9 6.75Z"
+				fill="currentColor"
+			/>
+		</NucleoIcon>
+	)
+);
+CircleInfoIcon.displayName = "CircleInfoIcon";
+
+export const ClockRotateIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
+	(props, ref) => (
+		<NucleoIcon ref={ref} {...props}>
+			<path
+				d="M9 4C8.5859 4 8.25 4.3359 8.25 4.75V9C8.25 9.2461 8.37111 9.4766 8.57321 9.6167L11.8232 11.8667C11.9531 11.957 12.1025 12 12.249 12C12.4873 12 12.7207 11.8872 12.8662 11.6768C13.1025 11.3365 13.0176 10.8692 12.6767 10.6333L9.74991 8.60687V4.75C9.74991 4.3359 9.4141 4 9 4Z"
+				fill="currentColor"
+			/>
+			<path
+				d="M9.00004 1C4.63574 1 1.12304 4.41598 1.00294 8.77728C0.992242 9.19138 1.31833 9.5361 1.73243 9.5473C2.15433 9.579 2.49124 9.2324 2.50294 8.8183C2.59964 5.2753 5.45414 2.49988 9.00004 2.49988C12.584 2.49988 15.5 5.41588 15.5 8.99988C15.5 12.5839 12.584 15.4999 9.00004 15.4999C6.83444 15.4999 4.87074 14.4274 3.67274 12.6986L5.12996 12.9003C5.53136 12.955 5.91903 12.6698 5.97563 12.2597C6.03223 11.8496 5.74513 11.4711 5.33503 11.414L2.39073 11.0068C1.99033 10.9546 1.60266 11.2363 1.54506 11.6469L1.13685 14.5917C1.08025 15.0019 1.36635 15.3808 1.77745 15.4374C1.81165 15.4423 1.84673 15.4447 1.88093 15.4447C2.24913 15.4447 2.57045 15.1732 2.62315 14.7977L2.73805 13.9676C4.22995 15.8526 6.50973 16.9998 9.00013 16.9998C13.4112 16.9998 17.0001 13.4109 17.0001 8.99982C17.0001 4.58872 13.4111 1 9.00004 1Z"
+				data-color="color-2"
+				fill="currentColor"
+				opacity="0.4"
+			/>
+		</NucleoIcon>
+	)
+);
+ClockRotateIcon.displayName = "ClockRotateIcon";

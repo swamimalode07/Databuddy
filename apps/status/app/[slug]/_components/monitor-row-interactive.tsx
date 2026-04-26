@@ -20,15 +20,13 @@ const LatencyChart = dynamic(
 	}
 );
 
-interface DailyData {
-	avg_response_time?: number;
-	date: string;
-	p95_response_time?: number;
-	uptime_percentage?: number;
-}
-
 interface MonitorRowInteractiveProps {
-	dailyData: DailyData[];
+	dailyData: Array<{
+		avg_response_time?: number;
+		date: string;
+		p95_response_time?: number;
+		uptime_percentage?: number;
+	}>;
 	days: number;
 	hasLatencyData: boolean;
 	hasUptimeData?: boolean;

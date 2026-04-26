@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { getStatusPageUrl } from "@/lib/status-url";
@@ -16,15 +15,7 @@ interface StatusPageProps {
 const DAYS = 90;
 
 async function getStatusData(slug: string) {
-	return unstable_cache(
-		async () =>
-			rpcClient.statusPage.getBySlug({ slug, days: DAYS }).catch(() => null),
-		["status-page", slug, String(DAYS)],
-		{
-			revalidate: 60,
-			tags: ["status-page", `status-page-${slug}`],
-		}
-	)();
+	return rpcClient.statusPage.getBySlug({ slug, days: DAYS }).catch(() => null);
 }
 
 function slugify(text: string): string {
@@ -159,6 +150,8 @@ export default async function StatusPage({ params }: StatusPageProps) {
 								websiteUrl={page.websiteUrl}
 							/>
 
+							<Status.IncidentList incidents={data.incidents} />
+
 							<Status.MonitorList>
 								{data.monitors.map((monitor) => (
 									<Status.MonitorCard
@@ -175,7 +168,10 @@ export default async function StatusPage({ params }: StatusPageProps) {
 								))}
 							</Status.MonitorList>
 
-							<Status.Footer timestamp={latestTimestamp} />
+							<Status.Footer
+								incidents={data.incidents}
+								timestamp={latestTimestamp}
+							/>
 						</Status>
 					</div>
 				</main>

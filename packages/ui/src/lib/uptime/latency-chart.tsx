@@ -14,7 +14,7 @@ import {
 import { Skeleton } from "../../components/skeleton";
 import { cn } from "../utils";
 import { usePersistentState } from "../../hooks/use-persistent-state";
-import { CaretDownIcon } from "../../components/icons/nucleo";
+import { CaretDownIcon, ChartActivityIcon } from "../../components/icons/nucleo";
 
 interface LatencyDataPoint {
 	avg_response_time?: number;
@@ -133,7 +133,8 @@ export function LatencyChart({
 				onClick={() => setIsOpen((prev) => !prev)}
 				type="button"
 			>
-				<span className="shrink-0 text-balance font-medium text-muted-foreground text-xs uppercase tracking-wider">
+				<span className="flex shrink-0 items-center gap-1.5 text-balance font-medium text-muted-foreground text-xs uppercase tracking-wider">
+					<ChartActivityIcon className="size-3.5" />
 					Response Time
 				</span>
 
