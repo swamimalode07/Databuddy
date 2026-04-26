@@ -80,5 +80,8 @@
     "vscode:prepublish": "bun run build"
   },
   "sideEffects": false,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "uuid": "^14.0.0"
+  }
 }
