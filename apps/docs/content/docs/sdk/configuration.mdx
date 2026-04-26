@@ -158,7 +158,7 @@ Vue uses the same props as React but with kebab-case naming:
 | `data-disabled` | flag | `false` | Disable tracking |
 
 <Callout type="info">
-  **Flag attributes**: Boolean attributes are enabled by their presence. Just add `data-track-web-vitals` (no value needed).
+  **Boolean options**: Vue templates use kebab-case props such as `track-web-vitals`; vanilla CDN installs use `data-*` attributes such as `data-track-web-vitals`.
 </Callout>
 
 ## Node.js
@@ -173,7 +173,7 @@ const client = new Databuddy({
   // Optional: Scope events to a specific website
   websiteId: process.env.DATABUDDY_WEBSITE_ID,
   
-  // Optional: Logical grouping (e.g., 'billing', 'auth', 'api')
+  // Optional: Logical grouping (e.g., 'auth', 'api', 'jobs')
   namespace: "api",
   
   // Optional: Source identifier (e.g., 'backend', 'webhook', 'cli')
