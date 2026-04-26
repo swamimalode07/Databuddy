@@ -1,12 +1,16 @@
 import Redis from "ioredis";
 
-const URL = "redis://localhost:6379/1";
+const DEFAULT_REDIS_URL = "redis://localhost:6379/1";
+
+function redisUrl(): string {
+	return process.env.REDIS_URL ?? DEFAULT_REDIS_URL;
+}
 
 let instance: Redis | null = null;
 
 export function redis() {
 	if (!instance) {
-		instance = new Redis(URL, {
+		instance = new Redis(redisUrl(), {
 			connectTimeout: 5000,
 			commandTimeout: 3000,
 			maxRetriesPerRequest: 1,

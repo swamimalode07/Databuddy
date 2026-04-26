@@ -1,7 +1,8 @@
 import "@databuddy/test/env";
 
 import { describe, it, expect, beforeEach, afterAll } from "bun:test";
-import { withWorkspace } from "@databuddy/rpc";
+import { createProcedureClient } from "@orpc/server";
+import { withWorkspace, appRouter, type Context } from "@databuddy/rpc";
 import {
 	reset,
 	cleanup,
@@ -17,6 +18,10 @@ import {
 } from "@databuddy/test";
 
 const iit = hasTestDb ? it : it.skip;
+
+function call<T>(procedure: T, ctx: Context) {
+	return createProcedureClient(procedure as any, { context: ctx });
+}
 
 beforeEach(() => reset());
 afterAll(() => cleanup());
@@ -227,6 +232,48 @@ describe("withWorkspace", () => {
 			expect(ws.user).toBeNull();
 		});
 
+		iit("merges metadata global scopes with top-level scopes", async () => {
+			const org = await insertOrganization();
+			const owner = await signUp();
+			await addToOrganization(owner.id, org.id, "owner");
+
+			const ctx = context({
+				apiKey: {
+					id: "meta-key",
+					name: "Meta Key",
+					prefix: "dbdy",
+					start: "meta",
+					keyHash: "meta-hash",
+					userId: null,
+					organizationId: org.id,
+					type: "user" as const,
+					scopes: [],
+					enabled: true,
+					revokedAt: null,
+					rateLimitEnabled: false,
+					rateLimitTimeWindow: null,
+					rateLimitMax: null,
+					expiresAt: null,
+					lastUsedAt: null,
+					metadata: {
+						resources: {
+							global: ["read:data"],
+						},
+					},
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				organizationId: org.id,
+			});
+
+			const ws = await withWorkspace(ctx, {
+				organizationId: org.id,
+				resource: "website",
+				permissions: ["read"],
+			});
+			expect(ws.user).toBeNull();
+		});
+
 		iit("denies API key with no scopes", async () => {
 			const org = await insertOrganization();
 
@@ -259,6 +306,23 @@ describe("withWorkspace", () => {
 			expect(ws.isPublicAccess).toBe(true);
 			expect(ws.user).toBeNull();
 			expect(ws.website?.id).toBe(site.id);
+		});
+
+		iit("treats view_analytics as read-only for public access", async () => {
+			const org = await insertOrganization();
+			const owner = await signUp();
+			await addToOrganization(owner.id, org.id, "owner");
+			const site = await insertWebsite({
+				organizationId: org.id,
+				isPublic: true,
+			});
+
+			const ws = await withWorkspace(context(), {
+				websiteId: site.id,
+				permissions: ["view_analytics"],
+				allowPublicAccess: true,
+			});
+			expect(ws.isPublicAccess).toBe(true);
 		});
 
 		iit("denies unauthenticated write on public website", async () => {
@@ -320,6 +384,62 @@ describe("withWorkspace", () => {
 				organizationId: org.id,
 			});
 			expect(ws.plan).toBe("free");
+		});
+	});
+
+	describe("sessionProcedure guard", () => {
+		iit("rejects API key on organizations.getUserPendingInvitations", async () => {
+			const org = await insertOrganization();
+			const owner = await signUp();
+			await addToOrganization(owner.id, org.id, "owner");
+
+			await expectCode(
+				call(
+					appRouter.organizations.getUserPendingInvitations,
+					apiKeyContext(org.id, ["read:data", "manage:config"]),
+				)(undefined),
+				"UNAUTHORIZED",
+			);
+		});
+
+		iit("rejects API key on apikeys.getMyRole", async () => {
+			const org = await insertOrganization();
+			const owner = await signUp();
+			await addToOrganization(owner.id, org.id, "owner");
+
+			await expectCode(
+				call(
+					appRouter.apikeys.getMyRole,
+					apiKeyContext(org.id, ["read:data", "manage:config"]),
+				)({ organizationId: org.id }),
+				"UNAUTHORIZED",
+			);
+		});
+
+		iit("rejects API key on feedback.list", async () => {
+			const org = await insertOrganization();
+			const owner = await signUp();
+			await addToOrganization(owner.id, org.id, "owner");
+
+			await expectCode(
+				call(
+					appRouter.feedback.list,
+					apiKeyContext(org.id, ["read:data"]),
+				)(undefined),
+				"UNAUTHORIZED",
+			);
+		});
+
+		iit("allows user session on apikeys.getMyRole", async () => {
+			const user = await signUp();
+			const org = await insertOrganization();
+			await addToOrganization(user.id, org.id, "admin");
+
+			const result = await call(
+				appRouter.apikeys.getMyRole,
+				userContext(user, org.id),
+			)({ organizationId: org.id });
+			expect(result.role).toBe("admin");
 		});
 	});
 });

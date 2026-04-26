@@ -133,6 +133,32 @@ describe("cross-tenant isolation", () => {
 		});
 	});
 
+	describe("user with roles in multiple orgs", () => {
+		iit("can read own org but not write in other org", async () => {
+			const user = await signUp();
+			const orgA = await insertOrganization();
+			const orgB = await insertOrganization();
+			await addToOrganization(user.id, orgA.id, "owner");
+			await addToOrganization(user.id, orgB.id, "viewer");
+
+			const wsA = await withWorkspace(userContext(user, orgA.id), {
+				organizationId: orgA.id,
+				resource: "website",
+				permissions: ["read"],
+			});
+			expect(wsA.role).toBe("owner");
+
+			await expectCode(
+				withWorkspace(userContext(user, orgB.id), {
+					organizationId: orgB.id,
+					resource: "website",
+					permissions: ["create"],
+				}),
+				"FORBIDDEN",
+			);
+		});
+	});
+
 	describe("correct org access still works", () => {
 		iit("user A can read their own org's websites", async () => {
 			const userA = await signUp();
