@@ -87,10 +87,12 @@ function LinkRowIcon({ link }: { link: Link }) {
 
 export function LinkRow({
 	link,
+	folderName,
 	onEdit,
 	onDelete,
 	onShowQr,
 }: {
+	folderName?: string;
 	link: Link;
 	onEdit: (link: Link) => void;
 	onDelete: (linkId: string) => void;
@@ -131,6 +133,14 @@ export function LinkRow({
 						<span className="shrink-0 text-muted-foreground text-xs tabular-nums">
 							{fromNow(link.createdAt)}
 						</span>
+						{folderName && (
+							<>
+								<span className="text-muted-foreground text-xs">&middot;</span>
+								<span className="truncate text-muted-foreground text-xs">
+									{folderName}
+								</span>
+							</>
+						)}
 					</div>
 				</div>
 			</NextLink>
@@ -174,21 +184,28 @@ export function LinkRow({
 }
 
 interface LinksListProps {
+	foldersById?: Map<string, string>;
 	links: Link[];
 	onCreateLink: () => void;
 	onDelete: (linkId: string) => void;
 	onEdit: (link: Link) => void;
 	onShowQr: (link: Link) => void;
+	showEmptyState?: boolean;
 }
 
 export function LinksList({
 	links,
+	foldersById,
 	onEdit,
 	onDelete,
 	onShowQr,
 	onCreateLink,
+	showEmptyState = true,
 }: LinksListProps) {
 	if (links.length === 0) {
+		if (!showEmptyState) {
+			return null;
+		}
 		return (
 			<div className="px-5 py-12">
 				<EmptyState
@@ -209,6 +226,9 @@ export function LinksList({
 		<div className="divide-y">
 			{links.map((link) => (
 				<LinkRow
+					folderName={
+						link.folderId ? foldersById?.get(link.folderId) : undefined
+					}
 					key={link.id}
 					link={link}
 					onDelete={onDelete}

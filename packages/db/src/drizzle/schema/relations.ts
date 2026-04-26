@@ -24,7 +24,7 @@ import {
 import { alarmDestinations, alarms, usageAlertLog } from "./billing";
 import { feedback, feedbackRedemptions, insightUserFeedback } from "./feedback";
 import { flags, flagsToTargetGroups, targetGroups } from "./flags";
-import { links } from "./links";
+import { linkFolders, links } from "./links";
 import {
 	incidentAffectedMonitors,
 	incidentUpdates,
@@ -46,6 +46,8 @@ export const userRelations = relations(user, ({ many }) => ({
 	funnelDefinitions: many(funnelDefinitions),
 	apikeys: many(apikey),
 	usageAlertLogs: many(usageAlertLog),
+	linkFolders: many(linkFolders),
+	links: many(links),
 }));
 
 export const usageAlertLogRelations = relations(usageAlertLog, ({ one }) => ({
@@ -65,6 +67,8 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 	alarms: many(alarms),
 	analyticsInsights: many(analyticsInsights),
 	statusPages: many(statusPages),
+	linkFolders: many(linkFolders),
+	links: many(links),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -291,6 +295,22 @@ export const linksRelations = relations(links, ({ one }) => ({
 		fields: [links.createdBy],
 		references: [user.id],
 	}),
+	folder: one(linkFolders, {
+		fields: [links.folderId],
+		references: [linkFolders.id],
+	}),
+}));
+
+export const linkFoldersRelations = relations(linkFolders, ({ one, many }) => ({
+	organization: one(organization, {
+		fields: [linkFolders.organizationId],
+		references: [organization.id],
+	}),
+	creator: one(user, {
+		fields: [linkFolders.createdBy],
+		references: [user.id],
+	}),
+	links: many(links),
 }));
 
 export const revenueConfigRelations = relations(revenueConfig, ({ one }) => ({
