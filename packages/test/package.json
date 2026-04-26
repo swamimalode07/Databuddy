@@ -8,6 +8,9 @@
     ".": "./src/index.ts",
     "./env": "./src/env.ts"
   },
+  "scripts": {
+    "check-types": "tsc --build"
+  },
   "dependencies": {
     "@clickhouse/client": "^1.14.0",
     "@databuddy/auth": "workspace:*",
