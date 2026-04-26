@@ -62,19 +62,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      clickhouse:
-        image: clickhouse/clickhouse-server:25.5.1-alpine
-        env:
-          CLICKHOUSE_DB: databuddy_test
-          CLICKHOUSE_USER: default
-          CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
-        ports:
-          - 8123:8123
-        options: >-
-          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:8123/ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -113,10 +100,6 @@ jobs:
             -e BULLMQ_REDIS_URL=redis://localhost:6379/2 \
             -e REDIS_HOST=localhost \
             -e REDIS_PORT=6379 \
-            -e CLICKHOUSE_URL=http://localhost:8123 \
-            -e CLICKHOUSE_HOST=localhost \
-            -e CLICKHOUSE_PORT=8123 \
-            -e CLICKHOUSE_DATABASE=databuddy_test \
             -e BETTER_AUTH_SECRET=test-auth-secret-for-ci \
             -e BETTER_AUTH_URL=http://localhost:3000 \
             -e GITHUB_CLIENT_ID=test-github-client-id \
@@ -181,19 +164,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      clickhouse:
-        image: clickhouse/clickhouse-server:25.5.1-alpine
-        env:
-          CLICKHOUSE_DB: databuddy_test
-          CLICKHOUSE_USER: default
-          CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
-        ports:
-          - 8123:8123
-        options: >-
-          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:8123/ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -256,9 +226,6 @@ jobs:
             -e REDIS_HOST=localhost \
             -e REDIS_PORT=6379 \
             -e DATABASE_URL=postgresql://postgres:postgres@localhost:5432/databuddy_test \
-            -e CLICKHOUSE_URL=http://localhost:8123 \
-            -e CLICKHOUSE_HOST=localhost \
-            -e CLICKHOUSE_PORT=8123 \
             -e REDPANDA_BROKER=localhost:9092 \
             -e IP_HASH_SALT=test-ip-hash-salt \
             -e KAFKA_ENABLED=false \
