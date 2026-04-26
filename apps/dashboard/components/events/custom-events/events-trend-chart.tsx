@@ -13,15 +13,11 @@ import {
 	chartAxisTickDefault,
 	chartAxisYWidthCompact,
 	chartCartesianGridDefault,
-	chartRechartsInteractiveLegendLabelClassName,
-	chartRechartsLegendIconSize,
-	chartRechartsLegendInteractiveWrapperStyle,
-	chartRechartsLegendStaticLabelClassName,
-	chartRechartsLegendStaticWrapperStyleMerge,
 	chartTooltipHeaderRowClassName,
 	chartTooltipMultiShellClassName,
 	chartSeriesColorAtIndex,
 } from "@/lib/chart-presentation";
+import { cn } from "@/lib/utils";
 import {
 	ArrowCounterClockwiseIcon,
 	ChartBarIcon,
@@ -36,7 +32,6 @@ const {
 	CartesianGrid,
 	ComposedChart,
 	Customized,
-	Legend,
 	ReferenceArea,
 	Tooltip,
 	XAxis,
@@ -182,6 +177,108 @@ function getEventColor(eventNames: string[], dataKey: string) {
 	return chartSeriesColorAtIndex(index);
 }
 
+interface EventSeriesLegendProps {
+	eventNames: string[];
+	hiddenEvents: Set<string>;
+	onReset: () => void;
+	onToggle: (eventName: string) => void;
+}
+
+function EventSeriesLegend({
+	eventNames,
+	hiddenEvents,
+	onReset,
+	onToggle,
+}: EventSeriesLegendProps) {
+	const hiddenCount = eventNames.filter((eventName) =>
+		hiddenEvents.has(eventName)
+	).length;
+	const visibleCount = eventNames.length - hiddenCount;
+
+	return (
+		<div className="border-border/60 border-t bg-card px-3 py-2.5">
+			<div className="flex min-h-6 items-center justify-between gap-3">
+				<div className="flex min-w-0 items-center gap-2">
+					<span className="font-medium text-foreground text-xs">Series</span>
+					<span className="text-muted-foreground text-xs tabular-nums">
+						{visibleCount}/{eventNames.length} visible
+					</span>
+				</div>
+				{hiddenCount > 0 && (
+					<button
+						className="h-6 rounded-md px-2 text-muted-foreground text-xs transition-colors hover:bg-accent hover:text-foreground"
+						onClick={onReset}
+						type="button"
+					>
+						Show all
+					</button>
+				)}
+			</div>
+			<div className="-mx-1 mt-2 overflow-x-auto px-1">
+				<div className="flex w-max min-w-full gap-1.5 pb-1">
+					{eventNames.map((eventName, index) => {
+						const isHidden = hiddenEvents.has(eventName);
+						const color = chartSeriesColorAtIndex(index);
+
+						return (
+							<button
+								aria-pressed={!isHidden}
+								className={cn(
+									"inline-flex h-7 max-w-48 shrink-0 items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 text-xs transition-colors",
+									isHidden
+										? "text-muted-foreground/60 opacity-55 hover:bg-accent/40 hover:opacity-80"
+										: "text-muted-foreground hover:bg-accent hover:text-foreground"
+								)}
+								key={eventName}
+								onClick={() => onToggle(eventName)}
+								title={eventName}
+								type="button"
+							>
+								<span
+									className={cn(
+										"size-2 shrink-0 rounded-full",
+										isHidden && "opacity-45"
+									)}
+									style={{ backgroundColor: color }}
+								/>
+								<span className={cn("truncate", isHidden && "line-through")}>
+									{eventName}
+								</span>
+							</button>
+						);
+					})}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function AggregateLegend() {
+	const items = [
+		{ label: "Events", color: EVENTS_COLOR },
+		{ label: "Users", color: USERS_COLOR },
+	];
+
+	return (
+		<div className="border-border/60 border-t bg-card px-3 py-2.5">
+			<div className="flex flex-wrap items-center justify-end gap-1.5">
+				{items.map((item) => (
+					<div
+						className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border/60 bg-background px-2"
+						key={item.label}
+					>
+						<span
+							className="size-2 shrink-0 rounded-full"
+							style={{ backgroundColor: item.color }}
+						/>
+						<span className="text-muted-foreground text-xs">{item.label}</span>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 export function EventsTrendChart({
 	chartData,
 	perEventData = [],
@@ -276,6 +373,9 @@ export function EventsTrendChart({
 			}
 			return next;
 		});
+	}, []);
+	const showAllEvents = useCallback(() => {
+		setHiddenEvents(new Set());
 	}, []);
 
 	const totalEvents = displayData.reduce((sum, data) => sum + data.events, 0);
@@ -402,7 +502,7 @@ export function EventsTrendChart({
 						<ComposedChart
 							className={useBar ? "events-bar-chart" : undefined}
 							data={activeData}
-							margin={{ bottom: 35, left: 0, right: 10, top: 10 }}
+							margin={{ bottom: 8, left: 0, right: 10, top: 10 }}
 							onMouseDown={handleMouseDown}
 							onMouseMove={handleMouseMove}
 							onMouseUp={handleMouseUp}
@@ -466,47 +566,6 @@ export function EventsTrendChart({
 									strokeOpacity={0.3}
 									x1={refAreaLeft}
 									x2={refAreaRight}
-								/>
-							)}
-							{isByEvent && (
-								<Legend
-									formatter={(label: string) => {
-										const isHidden = hiddenEvents.has(label);
-										return (
-											<span
-												className={chartRechartsInteractiveLegendLabelClassName(
-													isHidden
-												)}
-											>
-												{label}
-											</span>
-										);
-									}}
-									iconSize={chartRechartsLegendIconSize}
-									iconType="circle"
-									onClick={(payload: { value: string }) =>
-										toggleEvent(payload.value)
-									}
-									verticalAlign="bottom"
-									wrapperStyle={{
-										...chartRechartsLegendInteractiveWrapperStyle,
-										paddingTop: "12px",
-									}}
-								/>
-							)}
-							{!isByEvent && (
-								<Legend
-									formatter={(value) => (
-										<span className={chartRechartsLegendStaticLabelClassName}>
-											{value}
-										</span>
-									)}
-									iconSize={chartRechartsLegendIconSize}
-									iconType="circle"
-									verticalAlign="bottom"
-									wrapperStyle={chartRechartsLegendStaticWrapperStyleMerge({
-										paddingTop: "12px",
-									})}
 								/>
 							)}
 							{isByEvent &&
@@ -580,6 +639,17 @@ export function EventsTrendChart({
 					</ResponsiveContainer>
 				</div>
 			</Chart.Plot>
+
+			{isByEvent ? (
+				<EventSeriesLegend
+					eventNames={eventNames}
+					hiddenEvents={hiddenEvents}
+					onReset={showAllEvents}
+					onToggle={toggleEvent}
+				/>
+			) : (
+				<AggregateLegend />
+			)}
 
 			<style>{`
 				.events-bar-chart .recharts-bar {

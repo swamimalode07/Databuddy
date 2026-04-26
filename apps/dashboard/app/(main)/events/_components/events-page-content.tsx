@@ -15,7 +15,6 @@ export function EventsPageContent() {
 			isPageLoading={isLoadingOrg}
 			metricKeys={ORGANIZATION_EVENTS_METRICS}
 			query={query}
-			showEventsList
 		/>
 	);
 }

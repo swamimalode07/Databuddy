@@ -8,7 +8,6 @@ import { Skeleton } from "@databuddy/ui";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { cn } from "@/lib/utils";
 import { ArrowClockwiseIcon, LightningIcon } from "@databuddy/ui/icons";
-import { EventsList } from "./events-list";
 import { EventsStatsGrid } from "./events-stats-grid";
 import { EventsTrendChart } from "./events-trend-chart";
 import { PropertySummary } from "./property-summary";
@@ -39,7 +38,6 @@ interface EventsOverviewContentProps {
 		value: string
 	) => void;
 	query: CustomEventsQueryState;
-	showEventsList?: boolean;
 }
 
 export function EventsOverviewContent({
@@ -51,7 +49,6 @@ export function EventsOverviewContent({
 	metricKeys,
 	onPropertyValueSelect,
 	query,
-	showEventsList = false,
 }: EventsOverviewContentProps) {
 	const { chartType, chartStepType } = useChartPreferences("events");
 	const overview = useCustomEventsOverview({
@@ -128,16 +125,6 @@ export function EventsOverviewContent({
 						isLoading={isPageLoading}
 						perEventData={overview.perEventChartData.data}
 					/>
-
-					{showEventsList && (
-						<EventsList
-							eventColorMap={overview.eventColorMap}
-							events={overview.eventsListData}
-							getEventHref={getEventHref}
-							isFetching={query.isFetching}
-							isLoading={isPageLoading}
-						/>
-					)}
 
 					<Card>
 						<Card.Header>

@@ -2,7 +2,6 @@ export {
 	classifyEventProperties,
 	getPropertyTypeLabel,
 } from "./classify-properties";
-export { EventsList } from "./events-list";
 export { EventsOverviewContent } from "./events-overview-content";
 export {
 	EventsStatsGrid,
@@ -11,7 +10,6 @@ export {
 } from "./events-stats-grid";
 export { EventsTrendChart } from "./events-trend-chart";
 export {
-	eventColorAtIndex,
 	formatDateLabel,
 	generateDateRange,
 	getGranularity,

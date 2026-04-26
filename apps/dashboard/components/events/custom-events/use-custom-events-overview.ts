@@ -5,7 +5,6 @@ import { dayjs } from "@databuddy/ui";
 import { useMemo } from "react";
 import { classifyEventProperties } from "./classify-properties";
 import {
-	eventColorAtIndex,
 	formatDateLabel,
 	generateDateRange,
 	getGranularity,
@@ -202,14 +201,6 @@ export function useCustomEventsOverview({
 		[allDates, granularity, trendsByEventData]
 	);
 
-	const eventColorMap = useMemo(() => {
-		const map = new Map<string, string>();
-		for (const [index, name] of perEventChartData.eventNames.entries()) {
-			map.set(name, eventColorAtIndex(index));
-		}
-		return map;
-	}, [perEventChartData.eventNames]);
-
 	const todayDate = dayjs().format("YYYY-MM-DD");
 	const todayEvent = trendsData.find(
 		(event) => dayjs(event.date).format("YYYY-MM-DD") === todayDate
@@ -218,8 +209,6 @@ export function useCustomEventsOverview({
 	return {
 		chartData,
 		classifiedEvents,
-		eventColorMap,
-		eventsListData,
 		miniChartData,
 		perEventChartData,
 		summary,

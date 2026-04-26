@@ -1,10 +1,5 @@
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import { dayjs } from "@databuddy/ui";
-import { chartSeriesColorAtIndex } from "@/lib/chart-presentation";
-
-export function eventColorAtIndex(index: number): string {
-	return chartSeriesColorAtIndex(index);
-}
 
 export function formatDateLabel(
 	dateStr: string,
