@@ -1,35 +1,31 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { authClient } from "@databuddy/auth/client";
-import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { Skeleton, Tooltip } from "@databuddy/ui";
+import { Avatar, DropdownMenu } from "@databuddy/ui/client";
 import {
 	BugIcon,
 	CalendarIcon,
-	CheckIcon,
 	EnvelopeIcon,
-	EyeIcon,
 	LifebuoyIcon,
-	MonitorIcon,
 	MoonIcon,
 	SunIcon,
 } from "@databuddy/ui/icons";
-import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { type ReactNode, useState } from "react";
 import { getInitials, ProfileDropdownContent } from "./profile-button-client";
-import { Avatar, DropdownMenu } from "@databuddy/ui/client";
-import { Skeleton, Tooltip } from "@databuddy/ui";
 
 const THEMES = [
 	{ value: "light", icon: SunIcon, label: "Light" },
 	{ value: "dark", icon: MoonIcon, label: "Dark" },
-	{ value: "system", icon: MonitorIcon, label: "System" },
 ] as const;
 
 function utilityTriggerClass(collapsed: boolean, active = false) {
 	return cn(
 		"flex min-w-0 items-center rounded text-sm transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
-		collapsed ? "size-9 justify-center" : "h-8 w-full gap-2.5 px-2.5",
+		collapsed ? "size-9 justify-center" : "h-8 w-full gap-2.5 px-2.5 text-left",
 		active
 			? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
 			: "text-sidebar-foreground/60 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
@@ -116,55 +112,28 @@ function SupportMenu({ collapsed }: { collapsed: boolean }) {
 	);
 }
 
-function AppearanceMenu({ collapsed }: { collapsed: boolean }) {
+function ThemeCycleButton({ collapsed }: { collapsed: boolean }) {
 	const { theme, setTheme } = useTheme();
-	const currentTheme = theme ?? "system";
-	const currentThemeLabel =
-		THEMES.find((item) => item.value === currentTheme)?.label ?? "System";
-
-	const trigger = (
-		<DropdownMenu.Trigger
-			aria-label="Appearance"
-			className={utilityTriggerClass(collapsed)}
-			render={<button type="button" />}
-		>
-			<EyeIcon aria-hidden className="size-4 shrink-0" />
-			{!collapsed && (
-				<>
-					<span className="min-w-0 flex-1 truncate">Appearance</span>
-					<span className="shrink-0 text-sidebar-foreground/35 text-xs">
-						{currentThemeLabel}
-					</span>
-				</>
-			)}
-		</DropdownMenu.Trigger>
-	);
+	const currentIndex = THEMES.findIndex((t) => t.value === (theme ?? "light"));
+	const nextIndex = (currentIndex + 1) % THEMES.length;
+	const current = THEMES[currentIndex === -1 ? 0 : currentIndex];
+	const CurrentIcon = current.icon;
 
 	return (
-		<DropdownMenu>
-			<UtilityTooltip collapsed={collapsed} label="Appearance">
-				{trigger}
-			</UtilityTooltip>
-			<DropdownMenu.Content
-				align="end"
-				className="w-44"
-				side="right"
-				sideOffset={8}
+		<Tooltip content={current.label} side="right">
+			<button
+				aria-label={`Theme: ${current.label}`}
+				className={cn(
+					"flex shrink-0 items-center justify-center rounded transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
+					"text-sidebar-foreground/60 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground",
+					collapsed ? "size-9" : "size-8"
+				)}
+				onClick={() => setTheme(THEMES[nextIndex].value)}
+				type="button"
 			>
-				<DropdownMenu.Group>
-					<DropdownMenu.GroupLabel>Theme</DropdownMenu.GroupLabel>
-					{THEMES.map(({ value, icon: Icon, label }) => (
-						<DropdownMenu.Item key={value} onClick={() => setTheme(value)}>
-							<Icon className="size-4 shrink-0" />
-							{label}
-							{currentTheme === value && (
-								<CheckIcon className="ml-auto size-4 shrink-0" />
-							)}
-						</DropdownMenu.Item>
-					))}
-				</DropdownMenu.Group>
-			</DropdownMenu.Content>
-		</DropdownMenu>
+				<CurrentIcon aria-hidden className="size-4" />
+			</button>
+		</Tooltip>
 	);
 }
 
@@ -241,8 +210,10 @@ export function SidebarUtilities({ collapsed }: { collapsed: boolean }) {
 				collapsed ? "items-center px-1.5" : "px-2"
 			)}
 		>
-			<SupportMenu collapsed={collapsed} />
-			<AppearanceMenu collapsed={collapsed} />
+			<div className="flex items-center gap-0.5">
+				<SupportMenu collapsed={collapsed} />
+				<ThemeCycleButton collapsed={collapsed} />
+			</div>
 			<AccountMenu collapsed={collapsed} />
 		</div>
 	);
