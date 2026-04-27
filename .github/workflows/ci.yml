@@ -56,11 +56,6 @@ jobs:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
-      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-typecheck-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-turbo-typecheck-
       - run: bun install --frozen-lockfile
       - run: bun run check-types
 
