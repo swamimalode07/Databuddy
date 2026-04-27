@@ -2,22 +2,24 @@ import React from "react";
 
 type NucleoIconProps = React.SVGProps<SVGSVGElement> & {
 	size?: number | string;
+	title?: string;
 	weight?: string;
 };
 
 const NucleoIcon = React.forwardRef<SVGSVGElement, NucleoIconProps>(
-	({ size = 18, weight: _weight, children, ...props }, ref) => (
+	({ size = 18, weight: _weight, children, title, ...props }, ref) => (
 		<svg
-			aria-hidden
+			aria-hidden={title ? undefined : true}
 			fill="currentColor"
 			height={size}
 			ref={ref}
+			role={title ? "img" : undefined}
 			viewBox="0 0 18 18"
 			width={size}
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
-			<title>Nucleo Icon</title>
+			{title ? <title>{title}</title> : null}
 			{children}
 		</svg>
 	)
