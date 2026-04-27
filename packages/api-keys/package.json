@@ -7,9 +7,6 @@
     "./scopes": "./src/scopes.ts",
     "./resolve": "./src/resolve.ts"
   },
-  "scripts": {
-    "check-types": "tsc --build"
-  },
   "dependencies": {
     "@databuddy/db": "workspace:*",
     "@databuddy/redis": "workspace:*",

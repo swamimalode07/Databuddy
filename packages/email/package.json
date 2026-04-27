@@ -9,7 +9,6 @@
     "./config": "./config.ts"
   },
   "scripts": {
-    "check-types": "tsc --build",
     "dev": "email dev --dir src/emails --port 3001",
     "preview": "email dev --dir src/emails --port 3001"
   },
