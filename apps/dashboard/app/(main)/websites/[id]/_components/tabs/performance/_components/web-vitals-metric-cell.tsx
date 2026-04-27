@@ -70,8 +70,10 @@ export function WebVitalsMetricCell({
 	return (
 		<div className="flex items-center gap-1">
 			<span className={colorClass}>{formatted}</span>
-			{showIcon && isGood && <CheckCircle className="size-3 text-green-600" />}
-			{showIcon && isPoor && <Warning className="size-3 text-red-600" />}
+			{showIcon && isGood && (
+				<CheckCircle className="size-3.5 text-green-600" />
+			)}
+			{showIcon && isPoor && <Warning className="size-3.5 text-red-600" />}
 		</div>
 	);
 }

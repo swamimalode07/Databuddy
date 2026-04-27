@@ -65,7 +65,7 @@ function TableSkeleton({ minHeight }: { minHeight: string | number }) {
 			</div>
 			{SKELETON_ROW_WIDTHS.map((width, i) => (
 				<div
-					className="flex items-center gap-3 border-border/80 border-b px-5 py-3 last:border-b-0"
+					className="flex h-14 items-center gap-3 border-border/70 border-b px-5 last:border-b-0"
 					key={`skeleton-row-${i}`}
 				>
 					<Skeleton className="h-3.5 rounded" style={{ width }} />

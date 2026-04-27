@@ -99,14 +99,14 @@ export function createGeoColumns(
 
 				const getIcon = () => {
 					if (countryCode && countryCode !== "Unknown" && countryCode !== "") {
-						return <CountryFlag country={countryCode} size={16} />;
+						return <CountryFlag country={countryCode} size={18} />;
 					}
 					if (type === "country" && name && name !== "Unknown") {
-						return <CountryFlag country={name} size={16} />;
+						return <CountryFlag country={name} size={18} />;
 					}
 					return (
 						<MapPinIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);
