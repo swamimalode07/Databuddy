@@ -73,15 +73,17 @@ async function shutdown(signal: string) {
 
 let uptimeWorker: ReturnType<typeof startUptimeWorker> | null = null;
 
-if (UPTIME_ENV.isDev) {
-	log.info(
-		"lifecycle",
-		"Development mode — worker and scheduler sync disabled"
-	);
-} else {
-	await syncSchedulers();
-	uptimeWorker = startUptimeWorker();
-}
+(async () => {
+	if (UPTIME_ENV.isDev) {
+		log.info(
+			"lifecycle",
+			"Development mode — worker and scheduler sync disabled"
+		);
+	} else {
+		await syncSchedulers();
+		uptimeWorker = startUptimeWorker();
+	}
+})();
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
