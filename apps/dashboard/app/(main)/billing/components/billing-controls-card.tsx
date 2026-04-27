@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import {
 	calculateTopupCost,
 	TOPUP_FEATURE_ID,
+	TOPUP_MAX_QUANTITY,
 } from "@databuddy/shared/billing/topup-math";
 import { useMutation } from "@tanstack/react-query";
 import { useCustomer } from "autumn-js/react";
@@ -30,7 +31,7 @@ const EVENTS_FEATURE_ID = "events";
 const TOPUP_DEFAULTS = { threshold: 100, quantity: 1000 };
 const TOPUP_LIMITS = {
 	threshold: [10, 50_000],
-	quantity: [100, 100_000],
+	quantity: [100, TOPUP_MAX_QUANTITY],
 } as const;
 
 const ALERT_DEFAULTS = { threshold: 80 };
