@@ -30,13 +30,6 @@ export async function getAccessibleWebsites(
 		createdAt: websites.createdAt,
 	};
 
-	if (authCtx.user?.role === "ADMIN") {
-		return db
-			.select(select)
-			.from(websites)
-			.orderBy((t) => t.createdAt);
-	}
-
 	if (authCtx.user) {
 		const userMemberships = await db.query.member.findMany({
 			where: eq(member.userId, authCtx.user.id),
