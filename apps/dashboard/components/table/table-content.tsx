@@ -1,6 +1,7 @@
 import { flexRender, type Table } from "@tanstack/react-table";
 import type React from "react";
 import { Fragment, memo, useCallback, useState } from "react";
+import { Button } from "@/components/ds/button";
 import {
 	TableBody,
 	TableCell,
@@ -34,29 +35,83 @@ function resolveShareColumnTitle(
 }
 
 const DEFAULT_CELL_STYLE = {
-	maxWidth: "300px",
-	minWidth: "80px",
+	minWidth: "180px",
 } as const;
 
-const cellStyleCache = new Map<number, React.CSSProperties>();
+const COMPACT_COLUMN_WIDTHS: Record<string, number> = {
+	clicks: 88,
+	cls: 76,
+	current_time: 108,
+	customers: 100,
+	fcp: 88,
+	fps: 88,
+	inp: 88,
+	lcp: 88,
+	median_time_on_page: 112,
+	pageviews: 96,
+	percentage: 96,
+	revenue: 112,
+	samples: 88,
+	sessions: 96,
+	sessions_with_time: 116,
+	total_clicks: 96,
+	transactions: 116,
+	ttfb: 96,
+	unique_links: 92,
+	unique_users: 96,
+	visitors: 96,
+};
 
-function getCellStyle(size: number): React.CSSProperties {
+const COMPACT_COLUMN_MATCHERS = [
+	/_(clicks|customers|revenue|sessions|users|views)$/,
+	/^(clicks|customers|revenue|sessions|users|views)$/,
+] as const;
+
+const cellStyleCache = new Map<string, React.CSSProperties>();
+
+function getCompactColumnWidth(columnId: string): number | undefined {
+	return (
+		COMPACT_COLUMN_WIDTHS[columnId] ??
+		(COMPACT_COLUMN_MATCHERS.some((matcher) => matcher.test(columnId))
+			? 96
+			: undefined)
+	);
+}
+
+function getColumnStyle(columnId: string, size: number): React.CSSProperties {
+	const compactWidth = getCompactColumnWidth(columnId);
+
+	if (compactWidth !== undefined) {
+		const cacheKey = `compact-${compactWidth}`;
+		const cached = cellStyleCache.get(cacheKey);
+		if (cached) {
+			return cached;
+		}
+		const style = {
+			maxWidth: `${compactWidth}px`,
+			minWidth: `${compactWidth}px`,
+			width: `${compactWidth}px`,
+		} as const;
+		cellStyleCache.set(cacheKey, style);
+		return style;
+	}
+
 	if (size === 150) {
 		return DEFAULT_CELL_STYLE;
 	}
 
-	const cached = cellStyleCache.get(size);
+	const flexibleMinWidth = Math.max(180, Math.min(size, 360));
+	const cacheKey = `flex-${flexibleMinWidth}`;
+	const cached = cellStyleCache.get(cacheKey);
 	if (cached) {
 		return cached;
 	}
 
 	const style = {
-		width: `${Math.min(size, 300)}px`,
-		maxWidth: "300px",
-		minWidth: "80px",
+		minWidth: `${flexibleMinWidth}px`,
 	} as const;
 
-	cellStyleCache.set(size, style);
+	cellStyleCache.set(cacheKey, style);
 	return style;
 }
 
@@ -77,9 +132,11 @@ function getShareBarStyle(percentage: number): React.CSSProperties | undefined {
 	if (percentage <= 0) {
 		return;
 	}
-	const solidEnd = Math.max(0, percentage - 4);
+	const solidEnd = Math.max(0, percentage - 6);
+	const softEnd = Math.min(100, percentage + 2);
+	const fadeEnd = Math.min(100, percentage + 8);
 	return {
-		backgroundImage: `linear-gradient(to right, color-mix(in oklab, var(--primary) 8%, transparent) 0%, color-mix(in oklab, var(--primary) 8%, transparent) ${solidEnd}%, transparent ${percentage}%)`,
+		backgroundImage: `linear-gradient(to right, color-mix(in oklab, var(--primary) 10%, transparent) 0%, color-mix(in oklab, var(--primary) 10%, transparent) ${solidEnd}%, color-mix(in oklab, var(--primary) 4%, transparent) ${softEnd}%, transparent ${fadeEnd}%)`,
 	};
 }
 
@@ -180,36 +237,40 @@ function TableContentInner<TData extends { name: string | number }>({
 							className="sticky top-0 z-10 border-b bg-card hover:bg-card"
 							key={headerGroup.id}
 						>
-							{headerGroup.headers.map((header) => (
-								<TableHead
-									className={cn(
-										"h-10 px-5 font-medium text-muted-foreground text-xs",
-										(header.column.columnDef.meta as any)?.className
-									)}
-									key={header.id}
-									style={{
-										width:
-											header.getSize() === 150
-												? undefined
-												: `${Math.min(header.getSize(), 300)}px`,
-										maxWidth: "300px",
-										minWidth: "80px",
-									}}
-									title={resolveShareColumnTitle(
-										header.column.id,
-										shareColumnTooltip
-									)}
-								>
-									<span className="truncate">
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-												)}
-									</span>
-								</TableHead>
-							))}
+							{headerGroup.headers.map((header) => {
+								const isCompactColumn =
+									getCompactColumnWidth(header.column.id) !== undefined;
+
+								return (
+									<TableHead
+										className={cn(
+											"h-10 px-5 font-medium text-muted-foreground text-xs",
+											isCompactColumn && "px-3 text-right",
+											(header.column.columnDef.meta as any)?.className
+										)}
+										key={header.id}
+										style={getColumnStyle(header.column.id, header.getSize())}
+										title={resolveShareColumnTitle(
+											header.column.id,
+											shareColumnTooltip
+										)}
+									>
+										<span
+											className={cn(
+												"block truncate",
+												isCompactColumn && "text-right"
+											)}
+										>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext()
+													)}
+										</span>
+									</TableHead>
+								);
+							})}
 						</TableRow>
 					))}
 				</TableHeader>
@@ -227,10 +288,13 @@ function TableContentInner<TData extends { name: string | number }>({
 							<Fragment key={row.id}>
 								<TableRow
 									className={cn(
-										"border-border/80 border-b transition-colors last:border-b-0 hover:bg-accent/50",
+										"group border-border/60 border-b bg-card transition-[background-color,box-shadow] duration-150 last:border-b-0 hover:bg-accent-brighter/70 hover:shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)]",
+										isExpanded &&
+											"bg-accent-brighter shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)] hover:bg-accent-brighter",
 										canActivate &&
-											"cursor-pointer focus-visible:bg-accent/70 focus-visible:outline-none"
+											"cursor-pointer focus-visible:bg-interactive-hover/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
 									)}
+									data-state={isExpanded ? "expanded" : undefined}
 									onClick={() =>
 										handleRowClick(row.original, hasSubRows, row.id)
 									}
@@ -265,30 +329,45 @@ function TableContentInner<TData extends { name: string | number }>({
 								>
 									{row.getVisibleCells().map((cell, cellIndex) => {
 										const cellSize = cell.column.getSize();
-										const cellStyle = getCellStyle(cellSize);
+										const isCompactColumn =
+											getCompactColumnWidth(cell.column.id) !== undefined;
+										const cellStyle = getColumnStyle(cell.column.id, cellSize);
 
 										return (
 											<TableCell
 												className={cn(
-													"px-5 py-3 text-foreground text-sm",
+													"h-14 px-5 py-2.5 text-[15px] text-foreground leading-5 transition-colors first:pl-4 last:pr-5",
 													cellIndex === 0 && "font-medium",
+													isCompactColumn && "px-3 text-right tabular-nums",
 													(cell.column.columnDef.meta as any)?.className
 												)}
 												key={cell.id}
 												style={cellStyle}
 											>
-												<div className="flex items-center gap-2">
+												<div
+													className={cn(
+														"flex min-h-10 items-center gap-2.5",
+														isCompactColumn && "justify-end",
+														cellIndex === 0 &&
+															"min-w-0 [&_img]:size-[18px] [&_svg]:size-[18px]"
+													)}
+												>
 													{cellIndex === 0 && hasSubRows && (
-														<button
+														<Button
 															aria-label={
 																isExpanded ? "Collapse row" : "Expand row"
 															}
-															className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+															className={cn(
+																"size-7 shrink-0 rounded-md text-muted-foreground",
+																isExpanded && "bg-primary/10 text-primary"
+															)}
 															onClick={(e) => {
 																e.stopPropagation();
 																toggleRowExpansion(row.id);
 															}}
+															size="icon-sm"
 															type="button"
+															variant="ghost"
 														>
 															{isExpanded ? (
 																<CaretDownIcon
@@ -301,7 +380,7 @@ function TableContentInner<TData extends { name: string | number }>({
 																	weight="bold"
 																/>
 															)}
-														</button>
+														</Button>
 													)}
 													<div className="min-w-0 flex-1 truncate">
 														{flexRender(
@@ -319,7 +398,7 @@ function TableContentInner<TData extends { name: string | number }>({
 									isExpanded &&
 									subRows.map((subRow, subIndex) => (
 										<TableRow
-											className="border-border/80 border-b bg-muted/40 last:border-b-0"
+											className="border-border/70 border-b bg-muted/30 last:border-b-0 hover:bg-muted/40"
 											key={`${row.id}-sub-${subIndex}`}
 										>
 											{renderSubRow ? (
@@ -332,13 +411,20 @@ function TableContentInner<TData extends { name: string | number }>({
 											) : (
 												row.getVisibleCells().map((cell, cellIndex) => {
 													const subCellSize = cell.column.getSize();
-													const subCellStyle = getCellStyle(subCellSize);
+													const isCompactColumn =
+														getCompactColumnWidth(cell.column.id) !== undefined;
+													const subCellStyle = getColumnStyle(
+														cell.column.id,
+														subCellSize
+													);
 
 													return (
 														<TableCell
 															className={cn(
-																"py-2 text-muted-foreground text-sm",
-																cellIndex === 0 ? "pl-12" : "px-5"
+																"py-2.5 text-muted-foreground text-sm",
+																cellIndex === 0 ? "pl-12" : "px-5",
+																isCompactColumn &&
+																	"px-3 text-right tabular-nums"
 															)}
 															key={`sub-${cell.id}`}
 															style={subCellStyle}

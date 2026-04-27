@@ -28,14 +28,25 @@ function Trigger({
 function Content({
 	className,
 	children,
+	align = "center",
 	side = "bottom",
+	sideOffset = 6,
 	...rest
 }: ComponentPropsWithoutRef<typeof BasePopover.Popup> & {
+	align?: ComponentPropsWithoutRef<typeof BasePopover.Positioner>["align"];
 	side?: ComponentPropsWithoutRef<typeof BasePopover.Positioner>["side"];
+	sideOffset?: ComponentPropsWithoutRef<
+		typeof BasePopover.Positioner
+	>["sideOffset"];
 }) {
 	return (
 		<BasePopover.Portal>
-			<BasePopover.Positioner className="z-50" side={side} sideOffset={6}>
+			<BasePopover.Positioner
+				align={align}
+				className="z-50"
+				side={side}
+				sideOffset={sideOffset}
+			>
 				<BasePopover.Popup
 					className={cn(
 						"w-72 max-w-[calc(100vw-1rem)] rounded-lg border border-border/60 bg-popover p-4",

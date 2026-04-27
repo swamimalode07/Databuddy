@@ -72,7 +72,7 @@ export function createRevenueColumns({
 					if (isUnattributed) {
 						return (
 							<QuestionIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -85,11 +85,11 @@ export function createRevenueColumns({
 							countryCode !== "Unknown" &&
 							countryCode !== "Unattributed"
 						) {
-							return <CountryFlag country={countryCode} size={16} />;
+							return <CountryFlag country={countryCode} size={18} />;
 						}
 						return (
 							<MapPinIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -105,7 +105,7 @@ export function createRevenueColumns({
 
 					return (
 						<CurrencyDollarIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);

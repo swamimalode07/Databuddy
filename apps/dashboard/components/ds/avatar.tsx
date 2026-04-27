@@ -39,8 +39,11 @@ export function Avatar({
 		if (!src || typeof src !== "string") {
 			return null;
 		}
+		if (src.startsWith("/")) {
+			return src;
+		}
 		try {
-			const parsed = new URL(src, window.location.origin);
+			const parsed = new URL(src);
 			return parsed.protocol === "http:" || parsed.protocol === "https:"
 				? parsed.toString()
 				: null;
