@@ -34,7 +34,7 @@ export function CopyButton({
 	const copyToClipboard = () => {
 		if (
 			typeof window === "undefined" ||
-			!navigator.clipboard.writeText ||
+			!navigator.clipboard?.writeText ||
 			!value
 		) {
 			return;
