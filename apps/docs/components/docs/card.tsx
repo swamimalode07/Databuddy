@@ -1,7 +1,7 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon } from "@databuddy/ui/icons";
+import { Card as UICard, cn } from "@databuddy/ui";
 import Link from "next/link";
 import type * as React from "react";
-import { cn } from "@/lib/utils";
 
 interface CardProps extends React.ComponentProps<"div"> {
 	description?: string;
@@ -20,10 +20,10 @@ function Card({
 	...props
 }: CardProps) {
 	const content = (
-		<div
+		<UICard
 			className={cn(
-				"not-prose group flex h-full items-start gap-3 border border-border bg-muted px-4 py-3 dark:bg-[#101010]",
-				href && "cursor-pointer",
+				"not-prose group h-full flex-row items-start gap-3 rounded-lg border-border/60 bg-card px-4 py-3 transition-colors",
+				href && "cursor-pointer hover:border-primary/20 hover:bg-secondary/50",
 				className
 			)}
 			{...props}
@@ -46,7 +46,7 @@ function Card({
 					weight="bold"
 				/>
 			)}
-		</div>
+		</UICard>
 	);
 
 	if (href) {

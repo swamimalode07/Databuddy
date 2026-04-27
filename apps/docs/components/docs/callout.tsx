@@ -4,13 +4,13 @@ import {
 	LightbulbIcon,
 	WarningCircleIcon,
 	XCircleIcon,
-} from "@phosphor-icons/react/ssr";
+} from "@databuddy/ui/icons";
+import { cn } from "@databuddy/ui";
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
-import { cn } from "@/lib/utils";
 
 const calloutVariants = cva(
-	"my-4 flex items-center gap-3 border-l-2 bg-muted py-3 pr-4 pl-4 dark:bg-[#101010]",
+	"my-4 flex items-start gap-3 rounded-lg border border-border/60 border-l-4 bg-card p-4 text-card-foreground",
 	{
 		variants: {
 			type: {
@@ -28,7 +28,7 @@ const calloutVariants = cva(
 	}
 );
 
-const iconVariants = cva("size-6 shrink-0", {
+const iconVariants = cva("mt-0.5 size-5 shrink-0", {
 	variants: {
 		type: {
 			info: "text-blue-500",
@@ -81,7 +81,7 @@ function Callout({
 						{title}
 					</div>
 				)}
-				<div className="text-foreground/90 text-sm [&_p]:leading-relaxed">
+				<div className="text-muted-foreground text-sm [&_p]:leading-relaxed">
 					{children}
 				</div>
 			</div>

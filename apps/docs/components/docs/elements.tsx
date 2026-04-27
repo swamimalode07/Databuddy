@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@databuddy/ui";
 
 function Heading1({
 	children,
@@ -63,7 +63,7 @@ function Blockquote({
 	return (
 		<blockquote
 			className={cn(
-				"my-4 border-l-2 border-l-border bg-muted py-3 pr-4 pl-4 text-foreground/80 dark:bg-[#101010] [&_p]:m-0",
+				"my-4 rounded-lg border border-border/60 border-l-4 bg-card p-4 text-foreground/80 [&_p]:m-0",
 				className
 			)}
 			{...props}

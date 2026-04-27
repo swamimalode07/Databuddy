@@ -1,6 +1,6 @@
-import { CheckIcon } from "@phosphor-icons/react/ssr";
+import { CheckIcon } from "@databuddy/ui/icons";
+import { cn } from "@databuddy/ui";
 import React from "react";
-import { cn } from "@/lib/utils";
 
 interface StepsProps extends React.ComponentProps<"div"> {
 	children: React.ReactNode;
@@ -51,7 +51,7 @@ function Step({
 			)}
 			{...props}
 		>
-			<div className="absolute top-4 left-[-13px] flex size-6 items-center justify-center border border-border bg-muted font-mono text-foreground text-xs dark:bg-[#101010]">
+			<div className="absolute top-4 left-[-13px] flex size-6 items-center justify-center rounded-md border border-border/60 bg-card font-mono text-foreground text-xs shadow-xs">
 				{stepNumber}
 			</div>
 
@@ -92,7 +92,7 @@ function CompletedStep({
 			)}
 			{...props}
 		>
-			<div className="absolute top-4 left-[-13px] flex size-6 items-center justify-center border border-border bg-muted dark:bg-[#101010]">
+			<div className="absolute top-4 left-[-13px] flex size-6 items-center justify-center rounded-md border border-border/60 bg-card shadow-xs">
 				<CheckIcon className="size-3 text-muted-foreground" />
 			</div>
 

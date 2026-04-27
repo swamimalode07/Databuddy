@@ -1,7 +1,6 @@
 import type * as React from "react";
-import { SciFiCard } from "@/components/scifi-card";
+import { Card, cn } from "@databuddy/ui";
 import { Accordion as BaseAccordion } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
 
 export {
 	AccordionContent,
@@ -32,18 +31,14 @@ function Accordions({
 	...props
 }: AccordionsProps) {
 	return (
-		<SciFiCard
-			className={cn(
-				"border border-border bg-card/50 backdrop-blur-sm",
-				className
-			)}
-			opacity="reduced"
+		<Card
+			className={cn("my-4 border-border/60 bg-card p-4", className)}
 			{...props}
 		>
 			<Accordion collapsible={collapsible} type={type}>
 				{children}
 			</Accordion>
-		</SciFiCard>
+		</Card>
 	);
 }
 

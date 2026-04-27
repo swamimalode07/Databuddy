@@ -1,7 +1,7 @@
 "use client";
 
-import { RocketLaunchIcon } from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
+import { RocketLaunchIcon } from "@databuddy/ui/icons";
+import { Button, Card, Input } from "@databuddy/ui";
 
 const examples = ["saas", "merch store"] as const;
 const prompts = {
@@ -33,7 +33,7 @@ export const LeapComponent = () => {
 	};
 
 	return (
-		<div className="my-4 border border-border bg-muted p-4 dark:bg-[#101010]">
+		<Card className="my-4 border-border/60 bg-card p-4">
 			<div className="mb-2 flex items-center gap-2">
 				<RocketLaunchIcon className="size-4 text-purple-500" weight="duotone" />
 				<h3 className="font-semibold text-foreground text-sm">
@@ -47,38 +47,31 @@ export const LeapComponent = () => {
 			</p>
 
 			<div className="flex w-full flex-col gap-2 sm:flex-row">
-				<input
-					className={cn(
-						"leap-prompt-input flex-1 border border-border bg-background px-3 py-2 text-foreground text-sm",
-						"placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-					)}
+				<Input
+					className="leap-prompt-input h-9 flex-1 text-sm"
 					placeholder="What do you want to build with Databuddy analytics?"
 					type="text"
 				/>
-				<button
-					className="border border-border bg-foreground px-4 py-2 font-medium text-background text-sm"
-					data-track="leap-generate"
-					onClick={handleGenerate}
-					type="button"
-				>
+				<Button data-track="leap-generate" onClick={handleGenerate} size="md">
 					Generate
-				</button>
+				</Button>
 			</div>
 
 			<div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
 				<span className="text-muted-foreground">Examples:</span>
 				{examples.map((example) => (
-					<button
-						className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+					<Button
+						className="h-auto px-1 py-0 font-normal underline underline-offset-2"
 						key={example}
 						onClick={() => handleExample(example)}
-						type="button"
+						size="sm"
+						variant="ghost"
 					>
 						{example}
-					</button>
+					</Button>
 				))}
 			</div>
-		</div>
+		</Card>
 	);
 };
 
