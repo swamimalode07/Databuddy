@@ -1,4 +1,4 @@
-import { auth, websitesApi } from "@databuddy/auth";
+import { websitesApi } from "@databuddy/auth";
 import { db, eq } from "@databuddy/db";
 import { member } from "@databuddy/db/schema";
 import { getRedisCache } from "@databuddy/redis";
@@ -55,11 +55,6 @@ export async function ensureWebsiteAccess(
 		if (!hasWebsiteAccess) {
 			return new Error("Access denied to this website");
 		}
-		return { domain: website.domain ?? "unknown" };
-	}
-
-	const session = await auth.api.getSession({ headers });
-	if (session?.user?.role === "ADMIN") {
 		return { domain: website.domain ?? "unknown" };
 	}
 
