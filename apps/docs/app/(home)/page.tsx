@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 	},
 };
 
+const container = "mx-auto w-full max-w-400 px-4 sm:px-14 lg:px-20";
+
 async function getGithubStars(): Promise<number | null> {
 	try {
 		const response = await fetch(
@@ -74,23 +76,23 @@ export default async function HomePage() {
 				</Section>
 
 				<Section
-					className="border-border border-t border-b "
+					className="border-border border-t border-b"
 					customPaddings
 					id="trust"
 				>
-					<div className="mx-auto w-full max-w-400 px-4 sm:px-6 lg:px-8">
+					<div className={container}>
 						<TrustedBy />
 					</div>
 				</Section>
 
 				<Section className="border-border border-b" id="bento">
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className={container}>
 						<Bento />
 					</div>
 				</Section>
 
 				<Section className="border-border border-b py-16 lg:py-24" id="cards">
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className={container}>
 						<GridCards />
 					</div>
 				</Section>
@@ -100,12 +102,12 @@ export default async function HomePage() {
 					customPaddings
 					id="desc-border"
 				>
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className={container}>
 						<Section className="pt-8 lg:pt-12" customPaddings id="description">
 							<Description />
 						</Section>
 
-						<div className="mx-auto w-full">
+						<div className="w-full">
 							<div className="h-px bg-linear-to-r from-transparent via-border to-transparent" />
 						</div>
 
@@ -120,7 +122,7 @@ export default async function HomePage() {
 					customPaddings
 					id="testimonial"
 				>
-					<div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className={container}>
 						<Testimonials />
 					</div>
 				</Section>

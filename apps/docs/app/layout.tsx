@@ -102,7 +102,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 				trackWebVitals
 			/>
 			<body className="min-h-dvh">
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+				<ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
 					<NuqsAdapter>
 						<RootProvider>
 							<div className="flex min-h-dvh flex-col">{children}</div>
