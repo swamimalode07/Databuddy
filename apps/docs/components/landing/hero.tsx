@@ -28,7 +28,6 @@ type FullscreenElement = HTMLIFrameElement & {
 
 export default function Hero({
 	demoEmbedBaseUrl,
-	stars,
 }: {
 	demoEmbedBaseUrl: string;
 	stars?: number | null;
@@ -114,7 +113,9 @@ export default function Hero({
 						transition={{ duration: 0.4, delay: 0.3 }}
 					>
 						<SciFiButton asChild className="px-6 py-5">
-							<a href="https://app.databuddy.cc/login">Start free</a>
+							<a href="https://app.databuddy.cc/login">
+								See your analytics in 5 minutes
+							</a>
 						</SciFiButton>
 
 						<SciFiButton asChild className="px-6 py-5">
