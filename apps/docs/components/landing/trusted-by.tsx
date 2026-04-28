@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const stats = [
 	{ value: "500+", label: "Websites" },
@@ -58,11 +61,13 @@ const companies = [
 	},
 	{
 		name: "Orchid",
-		badge: "YC W23",
+		badge: "YC S25",
 		url: "https://orchid.ai",
 		logo: "/social/orchid.png",
 	},
 ];
+
+const VISIBLE = 8;
 
 const devTeams = [
 	{
@@ -87,7 +92,28 @@ const devTeams = [
 	},
 ];
 
+function useRotatingSlice<T>(items: T[], visible: number, intervalMs: number) {
+	const [offset, setOffset] = useState(0);
+
+	useEffect(() => {
+		if (items.length <= visible) return;
+		const id = setInterval(
+			() => setOffset((prev) => (prev + 1) % items.length),
+			intervalMs,
+		);
+		return () => clearInterval(id);
+	}, [items.length, visible, intervalMs]);
+
+	const result: T[] = [];
+	for (let i = 0; i < visible; i++) {
+		result.push(items[(offset + i) % items.length]);
+	}
+	return result;
+}
+
 export function TrustedBy() {
+	const visible = useRotatingSlice(companies, VISIBLE, 3000);
+
 	return (
 		<div className="w-full py-10 sm:py-12">
 			<div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 sm:gap-x-16 lg:gap-x-20">
@@ -108,9 +134,9 @@ export function TrustedBy() {
 			</p>
 
 			<div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-				{companies.map((company) => (
+				{visible.map((company) => (
 					<a
-						className="group flex flex-col items-center justify-center gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-5 transition-all duration-200 hover:border-border hover:bg-card sm:py-6"
+						className="group flex flex-col items-center justify-center gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-5 transition-all duration-500 hover:border-border hover:bg-card sm:py-6"
 						href={company.url}
 						key={company.name}
 						rel="noopener noreferrer"
