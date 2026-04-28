@@ -133,7 +133,6 @@ const config: NextConfig = {
 		minimumCacheTTL: 60 * 60 * 24 * 30,
 	},
 
-	transpilePackages: ["@databuddy/ui"],
 	experimental: {
 		optimizePackageImports: [
 			"@databuddy/ui/icons",
