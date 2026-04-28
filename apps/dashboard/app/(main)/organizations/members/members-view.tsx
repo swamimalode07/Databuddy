@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { EmptyState } from "@/components/ds/empty-state";
 import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
 import {
 	type ActiveOrganization,
@@ -10,13 +7,14 @@ import {
 	useOrganizationMembers,
 } from "@/hooks/use-organizations";
 import {
-	ArrowClockwise,
-	UserPlus,
-	Users,
-} from "@phosphor-icons/react/dist/ssr";
+	ArrowClockwiseIcon,
+	UserPlusIcon,
+	UsersIcon,
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { MembersSkeleton } from "../components/settings-skeletons";
 import { MemberList } from "./member-list";
+import { Button, Card, EmptyState } from "@databuddy/ui";
 
 export function MembersView({
 	organization,
@@ -46,12 +44,12 @@ export function MembersView({
 					<EmptyState
 						action={
 							<Button onClick={() => refetch()} variant="secondary">
-								<ArrowClockwise size={14} />
+								<ArrowClockwiseIcon size={14} />
 								Try again
 							</Button>
 						}
 						description="Something went wrong while loading team members"
-						icon={<Users weight="duotone" />}
+						icon={<UsersIcon weight="duotone" />}
 						title="Failed to load"
 					/>
 				</Card.Content>
@@ -78,7 +76,7 @@ export function MembersView({
 						size="sm"
 						variant="secondary"
 					>
-						<UserPlus size={14} />
+						<UserPlusIcon size={14} />
 						Invite
 					</Button>
 				</Card.Header>
@@ -86,7 +84,7 @@ export function MembersView({
 					{isEmpty ? (
 						<div className="px-5 py-8">
 							<EmptyState
-								icon={<Users weight="duotone" />}
+								icon={<UsersIcon weight="duotone" />}
 								title="No members yet"
 							/>
 						</div>

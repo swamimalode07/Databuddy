@@ -1,16 +1,6 @@
 "use client";
 
 import { track } from "@databuddy/sdk";
-import {
-	ArrowClockwiseIcon,
-	CheckIcon,
-	ClipboardIcon,
-	CodeIcon,
-	PackageIcon,
-	PulseIcon,
-	RobotIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { createHighlighterCoreSync } from "shiki/core";
@@ -20,11 +10,19 @@ import html from "shiki/langs/html.mjs";
 import tsx from "shiki/langs/tsx.mjs";
 import vesper from "shiki/themes/vesper.mjs";
 import { toast } from "sonner";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { Tabs } from "@/components/ds/tabs";
 import { orpc } from "@/lib/orpc";
+import { Badge, Button, Card } from "@databuddy/ui";
+import { Tabs } from "@databuddy/ui/client";
+import {
+	ArrowClockwiseIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CodeIcon,
+	PackageIcon,
+	PulseIcon,
+	RobotIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
 import { cn } from "@/lib/utils";
 import {
 	COPY_SUCCESS_TIMEOUT,
@@ -49,7 +47,7 @@ function generateAgentPrompt(websiteId: string): string {
 
 ## Installation
 
-Choose the right method for this project's framework:
+Choose the right method for this website's framework:
 
 **React / Next.js** — \`bun add @databuddy/sdk\` (or npm/yarn/pnpm)
 \`\`\`tsx
@@ -99,7 +97,7 @@ All options work as React/Vue props or \`data-*\` attributes on the script tag.
 | enableRetries | bool | true | Retry failed requests |
 | maxRetries | num | 3 | Max retry attempts |
 
-Enable what makes sense for this project. A good starting point:
+Enable what makes sense for this website. A good starting point:
 \`\`\`tsx
 <Databuddy clientId={...} trackWebVitals trackErrors />
 \`\`\`
@@ -108,6 +106,16 @@ Enable what makes sense for this project. A good starting point:
 
 \`\`\`tsx
 import { track } from "@databuddy/sdk";
+import {
+	ArrowClockwiseIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CodeIcon,
+	PackageIcon,
+	PulseIcon,
+	RobotIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
 track("signup_completed", { method: "google", plan: "pro" });
 \`\`\`
 
@@ -582,16 +590,16 @@ export function StepInstallTracking({
 			</Tabs>
 
 			<div className="flex items-center gap-2">
-				<span className="text-muted-foreground text-xs">Website ID:</span>
+				<span className="text-muted-foreground text-xs">Client ID:</span>
 				<button
 					className="group flex items-center gap-1.5 rounded bg-accent px-2 py-1 font-mono text-xs hover:bg-accent-brighter"
 					onClick={() =>
-						handleCopy(websiteId, "website-id", "Website ID copied!")
+						handleCopy(websiteId, "client-id", "Client ID copied!")
 					}
 					type="button"
 				>
 					<span className="truncate">{websiteId}</span>
-					{copiedBlockId === "website-id" ? (
+					{copiedBlockId === "client-id" ? (
 						<CheckIcon className="size-3 text-success" weight="bold" />
 					) : (
 						<ClipboardIcon

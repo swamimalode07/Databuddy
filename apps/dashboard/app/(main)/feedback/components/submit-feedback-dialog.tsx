@@ -1,19 +1,20 @@
 "use client";
 
-import { CaretDownIcon, PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { markFeedbackSubmitted } from "@/components/feedback-prompt";
-import { Button } from "@/components/ds/button";
-import { FieldTriggerButton } from "@/components/ds/control-shell";
-import { Dialog } from "@/components/ds/dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { Textarea } from "@/components/ds/textarea";
-import { Text } from "@/components/ds/text";
 import { orpc } from "@/lib/orpc";
+import { CaretDownIcon, PlusIcon } from "@databuddy/ui/icons";
+import {
+	Button,
+	Field,
+	FieldTriggerButton,
+	Input,
+	Text,
+	Textarea,
+} from "@databuddy/ui";
+import { Dialog, DropdownMenu } from "@databuddy/ui/client";
 
 const CATEGORIES = [
 	{ value: "bug_report", label: "Bug Report" },

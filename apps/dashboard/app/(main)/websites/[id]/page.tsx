@@ -1,10 +1,8 @@
 "use client";
 
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import { useAtom } from "jotai";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ds/button";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useWebsite } from "@/hooks/use-websites";
 import {
@@ -15,6 +13,8 @@ import {
 import { WebsiteOverviewTab } from "./_components/tabs/overview-tab";
 import type { FullTabProps } from "./_components/utils/types";
 import { EmptyState } from "./_components/utils/ui-components";
+import { WarningIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 export default function WebsiteDetailsPage() {
 	const { id } = useParams();

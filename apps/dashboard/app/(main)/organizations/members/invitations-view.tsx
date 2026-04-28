@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { EmptyState } from "@/components/ds/empty-state";
 import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
 import { useOrganizationInvitations } from "@/hooks/use-organization-invitations";
 import type {
@@ -10,13 +7,15 @@ import type {
 	Organization,
 } from "@/hooks/use-organizations";
 import {
-	ArrowClockwise,
-	Envelope,
-	UserPlus,
-} from "@phosphor-icons/react/dist/ssr";
+	ArrowClockwiseIcon,
+	EnvelopeIcon,
+	TrashIcon,
+	UserPlusIcon,
+} from "@databuddy/ui/icons";
 import { useState } from "react";
 import { InvitationsSkeleton } from "../components/settings-skeletons";
 import { InvitationList } from "./invitation-list";
+import { Button, Card, EmptyState } from "@databuddy/ui";
 
 export function InvitationsView({
 	organization,
@@ -29,8 +28,13 @@ export function InvitationsView({
 		isLoading,
 		error,
 		isCancelling,
+		isClearingExpired,
+		isResending,
 		pendingCount,
+		expiredCount,
 		cancelInvitation,
+		clearExpiredInvitations,
+		resendInvitation,
 		refetch,
 	} = useOrganizationInvitations(organization.id);
 
@@ -45,12 +49,12 @@ export function InvitationsView({
 					<EmptyState
 						action={
 							<Button onClick={() => refetch()} variant="secondary">
-								<ArrowClockwise size={14} />
+								<ArrowClockwiseIcon size={14} />
 								Try again
 							</Button>
 						}
 						description="Something went wrong while loading invitations"
-						icon={<Envelope weight="duotone" />}
+						icon={<EnvelopeIcon weight="duotone" />}
 						title="Failed to load"
 					/>
 				</Card.Content>
@@ -68,25 +72,45 @@ export function InvitationsView({
 						<Card.Title>Invitations</Card.Title>
 						<Card.Description>
 							{totalCount === 0
-								? "Invite people to join this workspace"
+								? "Invite people to join this organization"
 								: `${pendingCount} pending of ${totalCount} total`}
 						</Card.Description>
 					</div>
-					<Button
-						onClick={() => setShowInviteDialog(true)}
-						size="sm"
-						variant="secondary"
-					>
-						<UserPlus size={14} />
-						Invite
-					</Button>
+					<div className="flex items-center gap-2">
+						{expiredCount > 0 && (
+							<Button
+								loading={isClearingExpired}
+								onClick={() => clearExpiredInvitations()}
+								size="sm"
+								variant="ghost"
+							>
+								<TrashIcon size={14} />
+								Clear expired
+							</Button>
+						)}
+						<Button
+							onClick={() => setShowInviteDialog(true)}
+							size="sm"
+							variant="secondary"
+						>
+							<UserPlusIcon size={14} />
+							Invite
+						</Button>
+					</div>
 				</Card.Header>
 				{totalCount > 0 && (
 					<Card.Content className="p-0">
 						<InvitationList
 							invitations={invitations}
 							isCancellingInvitation={isCancelling}
+							isResending={isResending}
 							onCancelInvitationAction={cancelInvitation}
+							onResendInvitation={(inv) =>
+								resendInvitation({
+									email: inv.email,
+									role: inv.role ?? "member",
+								})
+							}
 						/>
 					</Card.Content>
 				)}

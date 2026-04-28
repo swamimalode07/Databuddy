@@ -1,17 +1,5 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
-import { BookOpenIcon } from "@phosphor-icons/react";
-import { BugIcon } from "@phosphor-icons/react";
-import { CaretDownIcon } from "@phosphor-icons/react";
-import { CheckIcon } from "@phosphor-icons/react";
-import { ClipboardIcon } from "@phosphor-icons/react";
-import { CodeIcon } from "@phosphor-icons/react";
-import { GearIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { PackageIcon } from "@phosphor-icons/react";
-import { PulseIcon } from "@phosphor-icons/react";
-import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";
@@ -22,16 +10,11 @@ import html from "shiki/langs/html.mjs";
 import tsx from "shiki/langs/tsx.mjs";
 import vesper from "shiki/themes/vesper.mjs";
 import { toast } from "sonner";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Switch } from "@/components/ds/switch";
-import { Tabs } from "@/components/ds/tabs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
@@ -45,6 +28,22 @@ import {
 } from "../shared/tracking-constants";
 import { generateNpmCode, generateScriptTag } from "../utils/code-generators";
 import type { TrackingOptionConfig, TrackingOptions } from "../utils/types";
+import {
+	ArrowClockwiseIcon,
+	BookOpenIcon,
+	BugIcon,
+	CaretDownIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CodeIcon,
+	GearIcon,
+	LightningIcon,
+	PackageIcon,
+	PulseIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
+import { Switch, Tabs } from "@databuddy/ui/client";
 
 interface TrackingSetupTabProps {
 	websiteId: string;
@@ -347,16 +346,16 @@ function InstallationStep({
 			</Tabs>
 
 			<div className="flex items-center gap-2 pt-2">
-				<span className="text-muted-foreground text-xs">Website ID:</span>
+				<span className="text-muted-foreground text-xs">Client ID:</span>
 				<button
 					className="group flex items-center gap-1.5 rounded bg-accent px-2 py-1 font-mono text-xs hover:bg-accent-brighter"
 					onClick={() =>
-						onCopyCode(websiteId, "website-id", "Website ID copied!")
+						onCopyCode(websiteId, "client-id", "Client ID copied!")
 					}
 					type="button"
 				>
 					<span className="truncate">{websiteId}</span>
-					{copiedBlockId === "website-id" ? (
+					{copiedBlockId === "client-id" ? (
 						<CheckIcon className="size-3 text-success" weight="bold" />
 					) : (
 						<ClipboardIcon
@@ -613,7 +612,7 @@ function DiagnosticsStep() {
 											<code className="rounded bg-accent px-1 py-0.5 font-mono">
 												{"<head>"}
 											</code>{" "}
-											section and your website ID is correct.
+											section and your Client ID is correct.
 										</p>
 									</div>
 								</div>
@@ -699,7 +698,7 @@ function DiagnosticsStep() {
 											troubleshooting documentation
 										</a>{" "}
 										for detailed debugging steps, or contact support with your
-										website ID for personalized help.
+										Client ID for personalized help.
 									</p>
 								</div>
 							</div>

@@ -1,21 +1,21 @@
 "use client";
 
-import { HeartbeatIcon } from "@phosphor-icons/react/dist/ssr/Heartbeat";
-import { LockIcon } from "@phosphor-icons/react/dist/ssr/Lock";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
-import { formatDateOnly } from "@/lib/time";
-import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
-import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
+import { buildUptimeHeatmapDays } from "@databuddy/ui/uptime";
+import { UptimeHeatmapStrip } from "@databuddy/ui/uptime";
 import { cn } from "@/lib/utils";
+import { HeartbeatIcon, LockIcon, PlusIcon } from "@databuddy/ui/icons";
+import {
+	Badge,
+	Button,
+	Card,
+	Skeleton,
+	dayjs,
+	formatDateOnly,
+} from "@databuddy/ui";
 
 interface MonitorsSectionProps {
 	activeMonitors: number;

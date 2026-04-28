@@ -1,17 +1,18 @@
 "use client";
 
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
-import { CircleIcon } from "@phosphor-icons/react/dist/ssr";
-import { GitBranchIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
-import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { Button } from "@/components/ds/button";
-import { Input } from "@/components/ds/input";
-import { Popover } from "@/components/ds/popover";
 import { cn } from "@/lib/utils";
 import type { DependencySelectorProps, Flag } from "./types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CheckCircleIcon,
+	CircleIcon,
+	GitBranchIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { Button, Input } from "@databuddy/ui";
+import { Popover } from "@databuddy/ui/client";
 
 const EMPTY_VALUES: string[] = [];
 const EMPTY_FLAGS: Flag[] = [];

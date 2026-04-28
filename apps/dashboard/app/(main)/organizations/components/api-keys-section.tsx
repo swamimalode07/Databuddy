@@ -1,24 +1,27 @@
 "use client";
 
-import {
-	CaretDownIcon,
-	KeyIcon,
-	MagnifyingGlassIcon,
-	PlusIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Button, buttonVariants } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Text } from "@/components/ds/text";
 import { ApiKeySheet } from "@/components/organizations/api-key-sheet";
 import type { ApiKeyListItem } from "@/components/organizations/api-key-types";
 import type { Organization } from "@/hooks/use-organizations";
 import { orpc } from "@/lib/orpc";
 import { ApiKeyRow } from "./api-key-row";
+import {
+	CaretDownIcon,
+	LockSimpleIcon,
+	MagnifyingGlassIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import {
+	Button,
+	Card,
+	EmptyState,
+	Skeleton,
+	Text,
+	buttonVariants,
+} from "@databuddy/ui";
 
 type StatusFilter = "all" | "active" | "disabled" | "expired" | "revoked";
 type TypeFilter = "all" | "user" | "sdk" | "automation";
@@ -56,7 +59,7 @@ function ApiKeysSkeleton() {
 		<div className="divide-y">
 			{[1, 2, 3].map((n) => (
 				<div className="flex items-center gap-3 px-5 py-3" key={n}>
-					<Skeleton className="size-2 rounded-full" />
+					<Skeleton className="size-7 rounded" />
 					<div className="flex-1 space-y-2">
 						<Skeleton className="h-3.5 w-36" />
 						<Skeleton className="h-3 w-44" />
@@ -131,7 +134,7 @@ export function ApiKeysSection({
 					<Card.Title>API Keys</Card.Title>
 					<Card.Description>
 						{isEmpty
-							? "Create keys for programmatic access to your workspace"
+							? "Create keys for programmatic access to your organization"
 							: `${activeCount} active of ${items.length} key${items.length === 1 ? "" : "s"}`}
 					</Card.Description>
 				</div>
@@ -213,7 +216,7 @@ export function ApiKeysSection({
 								</Button>
 							}
 							description="API keys authenticate requests to the Databuddy API. Keys are shown once at creation."
-							icon={<KeyIcon weight="duotone" />}
+							icon={<LockSimpleIcon />}
 							title="No API keys"
 						/>
 					</div>

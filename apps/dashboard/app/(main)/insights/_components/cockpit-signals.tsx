@@ -3,20 +3,8 @@
 import { useInsightsFeed } from "@/app/(main)/insights/hooks/use-insights-feed";
 import { useInsightsLocalState } from "@/app/(main)/insights/hooks/use-insights-local-state";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { GhostTriggerButton } from "@/components/ds/control-shell";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import type { Insight, InsightSeverity } from "@/lib/insight-types";
 import { cn } from "@/lib/utils";
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import { LightbulbIcon } from "@phosphor-icons/react/dist/ssr/Lightbulb";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import {
 	type ReactElement,
 	useCallback,
@@ -26,6 +14,18 @@ import {
 	useState,
 } from "react";
 import { InsightCard } from "./insight-card";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	ArrowsDownUpIcon,
+	CaretDownIcon,
+	CheckCircleIcon,
+	FunnelIcon,
+	LightbulbIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { Button, Card, GhostTriggerButton } from "@databuddy/ui";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 type SeverityFilter = "all" | InsightSeverity;
 type SortMode = "priority" | "newest" | "change";

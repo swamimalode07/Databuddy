@@ -4,6 +4,7 @@ import { chQuery } from "@databuddy/db/clickhouse";
 import { render, UptimeAlertEmail } from "@databuddy/email";
 import { Resend } from "resend";
 import type { ScheduleData } from "./actions";
+import { UPTIME_ENV } from "./lib/env";
 import { captureError } from "./lib/tracing";
 import { MonitorStatus, type UptimeData } from "./types";
 
@@ -130,9 +131,21 @@ export async function getPreviousMonitorStatus(
 export async function sendUptimeTransitionEmailsIfNeeded(options: {
 	schedule: ScheduleData;
 	data: UptimeData;
+	previousStatus?: number;
 }): Promise<void> {
+	if (!UPTIME_ENV.isProduction) {
+		return;
+	}
+
 	const apiKey = process.env.RESEND_API_KEY;
 	if (!apiKey) {
+		return;
+	}
+
+	if (
+		options.previousStatus !== undefined &&
+		resolveTransitionKind(options.previousStatus, options.data.status) === null
+	) {
 		return;
 	}
 

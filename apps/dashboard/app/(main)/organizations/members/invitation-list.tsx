@@ -1,15 +1,16 @@
 "use client";
 
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Dialog } from "@/components/ds/dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Text } from "@/components/ds/text";
 import type { CancelInvitation } from "@/hooks/use-organizations";
-import dayjs from "@/lib/dayjs";
 import type { Invitation } from "@/hooks/use-organization-invitations";
-import { DotsThree, Envelope, XCircle } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	DotsThreeIcon,
+	EnvelopeIcon,
+	XCircleIcon,
+} from "@databuddy/ui/icons";
 import { useState } from "react";
+import { Dialog, DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Button, Text, dayjs } from "@databuddy/ui";
 
 interface InvitationToCancel {
 	email: string;
@@ -45,18 +46,24 @@ function resolveStatus(invitation: Invitation) {
 function InvitationRow({
 	invitation,
 	isCancellingInvitation,
+	isResending,
 	onConfirmCancel,
+	onResend,
 }: {
 	invitation: Invitation;
 	isCancellingInvitation: boolean;
+	isResending: boolean;
 	onConfirmCancel: (inv: InvitationToCancel) => void;
+	onResend: (invitation: Invitation) => void;
 }) {
 	const { label, variant, isPending } = resolveStatus(invitation);
+	const isExpired = !isPending && invitation.status === "pending";
+	const showActions = isPending || isExpired;
 
 	return (
 		<div className="flex items-center gap-3 px-5 py-3">
 			<div className="flex size-8 items-center justify-center rounded-full bg-secondary">
-				<Envelope className="text-muted-foreground" size={14} />
+				<EnvelopeIcon className="text-muted-foreground" size={14} />
 			</div>
 			<div className="min-w-0 flex-1">
 				<Text className="truncate" variant="label">
@@ -68,27 +75,33 @@ function InvitationRow({
 				</Text>
 			</div>
 			<Badge variant={variant}>{label}</Badge>
-			{isPending ? (
+			{showActions ? (
 				<DropdownMenu>
 					<DropdownMenu.Trigger
 						className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-interactive-hover hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
-						disabled={isCancellingInvitation}
+						disabled={isCancellingInvitation || isResending}
 					>
-						<DotsThree size={16} weight="bold" />
+						<DotsThreeIcon size={16} weight="bold" />
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end" side="bottom">
-						<DropdownMenu.Item
-							onClick={() =>
-								onConfirmCancel({
-									id: invitation.id,
-									email: invitation.email,
-								})
-							}
-							variant="destructive"
-						>
-							<XCircle size={14} />
-							Cancel invitation
+						<DropdownMenu.Item onClick={() => onResend(invitation)}>
+							<ArrowClockwiseIcon size={14} />
+							Resend invitation
 						</DropdownMenu.Item>
+						{isPending && (
+							<DropdownMenu.Item
+								onClick={() =>
+									onConfirmCancel({
+										id: invitation.id,
+										email: invitation.email,
+									})
+								}
+								variant="destructive"
+							>
+								<XCircleIcon size={14} />
+								Cancel invitation
+							</DropdownMenu.Item>
+						)}
 					</DropdownMenu.Content>
 				</DropdownMenu>
 			) : (
@@ -102,10 +115,14 @@ export function InvitationList({
 	invitations,
 	onCancelInvitationAction,
 	isCancellingInvitation,
+	onResendInvitation,
+	isResending,
 }: {
 	invitations: Invitation[];
 	onCancelInvitationAction: CancelInvitation;
 	isCancellingInvitation: boolean;
+	onResendInvitation: (invitation: Invitation) => void;
+	isResending: boolean;
 }) {
 	const [invitationToCancel, setInvitationToCancel] =
 		useState<InvitationToCancel | null>(null);
@@ -129,8 +146,10 @@ export function InvitationList({
 					<InvitationRow
 						invitation={invitation}
 						isCancellingInvitation={isCancellingInvitation}
+						isResending={isResending}
 						key={invitation.id}
 						onConfirmCancel={setInvitationToCancel}
+						onResend={onResendInvitation}
 					/>
 				))}
 			</div>
@@ -159,7 +178,7 @@ export function InvitationList({
 						<Button
 							loading={isCancellingInvitation}
 							onClick={handleCancel}
-							tone="danger"
+							tone="destructive"
 						>
 							Cancel Invitation
 						</Button>

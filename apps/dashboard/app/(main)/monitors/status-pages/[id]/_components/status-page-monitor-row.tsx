@@ -1,21 +1,20 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react";
-import { HeartbeatIcon } from "@phosphor-icons/react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
-import { XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { Switch } from "@/components/ds/switch";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CheckIcon,
+	HeartbeatIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Field, Input } from "@databuddy/ui";
+import { Switch } from "@databuddy/ui/client";
 
 type ToggleKey = "hideUrl" | "hideUptimePercentage" | "hideLatency";
 

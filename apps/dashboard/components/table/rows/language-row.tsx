@@ -1,7 +1,7 @@
-import { TranslateIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
-import { PercentageBadge } from "@/components/ds/badge";
 import { formatNumber } from "@/lib/formatters";
+import { TranslateIcon } from "@databuddy/ui/icons";
+import { PercentageBadge } from "@databuddy/ui";
 
 export interface LanguageEntry {
 	code?: string;
@@ -40,7 +40,7 @@ export function createLanguageColumns(
 				}
 				return (
 					<div className="flex items-center gap-2">
-						<TranslateIcon className="size-4 text-primary" />
+						<TranslateIcon className="size-[18px] text-primary" />
 						<div>
 							<div className="font-medium">{readableName}</div>
 							{code && code !== language && (

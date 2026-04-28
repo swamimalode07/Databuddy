@@ -1,14 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ds/button";
-import { FieldTriggerButton } from "@/components/ds/control-shell";
-import { Dialog } from "@/components/ds/dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
 import { useOrganizationInvitations } from "@/hooks/use-organization-invitations";
-import { CaretUpDown, UserPlus } from "@phosphor-icons/react/dist/ssr";
+import { CaretUpDown } from "@phosphor-icons/react/dist/ssr";
+import { UserPlusIcon } from "@databuddy/ui/icons";
 import { useState } from "react";
+import { Button, Field, FieldTriggerButton, Input } from "@databuddy/ui";
+import { Dialog, DropdownMenu } from "@databuddy/ui/client";
 
 interface InviteMemberDialogProps {
 	onOpenChangeAction: (open: boolean) => void;
@@ -56,12 +53,15 @@ export function InviteMemberDialog({
 				<Dialog.Header>
 					<div className="flex items-center gap-2">
 						<div className="flex size-7 items-center justify-center rounded-md bg-primary/10">
-							<UserPlus className="size-3.5 text-primary" weight="duotone" />
+							<UserPlusIcon
+								className="size-3.5 text-primary"
+								weight="duotone"
+							/>
 						</div>
 						<div>
 							<Dialog.Title>Invite Member</Dialog.Title>
 							<Dialog.Description>
-								Send an invitation to join this workspace
+								Send an invitation to join this organization
 							</Dialog.Description>
 						</div>
 					</div>

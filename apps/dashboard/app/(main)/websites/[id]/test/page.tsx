@@ -1,18 +1,12 @@
 "use client";
 
 import type { DateRange } from "@databuddy/shared/types/analytics";
-import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import { useAtomValue } from "jotai";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { Layout } from "react-grid-layout";
 import GridLayout, { useContainerWidth } from "react-grid-layout";
 import { StatCard } from "@/components/analytics/stat-card";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
 import {
 	formattedDateRangeAtom,
 	timeGranularityAtom,
@@ -22,6 +16,13 @@ import { CardSheet } from "./_components/add-card-sheet";
 import { useDashboardData } from "./_components/hooks/use-dashboard-data";
 import { getCategoryIcon } from "./_components/utils/category-utils";
 import type { DashboardCardConfig } from "./_components/utils/types";
+import {
+	CalendarDotsIcon,
+	FunnelIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
 
 const GRID_COLS = 4;
 const GRID_ROW_HEIGHT = 140;

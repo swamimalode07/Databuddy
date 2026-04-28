@@ -4,14 +4,9 @@ import type {
 	DailyUsageByTypeRow,
 	UsageResponse,
 } from "@databuddy/shared/types/billing";
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMemo, useState } from "react";
 import { METRIC_COLORS } from "@/components/charts/metrics-constants";
 import { DateRangePicker } from "@/components/date-range-picker";
-import { Card } from "@/components/ds/card";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tabs } from "@/components/ds/tabs";
 import { Chart } from "@/components/ui/composables/chart";
 import {
 	chartAxisTickDefault,
@@ -23,6 +18,9 @@ import {
 	chartTooltipHeaderRowClassName,
 } from "@/lib/chart-presentation";
 import { calculateOverageCost, type OverageInfo } from "../utils/billing-utils";
+import { CalendarIcon } from "@databuddy/ui/icons";
+import { Tabs } from "@databuddy/ui/client";
+import { Card, EmptyState, Skeleton } from "@databuddy/ui";
 
 type ViewMode = "daily" | "cumulative";
 

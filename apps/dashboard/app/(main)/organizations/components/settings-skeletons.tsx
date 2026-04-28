@@ -1,5 +1,4 @@
-import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
+import { Card, Skeleton } from "@databuddy/ui";
 
 function SettingsShell({ children }: { children: React.ReactNode }) {
 	return (

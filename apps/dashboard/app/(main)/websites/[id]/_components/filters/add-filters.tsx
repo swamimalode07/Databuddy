@@ -3,25 +3,19 @@
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ds/button";
-import { Dialog } from "@/components/ds/dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { SearchList } from "@/components/ds/search-list";
-import { Skeleton } from "@/components/ds/skeleton";
 import {
 	type AutocompleteData,
 	useAutocompleteData,
 } from "@/hooks/use-autocomplete";
 import { operatorOptions } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
+import { ArrowLeftIcon, FunnelIcon } from "@databuddy/ui/icons";
+import { Dialog, DropdownMenu, SearchList } from "@databuddy/ui/client";
+import { Button, Field, Input, Skeleton } from "@databuddy/ui";
 
 function getOperatorDisplay(value: string): string {
 	const option = operatorOptions.find((o) => o.value === value);

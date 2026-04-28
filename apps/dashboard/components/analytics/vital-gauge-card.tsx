@@ -1,13 +1,9 @@
 "use client";
 
-import { InfoIcon } from "@phosphor-icons/react";
-import { TrendDownIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
-import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
-import { Tooltip } from "@/components/ds/tooltip";
 import { cn } from "@/lib/utils";
+import { InfoIcon, TrendDownIcon, TrendUpIcon } from "@databuddy/ui/icons";
+import { Card, Skeleton, Tooltip } from "@databuddy/ui";
 
 interface VitalConfig {
 	/** Color for the chart line */

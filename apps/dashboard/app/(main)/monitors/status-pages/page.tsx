@@ -1,11 +1,5 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	BrowserIcon,
-	PlusIcon,
-	UserPlusIcon,
-} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
@@ -18,14 +12,17 @@ import {
 	StatusPageRow,
 } from "@/components/status-pages/status-page-row";
 import { StatusPageSheet } from "@/components/status-pages/status-page-sheet";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { DeleteDialog } from "@/components/ds/delete-dialog";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	PlusIcon,
+	UserPlusIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog } from "@databuddy/ui/client";
+import { Button, Card, EmptyState, Skeleton } from "@databuddy/ui";
 
 export default function StatusPagesListPage() {
 	const { hasAccess, isLoading: isAccessLoading } =

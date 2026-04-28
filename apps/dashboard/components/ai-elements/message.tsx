@@ -1,12 +1,6 @@
 "use client";
 
 import type { FileUIPart, UIMessage } from "ai";
-import {
-	ChevronLeftIcon,
-	ChevronRightIcon,
-	PaperclipIcon,
-	XIcon,
-} from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
 import {
@@ -21,10 +15,11 @@ import {
 	MdTh,
 	MdThead,
 } from "@/components/ai-elements/markdown-table";
-import { Button } from "@/components/ds/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
-import { Tooltip } from "@/components/ds/tooltip";
 import { cn } from "@/lib/utils";
+import { PaperclipIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeftIcon, CaretRightIcon } from "@databuddy/ui/icons";
+import { Button, Tooltip } from "@databuddy/ui";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 	from: UIMessage["role"];
@@ -248,7 +243,7 @@ export const MessageBranchPrevious = ({
 			variant="ghost"
 			{...props}
 		>
-			{children ?? <ChevronLeftIcon size={14} />}
+			{children ?? <CaretLeftIcon size={14} />}
 		</Button>
 	);
 };
@@ -272,7 +267,7 @@ export const MessageBranchNext = ({
 			variant="ghost"
 			{...props}
 		>
-			{children ?? <ChevronRightIcon size={14} />}
+			{children ?? <CaretRightIcon size={14} />}
 		</Button>
 	);
 };

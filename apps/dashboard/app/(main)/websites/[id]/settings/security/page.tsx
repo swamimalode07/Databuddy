@@ -1,21 +1,19 @@
 "use client";
 
-import { LockIcon, PlusIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { NoticeBanner } from "@/app/(main)/websites/_components/notice-banner";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { Input } from "@/components/ds/input";
 import {
 	updateWebsiteCache,
 	useWebsite,
 	type Website,
 } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import { LockIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Badge, Button, Card, Input } from "@databuddy/ui";
 
 const ipv4Regex =
 	/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -363,6 +361,11 @@ export default function SecurityPage() {
 							Discard
 						</Button>
 						<Button
+							keyboard={{
+								display: "⌘S",
+								trigger: (e) => (e.metaKey || e.ctrlKey) && e.key === "s",
+								callback: handleSave,
+							}}
 							loading={updateMutation.isPending}
 							onClick={handleSave}
 							size="sm"

@@ -1,47 +1,46 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
-import { ArrowsCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
-import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr";
-import { CreditCardIcon } from "@phosphor-icons/react/dist/ssr";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr";
-import { LinkIcon } from "@phosphor-icons/react/dist/ssr";
-import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
-import { StripeLogoIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { StatCard } from "@/components/analytics/stat-card";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Button } from "@/components/ds/button";
-import { Sheet } from "@/components/ds/sheet";
-import { Input } from "@/components/ds/input";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
 } from "@/stores/jotai/filterAtoms";
-import { WebsitePageHeader } from "../../_components/website-page-header";
+import { TopBar } from "@/components/layout/top-bar";
 import { RevenueAttributionTables } from "./revenue-attribution-tables";
 import { RevenueChart } from "./revenue-chart";
+import { StripeLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	ArrowSquareOutIcon,
+	ArrowsCounterClockwiseIcon,
+	CaretDownIcon,
+	CheckCircleIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CreditCardIcon,
+	CurrencyDollarIcon,
+	EyeIcon,
+	EyeSlashIcon,
+	GearIcon,
+	LinkIcon,
+	ReceiptIcon,
+	SpinnerIcon,
+	TrendUpIcon,
+	UsersIcon,
+} from "@databuddy/ui/icons";
+import { Sheet } from "@databuddy/ui/client";
+import { Button, EmptyState, Input, dayjs } from "@databuddy/ui";
 
 interface RevenueContentProps {
 	websiteId: string;
@@ -154,7 +153,7 @@ function CollapsibleSection({
 				>
 					<div className="flex items-center gap-2.5">
 						<Icon className="size-4" weight="duotone" />
-						<span className="font-medium text-sm">{title}</span>
+						<span className="font-semibold text-sm">{title}</span>
 						{badge}
 					</div>
 					<CaretDownIcon
@@ -688,37 +687,21 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 			? overview.total_revenue / overview.total_transactions
 			: 0;
 
-	const getSubtitle = () => {
-		if (isConfigured) {
-			const providers: string[] = [];
-			if (config?.stripeConfigured) {
-				providers.push("Stripe");
-			}
-			if (config?.paddleConfigured) {
-				providers.push("Paddle");
-			}
-			return `Connected to ${providers.join(" & ")}`;
-		}
-		return "Not configured";
-	};
-
 	return (
 		<>
-			<WebsitePageHeader
-				additionalActions={
-					<Button onClick={() => setSettingsOpen(true)} variant="secondary">
-						<GearIcon className="mr-2 size-4" weight="duotone" />
-						Configure
-					</Button>
-				}
-				description="Track revenue from Stripe and Paddle"
-				docsUrl="https://databuddy.cc/docs/revenue"
-				icon={<CurrencyDollarIcon />}
-				isLoading={isLoading}
-				subtitle={getSubtitle()}
-				title="Revenue"
-				websiteId={websiteId}
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Revenue</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<Button
+					onClick={() => setSettingsOpen(true)}
+					size="sm"
+					variant="secondary"
+				>
+					<GearIcon className="size-4 shrink-0" weight="duotone" />
+					Configure
+				</Button>
+			</TopBar.Actions>
 
 			{isLoading || hasData ? (
 				<div className="space-y-3 p-4">

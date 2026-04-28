@@ -1,26 +1,8 @@
 "use client";
 
-import {
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineIcon,
-	CursorClickIcon,
-	DesktopIcon,
-	FunnelIcon,
-	MoonIcon,
-	PresentationChartIcon,
-	SquaresFourIcon,
-	StackIcon,
-	SunIcon,
-	UsersIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { StatCard } from "@/components/analytics/stat-card";
-import { Card } from "@/components/ds/card";
-import { Select } from "@/components/ds/select";
-import { Text } from "@/components/ds/text";
-import { Tooltip } from "@/components/ds/tooltip";
 import type {
 	ChartCurveType,
 	ChartSeriesKind,
@@ -37,6 +19,22 @@ import {
 	useDefaultDateRange,
 } from "@/hooks/use-default-date-range";
 import { cn } from "@/lib/utils";
+import {
+	CaretDownIcon,
+	ChartBarIcon,
+	ChartLineIcon,
+	CursorClickIcon,
+	DesktopIcon,
+	FunnelIcon,
+	MoonIcon,
+	PresentationChartIcon,
+	SquaresFourIcon,
+	StackIcon,
+	SunIcon,
+	UsersIcon,
+} from "@databuddy/ui/icons";
+import { Select } from "@databuddy/ui/client";
+import { Card, Text, Tooltip } from "@databuddy/ui";
 
 const MOCK_CHART_DATA = [
 	{ date: "2024-01-01", value: 186 },

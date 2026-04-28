@@ -1,15 +1,7 @@
 "use client";
 
-import {
-	DeviceMobileIcon,
-	DeviceTabletIcon,
-	MonitorIcon,
-} from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
-import { Card } from "@/components/ds/card";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Skeleton } from "@/components/ds/skeleton";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { BrowserIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
@@ -20,8 +12,13 @@ import {
 } from "@/components/table/rows";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { formatNumber } from "@/lib/formatters";
-import { PercentageBadge } from "../utils/technology-helpers";
 import type { FullTabProps } from "../utils/types";
+import {
+	DeviceMobileIcon,
+	DeviceTabletIcon,
+	MonitorIcon,
+} from "@databuddy/ui/icons";
+import { Card, EmptyState, PercentageBadge, Skeleton } from "@databuddy/ui";
 
 interface BrowserVersion {
 	pageviews: number;

@@ -1,10 +1,12 @@
-import { CurrencyDollarIcon } from "@phosphor-icons/react";
-import { MapPinIcon } from "@phosphor-icons/react";
-import { QuestionIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
-import { PercentageBadge } from "@/components/ds/badge";
 import { formatNumber } from "@/lib/formatters";
+import {
+	CurrencyDollarIcon,
+	MapPinIcon,
+	QuestionIcon,
+} from "@databuddy/ui/icons";
+import { PercentageBadge } from "@databuddy/ui";
 
 export interface RevenueEntry {
 	country_code?: string;
@@ -70,7 +72,7 @@ export function createRevenueColumns({
 					if (isUnattributed) {
 						return (
 							<QuestionIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -83,11 +85,11 @@ export function createRevenueColumns({
 							countryCode !== "Unknown" &&
 							countryCode !== "Unattributed"
 						) {
-							return <CountryFlag country={countryCode} size={16} />;
+							return <CountryFlag country={countryCode} size={18} />;
 						}
 						return (
 							<MapPinIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -103,7 +105,7 @@ export function createRevenueColumns({
 
 					return (
 						<CurrencyDollarIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);

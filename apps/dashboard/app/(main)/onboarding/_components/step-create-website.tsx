@@ -2,15 +2,13 @@
 
 import { track } from "@databuddy/sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr";
 import { useController, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Button } from "@/components/ds/button";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
 import { useCreateWebsite } from "@/hooks/use-websites";
+import { GlobeIcon } from "@databuddy/ui/icons";
+import { Button, Field, Input } from "@databuddy/ui";
 
 const domainRegex =
 	/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;
@@ -95,7 +93,7 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 					</h2>
 					<p className="text-pretty text-muted-foreground text-sm">
 						Use the production domain you want Databuddy to associate with this
-						workspace.
+						organization.
 					</p>
 				</div>
 			</div>
@@ -103,7 +101,7 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 			<form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
 				<Field error={!!nameField.fieldState.error}>
 					<Field.Label>Website name</Field.Label>
-					<Input placeholder="My Project" {...nameField.field} />
+					<Input placeholder="My Website" {...nameField.field} />
 					<Field.Description>
 						This is the label your team will see throughout the dashboard.
 					</Field.Description>
@@ -138,7 +136,7 @@ export function StepCreateWebsite({ onComplete }: StepCreateWebsiteProps) {
 					/>
 					<Field.Description>
 						We use this to validate installs and route you into the right
-						workspace.
+						organization.
 					</Field.Description>
 					{domainField.fieldState.error ? (
 						<Field.Error>{domainField.fieldState.error.message}</Field.Error>

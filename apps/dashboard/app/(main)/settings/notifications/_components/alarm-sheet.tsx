@@ -1,28 +1,22 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	EnvelopeSimpleIcon,
-	GlobeSimpleIcon,
-	PlusIcon,
-	SlackLogoIcon,
-	XIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Accordion } from "@/components/ds/accordion";
-import { Button } from "@/components/ds/button";
-import { Divider } from "@/components/ds/divider";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { Sheet } from "@/components/ds/sheet";
-import { Switch } from "@/components/ds/switch";
-import { Text } from "@/components/ds/text";
 import { orpc } from "@/lib/orpc";
+import { SlackLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	EnvelopeSimpleIcon,
+	GlobeSimpleIcon,
+	PlusIcon,
+	XMarkIcon,
+} from "@databuddy/ui/icons";
+import { Button, Divider, Field, Input, Text } from "@databuddy/ui";
+import { Accordion, Sheet, Switch } from "@databuddy/ui/client";
 
 type DestType = "slack" | "email" | "webhook";
 
@@ -183,7 +177,7 @@ function WebhookHeaders({
 						onClick={() => update(pairs.filter((_, j) => j !== i))}
 						type="button"
 					>
-						<XIcon className="size-3" />
+						<XMarkIcon className="size-3" />
 					</button>
 				</div>
 			))}
@@ -399,7 +393,7 @@ export function AlarmSheet({
 															onClick={() => remove(index)}
 															type="button"
 														>
-															<XIcon className="size-3.5" />
+															<XMarkIcon className="size-3.5" />
 														</button>
 													)}
 												</div>

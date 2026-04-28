@@ -1,23 +1,22 @@
 "use client";
 
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { NoticeBanner } from "@/app/(main)/websites/_components/notice-banner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { Dialog } from "@/components/ds/dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Skeleton } from "@/components/ds/skeleton";
 import { type Organization, useOrganizations } from "@/hooks/use-organizations";
 import { useWebsiteTransferToOrg } from "@/hooks/use-website-transfer-to-org";
 import { useWebsite } from "@/hooks/use-websites";
+import {
+	ArrowRightIcon,
+	ArrowSquareOutIcon,
+	BuildingsIcon,
+	InfoIcon,
+	WarningIcon,
+} from "@databuddy/ui/icons";
+import { Dialog, DropdownMenu } from "@databuddy/ui/client";
+import { Button, Card, Skeleton } from "@databuddy/ui";
 
 function TransferPageContent() {
 	const params = useParams();
@@ -96,7 +95,7 @@ function TransferPageContent() {
 		(org: Organization) => org.id === websiteOrgId
 	) || {
 		id: websiteOrgId ?? "",
-		name: "Current Workspace",
+		name: "Current Organization",
 		slug: "",
 		logo: null as string | null,
 		createdAt: new Date(),

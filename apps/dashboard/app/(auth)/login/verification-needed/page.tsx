@@ -1,15 +1,12 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ds/button";
-import { Spinner } from "@/components/ds/spinner";
-import { Text } from "@/components/ds/text";
+import { ArrowLeftIcon, WarningIcon } from "@databuddy/ui/icons";
+import { Button, Spinner, Text } from "@databuddy/ui";
 
 function VerificationNeededPage() {
 	const [email] = useQueryState("email", parseAsString.withDefault(""));

@@ -9,18 +9,6 @@ import {
 	PLAN_IDS,
 	type PlanId,
 } from "@databuddy/shared/types/features";
-import {
-	CheckIcon,
-	CrownIcon,
-	LeafIcon,
-	LockKeyIcon,
-	ReceiptIcon,
-	RocketLaunchIcon,
-	ShieldCheckIcon,
-	StarIcon,
-	TreeIcon,
-	WarningIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type { PreviewAttachResponse } from "autumn-js";
 import { useCustomer, useListPlans } from "autumn-js/react";
 import { createContext, useContext, useState } from "react";
@@ -28,12 +16,23 @@ import { toast } from "sonner";
 import { PricingTiersTooltip } from "@/app/(main)/billing/components/pricing-tiers-tooltip";
 import { getStripeMetadata } from "@/app/(main)/billing/utils/stripe-metadata";
 import AttachDialog from "@/components/autumn/attach-dialog";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { EmptyState } from "@/components/ds/empty-state";
-import { Text } from "@/components/ds/text";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { cn } from "@/lib/utils";
+import {
+	LockKeyIcon,
+	ShieldCheckIcon,
+	TreeIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import {
+	CheckIcon,
+	CrownIcon,
+	LeafIcon,
+	ReceiptIcon,
+	RocketLaunchIcon,
+	StarIcon,
+	WarningIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, EmptyState, Text } from "@databuddy/ui";
 
 const DISPLAYED_PLAN_IDS = ["hobby", "pro", "scale"] as const;
 const RECOMMENDED_PLAN_ID = "pro";

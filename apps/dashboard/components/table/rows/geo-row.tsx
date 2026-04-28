@@ -1,8 +1,8 @@
-import { MapPinIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CountryFlag } from "@/components/icon";
-import { PercentageBadge } from "@/components/ds/badge";
 import { formatNumber } from "@/lib/formatters";
+import { MapPinIcon } from "@databuddy/ui/icons";
+import { PercentageBadge } from "@databuddy/ui";
 
 export interface GeoEntry {
 	country_code?: string;
@@ -31,11 +31,11 @@ export function createGeoColumns({ type }: GeoRowProps): ColumnDef<GeoEntry>[] {
 
 				const getIcon = () => {
 					if (countryCode && countryCode !== "Unknown") {
-						return <CountryFlag country={countryCode} size={16} />;
+						return <CountryFlag country={countryCode} size={18} />;
 					}
 					return (
 						<MapPinIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);

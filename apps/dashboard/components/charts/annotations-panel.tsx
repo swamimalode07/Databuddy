@@ -1,17 +1,17 @@
 "use client";
 
-import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
-import { NoteIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr";
-import { TagIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { DeleteDialog } from "@/components/ds/delete-dialog";
-import { Sheet } from "@/components/ds/sheet";
 import { formatAnnotationDateRange } from "@/lib/annotation-utils";
 import type { Annotation } from "@/types/annotations";
+import {
+	CalendarIcon,
+	NoteIcon,
+	PencilIcon,
+	TagIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button } from "@databuddy/ui";
+import { DeleteDialog, Sheet } from "@databuddy/ui/client";
 
 interface AnnotationsPanelProps {
 	annotations: Annotation[];
@@ -132,7 +132,7 @@ export function AnnotationsPanel({
 													aria-label="Delete annotation"
 													className="size-6 p-0"
 													onClick={() => setDeleteId(annotation.id)}
-													tone="danger"
+													tone="destructive"
 													variant="ghost"
 												>
 													<TrashIcon className="size-3" weight="duotone" />

@@ -1,24 +1,22 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { EditFunnelDialog } from "@/app/(main)/websites/[id]/funnels/_components/edit-funnel-dialog";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { DeleteDialog } from "@/components/ds/delete-dialog";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { useFunnels } from "@/hooks/use-funnels";
-import { fromNow } from "@/lib/time";
 import type { CreateFunnelData, Funnel } from "@/types/funnels";
 import type { BaseComponentProps, FunnelStepInput } from "../../types";
+import {
+	CaretRightIcon,
+	DotsThreeIcon,
+	FunnelIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog, DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Button, Card, fromNow } from "@databuddy/ui";
 
 interface FunnelItem {
 	createdAt?: string;

@@ -1,12 +1,11 @@
 "use client";
 
-import { ChartPieIcon } from "@phosphor-icons/react";
 import { memo, useCallback, useState } from "react";
 import { ChartErrorBoundary } from "@/components/chart-error-boundary";
-import { Card } from "@/components/ds/card";
 import { Chart } from "@/components/ui/composables/chart";
-import { Skeleton } from "@/components/ds/skeleton";
 import { cn } from "@/lib/utils";
+import { ChartPieIcon } from "@databuddy/ui/icons";
+import { Card, Skeleton } from "@databuddy/ui";
 
 const { Cell, Pie, PieChart, ResponsiveContainer, Sector } = Chart.Recharts;
 

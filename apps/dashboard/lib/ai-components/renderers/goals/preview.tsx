@@ -1,23 +1,23 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
-import { MouseMiddleClickIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
-import { TargetIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { EditGoalDialog } from "@/app/(main)/websites/[id]/goals/_components/edit-goal-dialog";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
 import { useChat } from "@/contexts/chat-context";
 import { type CreateGoalData, type Goal, useGoals } from "@/hooks/use-goals";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../../types";
+import {
+	CheckIcon,
+	EyeIcon,
+	MouseMiddleClickIcon,
+	PencilSimpleIcon,
+	TargetIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
 
 interface GoalPreviewData {
 	description?: string | null;
@@ -38,7 +38,7 @@ interface ModeConfig {
 	confirmLabel: string;
 	confirmMessage: string;
 	title: string;
-	tone?: "danger";
+	tone?: "destructive";
 }
 
 const MODE_CONFIG: Record<string, ModeConfig> = {
@@ -61,7 +61,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Delete",
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
-		tone: "danger",
+		tone: "destructive",
 		ButtonIcon: TrashIcon,
 	},
 };

@@ -3,13 +3,6 @@
 import type { FlagWithScheduleForm } from "@databuddy/shared/flags";
 import { flagWithScheduleSchema } from "@databuddy/shared/flags";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr";
-import { CodeIcon } from "@phosphor-icons/react/dist/ssr";
-import { FlagIcon } from "@phosphor-icons/react/dist/ssr";
-import { GitBranchIcon } from "@phosphor-icons/react/dist/ssr";
-import { UserIcon } from "@phosphor-icons/react/dist/ssr";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr";
-import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,16 +12,6 @@ import {
 	CodeBlock,
 	CodeBlockCopyButton,
 } from "@/components/ai-elements/code-block";
-import { Accordion } from "@/components/ds/accordion";
-import { Button } from "@/components/ds/button";
-import { Divider } from "@/components/ds/divider";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { LineSlider } from "@/components/ds/line-slider";
-import { Sheet } from "@/components/ds/sheet";
-import { Switch } from "@/components/ds/switch";
-import { Text } from "@/components/ds/text";
-import { Textarea } from "@/components/ds/textarea";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { GroupSelector } from "../groups/_components/group-selector";
@@ -36,6 +19,17 @@ import { DependencySelector } from "./dependency-selector";
 import type { Flag, FlagSheetProps, TargetGroup } from "./types";
 import { UserRulesBuilder } from "./user-rules-builder";
 import { VariantEditor } from "./variant-editor";
+import {
+	BuildingsIcon,
+	CodeIcon,
+	FlagIcon,
+	GitBranchIcon,
+	UserIcon,
+	UsersIcon,
+	UsersThreeIcon,
+} from "@databuddy/ui/icons";
+import { Button, Divider, Field, Input, Text, Textarea } from "@databuddy/ui";
+import { Accordion, LineSlider, Sheet, Switch } from "@databuddy/ui/client";
 
 function ImplementationExamples({
 	flagKey,

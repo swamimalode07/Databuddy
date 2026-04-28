@@ -3,17 +3,7 @@ import type {
 	ProcessedMiniChartData,
 	Website,
 } from "@databuddy/shared/types/website";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { ArrowsLeftRightIcon } from "@phosphor-icons/react";
-import { CodeIcon } from "@phosphor-icons/react";
-import { CopyIcon } from "@phosphor-icons/react";
-import { EyeIcon } from "@phosphor-icons/react";
-import { GearIcon } from "@phosphor-icons/react";
-import { MinusIcon } from "@phosphor-icons/react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
-import { TrendDownIcon } from "@phosphor-icons/react";
-import { TrendUpIcon } from "@phosphor-icons/react";
+import { PrefetchZone } from "@/components/ds/prefetch-zone";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,8 +15,6 @@ const WebsiteDialog = dynamic(
 import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import { Card } from "@/components/ds/card";
-import { StatusDot } from "@/components/ds/status-dot";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -34,14 +22,27 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { DeleteDialog } from "@/components/ds/delete-dialog";
-import { Skeleton } from "@/components/ds/skeleton";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDeleteWebsite } from "@/hooks/use-websites";
 import { formatNumber } from "@/lib/formatters";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
 import MiniChart from "./mini-chart";
 import { TransferWebsiteDialog } from "./transfer-website-dialog";
+import {
+	ArrowSquareOutIcon,
+	ArrowsLeftRightIcon,
+	CodeIcon,
+	CopyIcon,
+	EyeIcon,
+	GearIcon,
+	MinusIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+	TrendDownIcon,
+	TrendUpIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog } from "@databuddy/ui/client";
+import { Card, Skeleton, StatusDot } from "@databuddy/ui";
 
 interface WebsiteCardProps {
 	activeUsers?: number;
@@ -154,7 +155,10 @@ export const WebsiteCard = memo(
 				<ContextMenu>
 					{/* Wrapper trigger: avoid merging Radix handlers onto Link (fixes stray click on RMB). */}
 					<ContextMenuTrigger asChild>
-						<div className="block h-full rounded outline-none focus-visible:outline-none">
+						<PrefetchZone
+							className="block h-full rounded outline-none focus-visible:outline-none"
+							href={`/websites/${website.id}`}
+						>
 							<Link
 								aria-label={`Open ${website.name} analytics`}
 								className="group block h-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -248,7 +252,7 @@ export const WebsiteCard = memo(
 									</Card.Content>
 								</Card>
 							</Link>
-						</div>
+						</PrefetchZone>
 					</ContextMenuTrigger>
 					<ContextMenuContent className="min-w-48 rounded border-border/50 bg-popover/95 p-0 shadow-lg backdrop-blur-sm">
 						<ContextMenuItem

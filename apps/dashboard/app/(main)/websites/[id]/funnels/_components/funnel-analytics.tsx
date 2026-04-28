@@ -1,18 +1,8 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
-import { BugIcon } from "@phosphor-icons/react/dist/ssr";
-import { ClockIcon } from "@phosphor-icons/react/dist/ssr";
-import { TargetIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { StatCard } from "@/components/analytics/stat-card";
-import { Button } from "@/components/ds/button";
-import { Skeleton } from "@/components/ds/skeleton";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import type {
 	FunnelAnalyticsByReferrerResult,
@@ -20,6 +10,17 @@ import type {
 	FunnelTimeSeriesPoint,
 } from "@/types/funnels";
 import { FunnelFlow } from "./funnel-flow";
+import {
+	ArrowClockwiseIcon,
+	ArrowSquareOutIcon,
+	BugIcon,
+	ClockIcon,
+	TargetIcon,
+	TrendDownIcon,
+	UsersIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { Button, Skeleton } from "@databuddy/ui";
 
 function createChartData(
 	timeSeries: FunnelTimeSeriesPoint[] | undefined,

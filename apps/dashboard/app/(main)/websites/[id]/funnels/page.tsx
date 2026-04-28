@@ -2,7 +2,6 @@
 
 import { FeatureGate } from "@/components/feature-gate";
 import { List } from "@/components/ui/composables/list";
-import { DeleteDialog } from "@/components/ds/delete-dialog";
 import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import {
@@ -11,12 +10,12 @@ import {
 	useFunnels,
 } from "@/hooks/use-funnels";
 import type { CreateFunnelData } from "@/types/funnels";
+import { cn } from "@/lib/utils";
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { FunnelIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { WebsitePageHeader } from "../_components/website-page-header";
+import { TopBar } from "@/components/layout/top-bar";
 import {
 	FunnelAnalytics,
 	FunnelAnalyticsByReferrer,
@@ -24,6 +23,9 @@ import {
 	FunnelItemSkeleton,
 	FunnelsList,
 } from "./_components";
+import { ArrowClockwiseIcon, FunnelIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 const EditFunnelDialog = dynamic(
 	() =>
@@ -54,11 +56,9 @@ export default function FunnelsPage() {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const {
-		funnels,
 		analyticsMap,
 		loadingIds,
 		listOutcome,
-		isLoading,
 		isFetching,
 		error,
 		refreshAction,
@@ -133,25 +133,26 @@ export default function FunnelsPage() {
 	return (
 		<FeatureGate feature={GATED_FEATURES.FUNNELS}>
 			<div className="relative flex h-full flex-col">
-				<WebsitePageHeader
-					createActionLabel="Create Funnel"
-					currentUsage={funnels.length}
-					description="See where users drop off in a multi-step journey"
-					feature={GATED_FEATURES.FUNNELS}
-					hasError={listOutcome.status === "error"}
-					icon={<FunnelIcon className="size-6" weight="duotone" />}
-					isLoading={isLoading}
-					isRefreshing={isFetching}
-					onCreateAction={() => setEditing("new")}
-					onRefreshAction={refreshAction}
-					subtitle={
-						isLoading
-							? undefined
-							: `${funnels.length} funnel${funnels.length === 1 ? "" : "s"}`
-					}
-					title="Conversion Funnels"
-					websiteId={websiteId}
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Conversion Funnels</h1>
+				</TopBar.Title>
+				<TopBar.Actions>
+					<Button
+						aria-label="Refresh"
+						disabled={isFetching}
+						onClick={refreshAction}
+						size="sm"
+						variant="secondary"
+					>
+						<ArrowClockwiseIcon
+							className={cn("size-4 shrink-0", isFetching && "animate-spin")}
+						/>
+					</Button>
+					<Button onClick={() => setEditing("new")} size="sm">
+						<PlusIcon className="size-4 shrink-0" />
+						Create Funnel
+					</Button>
+				</TopBar.Actions>
 
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-none">
 					<List.Content

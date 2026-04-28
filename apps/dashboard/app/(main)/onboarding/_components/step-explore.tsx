@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
 	ArrowRightIcon,
 	ChartLineUpIcon,
@@ -8,10 +9,8 @@ import {
 	LightningIcon,
 	RocketLaunchIcon,
 	UsersIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import Link from "next/link";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
+} from "@databuddy/ui/icons";
+import { Badge, Button } from "@databuddy/ui";
 
 const FEATURES = [
 	{
@@ -56,7 +55,7 @@ export function StepExplore({ onComplete, websiteId }: StepExploreProps) {
 				<div>
 					<h2 className="text-balance font-semibold text-lg">You're all set</h2>
 					<p className="text-pretty text-muted-foreground text-sm">
-						Your workspace is ready. Start with one of the core views below.
+						Your organization is ready. Start with one of the core views below.
 					</p>
 				</div>
 			</div>

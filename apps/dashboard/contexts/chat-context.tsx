@@ -12,7 +12,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useAgentChatTransport } from "@/app/(main)/websites/[id]/agent/_components/hooks/use-agent-chat";
+import { useAgentChatTransport } from "@/components/agent/hooks/use-agent-chat";
 import { orpc } from "@/lib/orpc";
 
 type ChatApi = ReturnType<typeof useAiSdkChat<UIMessage>>;
@@ -50,7 +50,7 @@ export function ChatProvider({
 	websiteId: string;
 	children: React.ReactNode;
 }) {
-	const transport = useAgentChatTransport(chatId);
+	const transport = useAgentChatTransport(chatId, websiteId);
 	const queryClient = useQueryClient();
 	const chatRef = useRef<ChatApi>(null as unknown as ChatApi);
 
@@ -184,6 +184,10 @@ export function useChat() {
 		throw new Error("useChat must be used within a `ChatProvider`");
 	}
 	return chat;
+}
+
+export function useChatSafe() {
+	return useContext(ChatContext);
 }
 
 export function usePendingQueue() {

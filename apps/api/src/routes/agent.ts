@@ -1,3 +1,10 @@
+import {
+	getAccessibleWebsiteIds,
+	getApiKeyFromHeader,
+	hasGlobalAccess,
+	hasKeyScope,
+	isApiKeyPresent,
+} from "@databuddy/api-keys/resolve";
 import { auth } from "@databuddy/auth";
 import { and, db, eq } from "@databuddy/db";
 import { agentChats } from "@databuddy/db/schema";
@@ -37,7 +44,7 @@ import {
 	resolveAgentBillingCustomerId,
 	trackAgentUsageAndBill,
 } from "../ai/agents/execution";
-import { routeMessage } from "../ai/agents/router";
+import { routeMessage, selectModelKeyForRoute } from "../ai/agents/router";
 import { AGENT_THINKING_LEVELS, type AgentConfig } from "../ai/agents/types";
 import {
 	type AgentModelKey,
@@ -47,13 +54,6 @@ import {
 	models,
 } from "../ai/config/models";
 import { getAILogger } from "../lib/ai-logger";
-import {
-	getAccessibleWebsiteIds,
-	getApiKeyFromHeader,
-	hasGlobalAccess,
-	hasKeyScope,
-	isApiKeyPresent,
-} from "../lib/api-key";
 import { trackAgentEvent } from "../lib/databuddy";
 import {
 	formatMemoryForPrompt,
@@ -394,8 +394,10 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					const routeLabel = lastMessage
 						? routeMessage(lastMessage)
 						: "complex";
-					const modelKey: AgentModelKey =
-						routeLabel === "simple" ? "fast" : "analytics";
+					const modelKey: AgentModelKey = selectModelKeyForRoute(
+						routeLabel,
+						body.messages
+					);
 
 					mergeWideEvent({
 						agent_route_label: routeLabel,

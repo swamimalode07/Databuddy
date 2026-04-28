@@ -27,11 +27,11 @@ export interface DatabuddyConfig {
 	/** Max queued events before forced flush (default: 1000) */
 	maxQueueSize?: number;
 	middleware?: Middleware[];
-	/** Logical grouping for events (e.g. `'billing'`, `'auth'`) */
+	/** Logical grouping for events (e.g. `'auth'`, `'jobs'`) */
 	namespace?: string;
 	/** Origin identifier (e.g. `'backend'`, `'webhook'`, `'cli'`) */
 	source?: string;
-	/** Default website ID to scope events to */
+	/** Default Databuddy Client ID to scope events to */
 	websiteId?: string;
 }
 

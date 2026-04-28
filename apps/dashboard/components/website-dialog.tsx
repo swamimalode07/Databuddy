@@ -6,16 +6,14 @@ import { useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "@/components/ds/button";
-import { Dialog } from "@/components/ds/dialog";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import {
 	useCreateWebsite,
 	useUpdateWebsite,
 	type Website,
 } from "@/hooks/use-websites";
+import { Button, Field, Input } from "@databuddy/ui";
+import { Dialog } from "@databuddy/ui/client";
 
 interface UpdateWebsiteInput {
 	domain?: string;
@@ -177,7 +175,7 @@ export function WebsiteDialog({
 						<Field error={!!nameError}>
 							<Field.Label>Name</Field.Label>
 							<Input
-								placeholder="Your project's name"
+								placeholder="Your website's name"
 								{...form.register("name")}
 							/>
 							{nameError && <Field.Error>{nameError}</Field.Error>}

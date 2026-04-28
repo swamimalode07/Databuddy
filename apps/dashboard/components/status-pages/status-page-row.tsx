@@ -1,24 +1,24 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { BrowserIcon } from "@phosphor-icons/react";
-import { CopyIcon } from "@phosphor-icons/react";
-import { DotsThreeIcon } from "@phosphor-icons/react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
-import { Badge } from "@/components/ds/badge";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Field } from "@/components/ds/field";
-import { Switch } from "@/components/ds/switch";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowSquareOutIcon,
+	CopyIcon,
+	DotsThreeIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Field } from "@databuddy/ui";
+import { DropdownMenu, Switch } from "@databuddy/ui/client";
 
 export interface StatusPage {
 	createdAt: Date | string;
@@ -133,7 +133,7 @@ function StatusPageActions({
 						onClick={() => setIsTransferOpen(true)}
 					>
 						<ArrowSquareOutIcon className="size-4" weight="duotone" />
-						Transfer to Workspace
+						Transfer to Organization
 					</DropdownMenu.Item>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item
@@ -149,7 +149,7 @@ function StatusPageActions({
 
 			<TransferToOrgDialog
 				currentOrganizationId={statusPage.organizationId}
-				description={`Move "${statusPage.name}" to a different workspace.`}
+				description={`Move "${statusPage.name}" to a different organization.`}
 				isPending={transferMutation.isPending}
 				onOpenChangeAction={setIsTransferOpen}
 				onTransferAction={handleTransfer}

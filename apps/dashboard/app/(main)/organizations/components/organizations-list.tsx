@@ -1,10 +1,6 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { BuildingsIcon } from "@phosphor-icons/react/dist/ssr";
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,10 +12,14 @@ import {
 } from "@/components/providers/organizations-provider";
 import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import dayjs from "@/lib/dayjs";
 import { cn, getOrganizationInitials } from "@/lib/utils";
+import {
+	BuildingsIcon,
+	CaretRightIcon,
+	CheckCircleIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, dayjs } from "@databuddy/ui";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;
@@ -141,18 +141,18 @@ export function OrganizationsList({
 				organizationId: orgId,
 			});
 			if (error) {
-				toast.error(error.message ?? "Failed to switch workspace");
+				toast.error(error.message ?? "Failed to switch organization");
 			} else {
 				await queryClient.invalidateQueries({
 					queryKey: AUTH_QUERY_KEYS.activeOrganization,
 				});
 				queryClient.invalidateQueries();
-				toast.success("Workspace updated");
+				toast.success("Organization updated");
 				await new Promise((resolve) => setTimeout(resolve, 300));
 				router.push("/organizations/settings");
 			}
 		} catch {
-			toast.error("Failed to switch workspace");
+			toast.error("Failed to switch organization");
 		} finally {
 			setProcessingId(null);
 		}

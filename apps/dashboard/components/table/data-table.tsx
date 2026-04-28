@@ -6,14 +6,13 @@ import {
 import type React from "react";
 import { useState } from "react";
 import ReactDOM from "react-dom";
-import { Card } from "@/components/ds/card";
-import { Skeleton } from "@/components/ds/skeleton";
 import { cn } from "@/lib/utils";
 import { FullScreenModal } from "./fullscreen-modal";
 import { useFullScreen } from "./hooks/use-fullscreen";
 import { TableContent } from "./table-content";
 import { TableTabs } from "./table-tabs";
 import { TableToolbar } from "./table-toolbar";
+import { Card, Skeleton } from "@databuddy/ui";
 
 const DEFAULT_MIN_HEIGHT = 200;
 const FULLSCREEN_HEIGHT = "h-[92vh]";
@@ -65,7 +64,7 @@ function TableSkeleton({ minHeight }: { minHeight: string | number }) {
 			</div>
 			{SKELETON_ROW_WIDTHS.map((width, i) => (
 				<div
-					className="flex items-center gap-3 border-border/80 border-b px-5 py-3 last:border-b-0"
+					className="flex h-14 items-center gap-3 border-border/70 border-b px-5 last:border-b-0"
 					key={`skeleton-row-${i}`}
 				>
 					<Skeleton className="h-3.5 rounded" style={{ width }} />

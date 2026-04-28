@@ -1,18 +1,8 @@
 "use client";
 
 import { DATE_FORMATS, formatDate } from "@lib/formatters";
-import { CalendarIcon } from "@phosphor-icons/react";
-import { ClockIcon } from "@phosphor-icons/react";
-import { LightningIcon } from "@phosphor-icons/react";
-import { PlusIcon } from "@phosphor-icons/react";
-import { PowerIcon } from "@phosphor-icons/react";
-import { TrashIcon } from "@phosphor-icons/react";
-import { XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/components/ds/button";
-import { Calendar } from "@/components/ds/calendar";
 import { FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ds/input";
 import {
 	Popover,
 	PopoverContent,
@@ -20,6 +10,17 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { ScheduleManagerProps } from "./types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CalendarIcon,
+	ClockIcon,
+	LightningIcon,
+	PlusIcon,
+	PowerIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Button, Input } from "@databuddy/ui";
+import { Calendar } from "@databuddy/ui/client";
 
 type ScheduleType = "enable" | "disable" | "update_rollout";
 

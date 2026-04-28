@@ -1,17 +1,16 @@
 "use client";
 
 import { track } from "@databuddy/sdk";
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
 import { useWebsitesLight } from "@/hooks/use-websites";
 import { OnboardingStepIndicator } from "./_components/onboarding-step-indicator";
 import { StepCreateWebsite } from "./_components/step-create-website";
 import { StepExplore } from "./_components/step-explore";
 import { StepInstallTracking } from "./_components/step-install-tracking";
 import { StepInviteTeam } from "./_components/step-invite-team";
+import { ArrowLeftIcon, ArrowRightIcon } from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
 
 const STEPS = [
 	{
@@ -229,7 +228,7 @@ export default function OnboardingPage() {
 						<div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
 							<div className="space-y-1.5">
 								<p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.14em]">
-									Workspace Setup
+									Organization Setup
 								</p>
 								<h1 className="font-semibold text-base text-foreground sm:text-lg">
 									Get Databuddy running

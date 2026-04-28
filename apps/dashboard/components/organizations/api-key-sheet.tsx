@@ -2,6 +2,22 @@
 
 import { API_SCOPES, type ApiScope } from "@databuddy/api-keys/scopes";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { ExpirationPicker } from "@/app/(main)/links/_components/expiration-picker";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import { type ApiKeyListItem, SCOPE_OPTIONS } from "./api-key-types";
+import {
+	KeyIcon,
+	LockKeyIcon,
+	ShieldCheckIcon,
+	WarningDiamondIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import {
 	ArrowsClockwiseIcon,
 	CheckCircleIcon,
@@ -9,37 +25,27 @@ import {
 	CopyIcon,
 	GaugeIcon,
 	GlobeIcon,
-	KeyIcon,
-	LockKeyIcon,
 	ProhibitIcon,
-	ShieldCheckIcon,
 	TrashIcon,
-	WarningDiamondIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { ExpirationPicker } from "@/app/(main)/links/_components/expiration-picker";
-import { Accordion } from "@/components/ds/accordion";
-import { Badge } from "@/components/ds/badge";
-import { Button } from "@/components/ds/button";
-import { Checkbox } from "@/components/ds/checkbox";
-import { Dialog } from "@/components/ds/dialog";
-import { Divider } from "@/components/ds/divider";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { Sheet } from "@/components/ds/sheet";
-import { Switch } from "@/components/ds/switch";
-import { TagsInput } from "@/components/ds/tags-input";
-import { Text } from "@/components/ds/text";
-import { Textarea } from "@/components/ds/textarea";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import dayjs from "@/lib/dayjs";
-import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
-import { type ApiKeyListItem, SCOPE_OPTIONS } from "./api-key-types";
+} from "@databuddy/ui/icons";
+import {
+	Accordion,
+	Checkbox,
+	Dialog,
+	Sheet,
+	Switch,
+	TagsInput,
+} from "@databuddy/ui/client";
+import {
+	Badge,
+	Button,
+	Divider,
+	Field,
+	Input,
+	Text,
+	Textarea,
+	dayjs,
+} from "@databuddy/ui";
 
 interface ApiKeySheetProps {
 	apiKey: ApiKeyListItem | null;
@@ -725,7 +731,7 @@ export function ApiKeySheet({
 											<div className="space-y-3">
 												<Text tone="muted" variant="caption">
 													Select websites to scope this key. Leaving all
-													unselected grants workspace-wide access using the
+													unselected grants organization-wide access using the
 													permissions above.
 												</Text>
 
@@ -803,7 +809,7 @@ export function ApiKeySheet({
 															weight="duotone"
 														/>
 														<Text tone="muted" variant="caption">
-															No websites in this workspace yet.
+															No websites in this organization yet.
 														</Text>
 													</div>
 												)}
@@ -844,7 +850,7 @@ export function ApiKeySheet({
 															}
 														/>
 													}
-													description="Apply your workspace plan limits to this key."
+													description="Apply your organization plan limits to this key."
 													label="Rate limiting"
 												/>
 												<Divider />
@@ -889,7 +895,7 @@ export function ApiKeySheet({
 													weight="duotone"
 												/>
 												<Text className="text-destructive" variant="label">
-													Danger zone
+													Destructive actions
 												</Text>
 											</Accordion.Trigger>
 											<Accordion.Content className="bg-destructive/5">
@@ -917,7 +923,7 @@ export function ApiKeySheet({
 																loading={revokeMutation.isPending}
 																onClick={() => setShowRevokeConfirm(true)}
 																size="sm"
-																tone="danger"
+																tone="destructive"
 																type="button"
 																variant="secondary"
 															>
@@ -934,7 +940,7 @@ export function ApiKeySheet({
 															<Button
 																onClick={() => setShowDeleteConfirm(true)}
 																size="sm"
-																tone="danger"
+																tone="destructive"
 																type="button"
 																variant="secondary"
 															>
@@ -990,7 +996,7 @@ export function ApiKeySheet({
 								<Button
 									loading={deleteMutation.isPending}
 									onClick={() => deleteMutation.mutate({ id: apiKey.id })}
-									tone="danger"
+									tone="destructive"
 								>
 									Delete
 								</Button>
@@ -1057,7 +1063,7 @@ export function ApiKeySheet({
 											{ onSettled: () => setShowRevokeConfirm(false) }
 										);
 									}}
-									tone="danger"
+									tone="destructive"
 								>
 									Revoke
 								</Button>

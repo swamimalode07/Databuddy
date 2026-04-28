@@ -1,14 +1,10 @@
 "use client";
 
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
-import { Input } from "@/components/ds/input";
-import {
-	FunnelIcon,
-	MagnifyingGlassIcon,
-	SortAscendingIcon,
-	XIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type { SortOption, TypeFilter } from "./use-filtered-links";
+import { SortAscendingIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import { FunnelIcon, MagnifyingGlassIcon } from "@databuddy/ui/icons";
+import { Input } from "@databuddy/ui";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 const SORT_LABELS: Record<SortOption, string> = {
 	newest: "Newest",

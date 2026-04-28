@@ -31,8 +31,44 @@ export const metadata: Metadata = {
 	},
 };
 
-const CELL_TITLE_CLASS =
-	"mb-5 text-balance font-semibold text-base text-foreground sm:mb-6 sm:text-lg";
+const FEATURES = [
+	{
+		icon: ClockIcon,
+		title: "1-Minute Checks",
+		description:
+			"HTTP monitoring as frequent as every 60 seconds. Know about downtime before your users do.",
+	},
+	{
+		icon: GlobeIcon,
+		title: "Public Status Pages",
+		description:
+			"Branded, SEO-indexed status pages at status.databuddy.cc/your-org. Share uptime transparently with customers.",
+	},
+	{
+		icon: ChartLineUpIcon,
+		title: "Latency Tracking",
+		description:
+			"Average and p95 response times plotted daily. Spot slow endpoints before they become outages.",
+	},
+	{
+		icon: BellIcon,
+		title: "Instant Alerts",
+		description:
+			"Get notified on status transitions via email, Slack, or webhooks. No alert fatigue — only real changes.",
+	},
+	{
+		icon: ShieldCheckIcon,
+		title: "TLS Monitoring",
+		description:
+			"Automatic SSL/TLS checks on every probe. See certificate validity and expiry at a glance.",
+	},
+	{
+		icon: SquaresFourIcon,
+		title: "90-Day Heatmap",
+		description:
+			"Per-day uptime heatmap with color-coded bars. Instantly see patterns and incident history.",
+	},
+] as const;
 
 const FAQ_ITEMS = [
 	{

@@ -1,19 +1,13 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr";
-import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ds/button";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { OtpInput } from "@/components/ds/otp-input";
-import { Spinner } from "@/components/ds/spinner";
-import { Text } from "@/components/ds/text";
+import { ArrowLeftIcon, EyeIcon, EyeSlashIcon } from "@databuddy/ui/icons";
+import { Button, Field, Input, Spinner, Text } from "@databuddy/ui";
+import { OtpInput } from "@databuddy/ui/client";
 
 function ForgotPasswordPage() {
 	const router = useRouter();

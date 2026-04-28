@@ -1,31 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	AndroidLogoIcon,
-	AppleLogoIcon,
-	CalendarIcon,
-	CopyIcon,
-	DeviceMobileIcon,
-	ImageIcon,
-	LinkSimpleIcon,
-	QrCodeIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Accordion } from "@/components/ds/accordion";
-import { Button } from "@/components/ds/button";
-import { Divider } from "@/components/ds/divider";
-import { Field } from "@/components/ds/field";
-import { Input } from "@/components/ds/input";
-import { Sheet } from "@/components/ds/sheet";
-import { Tabs } from "@/components/ds/tabs";
-import { Text } from "@/components/ds/text";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { type Link, useCreateLink, useUpdateLink } from "@/hooks/use-links";
-import dayjs from "@/lib/dayjs";
+import {
+	type Link,
+	useCreateLink,
+	useLinkFolders,
+	useUpdateLink,
+} from "@/hooks/use-links";
 import { LINKS_BASE_URL, LINKS_FULL_URL } from "./link-constants";
 import type { LinkFormData } from "./link-form-schema";
 import { linkFormSchema } from "./link-form-schema";
@@ -44,6 +30,21 @@ import {
 	parseUtmFromUrl,
 	stripUtmFromUrl,
 } from "./utm-builder";
+import {
+	AndroidLogoIcon,
+	AppleLogoIcon,
+	LinkSimpleIcon,
+	QrCodeIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import {
+	CalendarIcon,
+	CopyIcon,
+	DeviceMobileIcon,
+	ImageIcon,
+} from "@databuddy/ui/icons";
+import { FolderDropdown } from "./folder-dropdown";
+import { Accordion, Sheet, Tabs } from "@databuddy/ui/client";
+import { Button, Divider, Field, Input, Text, dayjs } from "@databuddy/ui";
 
 const DEFAULT_UTM_PARAMS: UtmParams = {
 	utm_source: "",
@@ -74,6 +75,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 
 	const createLinkMutation = useCreateLink();
 	const updateLinkMutation = useUpdateLink();
+	const { folders, isLoading: foldersLoading } = useLinkFolders();
 
 	const [utmParams, setUtmParams] = useState<UtmParams>(DEFAULT_UTM_PARAMS);
 	const [ogData, setOgData] = useState<OgData>(DEFAULT_OG_DATA);
@@ -86,6 +88,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 			name: "",
 			targetUrl: "",
 			slug: "",
+			folderId: "",
 			expiresAt: "",
 			expiredRedirectUrl: "",
 			iosUrl: "",
@@ -116,6 +119,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 					name: linkData.name,
 					targetUrl: urlWithoutUtm,
 					slug: linkData.slug,
+					folderId: linkData.folderId ?? "",
 					expiresAt: linkData.expiresAt
 						? dayjs(linkData.expiresAt).format("YYYY-MM-DDTHH:mm")
 						: "",
@@ -129,6 +133,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 					name: "",
 					targetUrl: "",
 					slug: "",
+					folderId: "",
 					expiresAt: "",
 					expiredRedirectUrl: "",
 					iosUrl: "",
@@ -189,6 +194,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 					name: payload.name,
 					targetUrl: payload.targetUrl,
 					slug: payload.slug,
+					folderId: payload.folderId,
 					expiresAt: payload.expiresAtString,
 					expiredRedirectUrl: payload.expiredRedirectUrl,
 					ogTitle: payload.ogTitle,
@@ -209,6 +215,7 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 					name: payload.name,
 					targetUrl: payload.targetUrl,
 					slug: payload.slug,
+					folderId: payload.folderId,
 					expiresAt: payload.expiresAtDate,
 					expiredRedirectUrl: payload.expiredRedirectUrl,
 					ogTitle: payload.ogTitle,
@@ -340,6 +347,22 @@ function LinkSheetInner({ open, onOpenChange, link, onSave }: LinkSheetProps) {
 					)}
 				/>
 			</div>
+
+			<Controller
+				control={form.control}
+				name="folderId"
+				render={({ field }) => (
+					<Field>
+						<Field.Label>Folder</Field.Label>
+						<FolderDropdown
+							folders={folders}
+							isLoading={foldersLoading}
+							onChange={field.onChange}
+							value={field.value}
+						/>
+					</Field>
+				)}
+			/>
 
 			<Controller
 				control={form.control}

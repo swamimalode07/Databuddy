@@ -1,12 +1,9 @@
 "use client";
 
-import type { Icon } from "@phosphor-icons/react";
 import {
-	ArrowSquareOutIcon,
-	CommandIcon,
-	GlobeIcon,
-	MagnifyingGlassIcon,
-} from "@phosphor-icons/react";
+	FEATURE_METADATA,
+	type GatedFeatureId,
+} from "@databuddy/shared/types/features";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { Command as CommandPrimitive } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,28 +17,35 @@ import {
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
-	homeNavigation,
-	resourcesNavigation,
-	settingsNavigation,
+	mainNavigation,
 	websiteNavigation,
-	websiteSettingsNavigation,
 } from "@/components/layout/navigation/navigation-config";
 import type {
-	NavigationEntry,
+	NavIcon,
+	NavigationGroup,
 	NavigationItem,
-	NavigationSection,
 } from "@/components/layout/navigation/types";
-import { Badge } from "@/components/ds/badge";
-import { Dialog } from "@/components/ds/dialog";
+import { useBillingContext } from "@/components/providers/billing-provider";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
+import {
+	ArrowSquareOutIcon,
+	CommandIcon,
+	GlobeIcon,
+	LockSimpleIcon,
+	MagnifyingGlassIcon,
+} from "@databuddy/ui/icons";
+import { Badge } from "@databuddy/ui";
+import { Dialog } from "@databuddy/ui/client";
 
 interface SearchItem {
 	alpha?: boolean;
 	badge?: { text: string };
 	disabled?: boolean;
 	external?: boolean;
-	icon: Icon;
+	gatedFeature?: GatedFeatureId;
+	icon: NavIcon;
+	lockedPlanName?: string | null;
 	name: string;
 	path: string;
 	tag?: string;
@@ -52,57 +56,54 @@ interface SearchGroup {
 	items: SearchItem[];
 }
 
-const ALL_NAVIGATION: NavigationSection[] = [
-	...settingsNavigation,
-	...resourcesNavigation,
-];
+function toSearchItem(
+	item: NavigationItem,
+	pathPrefix = "",
+	access?: {
+		isBillingLoading: boolean;
+		isFeatureEnabled: (feature: GatedFeatureId) => boolean;
+	}
+): SearchItem {
+	const path = item.rootLevel ? item.href : `${pathPrefix}${item.href}`;
+	const locked =
+		access != null &&
+		!access.isBillingLoading &&
+		item.gatedFeature != null &&
+		!access.isFeatureEnabled(item.gatedFeature);
 
-function toSearchItem(item: NavigationItem, pathPrefix = ""): SearchItem {
-	const path =
-		item.rootLevel === false ? `${pathPrefix}${item.href}` : item.href;
 	return {
 		name: item.name,
 		path: path || pathPrefix,
 		icon: item.icon,
-		disabled: item.disabled,
+		disabled: item.disabled || locked,
 		tag: item.tag,
 		external: item.external,
 		alpha: item.alpha,
 		badge: item.badge,
+		gatedFeature: item.gatedFeature,
+		lockedPlanName:
+			locked && item.gatedFeature
+				? (FEATURE_METADATA[item.gatedFeature]?.minPlan?.toUpperCase() ?? null)
+				: null,
 	};
 }
 
-const isSection = (entry: NavigationEntry): entry is NavigationSection =>
-	"items" in entry;
-
-function toSearchGroups(
-	entries: NavigationEntry[],
-	pathPrefix = ""
+function groupsToSearchGroups(
+	groups: NavigationGroup[],
+	pathPrefix = "",
+	access?: {
+		isBillingLoading: boolean;
+		isFeatureEnabled: (feature: GatedFeatureId) => boolean;
+	}
 ): SearchGroup[] {
-	const groups: SearchGroup[] = [];
-	const standaloneItems: SearchItem[] = [];
-
-	for (const entry of entries) {
-		if (isSection(entry)) {
-			groups.push({
-				category: entry.title,
-				items: entry.items
-					.filter((item) => !item.hideFromDemo)
-					.map((item) => toSearchItem(item, pathPrefix)),
-			});
-		} else if (!entry.hideFromDemo) {
-			standaloneItems.push(toSearchItem(entry, pathPrefix));
-		}
-	}
-
-	if (standaloneItems.length > 0) {
-		groups.unshift({
-			category: "Quick Access",
-			items: standaloneItems,
-		});
-	}
-
-	return groups;
+	return groups
+		.filter((g) => g.items.length > 0)
+		.map((g) => ({
+			category: g.label || "Quick Access",
+			items: g.items
+				.filter((item) => !item.hideFromDemo)
+				.map((item) => toSearchItem(item, pathPrefix, access)),
+		}));
 }
 
 function mergeGroups(groups: SearchGroup[]): SearchGroup[] {
@@ -144,6 +145,7 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const { websites } = useWebsites({ enabled: open });
+	const { isFeatureEnabled, isLoading: isBillingLoading } = useBillingContext();
 
 	const currentWebsiteId = pathname.startsWith("/websites/")
 		? pathname.split("/")[2]
@@ -177,10 +179,8 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 			? `/websites/${currentWebsiteId}`
 			: "";
 
-		// Static home navigation (overview, websites link, observability)
-		result.push(...toSearchGroups(homeNavigation));
+		result.push(...groupsToSearchGroups(mainNavigation));
 
-		// Individual websites as search items
 		if (websites.length > 0) {
 			result.push({
 				category: "Websites",
@@ -193,14 +193,21 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 		}
 
 		if (currentWebsiteId) {
-			result.push(...toSearchGroups(websiteNavigation, websitePrefix));
-			result.push(...toSearchGroups(websiteSettingsNavigation, websitePrefix));
+			result.push(
+				...groupsToSearchGroups(websiteNavigation, websitePrefix, {
+					isBillingLoading,
+					isFeatureEnabled,
+				})
+			);
 		}
 
-		result.push(...toSearchGroups(ALL_NAVIGATION));
-
 		return mergeGroups(result);
-	}, [websites, pathname, currentWebsiteId]);
+	}, [
+		websites,
+		currentWebsiteId,
+		isBillingLoading,
+		isFeatureEnabled,
+	]);
 
 	const filteredGroups = useMemo(() => {
 		if (!debouncedSearch.trim()) {
@@ -390,7 +397,7 @@ function SearchResultItem({
 			value={`${item.name} ${item.path}`}
 		>
 			<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent group-data-[selected=true]:bg-background">
-				<ItemIcon className="size-4 text-muted-foreground" weight="duotone" />
+				<ItemIcon className="size-4 text-muted-foreground" />
 			</div>
 
 			<div className="min-w-0 flex-1">
@@ -422,6 +429,15 @@ function SearchResultItem({
 					<Badge className="text-[10px]" variant="muted">
 						{item.badge.text}
 					</Badge>
+				)}
+
+				{item.lockedPlanName && (
+					<>
+						<LockSimpleIcon className="size-3.5 text-muted-foreground" />
+						<Badge className="text-[10px]" variant="muted">
+							{item.lockedPlanName}
+						</Badge>
+					</>
 				)}
 
 				{item.external && (

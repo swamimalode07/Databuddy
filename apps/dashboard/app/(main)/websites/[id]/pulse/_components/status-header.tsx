@@ -1,20 +1,19 @@
 "use client";
 
-import { CircleIcon } from "@phosphor-icons/react/dist/ssr";
-import { PauseIcon } from "@phosphor-icons/react/dist/ssr";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr";
-import { PlayIcon } from "@phosphor-icons/react/dist/ssr";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
-import { GhostTriggerButton } from "@/components/ds/control-shell";
-import { DropdownMenu } from "@/components/ds/dropdown-menu";
 import { orpc } from "@/lib/orpc";
-import { fromNow } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import {
+	CircleIcon,
+	PauseIcon,
+	PencilIcon,
+	PlayIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import { Button, Card, GhostTriggerButton, fromNow } from "@databuddy/ui";
 
 const granularityLabels: Record<string, string> = {
 	minute: "Every minute",

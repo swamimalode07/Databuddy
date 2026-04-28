@@ -1,20 +1,22 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
-import { ChartLineIcon } from "@phosphor-icons/react";
-import { TableIcon } from "@phosphor-icons/react";
-import { UserPlusIcon } from "@phosphor-icons/react";
-import { UsersIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { StatCard } from "@/components/analytics";
-import { Tabs } from "@/components/ds/tabs";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { formatNumber } from "@/lib/formatters";
 import { useDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { RetentionCohortsGrid } from "./retention-cohorts-grid";
 import { RetentionRateChart } from "./retention-rate-chart";
+import {
+	ArrowCounterClockwiseIcon,
+	ChartLineIcon,
+	TableIcon,
+	UserPlusIcon,
+	UsersIcon,
+} from "@databuddy/ui/icons";
+import { Tabs } from "@databuddy/ui/client";
 
 interface RetentionContentProps {
 	websiteId: string;
