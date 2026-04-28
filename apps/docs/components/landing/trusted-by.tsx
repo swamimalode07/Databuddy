@@ -51,7 +51,8 @@ const companies = [
 		invert: true,
 	},
 	{
-		name: "inth",
+		name: "Inth",
+		badge: "YC P26",
 		url: "https://inth.com",
 		logo: "/social/inth.svg",
 	},
@@ -73,6 +74,10 @@ const devTeams = [
 	{
 		name: "Supabase",
 		icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/supabase.svg",
+	},
+	{
+		name: "Upstash",
+		icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/upstash.svg",
 	},
 ];
 
@@ -96,10 +101,10 @@ export function TrustedBy() {
 				Trusted by teams that switched from PostHog, GA4, Plausible, and others
 			</p>
 
-			<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-6 sm:gap-x-8">
+			<div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
 				{companies.map((company) => (
 					<a
-						className="group/logo relative flex items-center justify-center transition-opacity hover:opacity-100"
+						className="group flex flex-col items-center justify-center gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-5 transition-all duration-200 hover:border-border hover:bg-card sm:py-6"
 						href={company.url}
 						key={company.name}
 						rel="noopener noreferrer"
@@ -107,13 +112,13 @@ export function TrustedBy() {
 					>
 						<Image
 							alt={company.name}
-							className={`h-7 w-auto object-contain opacity-60 transition-opacity duration-200 group-hover/logo:opacity-100 sm:h-8 ${company.invert ? "invert" : ""}`}
-							height={32}
+							className={`h-6 w-auto object-contain opacity-70 transition-opacity duration-200 group-hover:opacity-100 sm:h-7 ${company.invert ? "invert" : ""}`}
+							height={28}
 							src={company.logo}
 							width={120}
 						/>
-						<span className="pointer-events-none absolute -bottom-8 left-1/2 flex -translate-x-1/2 scale-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-card px-2.5 py-1 shadow-lg transition-transform duration-150 group-hover/logo:scale-100">
-							<span className="font-medium text-foreground text-xs">
+						<div className="flex items-center gap-1.5">
+							<span className="text-muted-foreground text-xs transition-colors group-hover:text-foreground">
 								{company.name}
 							</span>
 							{company.badge && (
@@ -121,7 +126,7 @@ export function TrustedBy() {
 									{company.badge}
 								</span>
 							)}
-						</span>
+						</div>
 					</a>
 				))}
 			</div>
