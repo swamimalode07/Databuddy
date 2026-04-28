@@ -193,6 +193,7 @@ export interface ParameterDataMap {
 	active_stats: GenericParameterRow;
 	realtime_pages: GenericParameterRow;
 	realtime_referrers: GenericParameterRow;
+	realtime_cities: GenericParameterRow;
 	realtime_countries: GenericParameterRow;
 	realtime_feed: GenericParameterRow;
 	realtime_velocity: GenericParameterRow;

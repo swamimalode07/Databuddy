@@ -144,6 +144,56 @@ export const RealtimeBuilders: Record<string, SimpleQueryConfig> = {
 		plugins: { normalizeGeo: true, deduplicateGeo: true },
 	},
 
+	realtime_cities: {
+		meta: {
+			title: "Realtime Cities",
+			description:
+				"City-level distribution of active visitors in the last 5 minutes.",
+			category: "Realtime",
+			tags: ["realtime", "cities", "geography", "live"],
+			output_fields: [
+				{
+					name: "city",
+					type: "string",
+					label: "City",
+					description: "City name",
+				},
+				{
+					name: "country",
+					type: "string",
+					label: "Country",
+					description: "Country code",
+				},
+				{
+					name: "visitors",
+					type: "number",
+					label: "Active Visitors",
+					description: "Unique visitors from this city",
+				},
+			],
+			default_visualization: "table",
+			supports_granularity: [],
+			version: "1.0",
+		},
+		table: Analytics.events,
+		fields: [
+			"city",
+			"country",
+			"uniq(anonymous_id) as visitors",
+		],
+		where: [
+			"event_name = 'screen_view'",
+			"time >= now() - INTERVAL 5 MINUTE",
+			"city != ''",
+		],
+		groupBy: ["city", "country"],
+		orderBy: "visitors DESC",
+		limit: 30,
+		timeField: "time",
+		skipDateFilter: true,
+		customizable: false,
+	},
+
 	realtime_feed: {
 		meta: {
 			title: "Realtime Live Feed",

@@ -43,13 +43,14 @@ export default function RealtimePage() {
 
 	const countries = ((data as any)?.realtime_countries || []) as Array<{
 		country_code: string;
+		country_name: string;
 		visitors: number;
 	}>;
 
 	return (
 		<div className="p-4">
 			<Card>
-				<Card.Content className="h-[300px] p-0">
+				<Card.Content className="h-[700px] p-0">
 					<RealtimeMap countries={countries} />
 				</Card.Content>
 			</Card>

@@ -1,13 +1,14 @@
 "use client";
 
 import { type GeoPermissibleObjects, geoNaturalEarth1, geoPath } from "d3-geo";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import worldTopo from "world-atlas/countries-110m.json";
 import { COUNTRY_NAME_TO_ISO_NUMERIC } from "./country-codes";
 
 interface Country {
 	country_code: string;
+	country_name?: string;
 	visitors: number;
 }
 
@@ -28,7 +29,17 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const rafRef = useRef<number | null>(null);
 	const countriesRef = useRef<Country[]>(countries);
+	const [tooltip, setTooltip] = useState<{
+		x: number;
+		y: number;
+		name: string;
+		visitors: number;
+	} | null>(null);
 	countriesRef.current = countries;
+
+	const countryByPixelRef = useRef<Uint16Array | null>(null);
+	const numericToCountryRef = useRef<Map<number, Country>>(new Map());
+	const dimensionsRef = useRef({ w: 0, h: 0 });
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -43,9 +54,10 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 		let destroyed = false;
 
 		const logW = canvas.offsetWidth || 800;
-		const logH = canvas.offsetHeight || 300;
+		const logH = canvas.offsetHeight || 700;
 		canvas.width = logW;
 		canvas.height = logH;
+		dimensionsRef.current = { w: logW, h: logH };
 
 		const rootStyle = getComputedStyle(document.documentElement);
 		const BG = rootStyle.getPropertyValue("--background").trim() || "#19191D";
@@ -54,8 +66,8 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 
 		const projection = geoNaturalEarth1().fitExtent(
 			[
-				[-60, -20],
-				[logW + 60, logH + 20],
+				[-40, -10],
+				[logW + 40, logH + 10],
 			],
 			{ type: "Sphere" } as GeoPermissibleObjects
 		);
@@ -72,20 +84,23 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 			return;
 		}
 
-		const basePath = geoPath(projection, bx);
 		bx.fillStyle = BG;
 		bx.fillRect(0, 0, logW, logH);
+		const basePath = geoPath(projection, bx);
 		for (const f of features) {
 			bx.beginPath();
 			basePath(f);
 			bx.fillStyle = BG;
 			bx.fill();
 			bx.strokeStyle = BORDER;
-			bx.lineWidth = 0.4;
+			bx.lineWidth = 0.5;
 			bx.stroke();
 		}
 
+		// Build per-country pixel lists + hit-test map
 		const countryPixels = new Map<number, number[]>();
+		const hitMap = new Uint16Array(logW * logH);
+
 		for (const f of features) {
 			const id = +(f.id ?? -1);
 			const off = document.createElement("canvas");
@@ -112,9 +127,19 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 			if (pixels.length > 0) {
 				countryPixels.set(id, pixels);
 			}
+			// Fill hit-test map at full pixel resolution
+			for (let y = 0; y < logH; y++) {
+				for (let x = 0; x < logW; x++) {
+					if ((data[(y * logW + x) * 4] ?? 0) > 100) {
+						hitMap[y * logW + x] = id;
+					}
+				}
+			}
 		}
+		countryByPixelRef.current = hitMap;
 
 		const brightness = new Map<number, { value: number; target: number }>();
+		let hoveredId: number | null = null;
 
 		let last = performance.now();
 
@@ -131,24 +156,24 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 				1
 			);
 
+			// Update numeric lookup
+			numericToCountryRef.current.clear();
 			for (const c of activeCountries) {
 				const numId = COUNTRY_NAME_TO_ISO_NUMERIC[c.country_code];
-				if (numId === undefined) {
-					continue;
-				}
-				const existing = brightness.get(numId);
-				const target = Math.min(0.3 + (c.visitors / maxVisitors) * 0.7, 1);
-				if (existing) {
-					existing.target = target;
-				} else {
-					brightness.set(numId, { value: 0, target });
+				if (numId !== undefined) {
+					numericToCountryRef.current.set(numId, c);
+					const existing = brightness.get(numId);
+					const target = Math.min(0.3 + (c.visitors / maxVisitors) * 0.7, 1);
+					if (existing) {
+						existing.target = target;
+					} else {
+						brightness.set(numId, { value: 0, target });
+					}
 				}
 			}
 
 			for (const [id, b] of brightness) {
-				const isActive = activeCountries.some(
-					(c) => COUNTRY_NAME_TO_ISO_NUMERIC[c.country_code] === id
-				);
+				const isActive = numericToCountryRef.current.has(id);
 				if (!isActive) {
 					b.target = 0;
 				}
@@ -163,7 +188,6 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 			ctx.fillRect(0, 0, logW, logH);
 			ctx.drawImage(baseCanvas, 0, 0);
 
-			ctx.fillStyle = ACCENT;
 			for (const [id, b] of brightness) {
 				if (b.value <= 0) {
 					continue;
@@ -172,6 +196,9 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 				if (!pixels) {
 					continue;
 				}
+
+				const isHovered = id === hoveredId;
+				ctx.fillStyle = isHovered ? "#fff" : ACCENT;
 
 				for (let i = 0; i < pixels.length; i += 2) {
 					const x = pixels[i];
@@ -184,18 +211,96 @@ export function RealtimeMap({ countries }: RealtimeMapProps) {
 				}
 			}
 
+			// Hovered country outline highlight
+			if (hoveredId !== null) {
+				const pixels = countryPixels.get(hoveredId);
+				if (pixels && !brightness.has(hoveredId)) {
+					ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+					for (let i = 0; i < pixels.length; i += 2) {
+						ctx.fillRect(pixels[i], pixels[i + 1], 2, 2);
+					}
+				}
+			}
+
 			rafRef.current = requestAnimationFrame(draw);
 		}
+
+		const handleMouseMove = (e: MouseEvent) => {
+			const rect = canvas.getBoundingClientRect();
+			const x = Math.floor(((e.clientX - rect.left) / rect.width) * logW);
+			const y = Math.floor(((e.clientY - rect.top) / rect.height) * logH);
+
+			if (x < 0 || x >= logW || y < 0 || y >= logH) {
+				hoveredId = null;
+				setTooltip(null);
+				return;
+			}
+
+			const id = hitMap[y * logW + x];
+			if (id && id !== hoveredId) {
+				hoveredId = id;
+				const country = numericToCountryRef.current.get(id);
+				if (country) {
+					setTooltip({
+						x: e.clientX - rect.left,
+						y: e.clientY - rect.top,
+						name: country.country_name || country.country_code,
+						visitors: country.visitors,
+					});
+				} else {
+					setTooltip(null);
+				}
+			} else if (!id) {
+				hoveredId = null;
+				setTooltip(null);
+			} else if (id === hoveredId) {
+				setTooltip((prev) =>
+					prev
+						? { ...prev, x: e.clientX - rect.left, y: e.clientY - rect.top }
+						: null
+				);
+			}
+		};
+
+		const handleMouseLeave = () => {
+			hoveredId = null;
+			setTooltip(null);
+		};
+
+		canvas.addEventListener("mousemove", handleMouseMove);
+		canvas.addEventListener("mouseleave", handleMouseLeave);
 
 		rafRef.current = requestAnimationFrame(draw);
 
 		return () => {
 			destroyed = true;
+			canvas.removeEventListener("mousemove", handleMouseMove);
+			canvas.removeEventListener("mouseleave", handleMouseLeave);
 			if (rafRef.current) {
 				cancelAnimationFrame(rafRef.current);
 			}
 		};
 	}, []);
 
-	return <canvas className="block h-full w-full" ref={canvasRef} />;
+	return (
+		<div className="relative h-full w-full">
+			<canvas className="block h-full w-full" ref={canvasRef} />
+			{tooltip && (
+				<div
+					className="pointer-events-none absolute z-10 rounded-md border bg-popover px-3 py-1.5 text-sm shadow-md"
+					style={{
+						left: tooltip.x,
+						top: tooltip.y - 40,
+						transform: "translateX(-50%)",
+					}}
+				>
+					<span className="font-medium">{tooltip.name}</span>
+					<span className="text-muted-foreground">
+						{" "}
+						· {tooltip.visitors} active
+					</span>
+				</div>
+			)}
+		</div>
+	);
 }
