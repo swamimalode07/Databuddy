@@ -13,7 +13,15 @@ import {
 import { StructuredData } from "@/components/structured-data";
 import { Button } from "@/components/ui/button";
 import { SciFiButton } from "@/components/landing/scifi-btn";
-import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
+import {
+	ArrowRightIcon,
+	BellIcon,
+	ChartLineUpIcon,
+	ClockIcon,
+	GlobeIcon,
+	ShieldCheckIcon,
+	SquaresFourIcon,
+} from "@phosphor-icons/react/ssr";
 
 export const metadata: Metadata = {
 	title: "Uptime Monitoring (coming Q3 2026) | Databuddy",
@@ -69,6 +77,9 @@ const FEATURES = [
 			"Per-day uptime heatmap with color-coded bars. Instantly see patterns and incident history.",
 	},
 ] as const;
+
+const CELL_TITLE_CLASS =
+	"mb-5 text-balance font-semibold text-base text-foreground sm:mb-6 sm:text-lg";
 
 const FAQ_ITEMS = [
 	{

@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { SectionBullet } from "./icons/section-bullet";
 
 const BentoCard = ({
 	title,
@@ -673,12 +674,16 @@ const CustomEventsFeature = () => {
 export default function Bento() {
 	return (
 		<div className="w-full">
-			<div className="mb-12 text-center lg:mb-16 lg:text-left">
-				<h2 className="mx-auto max-w-4xl text-balance font-semibold text-3xl leading-tight sm:text-4xl lg:mx-0 lg:text-5xl">
-					<span className="text-muted-foreground">
-						Raw data is not insight,{" "}
+			<div className="mb-12 text-start lg:mb-16 lg:text-left">
+				<h2 className="mx-auto flex max-w-4xl gap-2 text-balance font-semibold text-3xl leading-tight sm:text-4xl lg:mx-0 lg:text-5xl">
+					<span className="mt-2">
+						<SectionBullet color="#E3A514" />	
 					</span>
-					<span className="text-foreground">context is</span>
+					<span>
+						<span className="text-foreground">
+							Raw data is not insight,{" "}context is
+						</span>
+					</span>
 				</h2>
 				<p className="mt-3 max-w-2xl text-pretty text-base text-muted-foreground sm:px-0 sm:text-base lg:text-lg">
 					A single analytics platform to see how users find you, what they do,
