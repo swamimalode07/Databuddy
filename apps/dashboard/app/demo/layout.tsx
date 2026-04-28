@@ -4,7 +4,12 @@ import { AutumnProvider } from "autumn-js/react";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { Suspense } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
+import {
+	SidebarInset,
+	SidebarLayout,
+} from "@/components/layout/sidebar-layout";
 import { SidebarNavigationProvider } from "@/components/layout/sidebar-navigation-provider";
+import { TopBar, TopBarProvider } from "@/components/layout/top-bar";
 import { BillingProvider } from "@/components/providers/billing-provider";
 import { CommandSearchProvider } from "@/components/ui/command-search";
 
@@ -13,27 +18,36 @@ function DemoLayoutContent({ children }: { children: React.ReactNode }) {
 
 	if (isEmbed) {
 		return (
-			<div className="h-dvh overflow-hidden text-foreground">
-				<div className="h-dvh overflow-y-auto overflow-x-hidden">
-					{children}
-				</div>
-			</div>
+			<SidebarLayout>
+				<TopBarProvider>
+					<div className="h-dvh overflow-hidden text-foreground">
+						<div className="h-dvh overflow-y-auto overflow-x-hidden">
+							{children}
+						</div>
+					</div>
+				</TopBarProvider>
+			</SidebarLayout>
 		);
 	}
 
 	return (
 		<CommandSearchProvider>
 			<SidebarNavigationProvider>
-				<div className="h-dvh overflow-hidden text-foreground">
-					<Suspense fallback={null}>
-						<Sidebar />
-					</Suspense>
-					<div className="relative h-dvh pl-0 md:pl-76 lg:pl-84">
-						<div className="h-dvh overflow-y-auto overflow-x-hidden pt-16 md:pt-0">
-							{children}
+				<SidebarLayout>
+					<TopBarProvider>
+						<div className="flex min-h-0 flex-1 flex-col overflow-hidden text-foreground">
+							<Suspense fallback={null}>
+								<Sidebar />
+							</Suspense>
+							<SidebarInset>
+								<TopBar />
+								<div className="flex min-h-0 flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-none pt-12 md:pt-0">
+									{children}
+								</div>
+							</SidebarInset>
 						</div>
-					</div>
-				</div>
+					</TopBarProvider>
+				</SidebarLayout>
 			</SidebarNavigationProvider>
 		</CommandSearchProvider>
 	);
