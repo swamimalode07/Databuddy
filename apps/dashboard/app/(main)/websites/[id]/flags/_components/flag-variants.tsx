@@ -2,11 +2,7 @@
 
 import type { Variant } from "@databuddy/shared/flags";
 import { Chart } from "@/components/ui/composables/chart";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@databuddy/ui";
 
 const { Cell, Pie, PieChart } = Chart.Recharts;
 
@@ -33,15 +29,9 @@ export function FlagVariants({ variants }: { variants: Variant[] }) {
 	}));
 
 	return (
-		<Tooltip delayDuration={200}>
-			<TooltipTrigger asChild>
-				<span className="cursor-help underline decoration-dotted underline-offset-2">
-					{variants.length} {variants.length === 1 ? "variant" : "variants"}
-				</span>
-			</TooltipTrigger>
-			<TooltipContent className="p-0" side="top">
+		<Tooltip
+			content={
 				<div className="flex items-start gap-3 p-3">
-					{/* Pie chart */}
 					<div className="relative shrink-0">
 						<PieChart height={80} width={80}>
 							<Pie
@@ -66,7 +56,6 @@ export function FlagVariants({ variants }: { variants: Variant[] }) {
 						</span>
 					</div>
 
-					{/* Variant list */}
 					<div className="flex flex-col gap-1.5">
 						<p className="font-medium text-xs">Variants</p>
 						{variants.map((variant, index) => (
@@ -88,7 +77,13 @@ export function FlagVariants({ variants }: { variants: Variant[] }) {
 						))}
 					</div>
 				</div>
-			</TooltipContent>
+			}
+			delay={200}
+			side="top"
+		>
+			<span className="cursor-help underline decoration-dotted underline-offset-2">
+				{variants.length} {variants.length === 1 ? "variant" : "variants"}
+			</span>
 		</Tooltip>
 	);
 }

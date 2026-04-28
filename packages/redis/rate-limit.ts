@@ -1,13 +1,13 @@
 import { getRedisCache } from "./redis";
 
 interface RateLimitResult {
-	success: boolean;
 	limit: number;
 	remaining: number;
 	reset: number;
+	success: boolean;
 }
 
-export async function rateLimit(
+export async function ratelimit(
 	identifier: string,
 	limit: number,
 	windowSeconds: number

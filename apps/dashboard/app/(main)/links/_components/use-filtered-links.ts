@@ -3,16 +3,24 @@ import { useMemo } from "react";
 import type { Link } from "@/hooks/use-links";
 
 export type SortOption = "newest" | "oldest" | "name-asc" | "name-desc";
+export type TypeFilter = "all" | "short" | "deep";
 
 export function useFilteredLinks(
 	links: Link[],
 	searchQuery: string,
-	sortBy: SortOption
+	sortBy: SortOption,
+	typeFilter: TypeFilter = "all"
 ): Link[] {
 	const [debouncedSearch] = useDebouncedValue(searchQuery, { wait: 200 });
 
 	return useMemo(() => {
 		let result = [...links];
+
+		if (typeFilter === "short") {
+			result = result.filter((link) => !link.deepLinkApp);
+		} else if (typeFilter === "deep") {
+			result = result.filter((link) => !!link.deepLinkApp);
+		}
 
 		if (debouncedSearch.trim()) {
 			const query = debouncedSearch.toLowerCase();
@@ -21,7 +29,11 @@ export function useFilteredLinks(
 					link.name.toLowerCase().includes(query) ||
 					link.slug.toLowerCase().includes(query) ||
 					link.targetUrl.toLowerCase().includes(query) ||
-					(link.externalId?.toLowerCase().includes(query) ?? false)
+					(link.externalId?.toLowerCase().includes(query) ?? false) ||
+					(link.sourceType?.toLowerCase().includes(query) ?? false) ||
+					(link.sourceId?.toLowerCase().includes(query) ?? false) ||
+					(link.sourceOwnerId?.toLowerCase().includes(query) ?? false) ||
+					(link.targetDomain?.toLowerCase().includes(query) ?? false)
 			);
 		}
 
@@ -49,5 +61,5 @@ export function useFilteredLinks(
 		}
 
 		return result;
-	}, [links, debouncedSearch, sortBy]);
+	}, [links, debouncedSearch, sortBy, typeFilter]);
 }

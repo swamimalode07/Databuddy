@@ -10,30 +10,30 @@ import { orpc } from "@/lib/orpc";
 export type OrganizationRole = "owner" | "admin" | "member";
 
 interface CreateOrganizationData {
-	name: string;
-	slug?: string;
 	logo?: string;
 	metadata?: Record<string, unknown>;
+	name: string;
+	slug?: string;
 }
 
 interface UpdateOrganizationData {
-	name?: string;
-	slug?: string;
 	logo?: string;
 	metadata?: Record<string, unknown>;
+	name?: string;
+	slug?: string;
 }
 
 interface InviteMemberData {
 	email: string;
-	role: OrganizationRole;
 	organizationId?: string;
 	resend?: boolean;
+	role: OrganizationRole;
 }
 
 export interface UpdateMemberData {
 	memberId: string;
-	role: OrganizationRole;
 	organizationId?: string;
+	role: OrganizationRole;
 }
 
 const QUERY_KEYS = {
@@ -70,11 +70,7 @@ export function useOrganizations() {
 		queryClient.invalidateQueries({
 			queryKey: AUTH_QUERY_KEYS.activeOrganization,
 		});
-		queryClient.invalidateQueries({
-			queryKey: orpc.websites.listWithCharts.key(),
-		});
-		queryClient.invalidateQueries({ queryKey: orpc.websites.list.key() });
-		queryClient.invalidateQueries({ queryKey: orpc.websites.getById.key() });
+		queryClient.invalidateQueries({ queryKey: orpc.websites.key() });
 	};
 
 	const createOrganizationMutation = useMutation(

@@ -1,23 +1,7 @@
 "use client";
 
-import { EyeIcon, EyeSlashIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
-import { SpinnerGapIcon } from "@phosphor-icons/react/dist/ssr/SpinnerGap";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	ANNOTATION_COLORS,
 	COMMON_ANNOTATION_TAGS,
@@ -30,20 +14,25 @@ import {
 } from "@/lib/annotation-utils";
 import { cn } from "@/lib/utils";
 import type { Annotation, AnnotationFormData } from "@/types/annotations";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import { EyeIcon, EyeSlashIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Badge, Button, Input, Textarea } from "@databuddy/ui";
+import { Dialog, Switch } from "@databuddy/ui/client";
 
 interface EditModeProps {
-	isOpen: boolean;
-	mode: "edit";
 	annotation: Annotation;
+	isOpen: boolean;
+	isSubmitting?: boolean;
+	mode: "edit";
 	onClose: () => void;
 	onSubmit: (id: string, updates: AnnotationFormData) => Promise<void>;
-	isSubmitting?: boolean;
 }
 
 interface CreateModeProps {
-	isOpen: boolean;
-	mode: "create";
 	dateRange: { startDate: Date; endDate: Date };
+	isOpen: boolean;
+	isSubmitting?: boolean;
+	mode: "create";
 	onClose: () => void;
 	onCreate: (annotation: {
 		annotationType: "range";
@@ -54,7 +43,6 @@ interface CreateModeProps {
 		color: string;
 		isPublic: boolean;
 	}) => Promise<void> | void;
-	isSubmitting?: boolean;
 }
 
 type AnnotationModalProps = EditModeProps | CreateModeProps;
@@ -183,22 +171,22 @@ export function AnnotationModal(props: AnnotationModalProps) {
 
 	return (
 		<Dialog onOpenChange={(open) => !open && onClose()} open={isOpen}>
-			<DialogContent className="w-[95vw] max-w-sm sm:w-full">
-				<DialogHeader>
-					<DialogTitle>
+			<Dialog.Content className="w-[95vw] max-w-sm sm:w-full">
+				<Dialog.Header>
+					<Dialog.Title>
 						{isCreate ? "New Annotation" : "Edit Annotation"}
-					</DialogTitle>
-					<DialogDescription>{getDateRangeText()}</DialogDescription>
-				</DialogHeader>
+					</Dialog.Title>
+					<Dialog.Description>{getDateRangeText()}</Dialog.Description>
+				</Dialog.Header>
 
-				<div className="space-y-4">
+				<Dialog.Body className="space-y-4">
 					<div className="space-y-1.5">
-						<Label
-							className="text-muted-foreground text-xs"
+						<label
+							className="font-medium text-foreground text-xs"
 							htmlFor="annotation-text"
 						>
 							Description
-						</Label>
+						</label>
 						<Textarea
 							autoFocus
 							className="resize-none text-sm"
@@ -232,7 +220,7 @@ export function AnnotationModal(props: AnnotationModalProps) {
 					</div>
 
 					<div className="space-y-1.5">
-						<Label className="text-muted-foreground text-xs">Tags</Label>
+						<span className="font-medium text-foreground text-xs">Tags</span>
 						{selectedTags.length > 0 && (
 							<div className="flex flex-wrap gap-1">
 								{selectedTags.map((tag) => (
@@ -240,7 +228,7 @@ export function AnnotationModal(props: AnnotationModalProps) {
 										className="cursor-pointer gap-1 px-1.5 py-0 text-xs hover:bg-destructive hover:text-destructive-foreground"
 										key={tag}
 										onClick={() => removeTag(tag)}
-										variant="secondary"
+										variant="muted"
 									>
 										{tag}
 										<XIcon className="size-2.5" />
@@ -263,11 +251,10 @@ export function AnnotationModal(props: AnnotationModalProps) {
 								value={customTag}
 							/>
 							<Button
-								className="size-7 shrink-0"
+								className="size-7 shrink-0 p-0"
 								disabled={!customTag.trim() || loading}
 								onClick={handleCustomTagSubmit}
-								size="icon"
-								variant="outline"
+								variant="secondary"
 							>
 								<PlusIcon className="size-3" />
 							</Button>
@@ -294,7 +281,7 @@ export function AnnotationModal(props: AnnotationModalProps) {
 					</div>
 
 					<div className="space-y-1.5">
-						<Label className="text-muted-foreground text-xs">Color</Label>
+						<span className="font-medium text-foreground text-xs">Color</span>
 						<div className="flex gap-1.5">
 							{ANNOTATION_COLORS.map((color) => (
 								<button
@@ -336,29 +323,28 @@ export function AnnotationModal(props: AnnotationModalProps) {
 							onCheckedChange={setIsPublic}
 						/>
 					</div>
-				</div>
+				</Dialog.Body>
 
-				<DialogFooter>
+				<Dialog.Footer>
 					<Button
 						className="flex-1 sm:flex-none"
 						disabled={loading}
 						onClick={onClose}
-						variant="outline"
+						variant="secondary"
 					>
 						Cancel
 					</Button>
 					<Button
 						className="flex-1 sm:flex-none"
-						disabled={!text.trim() || loading}
+						disabled={!text.trim()}
+						loading={loading}
 						onClick={handleSubmit}
 					>
-						{loading && (
-							<SpinnerGapIcon className="mr-1.5 size-3.5 animate-spin" />
-						)}
 						{isCreate ? "Create" : "Save"}
 					</Button>
-				</DialogFooter>
-			</DialogContent>
+				</Dialog.Footer>
+				<Dialog.Close />
+			</Dialog.Content>
 		</Dialog>
 	);
 }

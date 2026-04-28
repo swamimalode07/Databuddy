@@ -10,13 +10,8 @@ import {
 	CommandSeparator,
 	CommandShortcut,
 } from "@/components/ui/command";
-import {
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Dialog } from "@databuddy/ui/client";
 
 export type ModelSelectorProps = ComponentProps<typeof Dialog>;
 
@@ -24,13 +19,15 @@ export const ModelSelector = (props: ModelSelectorProps) => (
 	<Dialog {...props} />
 );
 
-export type ModelSelectorTriggerProps = ComponentProps<typeof DialogTrigger>;
+export type ModelSelectorTriggerProps = ComponentProps<typeof Dialog.Trigger>;
 
 export const ModelSelectorTrigger = (props: ModelSelectorTriggerProps) => (
-	<DialogTrigger {...props} />
+	<Dialog.Trigger {...props} />
 );
 
-export type ModelSelectorContentProps = ComponentProps<typeof DialogContent> & {
+export type ModelSelectorContentProps = ComponentProps<
+	typeof Dialog.Content
+> & {
 	title?: ReactNode;
 };
 
@@ -40,12 +37,14 @@ export const ModelSelectorContent = ({
 	title = "Model Selector",
 	...props
 }: ModelSelectorContentProps) => (
-	<DialogContent className={cn("p-0", className)} {...props}>
-		<DialogTitle className="sr-only">{title}</DialogTitle>
-		<Command className="**:data-[slot=command-input-wrapper]:h-auto">
-			{children}
-		</Command>
-	</DialogContent>
+	<Dialog.Content className={cn("p-0", className)} {...props}>
+		<Dialog.Title className="sr-only">{title}</Dialog.Title>
+		<Dialog.Body className="p-0">
+			<Command className="**:data-[slot=command-input-wrapper]:h-auto">
+				{children}
+			</Command>
+		</Dialog.Body>
+	</Dialog.Content>
 );
 
 export type ModelSelectorDialogProps = ComponentProps<typeof CommandDialog>;

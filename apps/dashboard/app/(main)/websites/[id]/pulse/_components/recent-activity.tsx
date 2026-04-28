@@ -1,7 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { RefCallback } from "react";
 import {
 	Table,
 	TableBody,
@@ -10,30 +9,29 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatLocalTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import {
 	CheckCircleIcon,
 	ClockCounterClockwiseIcon,
 	WarningCircleIcon,
 	XCircleIcon,
-} from "@phosphor-icons/react";
-import type { RefCallback } from "react";
+} from "@databuddy/ui/icons";
+import { Badge, Skeleton, formatLocalTime } from "@databuddy/ui";
 
 export interface RecentActivityCheck {
-	timestamp: string;
-	status: number; // 1 = up, 0 = down, 2 = pending
-	total_ms: number;
-	http_code: number;
-	probe_region: string;
-	probe_ip?: string;
 	error?: string;
+	http_code: number;
+	probe_ip?: string;
+	probe_region: string;
+	status: number; // 1 = up, 0 = down, 2 = pending
+	timestamp: string;
+	total_ms: number;
 }
 
 interface RecentActivityProps {
 	checks: RecentActivityCheck[];
-	isLoading?: boolean;
 	hasMore?: boolean;
+	isLoading?: boolean;
 	isLoadingMore?: boolean;
 	loadMoreRef?: RefCallback<HTMLTableCellElement | null>;
 }
@@ -153,8 +151,7 @@ export function RecentActivity({
 												No checks in this range
 											</p>
 											<p className="text-pretty text-muted-foreground text-xs leading-relaxed">
-												Widen the date filter or wait for the next scheduled run
-												to see results here.
+												Widen the date range or wait for the next check.
 											</p>
 										</div>
 									</div>
@@ -231,7 +228,7 @@ export function RecentActivity({
 									<TableCell className="hidden text-center align-middle sm:table-cell">
 										<Badge
 											className="font-mono text-[10px] tabular-nums"
-											variant="outline"
+											variant="default"
 										>
 											{check.probe_region || "Global"}
 										</Badge>

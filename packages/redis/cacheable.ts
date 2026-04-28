@@ -1,5 +1,3 @@
-import type { Span } from "@opentelemetry/api";
-import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { getRedisCache } from "./redis";
 
 const activeRevalidations = new Map<string, Promise<void>>();
@@ -11,11 +9,27 @@ const REDIS_TIMEOUT_MS = 2000;
 let redisAvailable = true;
 let lastRedisCheck = 0;
 
+type TraceFn = (fields: Record<string, unknown>) => void;
+let _traceFn: TraceFn | null = null;
+
+export function setCacheTraceFn(fn: TraceFn) {
+	_traceFn = fn;
+}
+
+function traceCache(prefix: string, hit: boolean, ms: number) {
+	if (_traceFn) {
+		_traceFn({
+			[`cache.${prefix}`]: hit ? "hit" : "miss",
+			[`cache.${prefix}.ms`]: ms,
+		});
+	}
+}
+
 interface CacheOptions {
 	expireInSec: number;
 	prefix?: string;
-	staleWhileRevalidate?: boolean;
 	staleTime?: number;
+	staleWhileRevalidate?: boolean;
 }
 
 function deserialize(data: string): unknown {
@@ -46,14 +60,6 @@ function markRedisHealthy() {
 function markRedisUnhealthy() {
 	redisAvailable = false;
 	lastRedisCheck = Date.now();
-}
-
-function endSpanWithError(span: Span, error: unknown) {
-	span.setStatus({
-		code: SpanStatusCode.ERROR,
-		message: error instanceof Error ? error.message : String(error),
-	});
-	span.end();
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -143,108 +149,88 @@ export function cacheable<
 	const getKey = (...args: Parameters<T>) =>
 		`${cachePrefix}:${stringify(args)}`;
 
-	const cachedFn = (
+	const cachedFn = async (
 		...args: Parameters<T>
 	): Promise<Awaited<ReturnType<T>>> => {
+		const cacheStart = performance.now();
+
 		if (shouldSkipRedis()) {
+			traceCache(prefix, false, 0);
 			return fn(...args);
 		}
 
 		const key = getKey(...args);
-		const tracer = trace.getTracer("redis");
 
-		return tracer.startActiveSpan(
-			`cache:${prefix}`,
-			async (span): Promise<Awaited<ReturnType<T>>> => {
-				span.setAttribute("cache.prefix", prefix);
+		let cached: string | null = null;
+		try {
+			const redis = getRedisCache();
+			cached = await withTimeout(redis.get(key), REDIS_TIMEOUT_MS);
+			markRedisHealthy();
+		} catch {
+			markRedisUnhealthy();
+			traceCache(
+				prefix,
+				false,
+				Math.round((performance.now() - cacheStart) * 100) / 100
+			);
+			return fn(...args);
+		}
 
-				// Phase 1: Cache lookup (only redis errors trip the breaker)
-				let cached: string | null = null;
+		if (cached) {
+			traceCache(
+				prefix,
+				true,
+				Math.round((performance.now() - cacheStart) * 100) / 100
+			);
+
+			if (staleWhileRevalidate && staleTime > 0) {
+				triggerBackgroundRevalidation(
+					key,
+					() => fn(...args),
+					expireInSec,
+					staleTime
+				);
+			}
+
+			try {
+				return deserialize(cached) as Awaited<ReturnType<T>>;
+			} catch {
+				// Corrupted cache data — fall through to cache miss
+			}
+		}
+
+		if (inflightRequests.has(key)) {
+			return (await inflightRequests.get(key)) as Awaited<ReturnType<T>>;
+		}
+
+		const promise = fn(...args);
+		inflightRequests.set(key, promise);
+
+		try {
+			const result = await promise;
+
+			if (result != null && redisAvailable) {
 				try {
+					const serialized = JSON.stringify(result);
 					const redis = getRedisCache();
-					cached = await withTimeout(redis.get(key), REDIS_TIMEOUT_MS);
-					markRedisHealthy();
-				} catch (error) {
-					markRedisUnhealthy();
-					span.setAttribute("cache.hit", false);
-					span.setAttribute("cache.error", true);
-					endSpanWithError(span, error);
-					return fn(...args);
-				}
-
-				// Phase 2: Cache hit (JSON errors do NOT trip the breaker)
-				if (cached) {
-					span.setAttribute("cache.hit", true);
-
-					if (staleWhileRevalidate && staleTime > 0) {
-						triggerBackgroundRevalidation(
-							key,
-							() => fn(...args),
-							expireInSec,
-							staleTime
-						);
-					}
-
-					try {
-						const result = deserialize(cached) as Awaited<ReturnType<T>>;
-						span.setStatus({ code: SpanStatusCode.OK });
-						span.end();
-						return result;
-					} catch {
-						// Corrupted cache data — fall through to cache miss
-						span.setAttribute("cache.corrupt", true);
-					}
-				}
-
-				// Phase 3: Cache miss with single-flight deduplication
-				span.setAttribute("cache.hit", false);
-
-				if (inflightRequests.has(key)) {
-					span.setAttribute("cache.coalesced", true);
-					try {
-						const result = (await inflightRequests.get(key)) as Awaited<
-							ReturnType<T>
-						>;
-						span.setStatus({ code: SpanStatusCode.OK });
-						span.end();
-						return result;
-					} catch (error) {
-						endSpanWithError(span, error);
-						throw error;
-					}
-				}
-
-				const promise = fn(...args);
-				inflightRequests.set(key, promise);
-
-				try {
-					const result = await promise;
-
-					// Fire-and-forget cache write
-					if (result != null && redisAvailable) {
-						try {
-							const serialized = JSON.stringify(result);
-							const redis = getRedisCache();
-							withTimeout(
-								redis.setex(key, expireInSec, serialized),
-								REDIS_TIMEOUT_MS
-							).catch(() => markRedisUnhealthy());
-						} catch {
-							// JSON.stringify failed — do NOT affect redis state
-						}
-					}
-
-					span.setStatus({ code: SpanStatusCode.OK });
-					span.end();
-					return result;
-				} catch (error) {
-					endSpanWithError(span, error);
-					throw error;
-				} finally {
-					inflightRequests.delete(key);
+					withTimeout(
+						redis.setex(key, expireInSec, serialized),
+						REDIS_TIMEOUT_MS
+					).catch(() => markRedisUnhealthy());
+				} catch {
+					// JSON.stringify failed
 				}
 			}
-		);
+
+			traceCache(
+				prefix,
+				false,
+				Math.round((performance.now() - cacheStart) * 100) / 100
+			);
+			return result;
+		} finally {
+			inflightRequests.delete(key);
+		}
 	};
 
 	cachedFn.getKey = getKey;

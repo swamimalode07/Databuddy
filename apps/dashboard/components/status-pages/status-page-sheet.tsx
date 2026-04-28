@@ -1,43 +1,21 @@
 "use client";
 
-import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { orpc } from "@/lib/orpc";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useOrganizationsContext } from "@/components/providers/organizations-provider";
+import { orpc } from "@/lib/orpc";
+import {
+	Button,
+	Divider,
+	Field,
+	Input,
+	SegmentedControl,
+	Textarea,
+} from "@databuddy/ui";
+import { Sheet, Switch } from "@databuddy/ui/client";
 
 const URL_REGEX = /^https?:\/\/.+/;
 
@@ -70,23 +48,51 @@ const statusPageFormSchema = z.object({
 
 type StatusPageFormData = z.infer<typeof statusPageFormSchema>;
 
+const themeOptions = [
+	{ value: "system" as const, label: "System" },
+	{ value: "light" as const, label: "Light" },
+	{ value: "dark" as const, label: "Dark" },
+];
+
 interface StatusPageSheetProps {
-	open: boolean;
 	onCloseAction: (open: boolean) => void;
 	onSaveAction?: () => void;
+	open: boolean;
 	statusPage?: {
+		customCss?: string | null;
+		description?: string | null;
+		faviconUrl?: string | null;
+		hideBranding?: boolean;
 		id: string;
+		logoUrl?: string | null;
 		name: string;
 		slug: string;
-		description?: string | null;
-		logoUrl?: string | null;
-		faviconUrl?: string | null;
-		websiteUrl?: string | null;
 		supportUrl?: string | null;
 		theme?: string | null;
-		hideBranding?: boolean;
-		customCss?: string | null;
+		websiteUrl?: string | null;
 	} | null;
+}
+
+function SettingsRow({
+	label,
+	description,
+	children,
+}: {
+	children: React.ReactNode;
+	description?: string;
+	label: string;
+}) {
+	return (
+		<div className="flex items-center justify-between gap-4">
+			<div className="min-w-0 flex-1">
+				<p className="font-medium text-sm">{label}</p>
+				{description && (
+					<p className="text-muted-foreground text-xs">{description}</p>
+				)}
+			</div>
+			<div className="shrink-0">{children}</div>
+		</div>
+	);
 }
 
 export function StatusPageSheet({
@@ -111,12 +117,6 @@ export function StatusPageSheet({
 		...orpc.statusPage.update.mutationOptions(),
 	});
 
-	useEffect(() => {
-		if (open) {
-			form.reset(buildDefaults(statusPage));
-		}
-	}, [open, statusPage, form]);
-
 	const handleSubmit = async () => {
 		const data = form.getValues();
 		const urlOrNull = (v: string | undefined) =>
@@ -137,7 +137,7 @@ export function StatusPageSheet({
 					hideBranding: data.hideBranding,
 					customCss: data.customCss?.trim() || null,
 				});
-				toast.success("Status page updated successfully");
+				toast.success("Status page updated");
 			} else {
 				const resolvedOrganizationId =
 					activeOrganization?.id ?? activeOrganizationId ?? null;
@@ -160,7 +160,7 @@ export function StatusPageSheet({
 					hideBranding: data.hideBranding,
 					customCss: data.customCss?.trim() || null,
 				});
-				toast.success("Status page created successfully");
+				toast.success("Status page created");
 			}
 			onSaveAction?.();
 			onCloseAction(false);
@@ -175,257 +175,236 @@ export function StatusPageSheet({
 
 	return (
 		<Sheet onOpenChange={onCloseAction} open={open}>
-			<SheetContent className="w-full sm:max-w-xl">
-				<SheetHeader>
-					<SheetTitle>
+			<Sheet.Content className="w-full sm:max-w-md">
+				<Sheet.Close />
+				<Sheet.Header>
+					<Sheet.Title>
 						{isEditing ? "Edit Status Page" : "Create Status Page"}
-					</SheetTitle>
-					<SheetDescription>
+					</Sheet.Title>
+					<Sheet.Description>
 						{isEditing
 							? "Update your status page details and appearance"
 							: "Set up a new public status page"}
-					</SheetDescription>
-				</SheetHeader>
+					</Sheet.Description>
+				</Sheet.Header>
 
-				<Form {...form}>
-					<form
-						className="flex flex-1 flex-col overflow-hidden"
-						onSubmit={form.handleSubmit(handleSubmit)}
-					>
-						<SheetBody className="space-y-6">
-							<div className="space-y-4">
-								<FormField
-									control={form.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Name</FormLabel>
-											<FormControl>
-												<Input placeholder="e.g. Acme Systems" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+				<form
+					className="flex flex-1 flex-col overflow-hidden"
+					onSubmit={form.handleSubmit(handleSubmit)}
+				>
+					<Sheet.Body className="space-y-5">
+						<div className="space-y-4">
+							<Controller
+								control={form.control}
+								name="name"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Name</Field.Label>
+										<Input placeholder="e.g. Acme Systems" {...field} />
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="slug"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Slug</FormLabel>
-											<FormControl>
-												<Input placeholder="e.g. acme-systems" {...field} />
-											</FormControl>
-											<FormDescription>
-												This will be the URL path for your status page.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="slug"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Slug</Field.Label>
+										<Input placeholder="e.g. acme-systems" {...field} />
+										<Field.Description>
+											URL path for your status page
+										</Field.Description>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="description"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Description</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder="e.g. Real-time status for our core services."
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
+							<Controller
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<Field>
+										<Field.Label>Description</Field.Label>
+										<Textarea
+											placeholder="e.g. Real-time status for our core services."
+											{...field}
+										/>
+									</Field>
+								)}
+							/>
+						</div>
 
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm">Branding</h3>
+						<Divider />
+
+						<div className="space-y-4">
+							<div className="space-y-0.5">
+								<p className="font-medium text-sm">Branding</p>
 								<p className="text-muted-foreground text-xs">
-									Customize how your status page looks to visitors.
+									Customize how your status page looks to visitors
 								</p>
 							</div>
 
-							<div className="space-y-4">
-								<FormField
-									control={form.control}
-									name="logoUrl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Logo URL</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="https://example.com/logo.svg"
-													{...field}
-												/>
-											</FormControl>
-											<FormDescription>
-												Displayed in the navbar and page header.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="logoUrl"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Logo URL</Field.Label>
+										<Input
+											placeholder="https://example.com/logo.svg"
+											{...field}
+										/>
+										<Field.Description>
+											Displayed in the navbar and page header
+										</Field.Description>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="faviconUrl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Favicon URL</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="https://example.com/favicon.ico"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="faviconUrl"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Favicon URL</Field.Label>
+										<Input
+											placeholder="https://example.com/favicon.ico"
+											{...field}
+										/>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="websiteUrl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Website URL</FormLabel>
-											<FormControl>
-												<Input placeholder="https://example.com" {...field} />
-											</FormControl>
-											<FormDescription>
-												Logo and name link to this URL.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="websiteUrl"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Website URL</Field.Label>
+										<Input placeholder="https://example.com" {...field} />
+										<Field.Description>
+											Logo and name link to this URL
+										</Field.Description>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="supportUrl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Support URL</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="https://example.com/support"
-													{...field}
-												/>
-											</FormControl>
-											<FormDescription>
-												Shown as a "Get Support" link in the navbar.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
+							<Controller
+								control={form.control}
+								name="supportUrl"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>Support URL</Field.Label>
+										<Input
+											placeholder="https://example.com/support"
+											{...field}
+										/>
+										<Field.Description>
+											Shown as a "Get Support" link in the navbar
+										</Field.Description>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
+								)}
+							/>
+						</div>
 
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm">Appearance</h3>
+						<Divider />
+
+						<div className="space-y-4">
+							<div className="space-y-0.5">
+								<p className="font-medium text-sm">Appearance</p>
 								<p className="text-muted-foreground text-xs">
-									Theme, branding, and custom styles.
+									Theme, branding, and custom styles
 								</p>
 							</div>
 
-							<div className="space-y-4">
-								<FormField
-									control={form.control}
-									name="theme"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Theme</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
-											>
-												<FormControl>
-													<SelectTrigger className="w-full">
-														<SelectValue />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="system">
-														System (follow visitor preference)
-													</SelectItem>
-													<SelectItem value="light">Always light</SelectItem>
-													<SelectItem value="dark">Always dark</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="theme"
+								render={({ field }) => (
+									<Field>
+										<Field.Label>Theme</Field.Label>
+										<SegmentedControl
+											className="w-full"
+											onChange={field.onChange}
+											options={themeOptions}
+											value={field.value}
+										/>
+									</Field>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="hideBranding"
-									render={({ field }) => (
-										<div className="flex items-center justify-between rounded border p-3">
-											<Label
-												className="cursor-pointer text-sm"
-												htmlFor="hide-branding"
-											>
-												Hide "Powered by Databuddy"
-											</Label>
-											<Switch
-												checked={field.value}
-												id="hide-branding"
-												onCheckedChange={field.onChange}
-											/>
-										</div>
-									)}
-								/>
+							<Controller
+								control={form.control}
+								name="hideBranding"
+								render={({ field }) => (
+									<SettingsRow label='Hide "Powered by Databuddy"'>
+										<Switch
+											checked={field.value}
+											onCheckedChange={field.onChange}
+										/>
+									</SettingsRow>
+								)}
+							/>
 
-								<FormField
-									control={form.control}
-									name="customCss"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Custom CSS</FormLabel>
-											<FormControl>
-												<Textarea
-													className="font-mono text-xs"
-													placeholder={":root {\n  --primary: #3b82f6;\n}"}
-													rows={4}
-													{...field}
-												/>
-											</FormControl>
-											<FormDescription>
-												Injected into the public status page. Use CSS variables
-												for colors and fonts.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-						</SheetBody>
+							<Controller
+								control={form.control}
+								name="customCss"
+								render={({ field }) => (
+									<Field>
+										<Field.Label>Custom CSS</Field.Label>
+										<Textarea
+											className="font-mono text-xs"
+											placeholder={":root {\n  --primary: #3b82f6;\n}"}
+											rows={4}
+											{...field}
+										/>
+										<Field.Description>
+											Injected into the public status page. Use CSS variables
+											for colors and fonts.
+										</Field.Description>
+									</Field>
+								)}
+							/>
+						</div>
+					</Sheet.Body>
 
-						<SheetFooter>
-							<Button
-								onClick={() => onCloseAction(false)}
-								type="button"
-								variant="outline"
-							>
-								Cancel
-							</Button>
-							<Button
-								className="min-w-28"
-								disabled={isPending || !form.formState.isValid}
-								type="submit"
-							>
-								{isPending ? "Saving..." : isEditing ? "Update" : "Create"}
-							</Button>
-						</SheetFooter>
-					</form>
-				</Form>
-			</SheetContent>
+					<Sheet.Footer>
+						<Button
+							onClick={() => onCloseAction(false)}
+							type="button"
+							variant="secondary"
+						>
+							Cancel
+						</Button>
+						<Button
+							className="min-w-28"
+							disabled={!form.formState.isValid}
+							loading={isPending}
+							type="submit"
+						>
+							{isEditing ? "Update" : "Create"}
+						</Button>
+					</Sheet.Footer>
+				</form>
+			</Sheet.Content>
 		</Sheet>
 	);
 }

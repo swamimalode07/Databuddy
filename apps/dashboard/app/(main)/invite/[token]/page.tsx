@@ -1,6 +1,16 @@
 "use client";
 
 import type { IconProps } from "@phosphor-icons/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
+import { useCallback } from "react";
+import {
+	getFeatureDescription,
+	getFeatureLabel,
+	getFeatureRoute,
+} from "@/lib/feature-gates";
+import { orpc } from "@/lib/orpc";
 import {
 	ArrowRightIcon,
 	CheckCircleIcon,
@@ -13,18 +23,8 @@ import {
 	TrendUpIcon,
 	WaveformIcon,
 	XCircleIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
-import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import {
-	getFeatureDescription,
-	getFeatureLabel,
-	getFeatureRoute,
-} from "@/lib/feature-gates";
-import { orpc } from "@/lib/orpc";
+} from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 type PhosphorIcon = ForwardRefExoticComponent<
 	IconProps & RefAttributes<SVGSVGElement>
@@ -122,7 +122,7 @@ function ErrorState({
 					<p className="text-muted-foreground text-sm">{message}</p>
 				</div>
 
-				<Button onClick={() => router.push("/home")} variant="outline">
+				<Button onClick={() => router.push("/home")} variant="secondary">
 					Back to Home
 				</Button>
 			</div>
@@ -251,12 +251,9 @@ function RedeemPrompt({
 				<div className="flex flex-col gap-2">
 					<Button
 						className="w-full gap-2"
-						disabled={isPending}
+						loading={isPending}
 						onClick={onRedeemAction}
 					>
-						{isPending ? (
-							<SpinnerGapIcon className="size-4 animate-spin" />
-						) : null}
 						{isPending ? "Unlocking…" : "Unlock Access"}
 					</Button>
 					<Button

@@ -1,32 +1,32 @@
 "use client";
 
+import { useMemo, useRef, useState } from "react";
+import { FaviconImage } from "@/components/analytics/favicon-image";
+import { Skeleton } from "@databuddy/ui";
+import { cn } from "@/lib/utils";
+import type { FunnelAnalyticsByReferrerResult } from "@/types/funnels";
 import {
 	GlobeIcon,
 	TargetIcon,
 	UsersIcon,
 	WarningCircleIcon,
-} from "@phosphor-icons/react";
-import { useMemo, useRef, useState } from "react";
-import { FaviconImage } from "@/components/analytics/favicon-image";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-import type { FunnelAnalyticsByReferrerResult } from "@/types/funnels";
+} from "@databuddy/ui/icons";
 
 interface FunnelAnalyticsByReferrerProps {
-	onReferrerChange?: (referrer: string) => void;
 	data: { referrer_analytics: FunnelAnalyticsByReferrerResult[] } | undefined;
-	isLoading: boolean;
 	error: Error | null;
+	isLoading: boolean;
+	onReferrerChange?: (referrer: string) => void;
 }
 
 interface SourceCardProps {
-	label: string;
-	domain?: string;
-	users: number;
 	conversionRate?: number;
-	isSelected: boolean;
-	onClick: () => void;
+	domain?: string;
 	isAll?: boolean;
+	isSelected: boolean;
+	label: string;
+	onClick: () => void;
+	users: number;
 }
 
 function SourceCard({
@@ -287,7 +287,7 @@ export function FunnelAnalyticsByReferrer({
 					conversionRate={avgConversionRate}
 					isAll
 					isSelected={selectedReferrer === "all"}
-					label="All Sources"
+					label="All sources"
 					onClick={() => handleChange("all")}
 					users={totalUsers}
 				/>

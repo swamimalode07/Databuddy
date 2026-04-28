@@ -1,48 +1,41 @@
 "use client";
 
-import { ClockIcon, CodeIcon, GlobeIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
+import { Tooltip } from "@databuddy/ui";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
 import { DataTable } from "@/components/table/data-table";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
+import { formatDateTime } from "@databuddy/ui";
 import { ErrorDetailModal } from "./error-detail-modal";
 import { getDeviceIcon, getErrorTypeIcon } from "./error-icons";
 import type { RecentError } from "./types";
-import { formatDateTimeSeconds, getErrorCategory } from "./utils";
+import { getErrorCategory } from "./utils";
+import { ClockIcon, CodeIcon, GlobeIcon } from "@databuddy/ui/icons";
 
 interface Props {
+	isLoading?: boolean;
 	recentErrors: RecentError[];
 }
 
-const SeverityDot = ({ severity }: { severity: "high" | "medium" | "low" }) => {
-	const colors = {
-		high: "bg-primary",
-		medium: "bg-chart-2",
-		low: "bg-chart-3",
-	};
-
-	return (
-		<span
-			className={`size-2 shrink-0 rounded-full ${colors[severity]}`}
-			title={`${severity} severity`}
-		/>
-	);
+const SEVERITY_COLORS: Record<"high" | "medium" | "low", string> = {
+	high: "bg-destructive",
+	medium: "bg-amber-500",
+	low: "bg-muted-foreground/50",
 };
+
+const SeverityDot = ({ severity }: { severity: "high" | "medium" | "low" }) => (
+	<span
+		className={`size-2 shrink-0 rounded-full ${SEVERITY_COLORS[severity]}`}
+		title={`${severity} severity`}
+	/>
+);
 
 const getRelativeTime = (timestamp: string): string => {
 	const date = dayjs(timestamp);
-	if (!date.isValid()) {
-		return "";
-	}
-	return date.fromNow();
+	return date.isValid() ? date.fromNow() : "";
 };
 
-export const RecentErrorsTable = ({ recentErrors }: Props) => {
+export const RecentErrorsTable = ({ isLoading, recentErrors }: Props) => {
 	const [selectedError, setSelectedError] = useState<RecentError | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -62,10 +55,7 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				seen.add(key);
 				return true;
 			})
-			.map((error) => ({
-				...error,
-				name: error.message,
-			}));
+			.map((error) => ({ ...error, name: error.message }));
 	}, [recentErrors]);
 
 	const columns = useMemo(
@@ -94,21 +84,18 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 					const { type } = getErrorCategory(message);
 
 					return (
-						<Tooltip skipProvider>
-							<TooltipTrigger asChild>
-								<div className="flex max-w-md flex-col gap-1.5">
-									<div className="flex items-center gap-2">
-										<div className="flex size-5 shrink-0 items-center justify-center rounded bg-primary/10">
-											{getErrorTypeIcon(type)}
-										</div>
-										<span className="font-medium text-sm">{type}</span>
+						<Tooltip
+							content={<p className="max-w-sm text-pretty">{message}</p>}
+						>
+							<div className="flex max-w-md flex-col gap-1.5">
+								<div className="flex items-center gap-2">
+									<div className="flex size-5 shrink-0 items-center justify-center rounded bg-destructive/10">
+										{getErrorTypeIcon(type)}
 									</div>
-									<p className="line-clamp-2 text-pretty">{message}</p>
+									<span className="font-medium text-sm">{type}</span>
 								</div>
-							</TooltipTrigger>
-							<TooltipContent className="max-w-sm">
-								<p className="text-pretty">{message}</p>
-							</TooltipContent>
+								<p className="line-clamp-2 text-pretty">{message}</p>
+							</div>
 						</Tooltip>
 					);
 				},
@@ -127,19 +114,11 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 					}
 
 					return (
-						<Tooltip skipProvider>
-							<TooltipTrigger asChild>
-								<div className="flex max-w-[140px] items-center gap-1.5">
-									<CodeIcon
-										className="size-3.5 shrink-0 text-muted-foreground"
-										weight="duotone"
-									/>
-									<span className="truncate font-mono text-sm">{pathname}</span>
-								</div>
-							</TooltipTrigger>
-							<TooltipContent>
-								<span className="font-mono">{url}</span>
-							</TooltipContent>
+						<Tooltip content={<span className="font-mono">{url}</span>}>
+							<div className="flex max-w-[140px] items-center gap-1.5">
+								<CodeIcon className="size-3.5 shrink-0 text-muted-foreground" />
+								<span className="truncate font-mono text-sm">{pathname}</span>
+							</div>
 						</Tooltip>
 					);
 				},
@@ -149,31 +128,31 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				accessorKey: "browser_name",
 				header: "Environment",
 				cell: (info: { row: { original: RecentError } }) => {
-					const row = info.row.original;
-					const browser = row.browser_name;
-					const os = row.os_name;
-					const device = row.device_type;
+					const {
+						browser_name: browser,
+						os_name: os,
+						device_type: device,
+					} = info.row.original;
 
 					if (!(browser || os)) {
 						return <span className="text-muted-foreground text-sm">—</span>;
 					}
 
 					return (
-						<Tooltip skipProvider>
-							<TooltipTrigger asChild>
-								<div className="flex items-center gap-2">
-									{browser && <BrowserIcon name={browser} size="sm" />}
-									{os && <OSIcon name={os} size="sm" />}
-									{device && getDeviceIcon(device)}
-								</div>
-							</TooltipTrigger>
-							<TooltipContent>
+						<Tooltip
+							content={
 								<div className="flex flex-col gap-1 text-xs">
 									{browser && <span>Browser: {browser}</span>}
 									{os && <span>OS: {os}</span>}
 									{device && <span>Device: {device}</span>}
 								</div>
-							</TooltipContent>
+							}
+						>
+							<div className="flex items-center gap-2">
+								{browser && <BrowserIcon name={browser} size="sm" />}
+								{os && <OSIcon name={os} size="sm" />}
+								{device && getDeviceIcon(device)}
+							</div>
 						</Tooltip>
 					);
 				},
@@ -183,9 +162,12 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				accessorKey: "country",
 				header: "Location",
 				cell: (info: { row: { original: RecentError } }) => {
-					const row = info.row.original;
-					const countryCode = row.country_code;
-					const countryName = row.country_name || row.country;
+					const {
+						country_code: countryCode,
+						country_name,
+						country,
+					} = info.row.original;
+					const countryName = country_name || country;
 
 					if (!(countryCode || countryName)) {
 						return (
@@ -215,20 +197,20 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 				header: "Time",
 				cell: (info: { getValue: () => unknown }) => {
 					const time = info.getValue() as string;
-					const relative = getRelativeTime(time);
-					const full = formatDateTimeSeconds(time);
-
 					return (
-						<Tooltip skipProvider>
-							<TooltipTrigger asChild>
-								<div className="flex items-center gap-1.5 text-muted-foreground">
-									<ClockIcon className="size-3.5 shrink-0" weight="duotone" />
-									<span className="whitespace-nowrap text-sm">{relative}</span>
-								</div>
-							</TooltipTrigger>
-							<TooltipContent>
-								<span className="font-mono text-xs">{full}</span>
-							</TooltipContent>
+						<Tooltip
+							content={
+								<span className="font-mono text-xs">
+									{formatDateTime(time)}
+								</span>
+							}
+						>
+							<div className="flex items-center gap-1.5 text-muted-foreground">
+								<ClockIcon className="size-3.5 shrink-0" />
+								<span className="whitespace-nowrap text-sm">
+									{getRelativeTime(time)}
+								</span>
+							</div>
 						</Tooltip>
 					);
 				},
@@ -242,8 +224,9 @@ export const RecentErrorsTable = ({ recentErrors }: Props) => {
 			<DataTable
 				columns={columns}
 				data={tableData}
-				emptyMessage="No errors recorded in this time period"
+				emptyMessage="No errors in this time range"
 				initialPageSize={10}
+				isLoading={isLoading}
 				minHeight={400}
 				onRowAction={(row) => handleViewError(row)}
 				title="Recent Errors"

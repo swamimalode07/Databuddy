@@ -1,13 +1,3 @@
-/** biome-ignore-all lint/correctness/noUnusedImports: we need to import React to use the createContext function */
-import React, {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useSyncExternalStore,
-} from "react";
 import { BrowserFlagStorage } from "@/core/flags/browser-storage";
 import { BrowserFlagsManager } from "@/core/flags/flags-manager";
 import type {
@@ -19,6 +9,15 @@ import type {
 	UserContext,
 } from "@/core/flags/types";
 import { logger } from "@/logger";
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useSyncExternalStore,
+	type ReactNode,
+} from "react";
 
 const FlagsReactContext = createContext<FlagsContext | null>(null);
 
@@ -53,19 +52,40 @@ export function FlagsProvider({ children, ...config }: FlagsProviderProps) {
 		return new BrowserFlagsManager({ config, storage });
 	}, [config.clientId]);
 
+	useEffect(() => {
+		if (typeof window === "undefined") {
+			return;
+		}
+		const w = window as unknown as {
+			__databuddyFlags?: BrowserFlagsManager;
+		};
+		w.__databuddyFlags = manager;
+		return () => {
+			if (w.__databuddyFlags === manager) {
+				w.__databuddyFlags = undefined;
+			}
+		};
+	}, [manager]);
+
 	const prevConfigRef = useRef(config);
 	useEffect(() => {
 		const prev = prevConfigRef.current;
 		const changed =
 			prev.apiUrl !== config.apiUrl ||
-			prev.isPending !== config.isPending ||
-			prev.user?.userId !== config.user?.userId ||
-			prev.user?.email !== config.user?.email ||
-			prev.environment !== config.environment ||
-			prev.disabled !== config.disabled ||
 			prev.autoFetch !== config.autoFetch ||
 			prev.cacheTtl !== config.cacheTtl ||
-			prev.staleTime !== config.staleTime;
+			prev.debug !== config.debug ||
+			prev.defaults !== config.defaults ||
+			prev.disabled !== config.disabled ||
+			prev.environment !== config.environment ||
+			prev.isPending !== config.isPending ||
+			prev.skipStorage !== config.skipStorage ||
+			prev.staleTime !== config.staleTime ||
+			prev.user?.userId !== config.user?.userId ||
+			prev.user?.email !== config.user?.email ||
+			prev.user?.organizationId !== config.user?.organizationId ||
+			prev.user?.teamId !== config.user?.teamId ||
+			prev.user?.properties !== config.user?.properties;
 
 		if (changed) {
 			prevConfigRef.current = config;
@@ -73,11 +93,7 @@ export function FlagsProvider({ children, ...config }: FlagsProviderProps) {
 		}
 	}, [manager, config]);
 
-	useEffect(() => {
-		return () => {
-			manager.destroy();
-		};
-	}, [manager]);
+	useEffect(() => () => manager.destroy(), [manager]);
 
 	const store = useSyncExternalStore(
 		manager.subscribe,

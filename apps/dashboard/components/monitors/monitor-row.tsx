@@ -1,38 +1,29 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
+import { PrefetchZone } from "@/components/ds/prefetch-zone";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
-import { formatDateOnly } from "@/lib/time";
-import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
-import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
+import { buildUptimeHeatmapDays } from "@databuddy/ui/uptime";
+import { UptimeHeatmapStrip } from "@databuddy/ui/uptime";
 import { cn } from "@/lib/utils";
 import {
 	ArrowSquareOutIcon,
 	DotsThreeIcon,
 	HeartbeatIcon,
+	LightningIcon,
 	PauseIcon,
 	PencilSimpleIcon,
 	PlayIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Skeleton, dayjs, formatDateOnly } from "@databuddy/ui";
 
 const GRANULARITY_LABELS: Record<string, string> = {
 	minute: "1 min",
@@ -48,6 +39,9 @@ const GRANULARITY_LABELS: Record<string, string> = {
 const HEATMAP_DAYS = 30;
 
 interface MonitorRowProps {
+	onDeleteAction: () => void;
+	onEditAction: () => void;
+	onRefetchAction: () => void;
 	schedule: {
 		id: string;
 		organizationId?: string;
@@ -65,9 +59,6 @@ interface MonitorRowProps {
 			domain: string;
 		} | null;
 	};
-	onEditAction: () => void;
-	onDeleteAction: () => void;
-	onRefetchAction: () => void;
 }
 
 function MonitorActions({
@@ -91,6 +82,23 @@ function MonitorActions({
 	const transferMutation = useMutation({
 		...orpc.uptime.transfer.mutationOptions(),
 	});
+	const manualCheckMutation = useMutation({
+		...orpc.uptime.manualCheck.mutationOptions(),
+	});
+
+	const handleManualCheck = async () => {
+		try {
+			await manualCheckMutation.mutateAsync({ scheduleId: schedule.id });
+			toast.success("Check triggered");
+			setTimeout(() => {
+				onRefetchAction();
+			}, 3000);
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to trigger check";
+			toast.error(errorMessage);
+		}
+	};
 
 	const handleTogglePause = async () => {
 		setIsPausing(true);
@@ -143,23 +151,27 @@ function MonitorActions({
 	return (
 		<>
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						aria-label="Monitor actions"
-						className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-						data-dropdown-trigger
-						size="icon"
-						variant="ghost"
-					>
-						<DotsThreeIcon className="size-5" weight="bold" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-52">
-					<DropdownMenuItem className="gap-2" onClick={onEditAction}>
+				<DropdownMenu.Trigger
+					aria-label="Monitor actions"
+					className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-interactive-hover hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
+					data-dropdown-trigger
+				>
+					<DotsThreeIcon className="size-4" weight="bold" />
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end" className="w-52">
+					<DropdownMenu.Item className="gap-2" onClick={onEditAction}>
 						<PencilSimpleIcon className="size-4" weight="duotone" />
 						Edit Monitor
-					</DropdownMenuItem>
-					<DropdownMenuItem
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
+						className="gap-2"
+						disabled={manualCheckMutation.isPending || schedule.isPaused}
+						onClick={handleManualCheck}
+					>
+						<LightningIcon className="size-4" weight="duotone" />
+						Check Now
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
 						className="gap-2"
 						disabled={
 							isPausing || pauseMutation.isPending || resumeMutation.isPending
@@ -172,18 +184,18 @@ function MonitorActions({
 							<PauseIcon className="size-4" weight="duotone" />
 						)}
 						{schedule.isPaused ? "Resume" : "Pause"}
-					</DropdownMenuItem>
+					</DropdownMenu.Item>
 					{schedule.organizationId ? (
-						<DropdownMenuItem
+						<DropdownMenu.Item
 							className="gap-2"
 							onClick={() => setIsTransferOpen(true)}
 						>
 							<ArrowSquareOutIcon className="size-4" weight="duotone" />
-							Transfer to Workspace
-						</DropdownMenuItem>
+							Transfer to Organization
+						</DropdownMenu.Item>
 					) : null}
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item
 						className="gap-2 text-destructive focus:text-destructive"
 						disabled={deleteMutation.isPending}
 						onClick={handleDelete}
@@ -191,14 +203,14 @@ function MonitorActions({
 					>
 						<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 						Delete Monitor
-					</DropdownMenuItem>
-				</DropdownMenuContent>
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
 			</DropdownMenu>
 
 			{schedule.organizationId ? (
 				<TransferToOrgDialog
 					currentOrganizationId={schedule.organizationId}
-					description="Move this monitor to a different workspace."
+					description="Move this monitor to a different organization."
 					isPending={transferMutation.isPending}
 					onOpenChangeAction={setIsTransferOpen}
 					onTransferAction={handleTransfer}
@@ -354,15 +366,22 @@ export function MonitorRow({
 	};
 
 	return (
-		<List.Row align="start" asChild className={cn(!isActive && "opacity-50")}>
-			<Link href={`/monitors/${schedule.id}`} onClick={handleClick}>
-				<List.Cell className="pt-0.5">
+		<PrefetchZone href={`/monitors/${schedule.id}`}>
+			<Link
+				className={cn(
+					"group flex items-center hover:bg-interactive-hover",
+					!isActive && "opacity-50"
+				)}
+				href={`/monitors/${schedule.id}`}
+				onClick={handleClick}
+			>
+				<div className="flex flex-1 items-center gap-4 px-5 py-3">
 					<div
 						className={cn(
-							"flex size-8 items-center justify-center rounded",
+							"flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60",
 							isActive
 								? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-								: "bg-muted text-muted-foreground"
+								: "bg-secondary text-muted-foreground"
 						)}
 					>
 						{displayUrl ? (
@@ -370,55 +389,60 @@ export function MonitorRow({
 								altText={`${displayName} favicon`}
 								domain={displayUrl}
 								fallbackIcon={
-									<HeartbeatIcon className="size-4" weight="duotone" />
+									<HeartbeatIcon className="size-5" weight="duotone" />
 								}
-								size={16}
+								size={20}
 							/>
 						) : (
-							<HeartbeatIcon className="size-4" weight="duotone" />
+							<HeartbeatIcon className="size-5" weight="duotone" />
 						)}
 					</div>
-				</List.Cell>
+					<div className="min-w-0 flex-1">
+						<div className="flex items-center gap-2">
+							<span className="truncate font-medium text-foreground text-sm">
+								{displayName}
+							</span>
+							<Badge
+								className="shrink-0"
+								variant={isActive ? "success" : "warning"}
+							>
+								{isActive ? "Active" : "Paused"}
+							</Badge>
+						</div>
+						<div className="mt-0.5 flex items-center gap-1.5">
+							{displayUrl && (
+								<span className="truncate text-muted-foreground text-xs">
+									{displayUrl}
+								</span>
+							)}
+							{displayUrl && (
+								<span className="text-muted-foreground text-xs">·</span>
+							)}
+							<span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+								{GRANULARITY_LABELS[schedule.granularity] ||
+									schedule.granularity}
+							</span>
+						</div>
+					</div>
+				</div>
 
-				<List.Cell className="w-40 min-w-0 lg:w-52">
-					<p className="wrap-break-word text-pretty font-medium text-foreground text-sm">
-						{displayName}
-					</p>
-				</List.Cell>
-
-				<List.Cell grow>
-					<p className="wrap-break-word text-pretty text-muted-foreground text-xs">
-						{displayUrl}
-					</p>
-				</List.Cell>
-
-				<List.Cell className="hidden w-14 pt-0.5 text-muted-foreground text-xs tabular-nums md:block">
-					{GRANULARITY_LABELS[schedule.granularity] || schedule.granularity}
-				</List.Cell>
-
-				<List.Cell className="hidden items-start gap-3 pt-0.5 lg:flex">
+				<div className="hidden shrink-0 items-center gap-3 pr-2 lg:flex">
 					<MiniHeatmap
 						isActive={isActive}
 						scheduleId={schedule.id}
 						websiteId={schedule.websiteId}
 					/>
-				</List.Cell>
+				</div>
 
-				<List.Cell className="w-16 pt-0.5">
-					<Badge className="shrink-0" variant={isActive ? "green" : "amber"}>
-						{isActive ? "Active" : "Paused"}
-					</Badge>
-				</List.Cell>
-
-				<List.Cell action className="pt-0.5">
+				<div className="flex shrink-0 items-center pr-4">
 					<MonitorActions
 						onDeleteAction={onDeleteAction}
 						onEditAction={onEditAction}
 						onRefetchAction={onRefetchAction}
 						schedule={schedule}
 					/>
-				</List.Cell>
+				</div>
 			</Link>
-		</List.Row>
+		</PrefetchZone>
 	);
 }

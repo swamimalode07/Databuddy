@@ -1,24 +1,14 @@
-import { ClockIcon } from "@phosphor-icons/react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
-import { PercentageBadge } from "@/components/ui/percentage-badge";
-import dayjs from "@/lib/dayjs";
+import { formatNumber } from "@/lib/formatters";
+import { ClockIcon } from "@databuddy/ui/icons";
+import { PercentageBadge, dayjs } from "@databuddy/ui";
 
 export interface TimezoneEntry {
 	name: string;
-	visitors: number;
 	pageviews: number;
 	percentage: number;
+	visitors: number;
 }
-
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 export function createTimezoneColumns(): ColumnDef<TimezoneEntry>[] {
 	return [
@@ -31,7 +21,7 @@ export function createTimezoneColumns(): ColumnDef<TimezoneEntry>[] {
 				const timezoneName = entry.name;
 				return (
 					<div className="flex items-center gap-2">
-						<ClockIcon className="size-4 text-primary" />
+						<ClockIcon className="size-[18px] text-primary" />
 						<div>
 							<div className="font-medium">{timezoneName}</div>
 						</div>

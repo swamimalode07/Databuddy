@@ -1,50 +1,46 @@
 import {
-	BugIcon,
-	CodeIcon,
 	FileCodeIcon,
-	LaptopIcon,
-	MonitorIcon,
 	NetworkIcon,
 	PhoneIcon,
-	TableIcon,
 	TerminalIcon,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/dist/ssr";
+import {
+	BugIcon,
+	CodeIcon,
+	DeviceTabletIcon,
+	LaptopIcon,
+	MonitorIcon,
+} from "@databuddy/ui/icons";
+
+const errorIconClass = "size-3.5 text-destructive";
+const deviceIconClass = "size-3.5 text-muted-foreground";
 
 export const getErrorTypeIcon = (type: string) => {
-	if (!type) {
-		return <BugIcon className="size-3.5 text-primary" weight="duotone" />;
-	}
-
-	const lowerType = type.toLowerCase();
+	const lowerType = type?.toLowerCase() ?? "";
 	if (lowerType.includes("react")) {
-		return <CodeIcon className="size-3.5 text-primary" weight="duotone" />;
+		return <CodeIcon className={errorIconClass} />;
 	}
 	if (lowerType.includes("network")) {
-		return <NetworkIcon className="size-3.5 text-primary" weight="duotone" />;
+		return <NetworkIcon className={errorIconClass} />;
 	}
 	if (lowerType.includes("script")) {
-		return <FileCodeIcon className="size-3.5 text-primary" weight="duotone" />;
+		return <FileCodeIcon className={errorIconClass} />;
 	}
 	if (lowerType.includes("syntax")) {
-		return <TerminalIcon className="size-3.5 text-primary" weight="duotone" />;
+		return <TerminalIcon className={errorIconClass} />;
 	}
-	return <BugIcon className="size-3.5 text-primary" weight="duotone" />;
+	return <BugIcon className={errorIconClass} />;
 };
 
-// Get device icon
 export const getDeviceIcon = (deviceType: string) => {
-	if (!deviceType) {
-		return <MonitorIcon className="size-3.5 text-chart-2" weight="duotone" />;
-	}
-
-	switch (deviceType.toLowerCase()) {
+	switch (deviceType?.toLowerCase()) {
 		case "mobile":
-			return <PhoneIcon className="size-3.5 text-chart-2" weight="duotone" />;
+			return <PhoneIcon className={deviceIconClass} />;
 		case "tablet":
-			return <TableIcon className="size-3.5 text-chart-2" weight="duotone" />;
+			return <DeviceTabletIcon className={deviceIconClass} />;
 		case "desktop":
-			return <LaptopIcon className="size-3.5 text-chart-2" weight="duotone" />;
+			return <LaptopIcon className={deviceIconClass} />;
 		default:
-			return <MonitorIcon className="size-3.5 text-chart-2" weight="duotone" />;
+			return <MonitorIcon className={deviceIconClass} />;
 	}
 };

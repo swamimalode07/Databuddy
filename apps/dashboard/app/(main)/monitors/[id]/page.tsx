@@ -1,56 +1,49 @@
 "use client";
 
-import { MonitorDetailLoading } from "@/app/(main)/monitors/_components/monitor-detail-loading";
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
-import { FaviconImage } from "@/components/analytics/favicon-image";
-import { EmptyState } from "@/components/empty-state";
-import { MonitorSheet } from "@/components/monitors/monitor-sheet";
-import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useDateFilters } from "@/hooks/use-date-filters";
-import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import { orpc } from "@/lib/orpc";
-import { fromNow, localDayjs } from "@/lib/time";
-import { LatencyChartChunkPlaceholder } from "@/lib/uptime/latency-chart-chunk-placeholder";
-import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
-import { cn } from "@/lib/utils";
-import {
-	ArrowClockwiseIcon,
-	ArrowLeftIcon,
-	ArrowSquareOutIcon,
-	GlobeIcon,
-	HeartbeatIcon,
-	PauseIcon,
-	PencilIcon,
-	PlayIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { MonitorDetailLoading } from "@/app/(main)/monitors/_components/monitor-detail-loading";
+import { TopBar } from "@/components/layout/top-bar";
+import { MonitorSheet } from "@/components/monitors/monitor-sheet";
+import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
+import { useDateFilters } from "@/hooks/use-date-filters";
+import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
+import { orpc } from "@/lib/orpc";
+import { LatencyChartChunkPlaceholder } from "@databuddy/ui/uptime";
+import { UptimeHeatmap } from "@/lib/uptime/uptime-heatmap";
+import { cn } from "@/lib/utils";
 import {
 	RecentActivity,
 	type RecentActivityCheck,
 	recentActivityCheckKey,
 } from "../../websites/[id]/pulse/_components/recent-activity";
+import {
+	ArrowClockwiseIcon,
+	ArrowSquareOutIcon,
+	GlobeIcon,
+	HeartbeatIcon,
+	LightningIcon,
+	PauseIcon,
+	PencilIcon,
+	PlayIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog } from "@databuddy/ui/client";
+import {
+	Button,
+	EmptyState,
+	Skeleton,
+	fromNow,
+	localDayjs,
+} from "@databuddy/ui";
 
 const LatencyChart = dynamic(
 	() =>
-		import("@/lib/uptime/latency-chart").then((m) => ({
+		import("@databuddy/ui/uptime").then((m) => ({
 			default: m.LatencyChart,
 		})),
 	{
@@ -73,22 +66,24 @@ const granularityLabels: Record<string, string> = {
 };
 
 interface ScheduleData {
-	id: string;
-	organizationId: string;
-	websiteId: string | null;
-	url: string;
-	name: string | null;
-	granularity: string;
+	cacheBust: boolean;
 	cron: string;
+	granularity: string;
+	id: string;
 	isPaused: boolean;
 	isPublic: boolean;
-	qstashStatus: string;
 	jsonParsingConfig?: { enabled: boolean } | null;
+	name: string | null;
+	organizationId: string;
+	schedulerStatus: string;
+	timeout: number | null;
+	url: string;
 	website?: {
 		id: string;
 		name: string | null;
 		domain: string;
 	} | null;
+	websiteId: string | null;
 }
 
 function resolveStatus(check: RecentActivityCheck | undefined) {
@@ -161,7 +156,8 @@ export default function MonitorDetailsPage() {
 		url: string;
 		name?: string | null;
 		granularity: string;
-		isPublic?: boolean;
+		timeout?: number | null;
+		cacheBust?: boolean;
 		jsonParsingConfig?: { enabled: boolean } | null;
 	} | null>(null);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -209,12 +205,13 @@ export default function MonitorDetailsPage() {
 	const deleteMutation = useMutation({
 		...orpc.uptime.deleteSchedule.mutationOptions(),
 	});
+	const manualCheckMutation = useMutation({
+		...orpc.uptime.manualCheck.mutationOptions(),
+	});
 
 	const transferMutation = useMutation({
 		...orpc.uptime.transfer.mutationOptions(),
 	});
-
-	// --- Recent checks (paginated) ---
 
 	const uptimeQueries = useMemo(
 		() => [
@@ -254,8 +251,6 @@ export default function MonitorDetailsPage() {
 		allRecentChecks.length === 0 &&
 		(isPendingUptimeChecks || isFetchingUptimeChecks);
 
-	// --- Heatmap ---
-
 	const heatmapDateRange = useMemo(
 		() => ({
 			start_date: localDayjs()
@@ -289,8 +284,6 @@ export default function MonitorDetailsPage() {
 
 	const heatmapData =
 		getHeatmapData("uptime-heatmap", "uptime_time_series") || [];
-
-	// --- Latency chart ---
 
 	const latencyDateRange = useMemo(() => {
 		const days = localDayjs(dateRange.end_date).diff(
@@ -328,12 +321,13 @@ export default function MonitorDetailsPage() {
 		"uptime_response_time_trends"
 	);
 
-	// --- Pagination effects ---
-
-	useEffect(() => {
+	const paginationResetKey = `${dateRange.start_date}-${dateRange.end_date}-${scheduleId}`;
+	const [prevResetKey, setPrevResetKey] = useState(paginationResetKey);
+	if (prevResetKey !== paginationResetKey) {
+		setPrevResetKey(paginationResetKey);
 		setRecentChecksPage(1);
 		setAllRecentChecks([]);
-	}, [dateRange, scheduleId]);
+	}
 
 	const recentChecksHasNext =
 		pageRecentChecks.length === RECENT_CHECKS_PAGE_SIZE;
@@ -396,8 +390,6 @@ export default function MonitorDetailsPage() {
 		});
 	}, [pageRecentChecks, recentChecksPage]);
 
-	// --- Handlers ---
-
 	const handleEditMonitor = () => {
 		if (!schedule) {
 			return;
@@ -407,7 +399,8 @@ export default function MonitorDetailsPage() {
 			url: schedule.url,
 			name: schedule.name,
 			granularity: schedule.granularity,
-			isPublic: schedule.isPublic,
+			timeout: schedule.timeout,
+			cacheBust: schedule.cacheBust,
 			jsonParsingConfig: schedule.jsonParsingConfig as {
 				enabled: boolean;
 			} | null,
@@ -475,6 +468,26 @@ export default function MonitorDetailsPage() {
 		setIsRefreshing(false);
 	};
 
+	const handleManualCheck = async () => {
+		if (!schedule) {
+			return;
+		}
+		try {
+			await manualCheckMutation.mutateAsync({ scheduleId: schedule.id });
+			toast.success("Check triggered");
+			setTimeout(() => {
+				refetchSchedule();
+				refetchUptimeData();
+				refetchHeatmapData();
+				refetchLatencyData();
+			}, 3000);
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to trigger check";
+			toast.error(errorMessage);
+		}
+	};
+
 	const handleTransfer = async (targetOrganizationId: string) => {
 		if (!schedule) {
 			return;
@@ -525,105 +538,94 @@ export default function MonitorDetailsPage() {
 			schedule.name ||
 			"Uptime Monitor"
 		: schedule.name || schedule.url || "Uptime Monitor";
-	const displayDomain = isWebsiteMonitor
-		? schedule.website?.domain
-		: schedule.url;
-
 	return (
 		<div className="flex min-h-0 flex-1 flex-col">
-			<PageHeader
-				description={schedule.url}
-				icon={
-					displayDomain ? (
-						<FaviconImage
-							altText={`${displayName} favicon`}
-							domain={displayDomain}
-							fallbackIcon={<HeartbeatIcon weight="duotone" />}
-							size={20}
-						/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">{displayName}</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<Button
+					aria-label="Refresh monitor data"
+					disabled={isRefreshing}
+					onClick={handleRefresh}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					<ArrowClockwiseIcon
+						className={cn("size-4 shrink-0", isRefreshing && "animate-spin")}
+					/>
+				</Button>
+				<Button
+					aria-label="Trigger manual check"
+					disabled={manualCheckMutation.isPending || schedule.isPaused}
+					onClick={handleManualCheck}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					<LightningIcon
+						className={cn(
+							"size-4 shrink-0",
+							manualCheckMutation.isPending && "animate-spin"
+						)}
+						weight="fill"
+					/>
+					Check Now
+				</Button>
+				<Button
+					disabled={
+						isPausing || pauseMutation.isPending || resumeMutation.isPending
+					}
+					onClick={handleTogglePause}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					{schedule.isPaused ? (
+						<>
+							<PlayIcon className="size-4 shrink-0" weight="fill" />
+							Resume
+						</>
 					) : (
-						<HeartbeatIcon />
-					)
-				}
-				right={
-					<>
-						<Button
-							onClick={() => router.push("/monitors")}
-							size="sm"
-							type="button"
-							variant="ghost"
-						>
-							<ArrowLeftIcon className="mr-2 size-4" />
-							Back
-						</Button>
-						<Button
-							aria-label="Refresh monitor data"
-							disabled={isRefreshing}
-							onClick={handleRefresh}
-							size="icon-sm"
-							type="button"
-							variant="outline"
-						>
-							<ArrowClockwiseIcon
-								className={isRefreshing ? "animate-spin" : ""}
-							/>
-						</Button>
-						<Button
-							disabled={
-								isPausing || pauseMutation.isPending || resumeMutation.isPending
-							}
-							onClick={handleTogglePause}
-							size="sm"
-							type="button"
-							variant="outline"
-						>
-							{schedule.isPaused ? (
-								<>
-									<PlayIcon size={16} weight="fill" />
-									Resume
-								</>
-							) : (
-								<>
-									<PauseIcon size={16} weight="fill" />
-									Pause
-								</>
-							)}
-						</Button>
-						<Button
-							aria-label="Configure monitor"
-							onClick={handleEditMonitor}
-							size="sm"
-							type="button"
-							variant="outline"
-						>
-							<PencilIcon size={16} weight="duotone" />
-							<span className="hidden sm:inline">Configure</span>
-						</Button>
-						<Button
-							aria-label="Transfer monitor"
-							onClick={() => setIsTransferOpen(true)}
-							size="sm"
-							type="button"
-							variant="outline"
-						>
-							<ArrowSquareOutIcon size={16} weight="duotone" />
-							<span className="hidden sm:inline">Transfer</span>
-						</Button>
-						<Button
-							aria-label="Delete monitor"
-							disabled={deleteMutation.isPending}
-							onClick={() => setIsDeleteDialogOpen(true)}
-							size="sm"
-							type="button"
-							variant="outline"
-						>
-							<TrashIcon size={16} weight="duotone" />
-							<span className="hidden sm:inline">Delete</span>
-						</Button>
-					</>
-				}
-				title={displayName}
-			/>
+						<>
+							<PauseIcon className="size-4 shrink-0" weight="fill" />
+							Pause
+						</>
+					)}
+				</Button>
+				<Button
+					aria-label="Configure monitor"
+					onClick={handleEditMonitor}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					<PencilIcon className="size-4 shrink-0" weight="duotone" />
+					<span className="hidden sm:inline">Configure</span>
+				</Button>
+				<Button
+					aria-label="Transfer monitor"
+					onClick={() => setIsTransferOpen(true)}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					<ArrowSquareOutIcon className="size-4 shrink-0" weight="duotone" />
+					<span className="hidden sm:inline">Transfer</span>
+				</Button>
+				<Button
+					aria-label="Delete monitor"
+					disabled={deleteMutation.isPending}
+					onClick={() => setIsDeleteDialogOpen(true)}
+					size="sm"
+					type="button"
+					variant="secondary"
+				>
+					<TrashIcon className="size-4 shrink-0" weight="duotone" />
+					<span className="hidden sm:inline">Delete</span>
+				</Button>
+			</TopBar.Actions>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 				<div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-b bg-card px-4 py-2.5 text-xs sm:px-6">
@@ -663,7 +665,7 @@ export default function MonitorDetailsPage() {
 						>
 							<GlobeIcon
 								aria-hidden
-								className="size-3.5 shrink-0"
+								className="size-4 shrink-0"
 								weight="duotone"
 							/>
 							<span className="truncate font-medium">
@@ -723,7 +725,7 @@ export default function MonitorDetailsPage() {
 
 			<TransferToOrgDialog
 				currentOrganizationId={schedule.organizationId}
-				description={`Move "${displayName}" to a different workspace.`}
+				description={`Move "${displayName}" to a different organization.`}
 				isPending={transferMutation.isPending}
 				onOpenChangeAction={setIsTransferOpen}
 				onTransferAction={handleTransfer}
@@ -732,30 +734,15 @@ export default function MonitorDetailsPage() {
 				warning="All monitoring data and configuration will be transferred to {orgName}."
 			/>
 
-			<AlertDialog
-				onOpenChange={setIsDeleteDialogOpen}
-				open={isDeleteDialogOpen}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Monitor</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to delete this uptime monitor? This action
-							cannot be undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							disabled={deleteMutation.isPending}
-							onClick={handleDeleteMonitor}
-						>
-							{deleteMutation.isPending ? "Deleting..." : "Delete Monitor"}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<DeleteDialog
+				confirmLabel="Delete Monitor"
+				description="Are you sure you want to delete this uptime monitor? This action cannot be undone."
+				isDeleting={deleteMutation.isPending}
+				isOpen={isDeleteDialogOpen}
+				onClose={() => setIsDeleteDialogOpen(false)}
+				onConfirm={handleDeleteMonitor}
+				title="Delete Monitor"
+			/>
 		</div>
 	);
 }

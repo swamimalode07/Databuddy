@@ -1,12 +1,12 @@
 "use client";
 
+import { useParams, useRouter } from "next/navigation";
 import {
 	ArrowCounterClockwiseIcon,
 	ArrowLeftIcon,
 	LightningIcon,
-} from "@phosphor-icons/react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+} from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 export default function EventsError({
 	error,
@@ -36,7 +36,7 @@ export default function EventsError({
 				)}
 			</div>
 			<div className="flex gap-2">
-				<Button onClick={reset} variant="outline">
+				<Button onClick={reset} variant="secondary">
 					<ArrowCounterClockwiseIcon className="mr-2 size-4" weight="duotone" />
 					Try again
 				</Button>

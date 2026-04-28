@@ -1,22 +1,19 @@
 /** biome-ignore-all lint/performance/noNamespaceImport: "Required" */
 
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import * as relations from "./drizzle/relations";
 import * as schema from "./drizzle/schema";
 
-const fullSchema = { ...schema, ...relations };
+const fullSchema = schema;
 
-const databaseUrl = process.env.DATABASE_URL as string;
+type DB = NodePgDatabase<typeof fullSchema>;
 
-if (!databaseUrl) {
-	throw new Error("DATABASE_URL is not set");
+let _pgTraceFn: ((durationMs: number) => void) | null = null;
+
+export function setPgTraceFn(fn: (durationMs: number) => void) {
+	_pgTraceFn = fn;
 }
 
-/**
- * libpq accepts `sslrootcert=system` (use OS trust store). node-postgres treats
- * `sslrootcert` as a file path and tries to open `system`, causing ENOENT.
- */
 function connectionStringForNodePg(connectionString: string): string {
 	try {
 		const parsed = new URL(connectionString);
@@ -29,13 +26,76 @@ function connectionStringForNodePg(connectionString: string): string {
 	}
 }
 
-const pool = new Pool({
-	connectionString: connectionStringForNodePg(databaseUrl),
-	max: Number.parseInt(process.env.DB_POOL_MAX ?? "20", 10) || 20,
-	idleTimeoutMillis: 30_000,
-	connectionTimeoutMillis: 5000,
-});
+function wrapQuery(obj: { query: (...args: any[]) => any }): void {
+	const original = obj.query.bind(obj);
+	obj.query = (...args: unknown[]) => {
+		if (!_pgTraceFn) {
+			return original(...args);
+		}
+		const start = performance.now();
+		const result = original(...args);
+		if (result?.then) {
+			return result.then((res: unknown) => {
+				_pgTraceFn?.(Math.round((performance.now() - start) * 100) / 100);
+				return res;
+			});
+		}
+		return result;
+	};
+}
 
-export const db = drizzle(pool, {
-	schema: fullSchema,
+function instrumentedPool(pool: Pool): Pool {
+	const originalConnect = pool.connect.bind(pool);
+	(pool as any).connect = (...args: unknown[]) => {
+		const callback = args[0] as
+			| ((err: Error | undefined, client: unknown, release: unknown) => void)
+			| undefined;
+		if (callback) {
+			return originalConnect(
+				(err: Error | undefined, client: unknown, release: unknown) => {
+					if (client && !err) {
+						wrapQuery(client as Parameters<typeof wrapQuery>[0]);
+					}
+					callback(err, client, release);
+				}
+			);
+		}
+		return (originalConnect as () => Promise<unknown>)().then((client) => {
+			wrapQuery(client as Parameters<typeof wrapQuery>[0]);
+			return client;
+		});
+	};
+
+	wrapQuery(pool);
+	return pool;
+}
+
+let _db: DB | null = null;
+
+function getDb(): DB {
+	if (!_db) {
+		const databaseUrl = process.env.DATABASE_URL;
+		if (!databaseUrl) {
+			throw new Error("DATABASE_URL is not set");
+		}
+
+		const pool = instrumentedPool(
+			new Pool({
+				connectionString: connectionStringForNodePg(databaseUrl),
+				max: Number.parseInt(process.env.DB_POOL_MAX ?? "20", 10) || 20,
+				idleTimeoutMillis: 30_000,
+				connectionTimeoutMillis: 5000,
+				application_name: process.env.SERVICE_NAME || "databuddy",
+			})
+		);
+
+		_db = drizzle(pool, { schema: fullSchema });
+	}
+	return _db;
+}
+
+export const db = new Proxy({} as DB, {
+	get(_, prop) {
+		return Reflect.get(getDb(), prop);
+	},
 });

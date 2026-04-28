@@ -1,9 +1,6 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { useMemo } from "react";
-import { EmptyState } from "@/components/empty-state";
 import { Chart } from "@/components/ui/composables/chart";
 import {
 	chartAxisTickDefault,
@@ -14,8 +11,9 @@ import {
 	chartLegendPillDotClassName,
 	chartLegendPillLabelClassName,
 } from "@/lib/chart-presentation";
-import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
+import { ChartLineIcon, SpinnerIcon } from "@databuddy/ui/icons";
+import { EmptyState, StatusDot, dayjs } from "@databuddy/ui";
 
 const {
 	Area,
@@ -30,8 +28,8 @@ const {
 interface RetentionRate {
 	date: string;
 	new_users: number;
-	returning_users: number;
 	retention_rate: number;
+	returning_users: number;
 }
 
 interface RetentionRateChartProps {
@@ -79,7 +77,7 @@ function CustomTooltip({
 				</div>
 				<div className="flex items-center justify-between gap-4">
 					<div className="flex items-center gap-2">
-						<div className="size-2 rounded-full bg-success" />
+						<StatusDot color="success" size="md" />
 						<span className="text-muted-foreground text-xs">Returning</span>
 					</div>
 					<span className="font-medium text-foreground text-xs tabular-nums">
@@ -159,7 +157,6 @@ export function RetentionRateChart({
 				</div>
 			</div>
 
-			{/* Chart */}
 			<div className="min-h-0 flex-1">
 				<ResponsiveContainer height="100%" width="100%">
 					<AreaChart

@@ -1,19 +1,5 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	BookOpenIcon,
-	BugIcon,
-	CaretDownIcon,
-	CheckIcon,
-	ClipboardIcon,
-	CodeIcon,
-	GearIcon,
-	LightningIcon,
-	PackageIcon,
-	PulseIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";
@@ -24,16 +10,11 @@ import html from "shiki/langs/html.mjs";
 import tsx from "shiki/langs/tsx.mjs";
 import vesper from "shiki/themes/vesper.mjs";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
@@ -47,6 +28,22 @@ import {
 } from "../shared/tracking-constants";
 import { generateNpmCode, generateScriptTag } from "../utils/code-generators";
 import type { TrackingOptionConfig, TrackingOptions } from "../utils/types";
+import {
+	ArrowClockwiseIcon,
+	BookOpenIcon,
+	BugIcon,
+	CaretDownIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CodeIcon,
+	GearIcon,
+	LightningIcon,
+	PackageIcon,
+	PulseIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
+import { Switch, Tabs } from "@databuddy/ui/client";
 
 interface TrackingSetupTabProps {
 	websiteId: string;
@@ -185,7 +182,7 @@ function TrackingStatusBanner({
 					: "border-amber-500/30 bg-amber-500/5"
 			)}
 		>
-			<CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+			<Card.Content className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-center gap-3">
 					<div
 						className={cn(
@@ -207,7 +204,7 @@ function TrackingStatusBanner({
 							<h3 className="font-semibold text-sm">
 								{isSetup ? "Tracking Active" : "Awaiting Installation"}
 							</h3>
-							<Badge variant={isSetup ? "green" : "amber"}>
+							<Badge variant={isSetup ? "success" : "warning"}>
 								{isSetup ? "Live" : "Pending"}
 							</Badge>
 						</div>
@@ -226,12 +223,12 @@ function TrackingStatusBanner({
 					variant="outline"
 				>
 					<ArrowClockwiseIcon
-						className={cn("size-3.5", isRefreshing && "animate-spin")}
+						className={cn("size-3.5 shrink-0", isRefreshing && "animate-spin")}
 						weight="bold"
 					/>
 					{isRefreshing ? "Checking…" : "Check Status"}
 				</Button>
-			</CardContent>
+			</Card.Content>
 		</Card>
 	);
 }
@@ -258,19 +255,19 @@ function InstallationStep({
 
 	return (
 		<div className="space-y-4">
-			<Tabs className="w-full" defaultValue="script" variant="underline">
-				<TabsList>
-					<TabsTrigger value="script">
+			<Tabs className="w-full" defaultValue="script">
+				<Tabs.List>
+					<Tabs.Tab value="script">
 						<CodeIcon className="size-3.5" weight="duotone" />
 						Script Tag
-					</TabsTrigger>
-					<TabsTrigger value="npm">
+					</Tabs.Tab>
+					<Tabs.Tab value="npm">
 						<PackageIcon className="size-3.5" weight="duotone" />
 						SDK Package
-					</TabsTrigger>
-				</TabsList>
+					</Tabs.Tab>
+				</Tabs.List>
 
-				<TabsContent className="mt-4 space-y-3" value="script">
+				<Tabs.Panel className="mt-4 space-y-3" value="script">
 					<p className="text-muted-foreground text-sm">
 						Add this script to the{" "}
 						<code className="rounded bg-accent px-1.5 py-0.5 font-mono text-xs">
@@ -300,27 +297,23 @@ function InstallationStep({
 							installation.
 						</p>
 					</div>
-				</TabsContent>
+				</Tabs.Panel>
 
-				<TabsContent className="mt-4 space-y-4" value="npm">
+				<Tabs.Panel className="mt-4 space-y-4" value="npm">
 					<div className="space-y-3">
 						<p className="text-muted-foreground text-sm">
 							Install the package using your preferred package manager:
 						</p>
-						<Tabs className="w-full" defaultValue="bun" variant="underline">
-							<TabsList>
+						<Tabs className="w-full" defaultValue="bun">
+							<Tabs.List>
 								{Object.keys(installCommands).map((manager) => (
-									<TabsTrigger
-										className="text-xs"
-										key={manager}
-										value={manager}
-									>
+									<Tabs.Tab className="text-xs" key={manager} value={manager}>
 										{manager}
-									</TabsTrigger>
+									</Tabs.Tab>
 								))}
-							</TabsList>
+							</Tabs.List>
 							{Object.entries(installCommands).map(([manager, command]) => (
-								<TabsContent className="mt-3" key={manager} value={manager}>
+								<Tabs.Panel className="mt-3" key={manager} value={manager}>
 									<CodeSnippet
 										code={command}
 										copied={copiedBlockId === `${manager}-install`}
@@ -332,7 +325,7 @@ function InstallationStep({
 											)
 										}
 									/>
-								</TabsContent>
+								</Tabs.Panel>
 							))}
 						</Tabs>
 					</div>
@@ -349,20 +342,20 @@ function InstallationStep({
 							}
 						/>
 					</div>
-				</TabsContent>
+				</Tabs.Panel>
 			</Tabs>
 
 			<div className="flex items-center gap-2 pt-2">
-				<span className="text-muted-foreground text-xs">Website ID:</span>
+				<span className="text-muted-foreground text-xs">Client ID:</span>
 				<button
 					className="group flex items-center gap-1.5 rounded bg-accent px-2 py-1 font-mono text-xs hover:bg-accent-brighter"
 					onClick={() =>
-						onCopyCode(websiteId, "website-id", "Website ID copied!")
+						onCopyCode(websiteId, "client-id", "Client ID copied!")
 					}
 					type="button"
 				>
 					<span className="truncate">{websiteId}</span>
-					{copiedBlockId === "website-id" ? (
+					{copiedBlockId === "client-id" ? (
 						<CheckIcon className="size-3 text-success" weight="bold" />
 					) : (
 						<ClipboardIcon
@@ -619,7 +612,7 @@ function DiagnosticsStep() {
 											<code className="rounded bg-accent px-1 py-0.5 font-mono">
 												{"<head>"}
 											</code>{" "}
-											section and your website ID is correct.
+											section and your Client ID is correct.
 										</p>
 									</div>
 								</div>
@@ -705,7 +698,7 @@ function DiagnosticsStep() {
 											troubleshooting documentation
 										</a>{" "}
 										for detailed debugging steps, or contact support with your
-										website ID for personalized help.
+										Client ID for personalized help.
 									</p>
 								</div>
 							</div>
@@ -731,7 +724,7 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 		enabled: !!websiteId,
 	});
 
-	const isSetup = trackingSetupData?.tracking_setup ?? false;
+	const isSetup = Boolean(trackingSetupData?.tracking_setup);
 
 	const handleCopyCode = (code: string, blockId: string, message: string) => {
 		navigator.clipboard.writeText(code);
@@ -761,17 +754,17 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 	};
 
 	return (
-		<div className="space-y-4">
+		<>
 			<TrackingStatusBanner
 				isRefreshing={isRefreshing}
 				isSetup={isSetup}
 				onRefresh={handleRefresh}
 			/>
 
-			<div className="space-y-4">
+			<div className="space-y-6">
 				{/* Step 1: Install */}
 				<Card className="gap-0 py-0">
-					<CardContent className="p-0">
+					<Card.Content className="p-0">
 						<div className="border-b p-4">
 							<StepIndicator
 								description="Add the tracking script to your website"
@@ -790,12 +783,12 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 								websiteId={websiteId}
 							/>
 						</div>
-					</CardContent>
+					</Card.Content>
 				</Card>
 
 				{/* Step 2: Configure */}
 				<Card className="gap-0 py-0">
-					<CardContent className="p-0">
+					<Card.Content className="p-0">
 						<div className="border-b p-4">
 							<StepIndicator
 								description="Choose what data to collect"
@@ -810,12 +803,12 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 								trackingOptions={trackingOptions}
 							/>
 						</div>
-					</CardContent>
+					</Card.Content>
 				</Card>
 
 				{/* Step 3: Diagnostics */}
 				<Card className="gap-0 py-0">
-					<CardContent className="p-0">
+					<Card.Content className="p-0">
 						<div className="border-b p-4">
 							<StepIndicator
 								description="Test your setup and troubleshoot issues"
@@ -826,11 +819,10 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 						<div className="p-4">
 							<DiagnosticsStep />
 						</div>
-					</CardContent>
+					</Card.Content>
 				</Card>
 			</div>
 
-			{/* Help Footer */}
 			<div className="flex flex-wrap items-center justify-between gap-4 rounded border border-dashed bg-background/50 p-3">
 				<span className="text-muted-foreground text-sm">
 					Need help setting up?
@@ -846,6 +838,6 @@ export function WebsiteTrackingSetupTab({ websiteId }: TrackingSetupTabProps) {
 					</a>
 				</Button>
 			</div>
-		</div>
+		</>
 	);
 }

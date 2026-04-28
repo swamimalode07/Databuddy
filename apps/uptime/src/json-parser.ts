@@ -16,8 +16,8 @@ const LATENCY_KEYS = [
 ] as const;
 
 export interface ServiceHealth {
-	status?: string | number | boolean;
 	latency?: number | string;
+	status?: string | number | boolean;
 	[key: string]: unknown;
 }
 
@@ -38,7 +38,7 @@ function findLatency(
 			}
 		}
 	}
-	return undefined;
+	return;
 }
 
 function isHealthObject(obj: Record<string, unknown>): boolean {

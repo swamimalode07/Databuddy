@@ -1,17 +1,13 @@
 "use client";
 
-import {
-	CopyIcon,
-	DownloadSimpleIcon,
-	ImageIcon,
-	XIcon,
-} from "@phosphor-icons/react";
 import { useCallback, useRef, useState } from "react";
 import { QRCode } from "react-qrcode-logo";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LINKS_FULL_URL } from "./link-constants";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import { CopyIcon, DownloadSimpleIcon, ImageIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 type QrStyle = "squares" | "dots";
 
@@ -34,10 +30,10 @@ const QR_COLORS = [
 ];
 
 interface LinkQrCodeProps {
-	slug: string;
+	className?: string;
 	name: string;
 	showControls?: boolean;
-	className?: string;
+	slug: string;
 }
 
 export function LinkQrCode({
@@ -128,7 +124,6 @@ export function LinkQrCode({
 
 	return (
 		<div className={cn("flex flex-col gap-6", className)}>
-			{/* Preview */}
 			<div className="flex flex-col items-center gap-3">
 				<div className="rounded border bg-white p-4" ref={qrContainerRef}>
 					<QRCode
@@ -155,9 +150,8 @@ export function LinkQrCode({
 
 			{showControls && (
 				<>
-					{/* Download Actions */}
 					<div className="flex justify-center gap-2">
-						<Button onClick={copyQrCode} size="sm" variant="outline">
+						<Button onClick={copyQrCode} size="sm" variant="secondary">
 							<CopyIcon size={16} weight="duotone" />
 							Copy
 						</Button>
@@ -169,7 +163,6 @@ export function LinkQrCode({
 
 					<div className="h-px bg-border" />
 
-					{/* Resolution */}
 					<div className="space-y-2">
 						<span className="font-medium text-foreground text-sm">
 							Resolution
@@ -199,7 +192,6 @@ export function LinkQrCode({
 						</div>
 					</div>
 
-					{/* Style */}
 					<div className="space-y-2">
 						<span className="font-medium text-foreground text-sm">Style</span>
 						<div className="grid grid-cols-2 gap-2">
@@ -224,7 +216,6 @@ export function LinkQrCode({
 						</div>
 					</div>
 
-					{/* Color */}
 					<div className="space-y-2">
 						<span className="font-medium text-foreground text-sm">Color</span>
 						<div className="flex flex-wrap gap-2">
@@ -246,7 +237,6 @@ export function LinkQrCode({
 						</div>
 					</div>
 
-					{/* Logo */}
 					<div className="space-y-2">
 						<span
 							className="font-medium text-foreground text-sm"

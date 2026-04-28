@@ -1,13 +1,25 @@
 "use client";
 
+import { FaviconImage } from "@/components/analytics/favicon-image";
+import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
+import { TopBar } from "@/components/layout/top-bar";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { useDateFilters } from "@/hooks/use-date-filters";
+import { getDeviceIcon } from "@/lib/utils";
+import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import {
 	getCountryCode,
 	getCountryName,
 } from "@databuddy/shared/country-codes";
 import type { ProfileData } from "@databuddy/shared/types/analytics";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr/UsersThree";
+import { GlobeIcon, UsersIcon } from "@databuddy/ui/icons";
 import {
 	type ColumnDef,
 	flexRender,
@@ -18,31 +30,9 @@ import { useAtomValue } from "jotai";
 import Image from "next/image";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
-import { FaviconImage } from "@/components/analytics/favicon-image";
-import { EmptyState } from "@/components/empty-state";
-import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useDateFilters } from "@/hooks/use-date-filters";
-import dayjs from "@/lib/dayjs";
-import { getDeviceIcon } from "@/lib/utils";
-import { dynamicQueryFiltersAtom } from "@/stores/jotai/filterAtoms";
 import { generateProfileName } from "./[userId]/_components/generate-profile-name";
 import { useProfilesData } from "./use-users";
+import { Badge, EmptyState, Skeleton, Tooltip, dayjs } from "@databuddy/ui";
 
 const wwwRegex = /^www\./;
 
@@ -299,7 +289,7 @@ export default function UsersPage() {
 					const sessionCount = row.original.session_count ?? 0;
 					const isReturning = sessionCount > 1;
 					return (
-						<Badge variant={isReturning ? "default" : "secondary"}>
+						<Badge variant={isReturning ? "default" : "muted"}>
 							{isReturning ? "Return" : "New"}
 						</Badge>
 					);
@@ -333,11 +323,9 @@ export default function UsersPage() {
 	if (isLoading && isInitialLoad) {
 		return (
 			<div className="flex h-full flex-col">
-				<PageHeader
-					description="View detailed visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 					<div className="overflow-auto">
@@ -370,12 +358,9 @@ export default function UsersPage() {
 	if (isError) {
 		return (
 			<div className="flex h-full flex-col">
-				{/* Header */}
-				<PageHeader
-					description="View detailed visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<div className="flex min-h-0 flex-1 flex-col items-center justify-center py-24 text-center text-muted-foreground">
 					<UsersIcon className="mb-4 size-12 opacity-50" />
@@ -391,17 +376,14 @@ export default function UsersPage() {
 	if (!allUsers || allUsers.length === 0) {
 		return (
 			<div className="flex h-full flex-col">
-				{/* Header */}
-				<PageHeader
-					description="View detailed visitor profiles and activity"
-					icon={<UsersThreeIcon />}
-					title="Users"
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Users</h1>
+				</TopBar.Title>
 
 				<EmptyState
-					description="Users will appear here once visitors browse your website"
+					description="Users appear here once visitors arrive."
 					icon={<UsersIcon />}
-					title="No users found"
+					title="No users yet"
 					variant="minimal"
 				/>
 			</div>
@@ -410,15 +392,10 @@ export default function UsersPage() {
 
 	return (
 		<div className="flex h-full flex-col">
-			{/* Header */}
-			<PageHeader
-				count={allUsers.length}
-				description="View detailed visitor profiles and activity"
-				icon={<UsersThreeIcon />}
-				title="Users"
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Users</h1>
+			</TopBar.Title>
 
-			{/* Content */}
 			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 				<div className="h-full overflow-auto" ref={setScrollContainerRef}>
 					<Table>
@@ -450,13 +427,40 @@ export default function UsersPage() {
 						<TableBody>
 							{table.getRowModel().rows.map((row) => (
 								<TableRow
-									className="h-[49px] cursor-pointer"
+									className="h-[49px] cursor-pointer focus-visible:bg-accent/70 focus-visible:outline-none"
 									key={row.id}
 									onClick={() => {
 										router.push(
 											`/websites/${websiteId}/users/${row.original.visitor_id}`
 										);
 									}}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											e.currentTarget.click();
+											return;
+										}
+										if (e.key === "ArrowDown" || e.key === "j") {
+											e.preventDefault();
+											(
+												e.currentTarget.nextElementSibling as HTMLElement | null
+											)?.focus();
+											return;
+										}
+										if (e.key === "ArrowUp" || e.key === "k") {
+											e.preventDefault();
+											(
+												e.currentTarget
+													.previousElementSibling as HTMLElement | null
+											)?.focus();
+											return;
+										}
+										if (e.key === "Escape") {
+											e.preventDefault();
+											(e.currentTarget as HTMLElement).blur();
+										}
+									}}
+									tabIndex={0}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -475,7 +479,6 @@ export default function UsersPage() {
 								</TableRow>
 							))}
 
-							{/* Load more trigger */}
 							{pagination.hasNext && (
 								<>
 									<TableRow>
@@ -511,17 +514,22 @@ const Source = ({ referrer }: { referrer: string }) => {
 		}
 	};
 
+	const span = (
+		<span className="truncate text-sm" ref={checkTextOverflow}>
+			{referrer}
+		</span>
+	);
+
 	return (
 		<div className="flex min-w-0 max-w-[100px] items-center gap-1.5">
 			<FaviconImage domain={referrer} size={14} />
-			<Tooltip open={isTextTruncated ? undefined : false}>
-				<TooltipTrigger asChild>
-					<span className="truncate text-sm" ref={checkTextOverflow}>
-						{referrer}
-					</span>
-				</TooltipTrigger>
-				<TooltipContent side="right">{referrer}</TooltipContent>
-			</Tooltip>
+			{isTextTruncated ? (
+				<Tooltip content={referrer} side="right">
+					{span}
+				</Tooltip>
+			) : (
+				span
+			)}
 		</div>
 	);
 };

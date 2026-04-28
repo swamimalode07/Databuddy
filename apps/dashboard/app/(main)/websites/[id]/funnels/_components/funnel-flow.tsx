@@ -1,21 +1,17 @@
 "use client";
 
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useLayoutEffect, useRef, useState } from "react";
+import { Tooltip } from "@databuddy/ui";
+import { cn } from "@/lib/utils";
+import type { FunnelStepAnalytics } from "@/types/funnels";
 import {
 	ArrowSquareOutIcon,
 	CaretDownIcon,
 	CheckCircleIcon,
 	WarningCircleIcon,
-} from "@phosphor-icons/react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useLayoutEffect, useRef, useState } from "react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
-import type { FunnelStepAnalytics } from "@/types/funnels";
+} from "@databuddy/ui/icons";
 
 interface FunnelFlowProps {
 	steps: FunnelStepAnalytics[];
@@ -38,8 +34,8 @@ const LINE_WIDTH = 1;
 const LINE_GAP = 2;
 
 interface LineProgressProps {
-	percentage: number;
 	isLast: boolean;
+	percentage: number;
 }
 
 function LineProgress({ percentage, isLast }: LineProgressProps) {
@@ -117,7 +113,6 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 
 				return (
 					<div key={step.step_number}>
-						{/* Drop-off connector */}
 						{index !== 0 && (
 							<div className="flex items-center justify-center gap-3 border-y bg-secondary/50 py-2">
 								<div className="flex items-center gap-1.5 text-xs">
@@ -140,9 +135,7 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 							</div>
 						)}
 
-						{/* Step card */}
 						<div className="flex items-center gap-4 p-4">
-							{/* Step number badge */}
 							<div
 								className={cn(
 									"flex size-10 shrink-0 items-center justify-center rounded-full font-semibold text-sm",
@@ -158,7 +151,6 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 								)}
 							</div>
 
-							{/* Step content */}
 							<div className="min-w-0 flex-1">
 								<div className="mb-2 flex items-baseline justify-between gap-2">
 									<div className="flex items-center gap-2">
@@ -166,20 +158,9 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 											{step.step_name}
 										</span>
 										{step.error_count > 0 && (
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<div className="flex shrink-0 cursor-help items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive text-xs">
-														<WarningCircleIcon
-															className="size-3"
-															weight="fill"
-														/>
-														<span className="font-medium tabular-nums">
-															{step.error_count}
-														</span>
-													</div>
-												</TooltipTrigger>
-												<TooltipContent className="max-w-xs" side="top">
-													<div className="space-y-1.5">
+											<Tooltip
+												content={
+													<div className="max-w-xs space-y-1.5">
 														<p className="font-medium text-sm">
 															{step.error_count} error
 															{step.error_count === 1 ? "" : "s"} (
@@ -213,7 +194,15 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 															<ArrowSquareOutIcon className="size-3" />
 														</Link>
 													</div>
-												</TooltipContent>
+												}
+												side="top"
+											>
+												<div className="flex shrink-0 cursor-help items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive text-xs">
+													<WarningCircleIcon className="size-3" weight="fill" />
+													<span className="font-medium tabular-nums">
+														{step.error_count}
+													</span>
+												</div>
 											</Tooltip>
 										)}
 									</div>
@@ -222,11 +211,9 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 									</span>
 								</div>
 
-								{/* Line progress */}
 								<LineProgress isLast={isLast} percentage={totalConversion} />
 							</div>
 
-							{/* Conversion percentage */}
 							<div
 								className={cn(
 									"w-16 shrink-0 text-right font-bold text-lg tabular-nums",
@@ -240,7 +227,6 @@ export function FunnelFlow({ steps }: FunnelFlowProps) {
 				);
 			})}
 
-			{/* Summary footer */}
 			{lastStep && steps.length > 1 && (
 				<div className="flex items-center justify-between border-border border-t bg-secondary/50 px-4 py-3">
 					<span className="text-muted-foreground text-sm">

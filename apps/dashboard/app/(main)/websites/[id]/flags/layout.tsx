@@ -1,36 +1,30 @@
 "use client";
 
 import { useFlag } from "@databuddy/sdk/react";
-import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import {
-	ArchiveIcon,
-	FlagIcon,
-	InfoIcon,
-	LayoutIcon,
-	UsersThreeIcon,
-} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useParams, usePathname } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { PageNavigation } from "@/components/layout/page-navigation";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useHydrated } from "@/hooks/use-hydrated";
-import { useWebsite } from "@/hooks/use-websites";
 import { orpc } from "@/lib/orpc";
 import { isAnalyticsRefreshingAtom } from "@/stores/jotai/filterAtoms";
 import {
 	isFlagSheetOpenAtom,
 	isGroupSheetOpenAtom,
 } from "@/stores/jotai/flagsAtoms";
-import { WebsitePageHeader } from "../_components/website-page-header";
+import { TopBar } from "@/components/layout/top-bar";
+import { cn } from "@/lib/utils";
 import { HARDCODED_TEMPLATES } from "./templates/_data/templates";
+import {
+	ArchiveIcon,
+	ArrowClockwiseIcon,
+	FlagIcon,
+	InfoIcon,
+	LayoutIcon,
+	PlusIcon,
+	UsersThreeIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Skeleton, Tooltip, useHydrated } from "@databuddy/ui";
 
 export default function FlagsLayout({
 	children,
@@ -44,21 +38,11 @@ export default function FlagsLayout({
 	const [, setIsFlagSheetOpen] = useAtom(isFlagSheetOpenAtom);
 	const [, setIsGroupSheetOpen] = useAtom(isGroupSheetOpenAtom);
 
-	const { data: website } = useWebsite(websiteId);
-
-	const {
-		data: flags,
-		isLoading: flagsLoading,
-		refetch: refetchFlags,
-	} = useQuery({
+	const { data: flags, refetch: refetchFlags } = useQuery({
 		...orpc.flags.list.queryOptions({ input: { websiteId } }),
 	});
 
-	const {
-		data: groups,
-		isLoading: groupsLoading,
-		refetch: refetchGroups,
-	} = useQuery({
+	const { data: groups, refetch: refetchGroups } = useQuery({
 		...orpc.targetGroups.list.queryOptions({ input: { websiteId } }),
 	});
 
@@ -76,12 +60,6 @@ export default function FlagsLayout({
 	const isGroupsPage = pathname?.includes("/groups");
 	const isTemplatesPage = pathname?.includes("/templates");
 	const isArchivePage = pathname?.includes("/archive");
-	const isLoading = isTemplatesPage
-		? false
-		: isGroupsPage
-			? groupsLoading
-			: flagsLoading;
-
 	const { on: isExperimentOn, loading: experimentLoading } =
 		useFlag("experiment-50");
 	const isHydrated = useHydrated();
@@ -111,88 +89,48 @@ export default function FlagsLayout({
 
 	return (
 		<div className="flex h-full min-h-0 flex-col">
-			<WebsitePageHeader
-				createActionLabel={
-					isTemplatesPage || isArchivePage
-						? undefined
-						: isGroupsPage
-							? "Create Group"
-							: "Create Flag"
-				}
-				currentUsage={
-					isTemplatesPage
-						? templates?.length
-						: isGroupsPage
-							? groups?.length
-							: isArchivePage
-								? archivedFlags.length
-								: activeFlags.length
-				}
-				description={
-					isTemplatesPage
-						? "Pre-configured flag templates for common use cases"
-						: isGroupsPage
-							? "Reusable targeting rules for your flags"
-							: isArchivePage
-								? "Flags that have been archived"
-								: "Control feature rollouts and A/B testing"
-				}
-				docsUrl="https://www.databuddy.cc/docs/sdk/feature-flags"
-				feature={
-					isGroupsPage || isTemplatesPage || isArchivePage
-						? undefined
-						: GATED_FEATURES.FEATURE_FLAGS
-				}
-				icon={
-					isTemplatesPage ? (
-						<LayoutIcon className="size-6 text-accent-foreground" />
-					) : isGroupsPage ? (
-						<UsersThreeIcon className="size-6 text-accent-foreground" />
-					) : isArchivePage ? (
-						<ArchiveIcon className="size-6 text-accent-foreground" />
-					) : (
-						<FlagIcon className="size-6 text-accent-foreground" />
-					)
-				}
-				isLoading={isLoading}
-				isRefreshing={isRefreshing}
-				onCreateAction={
-					isTemplatesPage || isArchivePage
-						? undefined
-						: () => {
-								if (isGroupsPage) {
-									setIsGroupSheetOpen(true);
-								} else {
-									setIsFlagSheetOpen(true);
-								}
-							}
-				}
-				onRefreshAction={isTemplatesPage ? undefined : handleRefresh}
-				subtitle={
-					isLoading
-						? undefined
-						: isTemplatesPage
-							? `${templates?.length ?? 0} template${(templates?.length ?? 0) === 1 ? "" : "s"}`
-							: isGroupsPage
-								? `${groups?.length ?? 0} group${(groups?.length ?? 0) === 1 ? "" : "s"}`
-								: isArchivePage
-									? `${archivedFlags.length} archived`
-									: `${activeFlags.length} flag${activeFlags.length === 1 ? "" : "s"}`
-				}
-				title={
-					isTemplatesPage
+			<TopBar.Title>
+				<h1 className="font-medium text-sm">
+					{isTemplatesPage
 						? "Flag Templates"
 						: isGroupsPage
 							? "Target Groups"
 							: isArchivePage
 								? "Archived Flags"
-								: "Feature Flags"
-				}
-				websiteId={websiteId}
-				websiteName={website?.name ?? undefined}
-			/>
+								: "Feature Flags"}
+				</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				{!isTemplatesPage && (
+					<Button
+						aria-label="Refresh"
+						disabled={isRefreshing}
+						onClick={handleRefresh}
+						size="sm"
+						variant="secondary"
+					>
+						<ArrowClockwiseIcon
+							className={cn("size-4 shrink-0", isRefreshing && "animate-spin")}
+						/>
+					</Button>
+				)}
+				{!(isTemplatesPage || isArchivePage) && (
+					<Button
+						onClick={() => {
+							if (isGroupsPage) {
+								setIsGroupSheetOpen(true);
+							} else {
+								setIsFlagSheetOpen(true);
+							}
+						}}
+						size="sm"
+					>
+						<PlusIcon className="size-4 shrink-0" />
+						{isGroupsPage ? "Create Group" : "Create Flag"}
+					</Button>
+				)}
+			</TopBar.Actions>
 
-			{/* Navigation Tabs */}
 			<PageNavigation
 				tabs={[
 					{
@@ -240,30 +178,32 @@ export default function FlagsLayout({
 							{isExperimentOn ? (
 								<Badge variant="destructive">Red Team</Badge>
 							) : (
-								<Badge variant="blue">Blue Team</Badge>
+								<Badge
+									className="bg-blue-500/15 text-blue-600 dark:text-blue-400"
+									variant="default"
+								>
+									Blue Team
+								</Badge>
 							)}
 						</div>
-						<Tooltip delayDuration={500}>
-							<TooltipTrigger asChild>
-								<button
-									className="flex items-center gap-1.5 text-foreground text-sm hover:text-foreground/80"
-									type="button"
-								>
-									<InfoIcon className="size-4" weight="duotone" />
-									<span className="hidden sm:inline">A/B Test Experiment</span>
-								</button>
-							</TooltipTrigger>
-							<TooltipContent className="max-w-xs">
+						<Tooltip
+							content={
 								<div className="space-y-2">
 									<p className="font-medium">A/B Test Experiment</p>
 									<p className="text-xs leading-relaxed">
-										This is a proof-of-concept feature flag demonstrating A/B
-										testing capabilities. Approximately 50% of users are
-										randomly assigned to the "Red Team" experience, while the
-										other 50% see the "Blue Team" experience.
+										Live demo: ~50% of users see Red Team, ~50% see Blue Team.
 									</p>
 								</div>
-							</TooltipContent>
+							}
+							delay={500}
+						>
+							<button
+								className="flex items-center gap-1.5 text-foreground text-sm hover:text-foreground/80"
+								type="button"
+							>
+								<InfoIcon className="size-4" weight="duotone" />
+								<span className="hidden sm:inline">A/B Test Experiment</span>
+							</button>
 						</Tooltip>
 					</div>
 				) : (
@@ -277,7 +217,6 @@ export default function FlagsLayout({
 				)}
 			</div>
 
-			{/* Page Content */}
 			<div className="min-h-0 flex-1 overflow-hidden">{children}</div>
 		</div>
 	);

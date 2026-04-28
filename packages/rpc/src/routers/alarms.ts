@@ -1,18 +1,15 @@
+import { db, eq, withTransaction } from "@databuddy/db";
 import {
 	alarmDestinations,
 	alarmDestinationTypeValues,
 	alarms,
 	alarmTriggerTypeValues,
-	db,
-	eq,
-} from "@databuddy/db";
-import {
-	type NotificationChannel,
-	NotificationClient,
-} from "@databuddy/notifications";
+} from "@databuddy/db/schema";
+import { NotificationClient } from "@databuddy/notifications";
 import { randomUUIDv7 } from "bun";
 import { z } from "zod";
 import { rpcError } from "../errors";
+import { toNotificationConfig } from "../lib/alarm-notifications";
 import { protectedProcedure } from "../orpc";
 import { withWorkspace } from "../procedures/with-workspace";
 
@@ -88,9 +85,9 @@ export const alarmsRouter = {
 		})
 		.input(z.object({ alarmId: z.string() }))
 		.output(alarmOutputSchema)
-		.handler(({ context, input }) => {
-			return getAlarmAndAuthorize(input.alarmId, context);
-		}),
+		.handler(({ context, input }) =>
+			getAlarmAndAuthorize(input.alarmId, context)
+		),
 
 	create: protectedProcedure
 		.route({
@@ -125,32 +122,34 @@ export const alarmsRouter = {
 			const alarmId = randomUUIDv7();
 			const now = new Date();
 
-			await db.insert(alarms).values({
-				id: alarmId,
-				organizationId: input.organizationId,
-				websiteId: input.websiteId ?? null,
-				name: input.name,
-				description: input.description ?? null,
-				enabled: input.enabled,
-				triggerType: input.triggerType,
-				triggerConditions: input.triggerConditions,
-				createdAt: now,
-				updatedAt: now,
-			});
+			await withTransaction(async (tx) => {
+				await tx.insert(alarms).values({
+					id: alarmId,
+					organizationId: input.organizationId,
+					websiteId: input.websiteId ?? null,
+					name: input.name,
+					description: input.description ?? null,
+					enabled: input.enabled,
+					triggerType: input.triggerType,
+					triggerConditions: input.triggerConditions,
+					createdAt: now,
+					updatedAt: now,
+				});
 
-			if (input.destinations.length > 0) {
-				await db.insert(alarmDestinations).values(
-					input.destinations.map((d) => ({
-						id: randomUUIDv7(),
-						alarmId,
-						type: d.type,
-						identifier: d.identifier,
-						config: d.config,
-						createdAt: now,
-						updatedAt: now,
-					}))
-				);
-			}
+				if (input.destinations.length > 0) {
+					await tx.insert(alarmDestinations).values(
+						input.destinations.map((d) => ({
+							id: randomUUIDv7(),
+							alarmId,
+							type: d.type,
+							identifier: d.identifier,
+							config: d.config,
+							createdAt: now,
+							updatedAt: now,
+						}))
+					);
+				}
+			});
 
 			return getAlarmAndAuthorize(alarmId, context);
 		}),
@@ -180,50 +179,37 @@ export const alarmsRouter = {
 			await getAlarmAndAuthorize(input.alarmId, context, ["update"]);
 			const now = new Date();
 
-			const updateData: Record<string, unknown> = { updatedAt: now };
-			if (input.name !== undefined) {
-				updateData.name = input.name;
-			}
-			if (input.description !== undefined) {
-				updateData.description = input.description;
-			}
-			if (input.enabled !== undefined) {
-				updateData.enabled = input.enabled;
-			}
-			if (input.websiteId !== undefined) {
-				updateData.websiteId = input.websiteId;
-			}
-			if (input.triggerType !== undefined) {
-				updateData.triggerType = input.triggerType;
-			}
-			if (input.triggerConditions !== undefined) {
-				updateData.triggerConditions = input.triggerConditions;
-			}
+			const { alarmId, destinations, ...fields } = input;
+			const updateData = Object.fromEntries(
+				Object.entries(fields).filter(([_, v]) => v !== undefined)
+			);
 
-			await db
-				.update(alarms)
-				.set(updateData)
-				.where(eq(alarms.id, input.alarmId));
+			await withTransaction(async (tx) => {
+				await tx
+					.update(alarms)
+					.set({ ...updateData, updatedAt: now })
+					.where(eq(alarms.id, alarmId));
 
-			if (input.destinations !== undefined) {
-				await db
-					.delete(alarmDestinations)
-					.where(eq(alarmDestinations.alarmId, input.alarmId));
+				if (input.destinations !== undefined) {
+					await tx
+						.delete(alarmDestinations)
+						.where(eq(alarmDestinations.alarmId, input.alarmId));
 
-				if (input.destinations.length > 0) {
-					await db.insert(alarmDestinations).values(
-						input.destinations.map((d) => ({
-							id: randomUUIDv7(),
-							alarmId: input.alarmId,
-							type: d.type,
-							identifier: d.identifier,
-							config: d.config,
-							createdAt: now,
-							updatedAt: now,
-						}))
-					);
+					if (input.destinations.length > 0) {
+						await tx.insert(alarmDestinations).values(
+							input.destinations.map((d) => ({
+								id: randomUUIDv7(),
+								alarmId: input.alarmId,
+								type: d.type,
+								identifier: d.identifier,
+								config: d.config,
+								createdAt: now,
+								updatedAt: now,
+							}))
+						);
+					}
 				}
-			}
+			});
 
 			return getAlarmAndAuthorize(input.alarmId, context);
 		}),
@@ -271,39 +257,9 @@ export const alarmsRouter = {
 				throw rpcError.badRequest("Alarm has no destinations configured");
 			}
 
-			const clientConfig: Record<string, Record<string, unknown>> = {};
-			const channels: NotificationChannel[] = [];
-
-			for (const dest of alarm.destinations) {
-				const cfg = (dest.config ?? {}) as Record<string, unknown>;
-
-				if (dest.type === "slack") {
-					clientConfig.slack = { webhookUrl: dest.identifier };
-					channels.push("slack");
-				} else if (dest.type === "discord") {
-					clientConfig.discord = { webhookUrl: dest.identifier };
-					channels.push("discord");
-				} else if (dest.type === "teams") {
-					clientConfig.teams = { webhookUrl: dest.identifier };
-					channels.push("teams");
-				} else if (dest.type === "google_chat") {
-					clientConfig.googleChat = { webhookUrl: dest.identifier };
-					channels.push("google-chat");
-				} else if (dest.type === "telegram") {
-					clientConfig.telegram = {
-						botToken: cfg.botToken as string,
-						chatId: dest.identifier || (cfg.chatId as string),
-					};
-					channels.push("telegram");
-				} else if (dest.type === "webhook") {
-					clientConfig.webhook = {
-						url: dest.identifier,
-						headers: cfg.headers as Record<string, string> | undefined,
-					};
-					channels.push("webhook");
-				}
-			}
-
+			const { clientConfig, channels } = toNotificationConfig(
+				alarm.destinations
+			);
 			const client = new NotificationClient(clientConfig);
 
 			const raw = await client.send(

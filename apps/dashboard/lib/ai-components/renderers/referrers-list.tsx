@@ -1,24 +1,24 @@
 "use client";
 
-import { GlobeIcon } from "@phosphor-icons/react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import { Card } from "@/components/ui/card";
 import { TruncatedText } from "@/components/ui/truncated-text";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../types";
+import { GlobeIcon } from "@databuddy/ui/icons";
+import { Card } from "@databuddy/ui";
 
 export interface ReferrerItem {
-	name: string;
-	referrer?: string;
 	domain?: string;
-	visitors: number;
+	name: string;
 	pageviews?: number;
 	percentage?: number;
+	referrer?: string;
+	visitors: number;
 }
 
 export interface ReferrersListProps extends BaseComponentProps {
-	title?: string;
 	referrers: ReferrerItem[];
+	title?: string;
 }
 
 function formatNumber(value: number): string {

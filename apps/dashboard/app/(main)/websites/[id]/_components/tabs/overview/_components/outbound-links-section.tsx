@@ -3,24 +3,15 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { DataTable, type TabConfig } from "@/components/table/data-table";
-import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
 import type {
 	OutboundDomainRow,
 	OutboundLinkRow,
 	OutboundLinksSectionProps,
 } from "@/types/outbound-links";
+import { PercentageBadge } from "@databuddy/ui";
 
 const PROTOCOL_REGEX = /^https?:\/\//;
-
-const formatNumber = (value: number): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
 
 const createDomainIndicator = () => (
 	<div className="size-2 shrink-0 rounded bg-blue-500" />
@@ -50,27 +41,38 @@ const outboundLinksColumns: ColumnDef<OutboundLinkRow, unknown>[] = [
 		accessorKey: "href",
 		header: "URL",
 		cell: ({ getValue }: CellContext<OutboundLinkRow, unknown>) => {
-			const href = getValue();
-			if (typeof href !== "string" || !href) {
+			const raw = getValue();
+			if (typeof raw !== "string" || !raw) {
 				return <span className="text-muted-foreground">—</span>;
 			}
-			const domain = href.replace(PROTOCOL_REGEX, "").split("/")[0];
+			let href: string | null = null;
+			try {
+				const parsed = new URL(raw);
+				if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+					href = parsed.toString();
+				}
+			} catch {}
+			const domain = raw.replace(PROTOCOL_REGEX, "").split("/")[0];
 			return (
-				<div className="flex flex-col gap-1">
-					<a
-						className="max-w-[300px] truncate font-medium text-primary hover:underline"
-						href={href}
-						rel="noopener noreferrer"
-						target="_blank"
-						title={href}
-					>
-						{domain}
-					</a>
+				<div className="flex min-w-0 flex-col gap-1">
+					{href ? (
+						<a
+							className="max-w-full truncate font-medium text-primary hover:underline"
+							href={href}
+							rel="noopener noreferrer"
+							target="_blank"
+							title={href}
+						>
+							{domain}
+						</a>
+					) : (
+						<span className="max-w-full truncate font-medium">{domain}</span>
+					)}
 					<span
-						className="max-w-[300px] truncate text-muted-foreground text-xs"
-						title={href}
+						className="max-w-full truncate text-muted-foreground text-xs"
+						title={raw}
 					>
-						{href}
+						{raw}
 					</span>
 				</div>
 			);
@@ -85,7 +87,7 @@ const outboundLinksColumns: ColumnDef<OutboundLinkRow, unknown>[] = [
 			const display =
 				typeof text === "string" && text.length > 0 ? text : "(no text)";
 			return (
-				<span className="max-w-[200px] truncate font-medium" title={display}>
+				<span className="max-w-full truncate font-medium" title={display}>
 					{display}
 				</span>
 			);
@@ -232,8 +234,8 @@ export function OutboundLinksSection({
 		return raw.filter(isOutboundDomainRecord).map(toOutboundDomainRow);
 	}, [data.outbound_domains]);
 
-	const eventsAndLinksTabs = useMemo((): TabConfig<OutboundLinkRow>[] => {
-		return [
+	const eventsAndLinksTabs = useMemo(
+		(): TabConfig<OutboundLinkRow>[] => [
 			{
 				id: "outbound_links",
 				label: "Outbound Links",
@@ -257,8 +259,9 @@ export function OutboundLinksSection({
 					value: `*${(row as unknown as OutboundDomainRow).domain}*`,
 				}),
 			},
-		];
-	}, [linkRows, domainRows]);
+		],
+		[linkRows, domainRows]
+	);
 
 	return (
 		<DataTable

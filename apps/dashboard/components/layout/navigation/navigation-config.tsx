@@ -1,59 +1,45 @@
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
 import {
-	ActivityIcon,
-	ArrowSquareOutIcon,
 	BellIcon,
-	BookOpenIcon,
-	BrowserIcon,
+	BoltLightningIcon as LightningIcon,
 	BugIcon,
-	BuildingsIcon,
-	CalendarIcon,
-	ChartBarIcon,
-	ChartLineUpIcon,
-	ChartPieIcon,
+	ChartActivityIcon as PulseIcon,
+	ChartPieIcon as ChartPieSliceIcon,
 	CodeIcon,
 	CreditCardIcon,
 	CurrencyDollarIcon,
 	EyeIcon,
-	FileArrowDownIcon,
+	FileDownloadIcon as FileArrowDownIcon,
+	FilterIcon as FunnelIcon,
 	FlagIcon,
-	FunnelIcon,
+	GaugeIcon,
 	GearIcon,
 	GlobeIcon,
 	GlobeSimpleIcon,
-	HeartbeatIcon,
+	HeartPulseIcon as HeartbeatIcon,
 	HouseIcon,
-	IdentificationCardIcon,
-	KeyIcon,
-	LightningIcon,
+	IdBadge2Icon as IdentificationBadgeIcon,
+	LightbulbIcon,
 	LinkIcon,
 	LockIcon,
 	MapPinIcon,
-	PlayIcon,
-	PlugIcon,
-	PlusIcon,
+	OpenExternalIcon as ArrowSquareOutIcon,
 	ReceiptIcon,
-	RoadHorizonIcon,
 	RobotIcon,
-	ShieldCheckIcon,
-	SparkleIcon,
-	SpeakerHighIcon,
-	SquaresFourIcon,
 	TargetIcon,
-	TrendUpIcon,
-	UserGearIcon,
+	TriangleWarningIcon as WarningIcon,
 	UserIcon,
-	UsersThreeIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
-import type { Category, NavigationEntry, NavigationSection } from "./types";
+	UserSettingsIcon,
+	Users3Icon as UsersThreeIcon,
+} from "@databuddy/ui/icons";
+import type { NavigationGroup, NavigationItem } from "./types";
 
-const createNavItem = (
+export const createNavItem = (
 	name: string,
-	icon: any,
+	icon: NavigationItem["icon"],
 	href: string,
-	options: Record<string, any> = {}
-) => ({
+	options: Partial<Omit<NavigationItem, "name" | "icon" | "href">> = {}
+): NavigationItem => ({
 	name,
 	icon,
 	href,
@@ -61,501 +47,201 @@ const createNavItem = (
 	...options,
 });
 
-const createNavSection = (
-	title: string,
-	icon: any,
-	items: NavigationSection["items"],
-	options: Partial<NavigationSection> = {}
-): NavigationSection => ({
-	title,
-	icon,
-	items,
-	...options,
-});
+export const mainNavigation: NavigationGroup[] = [
+	{
+		label: "",
+		items: [
+			createNavItem("Home", HouseIcon, "/home"),
+			createNavItem("Websites", GlobeIcon, "/websites"),
+			createNavItem("Insights", LightbulbIcon, "/insights"),
+		],
+	},
+	{
+		label: "Tracking",
+		items: [
+			createNavItem("Links", LinkIcon, "/links"),
+			createNavItem("Custom Events", LightningIcon, "/events"),
+		],
+	},
+	{
+		label: "Monitoring",
+		flag: "monitors",
+		items: [
+			createNavItem("Monitors", HeartbeatIcon, "/monitors"),
+			createNavItem("Status Pages", GlobeSimpleIcon, "/monitors/status-pages"),
+		],
+	},
+	{
+		label: "",
+		pinToBottom: true,
+		items: [createNavItem("Settings", GearIcon, "/organizations/settings")],
+	},
+];
 
-export const filterCategoriesForRoute = (
-	categories: Category[],
-	pathname: string
-) => {
-	const isDemo = pathname.startsWith("/demo");
-	return categories.filter((category) => !(category.hideFromDemo && isDemo));
+export const websiteNavigation: NavigationGroup[] = [
+	{
+		back: { href: "/websites", label: "Websites" },
+		label: "",
+		items: [
+			createNavItem("Dashboard", ChartPieSliceIcon, "", { rootLevel: false }),
+			createNavItem("Audience", UsersThreeIcon, "/audience", {
+				rootLevel: false,
+			}),
+			createNavItem("Error Tracking", BugIcon, "/errors", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.ERROR_TRACKING,
+			}),
+		],
+	},
+	{
+		label: "Performance",
+		items: [
+			createNavItem("Web Vitals", GaugeIcon, "/vitals", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.WEB_VITALS,
+			}),
+			createNavItem("Geographic", MapPinIcon, "/map", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.GEOGRAPHIC,
+			}),
+			createNavItem("Anomalies", WarningIcon, "/anomalies", {
+				rootLevel: false,
+				alpha: true,
+				flag: "anomalies",
+			}),
+			createNavItem("Pulse", PulseIcon, "/pulse", {
+				rootLevel: false,
+				flag: "pulse",
+				alpha: true,
+			}),
+		],
+	},
+	{
+		label: "Product",
+		items: [
+			createNavItem("Events", LightningIcon, "/events", {
+				rootLevel: false,
+			}),
+			createNavItem("Users", IdentificationBadgeIcon, "/users", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.USERS,
+			}),
+			createNavItem("Funnels", FunnelIcon, "/funnels", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.FUNNELS,
+			}),
+			createNavItem("Goals", TargetIcon, "/goals", {
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.GOALS,
+			}),
+			createNavItem("Feature Flags", FlagIcon, "/flags", {
+				alpha: true,
+				rootLevel: false,
+				gatedFeature: GATED_FEATURES.FEATURE_FLAGS,
+			}),
+			createNavItem("Revenue", CurrencyDollarIcon, "/revenue", {
+				alpha: true,
+				rootLevel: false,
+				flag: "revenue",
+			}),
+		],
+	},
+	{
+		label: "AI",
+		items: [
+			createNavItem("Databunny", RobotIcon, "/agent", {
+				alpha: true,
+				rootLevel: false,
+			}),
+		],
+	},
+	{
+		label: "Settings",
+		pinToBottom: true,
+		items: [
+			createNavItem("General", GearIcon, "/settings/general", {
+				rootLevel: false,
+			}),
+			createNavItem("Security", LockIcon, "/settings/security", {
+				rootLevel: false,
+			}),
+			createNavItem("Transfer", ArrowSquareOutIcon, "/settings/transfer", {
+				rootLevel: false,
+			}),
+			createNavItem("Data Export", FileArrowDownIcon, "/settings/export", {
+				rootLevel: false,
+			}),
+			createNavItem("Setup", CodeIcon, "/settings/tracking", {
+				rootLevel: false,
+			}),
+		],
+	},
+];
+
+export const settingsNavigation: NavigationGroup[] = [
+	{
+		back: { href: "/home", label: "Home" },
+		label: "Organization",
+		items: [
+			createNavItem("General", GearIcon, "/organizations/settings"),
+			createNavItem("Members", UserIcon, "/organizations/members"),
+			createNavItem("Billing", CreditCardIcon, "/billing"),
+			createNavItem("Plans", CurrencyDollarIcon, "/billing/plans"),
+			createNavItem("Invoices", ReceiptIcon, "/billing/history"),
+		],
+	},
+	{
+		label: "Account",
+		items: [
+			createNavItem("Profile", UserSettingsIcon, "/settings/account"),
+			createNavItem("Appearance", EyeIcon, "/settings/appearance"),
+			createNavItem("Notifications", BellIcon, "/settings/notifications"),
+		],
+	},
+];
+
+const SETTINGS_PREFIXES = [
+	"/organizations",
+	"/billing",
+	"/settings",
+	"/feedback",
+] as const;
+
+export type NavContext = "main" | "settings" | "website";
+
+const CONTEXT_DEPTH: Record<NavContext, number> = {
+	main: 0,
+	settings: 1,
+	website: 1,
 };
 
-/**
- * Hides flag-gated categories until the client has mounted, then applies the same
- * rule as main navigation: only show when the flag is ready and on. Prevents
- * hydration mismatches from `isOn` / flag store differing between SSR and first paint.
- */
-export function filterCategoriesByFlags(
-	categories: Category[],
-	hasMounted: boolean,
-	getFlag: (key: string) => { status: string; on: boolean }
-): Category[] {
-	return categories.filter((category) => {
-		if (!category.flag) {
-			return true;
-		}
-		if (!hasMounted) {
-			return false;
-		}
-		const flagState = getFlag(category.flag);
-		return flagState.status === "ready" && flagState.on;
-	});
+export function getNavContext(pathname: string): NavContext {
+	if (pathname.startsWith("/websites/") || pathname.startsWith("/demo/")) {
+		return "website";
+	}
+	if (SETTINGS_PREFIXES.some((p) => pathname.startsWith(p))) {
+		return "settings";
+	}
+	return "main";
 }
 
-const createDynamicNavigation = <T extends { id: string; name: string | null }>(
-	items: T[],
-	title: string,
-	titleIcon: any,
-	overviewName: string,
-	overviewHref: string,
-	itemIcon: any,
-	itemHrefPrefix: string,
-	emptyText: string,
-	extraProps?: (item: T) => Record<string, any>
-): NavigationSection[] => [
-	createNavSection(title, titleIcon, [
-		createNavItem(overviewName, ChartBarIcon, overviewHref, {
-			highlight: true,
-		}),
-		...(items.length > 0
-			? items.map((item) =>
-					createNavItem(
-						item.name || "",
-						itemIcon,
-						`${itemHrefPrefix}/${item.id}`,
-						{
-							highlight: true,
-							...(extraProps?.(item) || {}),
-						}
-					)
-				)
-			: [
-					createNavItem(emptyText, PlusIcon, overviewHref, {
-						highlight: true,
-						disabled: true,
-					}),
-				]),
-	]),
-];
-
-export const createWebsitesNavigation = (
-	websites: Array<{ id: string; name: string | null; domain: string }>
-): NavigationEntry[] => [
-	createNavSection("Overview", SquaresFourIcon, [
-		createNavItem("Home", HouseIcon, "/home", {
-			highlight: true,
-		}),
-		createNavItem("Insights", SparkleIcon, "/insights", {
-			highlight: true,
-			flag: "insights",
-		}),
-	]),
-	...createDynamicNavigation(
-		websites,
-		"Websites",
-		GlobeSimpleIcon,
-		"Website Overview",
-		"/websites",
-		GlobeIcon,
-		"/websites",
-		"Add Your First Website",
-		(website) => ({ domain: website.domain })
-	),
-	createNavSection("Observability", ActivityIcon, [
-		createNavItem("Links", LinkIcon, "/links", {
-			highlight: true,
-		}),
-		createNavItem("Custom Events", LightningIcon, "/events", {
-			highlight: true,
-		}),
-	]),
-];
-
-export const personalNavigation: NavigationSection[] = [
-	createNavSection("Personal", UserGearIcon, [
-		createNavItem("Account", IdentificationCardIcon, "/settings/account"),
-		createNavItem("Appearance", EyeIcon, "/settings/appearance"),
-		createNavItem("Privacy & Data", ShieldCheckIcon, "/settings/privacy", {
-			disabled: true,
-			tag: "soon",
-		}),
-	]),
-	createNavSection("Preferences", GearIcon, [
-		createNavItem(
-			"Analytics Behavior",
-			ChartLineUpIcon,
-			"/settings/analytics",
-			{
-				disabled: true,
-				tag: "soon",
-			}
-		),
-		createNavItem("Feature Access", FlagIcon, "/settings/features", {
-			disabled: true,
-			tag: "soon",
-		}),
-		createNavItem("Integrations", PlugIcon, "/settings/integrations", {
-			disabled: true,
-			tag: "soon",
-		}),
-		createNavItem("Notifications", BellIcon, "/settings/notifications", {
-			disabled: true,
-			tag: "soon",
-		}),
-	]),
-];
-
-export const resourcesNavigation: NavigationSection[] = [
-	createNavSection("Resources", BookOpenIcon, [
-		createNavItem("Documentation", BookOpenIcon, "https://databuddy.cc/docs", {
-			external: true,
-			highlight: true,
-		}),
-		createNavItem(
-			"Video Guides",
-			PlayIcon,
-			"https://youtube.com/@trydatabuddy",
-			{ external: true, highlight: true }
-		),
-		createNavItem(
-			"Roadmap",
-			RoadHorizonIcon,
-			"https://trello.com/b/SOUXD4wE/databuddy",
-			{ external: true, highlight: true }
-		),
-		createNavItem(
-			"Feedback",
-			SpeakerHighIcon,
-			"https://databuddy.featurebase.app/",
-			{ external: true, highlight: true }
-		),
-	]),
-];
-
-export const organizationNavigation: NavigationSection[] = [
-	createNavSection("Organizations", BuildingsIcon, [
-		createNavItem("Overview", ChartPieIcon, "/organizations"),
-	]),
-	createNavSection("Team Management", UsersThreeIcon, [
-		createNavItem("Members", UserIcon, "/organizations/members"),
-		createNavItem("Invitations", CalendarIcon, "/organizations/invitations"),
-	]),
-	createNavSection("Organization Settings", GearIcon, [
-		createNavItem("General", GearIcon, "/organizations/settings"),
-		createNavItem(
-			"Website Access",
-			GlobeSimpleIcon,
-			"/organizations/settings/websites"
-		),
-		createNavItem("API Keys", KeyIcon, "/organizations/settings/api-keys"),
-		createNavItem("Danger Zone", WarningIcon, "/organizations/settings/danger"),
-	]),
-];
-
-export const billingNavigation: NavigationSection[] = [
-	createNavSection("Billing & Usage", CreditCardIcon, [
-		createNavItem("Usage Overview", ActivityIcon, "/billing"),
-		createNavItem("Plans & Pricing", CurrencyDollarIcon, "/billing/plans"),
-		createNavItem("Payment History", ReceiptIcon, "/billing/history"),
-		createNavItem(
-			"Cost Breakdown",
-			ChartLineUpIcon,
-			"/billing/cost-breakdown",
-			{
-				badge: { text: "Experimental", variant: "purple" as const },
-			}
-		),
-		createNavItem("Feedback & Credits", SpeakerHighIcon, "/feedback"),
-	]),
-];
-
-const statusPagesSection = createNavSection("Status Pages", BrowserIcon, [
-	createNavItem("All Pages", GlobeSimpleIcon, "/monitors/status-pages"),
-]);
-
-export const createMonitorsNavigation = (
-	monitors: Array<{
-		id: string;
-		name: string | null;
-		url: string | null;
-		websiteId: string | null;
-		website: { id: string; name: string | null; domain: string } | null;
-	}>
-): NavigationSection[] => [
-	...createDynamicNavigation(
-		monitors.map((m) => ({
-			id: m.id,
-			name: m.name || m.website?.name || m.url || "Monitor",
-			domain: m.website?.domain || m.url || "",
-		})),
-		"Monitoring",
-		HeartbeatIcon,
-		"All Monitors",
-		"/monitors",
-		HeartbeatIcon,
-		"/monitors",
-		"Add Your First Monitor",
-		(monitor) => ({ domain: monitor.domain })
-	),
-	statusPagesSection,
-];
-
-export const createLoadingMonitorsNavigation = (): NavigationSection[] => [
-	...createLoadingNavigation(
-		"Monitoring",
-		HeartbeatIcon,
-		"All Monitors",
-		"/monitors",
-		"Loading monitors...",
-		HeartbeatIcon
-	),
-	statusPagesSection,
-];
-
-export const websiteNavigation: NavigationSection[] = [
-	createNavSection("Web Analytics", ChartBarIcon, [
-		createNavItem("Dashboard", EyeIcon, "", { rootLevel: false }),
-		createNavItem("Audience", UsersThreeIcon, "/audience", {
-			rootLevel: false,
-		}),
-		createNavItem("Web Vitals", HeartbeatIcon, "/vitals", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.WEB_VITALS,
-		}),
-		createNavItem("Geographic", MapPinIcon, "/map", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.GEOGRAPHIC,
-		}),
-		createNavItem("Error Tracking", BugIcon, "/errors", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.ERROR_TRACKING,
-		}),
-		createNavItem("Anomalies", WarningIcon, "/anomalies", {
-			rootLevel: false,
-			alpha: true,
-			flag: "anomalies",
-		}),
-		createNavItem("Pulse", HeartbeatIcon, "/pulse", {
-			rootLevel: false,
-			flag: "pulse",
-			alpha: true,
-		}),
-	]),
-	createNavSection("Product Analytics", TrendUpIcon, [
-		createNavItem("Users", UsersThreeIcon, "/users", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.USERS,
-		}),
-		createNavItem("Funnels", FunnelIcon, "/funnels", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.FUNNELS,
-		}),
-		createNavItem("Goals", TargetIcon, "/goals", {
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.GOALS,
-		}),
-		createNavItem("Feature Flags", FlagIcon, "/flags", {
-			alpha: true,
-			rootLevel: false,
-			gatedFeature: GATED_FEATURES.FEATURE_FLAGS,
-		}),
-		createNavItem("Revenue", CurrencyDollarIcon, "/revenue", {
-			alpha: true,
-			rootLevel: false,
-			flag: "revenue",
-		}),
-		createNavItem("AI Agent", RobotIcon, "/agent", {
-			alpha: true,
-			rootLevel: false,
-			tag: "WIP",
-			flag: "agent",
-			// gatedFeature: GATED_FEATURES.AI_AGENT,
-		}),
-	]),
-];
-
-export const websiteSettingsNavigation: NavigationSection[] = [
-	createNavSection("Website Settings", GearIcon, [
-		createNavItem("General", GearIcon, "/settings/general", {
-			rootLevel: false,
-		}),
-		createNavItem("Privacy", ShieldCheckIcon, "/settings/privacy", {
-			rootLevel: false,
-		}),
-		createNavItem("Security", LockIcon, "/settings/security", {
-			rootLevel: false,
-		}),
-		createNavItem(
-			"Transfer Website",
-			ArrowSquareOutIcon,
-			"/settings/transfer",
-			{ rootLevel: false }
-		),
-		createNavItem("Data Export", FileArrowDownIcon, "/settings/export", {
-			rootLevel: false,
-		}),
-		createNavItem("Setup", CodeIcon, "/settings/tracking", {
-			rootLevel: false,
-		}),
-	]),
-];
-
-const createCategoryConfig = (
-	categories: Category[],
-	defaultCategory: string,
-	navigationMap: Record<string, NavigationEntry[]>
-) => ({ categories, defaultCategory, navigationMap });
-
-export const categoryConfig = {
-	main: createCategoryConfig(
-		[
-			{
-				id: "home",
-				name: "Home",
-				icon: HouseIcon,
-				production: true,
-			},
-			{
-				id: "monitors",
-				name: "Monitors",
-				icon: HeartbeatIcon,
-				production: true,
-				flag: "monitors",
-			},
-			{
-				id: "organizations",
-				name: "Organizations",
-				icon: BuildingsIcon,
-				production: true,
-			},
-			{
-				id: "billing",
-				name: "Billing",
-				icon: CreditCardIcon,
-				production: true,
-			},
-			{
-				id: "settings",
-				name: "Settings",
-				icon: GearIcon,
-				production: true,
-				hideFromDemo: true,
-			},
-			{
-				id: "resources",
-				name: "Resources",
-				icon: BookOpenIcon,
-				production: true,
-			},
-		],
-		"home",
-		{
-			home: [],
-			monitors: [],
-			organizations: organizationNavigation,
-			billing: billingNavigation,
-			settings: personalNavigation,
-			resources: resourcesNavigation,
-		}
-	),
-	website: createCategoryConfig(
-		[
-			{
-				id: "analytics",
-				name: "Analytics",
-				icon: ChartBarIcon,
-				production: true,
-			},
-			{
-				id: "settings",
-				name: "Settings",
-				icon: GearIcon,
-				production: true,
-				hideFromDemo: true,
-			},
-		],
-		"analytics",
-		{
-			analytics: websiteNavigation,
-			settings: websiteSettingsNavigation,
-		}
-	),
-};
-
-const PATH_CONFIG_MAP = [
-	{ pattern: ["/websites/", "/demo/"], config: "website" as const },
-] as const;
-
-const CATEGORY_PATH_MAP = [
-	{ pattern: "/monitors", category: "monitors" as const },
-	{ pattern: "/organizations", category: "organizations" as const },
-	{ pattern: "/billing", category: "billing" as const },
-	{ pattern: "/feedback", category: "billing" as const },
-	{ pattern: "/settings", category: "settings" as const },
-] as const;
-
-export const getContextConfig = (pathname: string) => {
-	for (const item of PATH_CONFIG_MAP) {
-		if (item.pattern.some((p) => pathname.startsWith(p))) {
-			return categoryConfig[item.config];
-		}
+export function getNavigation(pathname: string): NavigationGroup[] {
+	const ctx = getNavContext(pathname);
+	if (ctx === "website") {
+		return websiteNavigation;
 	}
-	return categoryConfig.main;
-};
-
-export const getDefaultCategory = (pathname: string) => {
-	for (const { pattern, category } of CATEGORY_PATH_MAP) {
-		if (pathname.includes(pattern)) {
-			return category;
-		}
+	if (ctx === "settings") {
+		return settingsNavigation;
 	}
-	return getContextConfig(pathname).defaultCategory;
-};
+	return mainNavigation;
+}
 
-const createLoadingNavigation = (
-	title: string,
-	titleIcon: any,
-	overviewName: string,
-	overviewHref: string,
-	loadingName: string,
-	loadingIcon: any
-): NavigationSection[] => [
-	createNavSection(title, titleIcon, [
-		createNavItem(overviewName, ChartBarIcon, overviewHref, {
-			highlight: true,
-		}),
-		createNavItem(loadingName, loadingIcon, overviewHref, {
-			highlight: true,
-			disabled: true,
-		}),
-	]),
-];
-
-export const createLoadingWebsitesNavigation = (): NavigationEntry[] => [
-	createNavSection("Overview", SquaresFourIcon, [
-		createNavItem("Home", HouseIcon, "/home", {
-			highlight: true,
-		}),
-		createNavItem("Insights", SparkleIcon, "/insights", {
-			highlight: true,
-			flag: "insights",
-		}),
-	]),
-	...createLoadingNavigation(
-		"Websites",
-		GlobeSimpleIcon,
-		"Website Overview",
-		"/websites",
-		"Loading websites...",
-		GlobeIcon
-	),
-	createNavSection("Observability", ActivityIcon, [
-		createNavItem("Links", LinkIcon, "/links", {
-			highlight: true,
-		}),
-		createNavItem("Custom Events", LightningIcon, "/events", {
-			highlight: true,
-		}),
-	]),
-];
+export function getNavDirection(
+	prev: NavContext,
+	next: NavContext
+): "left" | "right" | null {
+	if (prev === next) {
+		return null;
+	}
+	return CONTEXT_DEPTH[next] > CONTEXT_DEPTH[prev] ? "left" : "right";
+}

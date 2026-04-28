@@ -2,6 +2,8 @@ import { version } from "../../package.json";
 import type { DatabuddyConfig } from "./types";
 
 const INJECTED_SCRIPT_ATTRIBUTE = "data-databuddy-injected";
+const DEFAULT_SCRIPT_URL = "https://cdn.databuddy.cc/databuddy.js";
+const DEFAULT_DEBUG_SCRIPT_URL = "https://cdn.databuddy.cc/databuddy-debug.js";
 
 export function isScriptInjected() {
 	return !!document.querySelector(`script[${INJECTED_SCRIPT_ATTRIBUTE}]`);
@@ -12,24 +14,20 @@ export function createScript({
 	sdkVersion,
 	clientSecret,
 	filter,
-	debug,
 	...props
 }: DatabuddyConfig) {
 	const script = document.createElement("script");
 
-	script.src = scriptUrl || "https://cdn.databuddy.cc/databuddy.js";
+	const defaultUrl = props.debug
+		? DEFAULT_DEBUG_SCRIPT_URL
+		: DEFAULT_SCRIPT_URL;
+	script.src = scriptUrl || defaultUrl;
 	script.async = true;
 	script.crossOrigin = "anonymous";
 	script.setAttribute(INJECTED_SCRIPT_ATTRIBUTE, "true");
 	script.setAttribute("data-sdk-version", sdkVersion || version);
 
-	// Exclude server-only and non-serializable props
-	// clientSecret: server-side only, never sent to browser
-	// filter: function, cannot be serialized (must use window.databuddyConfig)
-	// debug: SDK-only flag, not needed by tracker script
-
 	for (const [key, value] of Object.entries(props)) {
-		// Skip undefined/null values
 		if (value === undefined || value === null) {
 			continue;
 		}

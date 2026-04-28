@@ -1,47 +1,44 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
+import { useParams } from "next/navigation";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
+import { EditGoalDialog } from "@/app/(main)/websites/[id]/goals/_components/edit-goal-dialog";
+import { useChat } from "@/contexts/chat-context";
+import { type CreateGoalData, type Goal, useGoals } from "@/hooks/use-goals";
+import { cn } from "@/lib/utils";
+import type { BaseComponentProps } from "../../types";
 import {
 	CheckIcon,
-	CircleNotchIcon,
 	EyeIcon,
 	MouseMiddleClickIcon,
 	PencilSimpleIcon,
 	TargetIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
-import { EditGoalDialog } from "@/app/(main)/websites/[id]/goals/_components/edit-goal-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useChat } from "@/contexts/chat-context";
-import { type CreateGoalData, type Goal, useGoals } from "@/hooks/use-goals";
-import { cn } from "@/lib/utils";
-import type { BaseComponentProps } from "../../types";
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
 
 interface GoalPreviewData {
-	name: string;
 	description?: string | null;
-	type: "PAGE_VIEW" | "EVENT" | "CUSTOM";
-	target: string;
 	ignoreHistoricData?: boolean;
+	name: string;
+	target: string;
+	type: "PAGE_VIEW" | "EVENT" | "CUSTOM";
 }
 
 export interface GoalPreviewProps extends BaseComponentProps {
-	mode: "create" | "update" | "delete";
 	goal: GoalPreviewData;
+	mode: "create" | "update" | "delete";
 }
 
 interface ModeConfig {
-	title: string;
+	accent: string;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
-	accent: string;
-	variant: "default" | "destructive";
-	ButtonIcon: Icon;
+	title: string;
+	tone?: "destructive";
 }
 
 const MODE_CONFIG: Record<string, ModeConfig> = {
@@ -50,7 +47,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Create",
 		confirmMessage: "Yes, create it",
 		accent: "",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	update: {
@@ -58,7 +54,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Update",
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	delete: {
@@ -66,7 +61,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Delete",
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
-		variant: "destructive",
+		tone: "destructive",
 		ButtonIcon: TrashIcon,
 	},
 };
@@ -101,7 +96,7 @@ export function GoalPreviewRenderer({
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		createdBy: null,
+		createdBy: "",
 		deletedAt: null,
 	};
 
@@ -143,7 +138,7 @@ export function GoalPreviewRenderer({
 						/>
 					</div>
 					<p className="font-medium text-sm">{config.title}</p>
-					<Badge className="ml-auto text-[10px]" variant="secondary">
+					<Badge className="ml-auto text-[10px]" variant="muted">
 						{goal.type === "PAGE_VIEW" ? "Page" : "Event"}
 					</Badge>
 				</div>
@@ -198,16 +193,13 @@ export function GoalPreviewRenderer({
 						Edit
 					</Button>
 					<Button
-						disabled={isLoading || isConfirming}
+						disabled={isLoading}
+						loading={isConfirming}
 						onClick={handleConfirm}
 						size="sm"
-						variant={config.variant}
+						tone={config.tone}
 					>
-						{isConfirming ? (
-							<CircleNotchIcon className="size-3.5 animate-spin" />
-						) : (
-							<config.ButtonIcon className="size-3.5" weight="bold" />
-						)}
+						<config.ButtonIcon className="size-3.5" weight="bold" />
 						{config.confirmLabel}
 					</Button>
 				</div>

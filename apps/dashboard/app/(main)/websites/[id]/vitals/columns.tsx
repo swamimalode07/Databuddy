@@ -7,23 +7,21 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag } from "@/components/icon";
 import { WebVitalsMetricCell } from "../_components/tabs/performance/_components/web-vitals-metric-cell";
-import {
-	formatNumber,
-	formatPerformanceTime,
-} from "../_components/tabs/performance/_utils/performance-utils";
+import { formatNumber } from "@/lib/formatters";
+import { formatPerformanceTime } from "../_components/tabs/performance/_utils/performance-utils";
 
 export interface VitalsBreakdownData {
-	name: string;
-	samples: number;
-	visitors?: number;
-	lcp?: number;
-	fcp?: number;
 	cls?: number;
-	inp?: number;
-	ttfb?: number;
-	fps?: number;
 	country_code?: string;
 	country_name?: string;
+	fcp?: number;
+	fps?: number;
+	inp?: number;
+	lcp?: number;
+	name: string;
+	samples: number;
+	ttfb?: number;
+	visitors?: number;
 }
 
 const createMetricColumns = (): ColumnDef<VitalsBreakdownData>[] => [
@@ -32,7 +30,7 @@ const createMetricColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 		accessorKey: "samples",
 		header: "Samples",
 		cell: ({ getValue }) => (
-			<span className="text-muted-foreground text-sm">
+			<span className="text-[15px] text-muted-foreground">
 				{formatNumber(getValue() as number)}
 			</span>
 		),
@@ -98,7 +96,7 @@ export const createPageColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 		header: "Page",
 		cell: ({ getValue }) => {
 			const name = getValue() as string;
-			return <span className="truncate font-medium text-sm">{name}</span>;
+			return <span className="truncate font-medium text-[15px]">{name}</span>;
 		},
 	},
 	...createMetricColumns(),
@@ -114,8 +112,8 @@ export const createCountryColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 			const countryCode = row.original.country_code || row.original.name || "";
 			return (
 				<div className="flex items-center gap-2">
-					<CountryFlag country={countryCode} size={16} />
-					<span className="truncate font-medium text-sm">{name}</span>
+					<CountryFlag country={countryCode} size={18} />
+					<span className="truncate font-medium text-[15px]">{name}</span>
 				</div>
 			);
 		},
@@ -125,7 +123,7 @@ export const createCountryColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 		accessorKey: "visitors",
 		header: "Visitors",
 		cell: ({ getValue }) => (
-			<span className="text-muted-foreground text-sm">
+			<span className="text-[15px] text-muted-foreground">
 				{formatNumber((getValue() as number) || 0)}
 			</span>
 		),
@@ -142,8 +140,8 @@ export const createBrowserColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 			const name = getValue() as string;
 			return (
 				<div className="flex items-center gap-2">
-					<BrowserIcon name={name} size="sm" />
-					<span className="truncate font-medium text-sm">{name}</span>
+					<BrowserIcon name={name} size={18} />
+					<span className="truncate font-medium text-[15px]">{name}</span>
 				</div>
 			);
 		},
@@ -153,7 +151,7 @@ export const createBrowserColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 		accessorKey: "visitors",
 		header: "Visitors",
 		cell: ({ getValue }) => (
-			<span className="text-muted-foreground text-sm">
+			<span className="text-[15px] text-muted-foreground">
 				{formatNumber((getValue() as number) || 0)}
 			</span>
 		),
@@ -174,7 +172,7 @@ export const createDeviceColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 				tablet: "Tablet",
 			};
 			return (
-				<span className="truncate font-medium text-sm">
+				<span className="truncate font-medium text-[15px]">
 					{deviceLabels[name.toLowerCase()] || name}
 				</span>
 			);
@@ -185,7 +183,7 @@ export const createDeviceColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 		accessorKey: "visitors",
 		header: "Visitors",
 		cell: ({ getValue }) => (
-			<span className="text-muted-foreground text-sm">
+			<span className="text-[15px] text-muted-foreground">
 				{formatNumber((getValue() as number) || 0)}
 			</span>
 		),
@@ -196,11 +194,11 @@ export const createDeviceColumns = (): ColumnDef<VitalsBreakdownData>[] => [
 export const createRegionColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 	const getRegionCountryIcon = (name: string) => {
 		if (typeof name !== "string" || !name.includes(",")) {
-			return <CountryFlag country={""} size={16} />;
+			return <CountryFlag country={""} size={18} />;
 		}
 		const countryPart = name.split(",")[1]?.trim();
 		const code = getCountryCode(countryPart || "");
-		return <CountryFlag country={code} size={16} />;
+		return <CountryFlag country={code} size={18} />;
 	};
 
 	const formatRegionName = (name: string) => {
@@ -233,7 +231,7 @@ export const createRegionColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 				return (
 					<div className="flex items-center gap-2">
 						{getRegionCountryIcon(name)}
-						<span className="truncate font-medium text-sm">
+						<span className="truncate font-medium text-[15px]">
 							{formatRegionName(name)}
 						</span>
 					</div>
@@ -245,7 +243,7 @@ export const createRegionColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 			accessorKey: "visitors",
 			header: "Visitors",
 			cell: ({ getValue }) => (
-				<span className="text-muted-foreground text-sm">
+				<span className="text-[15px] text-muted-foreground">
 					{formatNumber((getValue() as number) || 0)}
 				</span>
 			),
@@ -257,11 +255,11 @@ export const createRegionColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 export const createCityColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 	const getCityCountryIcon = (name: string) => {
 		if (typeof name !== "string" || !name.includes(",")) {
-			return <CountryFlag country={""} size={16} />;
+			return <CountryFlag country={""} size={18} />;
 		}
 		const countryPart = name.split(",")[1]?.trim();
 		const code = getCountryCode(countryPart || "");
-		return <CountryFlag country={code} size={16} />;
+		return <CountryFlag country={code} size={18} />;
 	};
 
 	const formatCityName = (name: string) => {
@@ -287,7 +285,7 @@ export const createCityColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 				return (
 					<div className="flex items-center gap-2">
 						{getCityCountryIcon(name)}
-						<span className="truncate font-medium text-sm">
+						<span className="truncate font-medium text-[15px]">
 							{formatCityName(name)}
 						</span>
 					</div>
@@ -299,7 +297,7 @@ export const createCityColumns = (): ColumnDef<VitalsBreakdownData>[] => {
 			accessorKey: "visitors",
 			header: "Visitors",
 			cell: ({ getValue }) => (
-				<span className="text-muted-foreground text-sm">
+				<span className="text-[15px] text-muted-foreground">
 					{formatNumber((getValue() as number) || 0)}
 				</span>
 			),

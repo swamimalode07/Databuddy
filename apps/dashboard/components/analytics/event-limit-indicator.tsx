@@ -1,12 +1,13 @@
 "use client";
 
-import { WarningIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { buttonVariants } from "@/components/ui/button";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import { WarningIcon } from "@databuddy/ui/icons";
+import { buttonVariants } from "@databuddy/ui";
 
 export function EventLimitIndicator() {
 	const pathname = usePathname();
@@ -21,86 +22,65 @@ export function EventLimitIndicator() {
 		return null;
 	}
 
-	const balance = data.balance ?? 0;
-	const planLimit = data.includedUsage ?? 0;
-	const overageAllowed = data.overageAllowed ?? false;
+	const balance = Number(data.balance ?? 0);
+	const planLimit = Number(data.includedUsage ?? 0);
+	const overageAllowed = Boolean(data.overageAllowed);
 
-	// Balance > Plan limit = Bonus credits, show remaining
-	// Balance < Plan limit = Normal usage, balance is remaining
-	// Balance < 0 = Overage
-
-	if (balance < 0) {
-		// Don't show overage warning if user is allowed to have overage
-		if (overageAllowed) {
-			return null;
-		}
-		// Overage state
-		const overage = Math.abs(balance);
-		return (
-			<div className="flex items-center justify-between rounded border border-red-200 bg-red-50 px-3 py-2 text-sm dark:border-red-800 dark:bg-red-950/20">
-				<div className="flex items-center gap-2">
-					<WarningIcon
-						className="size-4 text-red-600 dark:text-red-400"
-						weight="fill"
-					/>
-					<div>
-						<span className="font-medium text-red-600 dark:text-red-400">
-							{formatLocaleNumber(overage)} events over limit
-						</span>
-					</div>
-				</div>
-				{data.canUserUpgrade ? (
-					<Link
-						className={buttonVariants({
-							variant: "ghost",
-							size: "sm",
-							className: "h-6 px-2 text-xs",
-						})}
-						href="/billing/plans"
-					>
-						Upgrade
-					</Link>
-				) : (
-					<span className="text-muted-foreground text-xs">Contact owner</span>
-				)}
-			</div>
-		);
+	if (balance < 0 && overageAllowed) {
+		return null;
 	}
 
-	// Calculate percentage of limit used
+	const isOverage = balance < 0;
+	const overage = Math.abs(balance);
 	const remaining = balance;
 	const used = planLimit > 0 ? planLimit - balance : 0;
 	const percentage = planLimit > 0 ? (used / planLimit) * 100 : 0;
 
-	// Only show warning at 80%+ usage
-	if (percentage < 80) {
+	if (!isOverage && percentage < 80) {
 		return null;
 	}
 
-	const isDestructive = percentage >= 95;
+	const isDestructive = isOverage || percentage >= 95;
 
 	return (
-		<div className="flex items-center justify-between rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm dark:border-amber-800 dark:bg-amber-950/20">
+		<div
+			className={cn(
+				"flex items-center justify-between rounded-md border px-3 py-2",
+				isDestructive
+					? "border-destructive/30 bg-destructive/5"
+					: "border-warning/30 bg-warning/5"
+			)}
+		>
 			<div className="flex items-center gap-2">
 				<WarningIcon
-					className={`size-4 ${isDestructive ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}`}
+					className={cn(
+						"size-4 shrink-0",
+						isDestructive ? "text-destructive" : "text-warning"
+					)}
 					weight="fill"
 				/>
-				<div className="text-muted-foreground">
-					<span>
+				{isOverage ? (
+					<p className="font-medium text-destructive text-xs">
+						{formatLocaleNumber(overage)} events over limit
+					</p>
+				) : (
+					<p className="text-muted-foreground text-xs">
 						{formatLocaleNumber(remaining)} events remaining
 						<span
-							className={`ml-2 font-medium ${isDestructive ? "text-red-600" : "text-amber-600"}`}
+							className={cn(
+								"ml-1.5 font-medium",
+								isDestructive ? "text-destructive" : "text-warning"
+							)}
 						>
 							({percentage.toFixed(0)}% used)
 						</span>
-					</span>
-				</div>
+					</p>
+				)}
 			</div>
 			{data.canUserUpgrade ? (
 				<Link
 					className={buttonVariants({
-						variant: "ghost",
+						variant: "secondary",
 						size: "sm",
 						className: "h-6 px-2 text-xs",
 					})}

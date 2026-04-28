@@ -3,10 +3,10 @@
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { createContext, useContext, useMemo } from "react";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { usePersistentState } from "@/hooks/use-persistent-state";
+import { useCustomEventsData } from "@/hooks/use-custom-events";
+import { usePersistentState } from "@databuddy/ui";
 import { useWebsitesLight } from "@/hooks/use-websites";
-import dayjs from "@/lib/dayjs";
-import { useGlobalCustomEventsData } from "./use-global-custom-events";
+import { dayjs } from "@databuddy/ui";
 
 /**
  * "no-website" = events not tied to any website
@@ -16,27 +16,27 @@ import { useGlobalCustomEventsData } from "./use-global-custom-events";
 export type WebsiteFilterMode = "no-website" | "all" | string;
 
 export interface WebsiteEntry {
+	domain: string;
 	id: string;
 	name: string;
-	domain: string;
 }
 
 interface EventsPageContextValue {
-	websiteFilterMode: WebsiteFilterMode;
-	setWebsiteFilterMode: (mode: WebsiteFilterMode) => void;
-	selectedWebsite: WebsiteEntry | undefined;
-	websites: WebsiteEntry[];
-	isLoadingWebsites: boolean;
-	queryOptions: { websiteId?: string; organizationId?: string };
-	websiteFilters: DynamicQueryFilter[];
-	hasQueryId: boolean;
 	dateRange: {
 		start_date: string;
 		end_date: string;
 		granularity: "daily" | "hourly";
 	};
+	hasQueryId: boolean;
 	isLoadingOrg: boolean;
-	query: ReturnType<typeof useGlobalCustomEventsData>;
+	isLoadingWebsites: boolean;
+	query: ReturnType<typeof useCustomEventsData>;
+	queryOptions: { websiteId?: string; organizationId?: string };
+	selectedWebsite: WebsiteEntry | undefined;
+	setWebsiteFilterMode: (mode: WebsiteFilterMode) => void;
+	websiteFilterMode: WebsiteFilterMode;
+	websiteFilters: DynamicQueryFilter[];
+	websites: WebsiteEntry[];
 }
 
 const EventsPageContext = createContext<EventsPageContextValue | null>(null);
@@ -80,10 +80,11 @@ export function EventsPageProvider({
 		if (isSpecificWebsite) {
 			return { websiteId: websiteFilterMode };
 		}
-		// Org scope: `/v1/query` resolves active org from the session cookie when
-		// organization_id is omitted.
+		if (activeOrganizationId) {
+			return { organizationId: activeOrganizationId };
+		}
 		return {};
-	}, [isSpecificWebsite, websiteFilterMode]);
+	}, [isSpecificWebsite, websiteFilterMode, activeOrganizationId]);
 
 	const websiteFilters = useMemo<DynamicQueryFilter[]>(() => {
 		if (websiteFilterMode === "no-website") {
@@ -98,12 +99,10 @@ export function EventsPageProvider({
 		activeOrganizationId
 	);
 
-	const query = useGlobalCustomEventsData(
-		queryOptions,
-		DEFAULT_DATE_RANGE,
-		websiteFilters,
-		{ enabled: hasQueryId }
-	);
+	const query = useCustomEventsData(queryOptions, DEFAULT_DATE_RANGE, {
+		filters: websiteFilters,
+		enabled: hasQueryId,
+	});
 
 	const selectedWebsite = isSpecificWebsite
 		? websites.find((w) => w.id === websiteFilterMode)

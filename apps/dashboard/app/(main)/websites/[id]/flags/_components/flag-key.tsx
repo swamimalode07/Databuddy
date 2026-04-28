@@ -1,14 +1,8 @@
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { Button } from "@/components/ui/button";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
-import { useCopyToClipboard } from "./hooks/use-copy-to-clipboard";
 import type { Flag } from "./types";
+import { CheckIcon, CopyIcon } from "@databuddy/ui/icons";
+import { Button, Tooltip } from "@databuddy/ui";
 
 export function FlagKey({
 	flag,
@@ -18,29 +12,29 @@ export function FlagKey({
 	const { isCopied, copyToClipboard } = useCopyToClipboard();
 
 	return (
-		<Tooltip delayDuration={200}>
-			<TooltipTrigger asChild>
-				<Button
-					className={cn(
-						"h-4.5 font-mono text-xs has-[>svg]:px-1.5 dark:text-foreground/70",
-						className
-					)}
-					onClick={() => copyToClipboard(flag.key)}
-					size="sm"
-					variant="ghost"
-					{...props}
-				>
-					{flag.key}
-					{isCopied ? (
-						<CheckIcon className="size-3 text-green-500" />
-					) : (
-						<CopyIcon className="size-3 opacity-50" />
-					)}
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent side="bottom">
-				{isCopied ? "Copied!" : "Click to copy key"}
-			</TooltipContent>
+		<Tooltip
+			content={isCopied ? "Copied!" : "Click to copy key"}
+			delay={200}
+			side="bottom"
+		>
+			<Button
+				className={cn(
+					"h-4.5 font-mono text-xs has-[>svg]:px-1.5 dark:text-foreground/70",
+					className
+				)}
+				data-row-interactive="true"
+				onClick={() => copyToClipboard(flag.key)}
+				size="sm"
+				variant="ghost"
+				{...props}
+			>
+				{flag.key}
+				{isCopied ? (
+					<CheckIcon className="size-3 text-green-500" />
+				) : (
+					<CopyIcon className="size-3 opacity-50" />
+				)}
+			</Button>
 		</Tooltip>
 	);
 }

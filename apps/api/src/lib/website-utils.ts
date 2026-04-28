@@ -1,24 +1,26 @@
-import { auth } from "@databuddy/auth";
-import { db, eq, inArray, userPreferences, websites } from "@databuddy/db";
-import { cacheable } from "@databuddy/redis";
-import type { Website } from "@databuddy/shared/types/website";
 import {
 	getApiKeyFromHeader,
 	hasWebsiteScope,
 	isApiKeyPresent,
-} from "./api-key";
+} from "@databuddy/api-keys/resolve";
+import { auth } from "@databuddy/auth";
+import { db, eq, inArray } from "@databuddy/db";
+import { userPreferences, websites } from "@databuddy/db/schema";
+import { cacheable } from "@databuddy/redis";
+import type { Website } from "@databuddy/shared/types/website";
+import { record } from "./tracing";
 
 export interface WebsiteContext {
-	user: unknown;
 	session: unknown;
-	website?: Website;
 	timezone: string;
+	user: unknown;
+	website?: Website;
 }
 
 export interface WebsiteValidationResult {
+	error?: string;
 	success: boolean;
 	website?: Website;
-	error?: string;
 }
 
 const getCachedWebsite = cacheable(
@@ -146,7 +148,9 @@ async function deriveWithApiKey(request: Request) {
 	const url = new URL(request.url);
 	const siteId = url.searchParams.get("website_id");
 
-	const key = await getApiKeyFromHeader(request.headers);
+	const key = await record("getApiKeyFromHeader", () =>
+		getApiKeyFromHeader(request.headers)
+	);
 	if (!key) {
 		throw jsonError(401, "Invalid or expired API key", "AUTH_REQUIRED");
 	}
@@ -157,7 +161,7 @@ async function deriveWithApiKey(request: Request) {
 	}
 
 	const [site, timezone] = await Promise.all([
-		getCachedWebsite(siteId),
+		record("getCachedWebsite", () => getCachedWebsite(siteId)),
 		getTimezone(request, null),
 	]);
 
@@ -184,7 +188,9 @@ async function deriveWithApiKey(request: Request) {
 async function deriveWithSession(request: Request) {
 	const url = new URL(request.url);
 	const websiteId = url.searchParams.get("website_id");
-	const session = await auth.api.getSession({ headers: request.headers });
+	const session = await record("getSession", () =>
+		auth.api.getSession({ headers: request.headers })
+	);
 
 	if (!websiteId) {
 		if (!session?.user) {

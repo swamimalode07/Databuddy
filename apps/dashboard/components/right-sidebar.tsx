@@ -1,12 +1,9 @@
 import type { IconProps } from "@phosphor-icons/react";
-import { BookOpenIcon } from "@phosphor-icons/react";
-import type { VariantProps } from "class-variance-authority";
 import type { ComponentType } from "react";
-import { Badge, type badgeVariants } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tip } from "@/components/ui/tip";
 import { cn } from "@/lib/utils";
+import { BookOpenIcon } from "@databuddy/ui/icons";
+import { Badge, Button, Skeleton } from "@databuddy/ui";
 
 interface RightSidebarProps {
 	children: React.ReactNode;
@@ -27,14 +24,20 @@ export function RightSidebar({ children, className }: RightSidebarProps) {
 }
 
 interface SectionProps {
+	badge?: {
+		label: string;
+		variant?:
+			| "default"
+			| "primary"
+			| "success"
+			| "warning"
+			| "destructive"
+			| "muted";
+	};
+	border?: boolean;
 	children: React.ReactNode;
 	className?: string;
 	title?: string;
-	border?: boolean;
-	badge?: {
-		label: string;
-		variant?: VariantProps<typeof badgeVariants>["variant"];
-	};
 }
 
 function Section({
@@ -50,7 +53,7 @@ function Section({
 				<div className="mb-3 flex items-center gap-2">
 					<h3 className="font-semibold">{title}</h3>
 					{badge && (
-						<Badge variant={badge.variant || "gray"}>{badge.label}</Badge>
+						<Badge variant={badge.variant || "muted"}>{badge.label}</Badge>
 					)}
 				</div>
 			)}
@@ -60,14 +63,20 @@ function Section({
 }
 
 interface InfoCardProps {
-	icon: ComponentType<IconProps>;
-	title: string;
-	description?: string;
-	className?: string;
 	badge?: {
 		label: string;
-		variant?: VariantProps<typeof badgeVariants>["variant"];
+		variant?:
+			| "default"
+			| "primary"
+			| "success"
+			| "warning"
+			| "destructive"
+			| "muted";
 	};
+	className?: string;
+	description?: string;
+	icon: ComponentType<IconProps>;
+	title: string;
 }
 
 function InfoCard({
@@ -95,7 +104,7 @@ function InfoCard({
 				<div className="flex items-center gap-2">
 					<p className="truncate font-semibold">{title}</p>
 					{badge && (
-						<Badge variant={badge.variant || "gray"}>{badge.label}</Badge>
+						<Badge variant={badge.variant || "muted"}>{badge.label}</Badge>
 					)}
 				</div>
 				{description && (
@@ -109,9 +118,9 @@ function InfoCard({
 }
 
 interface DocsLinkProps {
+	className?: string;
 	href?: string;
 	label?: string;
-	className?: string;
 }
 
 function DocsLink({

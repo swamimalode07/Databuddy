@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@databuddy/ui";
 
 type TruncatedTextProps = {
 	text: string;
@@ -55,37 +51,26 @@ export const TruncatedText = ({
 		};
 	}, []);
 
+	const span = (
+		<span
+			className={className}
+			id={id}
+			ref={(node) => {
+				elementRef.current = node;
+				checkTextOverflow(node);
+			}}
+		>
+			{text}
+		</span>
+	);
+
+	if (!isTextTruncated) {
+		return span;
+	}
+
 	return (
-		<>
-			{isTextTruncated ? (
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<span
-							className={className}
-							id={id}
-							ref={(node) => {
-								elementRef.current = node;
-								checkTextOverflow(node);
-							}}
-						>
-							{text}
-						</span>
-					</TooltipTrigger>
-					<TooltipContent side={side}>{text}</TooltipContent>
-				</Tooltip>
-			) : (
-				<span
-					className={className}
-					id={id}
-					ref={(node) => {
-						elementRef.current = node;
-						checkTextOverflow(node);
-					}}
-				>
-					{text}
-				</span>
-			)}
-		</>
+		<Tooltip content={text} side={side}>
+			{span}
+		</Tooltip>
 	);
 };
-

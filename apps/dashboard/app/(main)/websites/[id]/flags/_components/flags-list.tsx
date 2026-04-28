@@ -1,5 +1,14 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type SyntheticEvent, useMemo } from "react";
+import { List } from "@/components/ui/composables/list";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import { FlagKey } from "./flag-key";
+import { FlagVariants } from "./flag-variants";
+import { RolloutProgress } from "./rollout-progress";
+import type { Flag, TargetGroup } from "./types";
 import {
 	ArchiveIcon,
 	DotsThreeIcon,
@@ -10,38 +19,15 @@ import {
 	PencilSimpleIcon,
 	ShareNetworkIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
-import { FlagKey } from "./flag-key";
-import { FlagVariants } from "./flag-variants";
-import { RolloutProgress } from "./rollout-progress";
-import type { Flag, TargetGroup } from "./types";
+} from "@databuddy/ui/icons";
+import { DropdownMenu, Switch } from "@databuddy/ui/client";
+import { Badge, Skeleton, Tooltip } from "@databuddy/ui";
 
 interface FlagsListProps {
 	flags: Flag[];
 	groups: Map<string, TargetGroup[]>;
-	onEdit: (flag: Flag) => void;
 	onDelete: (flagId: string) => void;
+	onEdit: (flag: Flag) => void;
 }
 
 const TYPE_CONFIG = {
@@ -54,6 +40,19 @@ const TYPE_CONFIG = {
 	},
 } as const;
 
+const ROW_INTERACTIVE_SELECTOR = '[data-row-interactive="true"]';
+
+function stopRowInteraction(event: SyntheticEvent) {
+	event.stopPropagation();
+}
+
+function shouldIgnoreRowClick(target: EventTarget | null) {
+	return (
+		target instanceof Element &&
+		target.closest(ROW_INTERACTIVE_SELECTOR) !== null
+	);
+}
+
 function GroupsDisplay({ groups }: { groups: TargetGroup[] }) {
 	if (groups.length === 0) {
 		return null;
@@ -63,14 +62,11 @@ function GroupsDisplay({ groups }: { groups: TargetGroup[] }) {
 		<div className="flex items-center gap-1.5">
 			<div className="flex -space-x-1">
 				{groups.slice(0, 3).map((group) => (
-					<Tooltip delayDuration={200} key={group.id}>
-						<TooltipTrigger asChild>
-							<span
-								className="size-4 rounded border border-background"
-								style={{ backgroundColor: group.color }}
-							/>
-						</TooltipTrigger>
-						<TooltipContent side="top">{group.name}</TooltipContent>
+					<Tooltip content={group.name} delay={200} key={group.id} side="top">
+						<span
+							className="size-4 rounded border border-background"
+							style={{ backgroundColor: group.color }}
+						/>
 					</Tooltip>
 				))}
 			</div>
@@ -106,7 +102,13 @@ function StatusToggle({ flag }: { flag: Flag }) {
 	};
 
 	return (
-		<div className="flex items-center gap-2">
+		<div
+			className="flex items-center gap-2"
+			data-row-interactive="true"
+			onClick={stopRowInteraction}
+			onKeyDown={stopRowInteraction}
+			role="presentation"
+		>
 			<Switch
 				aria-label={isActive ? "Disable flag" : "Enable flag"}
 				checked={isActive}
@@ -160,37 +162,45 @@ function FlagActions({
 	};
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
+		<div
+			data-row-interactive="true"
+			onClick={stopRowInteraction}
+			onKeyDown={stopRowInteraction}
+			role="presentation"
+		>
+			<DropdownMenu>
+				<DropdownMenu.Trigger
 					aria-label="Flag actions"
-					className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-					size="icon"
-					variant="ghost"
+					className={cn(
+						"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-all duration-(--duration-quick) ease-(--ease-smooth) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50",
+						"bg-transparent text-muted-foreground hover:bg-interactive-hover hover:text-foreground",
+						"size-8 p-0",
+						"opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
+					)}
 				>
 					<DotsThreeIcon className="size-5" weight="bold" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-44">
-				<DropdownMenuItem className="gap-2" onClick={() => onEdit(flag)}>
-					<PencilSimpleIcon className="size-4" weight="duotone" />
-					Edit Flag
-				</DropdownMenuItem>
-				<DropdownMenuItem className="gap-2" onClick={handleArchive}>
-					<ArchiveIcon className="size-4" weight="duotone" />
-					{flag.status === "archived" ? "Restore" : "Archive"}
-				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					className="gap-2 text-destructive focus:text-destructive"
-					onClick={() => onDelete(flag.id)}
-					variant="destructive"
-				>
-					<TrashIcon className="size-4 fill-destructive" weight="duotone" />
-					Delete Flag
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end" className="w-44">
+					<DropdownMenu.Item className="gap-2" onClick={() => onEdit(flag)}>
+						<PencilSimpleIcon className="size-4" weight="duotone" />
+						Edit Flag
+					</DropdownMenu.Item>
+					<DropdownMenu.Item className="gap-2" onClick={handleArchive}>
+						<ArchiveIcon className="size-4" weight="duotone" />
+						{flag.status === "archived" ? "Restore" : "Archive"}
+					</DropdownMenu.Item>
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item
+						className="gap-2 text-destructive focus:text-destructive"
+						onClick={() => onDelete(flag.id)}
+						variant="destructive"
+					>
+						<TrashIcon className="size-4 fill-destructive" weight="duotone" />
+						Delete Flag
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu>
+		</div>
 	);
 }
 
@@ -210,62 +220,66 @@ function DependencyBadges({
 	return (
 		<div className="flex items-center gap-1.5">
 			{dependencies.length > 0 && (
-				<Tooltip delayDuration={200}>
-					<TooltipTrigger asChild>
-						<div className="flex items-center gap-1 rounded bg-blue-500/10 px-1.5 py-0.5 text-blue-600 dark:text-blue-400">
-							<LinkIcon className="size-3" />
-							<span className="font-medium text-xs">{dependencies.length}</span>
-						</div>
-					</TooltipTrigger>
-					<TooltipContent>
-						<p className="mb-1.5 font-medium text-xs">Requires:</p>
-						<div className="flex flex-col gap-1">
-							{dependencies.map((depKey) => {
-								const dep = flagMap.get(depKey);
-								const isActive = dep?.status === "active";
-								return (
-									<div className="flex items-center gap-1.5" key={depKey}>
-										<span
-											className={cn(
-												"size-1.5 rounded-full",
-												isActive ? "bg-green-500" : "bg-amber-500"
-											)}
-										/>
-										<span className="font-mono text-xs">{depKey}</span>
-									</div>
-								);
-							})}
-						</div>
-					</TooltipContent>
+				<Tooltip
+					content={
+						<>
+							<p className="mb-1.5 font-medium text-xs">Requires:</p>
+							<div className="flex flex-col gap-1">
+								{dependencies.map((depKey) => {
+									const dep = flagMap.get(depKey);
+									const isActive = dep?.status === "active";
+									return (
+										<div className="flex items-center gap-1.5" key={depKey}>
+											<span
+												className={cn(
+													"size-1.5 rounded-full",
+													isActive ? "bg-green-500" : "bg-amber-500"
+												)}
+											/>
+											<span className="font-mono text-xs">{depKey}</span>
+										</div>
+									);
+								})}
+							</div>
+						</>
+					}
+					delay={200}
+				>
+					<div className="flex items-center gap-1 rounded bg-blue-500/10 px-1.5 py-0.5 text-blue-600 dark:text-blue-400">
+						<LinkIcon className="size-3" />
+						<span className="font-medium text-xs">{dependencies.length}</span>
+					</div>
 				</Tooltip>
 			)}
 			{dependents.length > 0 && (
-				<Tooltip delayDuration={200}>
-					<TooltipTrigger asChild>
-						<div className="flex items-center gap-1 rounded bg-violet-500/10 px-1.5 py-0.5 text-violet-600 dark:text-violet-400">
-							<ShareNetworkIcon className="size-3" weight="fill" />
-							<span className="font-medium text-xs">{dependents.length}</span>
-						</div>
-					</TooltipTrigger>
-					<TooltipContent>
-						<p className="mb-1.5 font-medium text-xs">Used by:</p>
-						<div className="flex flex-col gap-1">
-							{dependents.map((dep) => {
-								const isActive = dep.status === "active";
-								return (
-									<div className="flex items-center gap-1.5" key={dep.id}>
-										<span
-											className={cn(
-												"size-1.5 rounded-full",
-												isActive ? "bg-green-500" : "bg-amber-500"
-											)}
-										/>
-										<span className="font-mono text-xs">{dep.key}</span>
-									</div>
-								);
-							})}
-						</div>
-					</TooltipContent>
+				<Tooltip
+					content={
+						<>
+							<p className="mb-1.5 font-medium text-xs">Used by:</p>
+							<div className="flex flex-col gap-1">
+								{dependents.map((dep) => {
+									const isActive = dep.status === "active";
+									return (
+										<div className="flex items-center gap-1.5" key={dep.id}>
+											<span
+												className={cn(
+													"size-1.5 rounded-full",
+													isActive ? "bg-green-500" : "bg-amber-500"
+												)}
+											/>
+											<span className="font-mono text-xs">{dep.key}</span>
+										</div>
+									);
+								})}
+							</div>
+						</>
+					}
+					delay={200}
+				>
+					<div className="flex items-center gap-1 rounded bg-violet-500/10 px-1.5 py-0.5 text-violet-600 dark:text-violet-400">
+						<ShareNetworkIcon className="size-3" weight="fill" />
+						<span className="font-medium text-xs">{dependents.length}</span>
+					</div>
 				</Tooltip>
 			)}
 		</div>
@@ -298,19 +312,32 @@ function FlagRow({
 	return (
 		<List.Row
 			asChild
-			className={cn("min-w-full", flag.status === "archived" && "opacity-50")}
+			className={cn(
+				"min-w-full cursor-pointer text-left",
+				flag.status === "archived" && "opacity-50"
+			)}
 		>
-			<button
-				className="cursor-pointer text-left"
-				onClick={() => onEdit(flag)}
-				type="button"
+			{/* biome-ignore lint/a11y/useSemanticElements: List.Row asChild replaces this element; a real <button> would nest inside the action-cell buttons */}
+			<div
+				onClick={(event) => {
+					if (shouldIgnoreRowClick(event.target)) {
+						return;
+					}
+					onEdit(flag);
+				}}
+				onKeyDown={(e) => {
+					if (e.target !== e.currentTarget) {
+						return;
+					}
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						onEdit(flag);
+					}
+				}}
+				role="button"
+				tabIndex={0}
 			>
-				{/* Flag name & key */}
-				<List.Cell
-					className="min-w-0 max-w-[min(320px,100%)] shrink-0"
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
-				>
+				<List.Cell className="min-w-0 max-w-[min(320px,100%)] shrink-0">
 					<div className="flex min-w-0 items-center gap-3">
 						<div
 							className={cn(
@@ -336,7 +363,6 @@ function FlagRow({
 					</div>
 				</List.Cell>
 
-				{/* Description */}
 				<List.Cell grow>
 					{flag.description ? (
 						<p className="wrap-break-word text-pretty text-muted-foreground text-xs">
@@ -345,21 +371,18 @@ function FlagRow({
 					) : null}
 				</List.Cell>
 
-				{/* Type */}
 				<List.Cell className="flex w-[100px] shrink-0 justify-center">
-					<Badge className="font-normal" variant="secondary">
+					<Badge className="font-normal" variant="muted">
 						{typeConfig.label}
 					</Badge>
 				</List.Cell>
 
-				{/* Rollout */}
 				<List.Cell className="flex w-20 shrink-0 justify-center">
 					{flag.type === "rollout" && rollout > 0 && (
 						<RolloutProgress percentage={rollout} />
 					)}
 				</List.Cell>
 
-				{/* Rules & Variants */}
 				<List.Cell className="flex w-[100px] shrink-0 justify-center">
 					{(ruleCount > 0 || variantCount > 0) && (
 						<div className="flex flex-col gap-0.5 text-center text-muted-foreground text-xs">
@@ -375,19 +398,13 @@ function FlagRow({
 					)}
 				</List.Cell>
 
-				{/* Groups */}
 				<List.Cell className="flex w-[100px] shrink-0 justify-center">
 					<GroupsDisplay groups={groups} />
 				</List.Cell>
 
-				{/* Status */}
-				<List.Cell
-					className="flex w-[120px] shrink-0 justify-center"
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
-				>
+				<List.Cell className="flex w-[120px] shrink-0 justify-center">
 					{flag.status === "archived" ? (
-						<Badge className="gap-1" variant="amber">
+						<Badge className="gap-1" variant="warning">
 							<ArchiveIcon className="size-3" weight="duotone" />
 							Archived
 						</Badge>
@@ -399,7 +416,7 @@ function FlagRow({
 				<List.Cell action>
 					<FlagActions flag={flag} onDelete={onDelete} onEdit={onEdit} />
 				</List.Cell>
-			</button>
+			</div>
 		</List.Row>
 	);
 }

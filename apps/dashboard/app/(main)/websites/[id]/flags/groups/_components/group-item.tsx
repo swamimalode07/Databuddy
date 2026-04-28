@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import type { TargetGroup } from "../../_components/types";
 import {
 	DotsThreeIcon,
 	EnvelopeIcon,
@@ -8,23 +10,14 @@ import {
 	UserIcon,
 	UsersThreeIcon,
 	WrenchIcon,
-} from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import type { TargetGroup } from "../../_components/types";
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 export interface GroupItemProps {
 	group: TargetGroup;
-	onEdit: (group: TargetGroup) => void;
-	onDelete: (groupId: string) => void;
 	isSelected?: boolean;
+	onDelete: (groupId: string) => void;
+	onEdit: (group: TargetGroup) => void;
 	onSelect?: () => void;
 }
 
@@ -92,31 +85,32 @@ function GroupActions({
 }) {
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
-					aria-label="Group actions"
-					className="size-8 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-					size="icon"
-					variant="ghost"
-				>
-					<DotsThreeIcon className="size-5" weight="bold" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-40">
-				<DropdownMenuItem className="gap-2" onClick={() => onEdit(group)}>
+			<DropdownMenu.Trigger
+				aria-label="Group actions"
+				className={cn(
+					"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-all duration-(--duration-quick) ease-(--ease-smooth) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50",
+					"bg-transparent text-muted-foreground hover:bg-interactive-hover hover:text-foreground",
+					"size-8 p-0",
+					"opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+				)}
+			>
+				<DotsThreeIcon className="size-5" weight="bold" />
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" className="w-40">
+				<DropdownMenu.Item className="gap-2" onClick={() => onEdit(group)}>
 					<PencilSimpleIcon className="size-4" weight="duotone" />
 					Edit
-				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem
+				</DropdownMenu.Item>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item
 					className="gap-2 text-destructive focus:text-destructive"
 					onClick={() => onDelete(group.id)}
 					variant="destructive"
 				>
 					<TrashIcon className="size-4" weight="duotone" />
 					Delete
-				</DropdownMenuItem>
-			</DropdownMenuContent>
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
 		</DropdownMenu>
 	);
 }
@@ -181,7 +175,6 @@ export function GroupItem({
 			}}
 			type="button"
 		>
-			{/* Group icon */}
 			<div
 				className="shrink-0 rounded p-1.5"
 				style={{ backgroundColor: `${group.color}20` }}

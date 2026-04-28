@@ -1,47 +1,45 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CalendarIcon,
-	CheckIcon,
-	CircleNotchIcon,
-	ImageIcon,
-	LinkIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
 import { useState } from "react";
 import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useChat } from "@/contexts/chat-context";
 import type { Link } from "@/hooks/use-links";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../../types";
+import {
+	CalendarIcon,
+	CheckIcon,
+	ImageIcon,
+	LinkIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
 
 interface LinkPreviewData {
-	name: string;
-	targetUrl: string;
-	slug?: string;
-	expiresAt?: string | null;
 	expiredRedirectUrl?: string | null;
-	ogTitle?: string | null;
+	expiresAt?: string | null;
+	name: string;
 	ogDescription?: string | null;
 	ogImageUrl?: string | null;
+	ogTitle?: string | null;
+	slug?: string;
+	targetUrl: string;
 }
 
 export interface LinkPreviewProps extends BaseComponentProps {
-	mode: "create" | "update" | "delete";
 	link: LinkPreviewData;
+	mode: "create" | "update" | "delete";
 }
 
 interface ModeConfig {
-	title: string;
+	accent: string;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
-	accent: string;
-	variant: "default" | "destructive";
-	ButtonIcon: Icon;
+	title: string;
+	tone?: "destructive";
 }
 
 const MODE_CONFIG: Record<string, ModeConfig> = {
@@ -50,7 +48,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Create",
 		confirmMessage: "Yes, create it",
 		accent: "",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	update: {
@@ -58,7 +55,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Update",
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	delete: {
@@ -66,7 +62,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Delete",
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
-		variant: "destructive",
+		tone: "destructive",
 		ButtonIcon: TrashIcon,
 	},
 };
@@ -184,16 +180,13 @@ export function LinkPreviewRenderer({
 						Edit
 					</Button>
 					<Button
-						disabled={isLoading || isConfirming}
+						disabled={isLoading}
+						loading={isConfirming}
 						onClick={handleConfirm}
 						size="sm"
-						variant={config.variant}
+						tone={config.tone}
 					>
-						{isConfirming ? (
-							<CircleNotchIcon className="size-3.5 animate-spin" />
-						) : (
-							<config.ButtonIcon className="size-3.5" weight="bold" />
-						)}
+						<config.ButtonIcon className="size-3.5" weight="bold" />
 						{config.confirmLabel}
 					</Button>
 				</div>

@@ -6,15 +6,26 @@ import { useParams, usePathname } from "next/navigation";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { LiveUserIndicator } from "@/components/analytics";
+import { TopBar } from "@/components/layout/top-bar";
 import { WebsiteErrorState } from "@/components/website-error-state";
-import { useWebsite } from "@/hooks/use-websites";
 import {
+	batchDynamicQueryKeys,
+	dynamicQueryKeys,
+} from "@/hooks/use-dynamic-query";
+import { useWebsite } from "@/hooks/use-websites";
+import { cn } from "@/lib/utils";
+import {
+	addDynamicFilterAtom,
 	currentFilterWebsiteIdAtom,
 	isAnalyticsRefreshingAtom,
 } from "@/stores/jotai/filterAtoms";
 import { AnalyticsToolbar } from "./_components/analytics-toolbar";
+import { AddFilterForm } from "./_components/filters/add-filters";
 import { WebsiteTrackingSetupTab } from "./_components/tabs/tracking-setup-tab";
 import { useTrackingSetup } from "./hooks/use-tracking-setup";
+import { ArrowClockwiseIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 const NO_TOOLBAR_ROUTES = [
 	"/assistant",
@@ -39,6 +50,7 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
 	const [isRefreshing, setIsRefreshing] = useAtom(isAnalyticsRefreshingAtom);
 	const setCurrentFilterWebsiteId = useSetAtom(currentFilterWebsiteIdAtom);
 	const [isEmbed] = useQueryState("embed", parseAsBoolean.withDefault(false));
+	const [, addFilter] = useAtom(addDynamicFilterAtom);
 
 	useEffect(() => {
 		setCurrentFilterWebsiteId(websiteId);
@@ -86,9 +98,11 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
 				queryClient.invalidateQueries({
 					queryKey: ["websites", "isTrackingSetup", id],
 				}),
-				queryClient.invalidateQueries({ queryKey: ["dynamic-query", id] }),
 				queryClient.invalidateQueries({
-					queryKey: ["batch-dynamic-query", id],
+					queryKey: dynamicQueryKeys.byWebsite(websiteId),
+				}),
+				queryClient.invalidateQueries({
+					queryKey: batchDynamicQueryKeys.byWebsite(websiteId),
 				}),
 			]);
 		} catch {
@@ -100,19 +114,41 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
 	return (
 		<div className="flex h-full flex-col overflow-hidden">
 			{!hideToolbar && (
-				<div className="shrink-0 bg-background">
-					<AnalyticsToolbar
-						isDisabled={isToolbarDisabled}
-						isLoading={isToolbarLoading}
-						isRefreshing={isRefreshing}
-						onRefreshAction={handleRefresh}
-						websiteId={websiteId}
-					/>
-				</div>
+				<>
+					<TopBar.Actions>
+						<AddFilterForm
+							addFilter={addFilter}
+							buttonText="Filter"
+							disabled={isToolbarDisabled}
+						/>
+						<LiveUserIndicator websiteId={websiteId} />
+						<Button
+							aria-label="Refresh data"
+							disabled={isRefreshing || isToolbarDisabled}
+							onClick={handleRefresh}
+							size="sm"
+							variant="secondary"
+						>
+							<ArrowClockwiseIcon
+								aria-hidden
+								className={cn(
+									"size-4 shrink-0",
+									isRefreshing || isToolbarLoading ? "animate-spin" : ""
+								)}
+							/>
+						</Button>
+					</TopBar.Actions>
+
+					<div className="shrink-0">
+						<AnalyticsToolbar isDisabled={isToolbarDisabled} />
+					</div>
+				</>
 			)}
 
 			{hideToolbar ? (
-				<div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+				<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+					{children}
+				</div>
 			) : (
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-none">
 					{showTrackingSetup ? (

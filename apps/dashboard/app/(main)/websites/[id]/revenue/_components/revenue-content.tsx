@@ -1,80 +1,72 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { ArrowsCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsCounterClockwise";
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
-import { CreditCardIcon } from "@phosphor-icons/react/dist/ssr/CreditCard";
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
-import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
-import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr/Receipt";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { StripeLogoIcon } from "@phosphor-icons/react/dist/ssr/StripeLogo";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { StatCard } from "@/components/analytics/stat-card";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import dayjs from "@/lib/dayjs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
 	addDynamicFilterAtom,
 	dynamicQueryFiltersAtom,
 } from "@/stores/jotai/filterAtoms";
-import { WebsitePageHeader } from "../../_components/website-page-header";
+import { TopBar } from "@/components/layout/top-bar";
 import { RevenueAttributionTables } from "./revenue-attribution-tables";
 import { RevenueChart } from "./revenue-chart";
+import { StripeLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowClockwiseIcon,
+	ArrowSquareOutIcon,
+	ArrowsCounterClockwiseIcon,
+	CaretDownIcon,
+	CheckCircleIcon,
+	CheckIcon,
+	ClipboardIcon,
+	CreditCardIcon,
+	CurrencyDollarIcon,
+	EyeIcon,
+	EyeSlashIcon,
+	GearIcon,
+	LinkIcon,
+	ReceiptIcon,
+	SpinnerIcon,
+	TrendUpIcon,
+	UsersIcon,
+} from "@databuddy/ui/icons";
+import { Sheet } from "@databuddy/ui/client";
+import { Button, EmptyState, Input, dayjs } from "@databuddy/ui";
 
 interface RevenueContentProps {
 	websiteId: string;
 }
 
 interface RevenueOverview {
-	total_revenue: number;
-	total_transactions: number;
+	attributed_revenue: number;
+	attributed_transactions: number;
 	refund_amount: number;
 	refund_count: number;
-	subscription_revenue: number;
-	subscription_count: number;
-	sale_revenue: number;
 	sale_count: number;
+	sale_revenue: number;
+	subscription_count: number;
+	subscription_revenue: number;
+	total_revenue: number;
+	total_transactions: number;
 	unique_customers: number;
-	attributed_transactions: number;
-	attributed_revenue: number;
 }
 
 interface RevenueTimeSeries {
-	date: string;
-	revenue: number;
-	transactions: number;
 	customers: number;
+	date: string;
 	refund_amount: number;
 	refund_count: number;
+	revenue: number;
+	transactions: number;
 }
 
 const BASKET_URL =
@@ -144,7 +136,7 @@ function CollapsibleSection({
 	onToggleAction,
 	children,
 }: {
-	icon: React.ComponentType<{ size?: number; weight?: "duotone" }>;
+	icon: React.ComponentType<{ className?: string; weight?: "duotone" }>;
 	title: string;
 	badge?: React.ReactNode;
 	isExpanded: boolean;
@@ -160,8 +152,8 @@ function CollapsibleSection({
 					type="button"
 				>
 					<div className="flex items-center gap-2.5">
-						<Icon size={16} weight="duotone" />
-						<span className="font-medium text-sm">{title}</span>
+						<Icon className="size-4" weight="duotone" />
+						<span className="font-semibold text-sm">{title}</span>
 						{badge}
 					</div>
 					<CaretDownIcon
@@ -207,7 +199,14 @@ function RevenueSettingsSheet({
 	const [showPaddleSecret, setShowPaddleSecret] = useState(false);
 	const [expandedSection, setExpandedSection] =
 		useState<ExpandedSection>("webhooks");
-	const [copiedUrl, setCopiedUrl] = useState<"stripe" | "paddle" | null>(null);
+	const { isCopied: copiedStripeUrl, copyToClipboard: copyStripeUrl } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Webhook URL copied"),
+		});
+	const { isCopied: copiedPaddleUrl, copyToClipboard: copyPaddleUrl } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Webhook URL copied"),
+		});
 
 	const { data: config, isLoading } = useQuery({
 		queryKey: ["revenue-config", websiteId],
@@ -272,13 +271,6 @@ function RevenueSettingsSheet({
 		setExpandedSection((prev) => (prev === section ? null : section));
 	};
 
-	const handleCopyUrl = (url: string, provider: "stripe" | "paddle") => {
-		navigator.clipboard.writeText(url);
-		setCopiedUrl(provider);
-		toast.success("Webhook URL copied");
-		setTimeout(() => setCopiedUrl(null), 2000);
-	};
-
 	const webhookHash = config?.webhookHash;
 	const stripeUrl = webhookHash
 		? `${BASKET_URL}/webhooks/stripe/${webhookHash}`
@@ -289,8 +281,8 @@ function RevenueSettingsSheet({
 
 	return (
 		<Sheet onOpenChange={onOpenChangeAction} open={open}>
-			<SheetContent className="sm:max-w-lg">
-				<SheetHeader>
+			<Sheet.Content className="sm:max-w-lg">
+				<Sheet.Header>
 					<div className="flex items-center gap-3">
 						<div className="flex size-10 items-center justify-center rounded border bg-secondary">
 							<CurrencyDollarIcon
@@ -299,22 +291,23 @@ function RevenueSettingsSheet({
 							/>
 						</div>
 						<div>
-							<SheetTitle>Revenue Tracking</SheetTitle>
-							<SheetDescription>
-								Connect your payment providers via webhooks
-							</SheetDescription>
+							<Sheet.Title>Revenue Tracking</Sheet.Title>
+							<Sheet.Description>
+								Connect payment providers via webhooks
+							</Sheet.Description>
 						</div>
 					</div>
-				</SheetHeader>
+				</Sheet.Header>
 
-				<SheetBody>
+				<Sheet.Close />
+
+				<Sheet.Body>
 					{isLoading ? (
 						<div className="flex items-center justify-center py-12">
 							<SpinnerIcon className="size-6 animate-spin text-muted-foreground" />
 						</div>
 					) : (
 						<div className="space-y-1">
-							{/* Webhook URLs Section */}
 							<CollapsibleSection
 								badge={
 									webhookHash ? (
@@ -331,7 +324,6 @@ function RevenueSettingsSheet({
 							>
 								{webhookHash ? (
 									<div className="space-y-4">
-										{/* Stripe URL */}
 										<div className="space-y-1.5">
 											<div className="flex items-center justify-between">
 												<p className="font-medium text-foreground text-xs">
@@ -352,13 +344,11 @@ function RevenueSettingsSheet({
 													{stripeUrl}
 												</code>
 												<Button
-													onClick={() =>
-														stripeUrl && handleCopyUrl(stripeUrl, "stripe")
-													}
+													onClick={() => stripeUrl && copyStripeUrl(stripeUrl)}
 													size="sm"
 													variant="ghost"
 												>
-													{copiedUrl === "stripe" ? (
+													{copiedStripeUrl ? (
 														<CheckIcon className="size-4 text-success" />
 													) : (
 														<ClipboardIcon
@@ -370,7 +360,6 @@ function RevenueSettingsSheet({
 											</div>
 										</div>
 
-										{/* Paddle URL */}
 										<div className="space-y-1.5">
 											<div className="flex items-center justify-between">
 												<p className="font-medium text-foreground text-xs">
@@ -391,13 +380,11 @@ function RevenueSettingsSheet({
 													{paddleUrl}
 												</code>
 												<Button
-													onClick={() =>
-														paddleUrl && handleCopyUrl(paddleUrl, "paddle")
-													}
+													onClick={() => paddleUrl && copyPaddleUrl(paddleUrl)}
 													size="sm"
 													variant="ghost"
 												>
-													{copiedUrl === "paddle" ? (
+													{copiedPaddleUrl ? (
 														<CheckIcon className="size-4 text-success" />
 													) : (
 														<ClipboardIcon
@@ -426,25 +413,21 @@ function RevenueSettingsSheet({
 								) : (
 									<div>
 										<p className="mb-3 text-muted-foreground text-xs">
-											Generate webhook URLs to start receiving payment events.
+											Generate URLs to receive payment events.
 										</p>
 										<Button
 											className="w-full"
-											disabled={createWebhookMutation.isPending}
+											loading={createWebhookMutation.isPending}
 											onClick={() => createWebhookMutation.mutate()}
 											size="sm"
-											variant="outline"
+											variant="secondary"
 										>
-											{createWebhookMutation.isPending ? (
-												<SpinnerIcon className="mr-2 size-4 animate-spin" />
-											) : null}
 											Generate Webhook URLs
 										</Button>
 									</div>
 								)}
 							</CollapsibleSection>
 
-							{/* Stripe Section */}
 							<CollapsibleSection
 								badge={
 									config?.stripeConfigured ? (
@@ -522,7 +505,6 @@ function RevenueSettingsSheet({
 								</div>
 							</CollapsibleSection>
 
-							{/* Paddle Section */}
 							<CollapsibleSection
 								badge={
 									config?.paddleConfigured ? (
@@ -603,32 +585,26 @@ function RevenueSettingsSheet({
 							</CollapsibleSection>
 						</div>
 					)}
-				</SheetBody>
+				</Sheet.Body>
 
-				<SheetFooter>
+				<Sheet.Footer>
 					<Button
 						onClick={() => onOpenChangeAction(false)}
 						type="button"
-						variant="outline"
+						variant="secondary"
 					>
 						Cancel
 					</Button>
 					<Button
 						className="min-w-24"
-						disabled={
-							upsertMutation.isPending ||
-							(stripeSecret === "" && paddleSecret === "")
-						}
+						disabled={stripeSecret === "" && paddleSecret === ""}
+						loading={upsertMutation.isPending}
 						onClick={handleSave}
 					>
-						{upsertMutation.isPending ? (
-							<SpinnerIcon className="size-4 animate-spin" />
-						) : (
-							"Save"
-						)}
+						Save
 					</Button>
-				</SheetFooter>
-			</SheetContent>
+				</Sheet.Footer>
+			</Sheet.Content>
 		</Sheet>
 	);
 }
@@ -675,69 +651,57 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 	const hasData = overview && overview.total_transactions > 0;
 	const isConfigured = config?.stripeConfigured || config?.paddleConfigured;
 
-	const paddedTimeSeriesData = useMemo(() => {
-		return padTimeSeriesData(
-			timeSeriesData,
-			dateRange.start_date,
-			dateRange.end_date,
-			{
-				revenue: 0,
-				transactions: 0,
-				customers: 0,
-				refund_amount: 0,
-				refund_count: 0,
-			}
-		);
-	}, [timeSeriesData, dateRange.start_date, dateRange.end_date]);
+	const paddedTimeSeriesData = useMemo(
+		() =>
+			padTimeSeriesData(
+				timeSeriesData,
+				dateRange.start_date,
+				dateRange.end_date,
+				{
+					revenue: 0,
+					transactions: 0,
+					customers: 0,
+					refund_amount: 0,
+					refund_count: 0,
+				}
+			),
+		[timeSeriesData, dateRange.start_date, dateRange.end_date]
+	);
 
-	const chartData = useMemo(() => {
-		return paddedTimeSeriesData.map((row) => ({
-			date: row.date,
-			revenue: row.revenue,
-			transactions: row.transactions,
-			avg_transaction:
-				row.transactions > 0 ? row.revenue / row.transactions : 0,
-			customers: row.customers,
-			refunds: Math.abs(row.refund_amount ?? 0),
-		}));
-	}, [paddedTimeSeriesData]);
+	const chartData = useMemo(
+		() =>
+			paddedTimeSeriesData.map((row) => ({
+				date: row.date,
+				revenue: row.revenue,
+				transactions: row.transactions,
+				avg_transaction:
+					row.transactions > 0 ? row.revenue / row.transactions : 0,
+				customers: row.customers,
+				refunds: Math.abs(row.refund_amount ?? 0),
+			})),
+		[paddedTimeSeriesData]
+	);
 
 	const avgTransaction =
 		overview && overview.total_transactions > 0
 			? overview.total_revenue / overview.total_transactions
 			: 0;
 
-	const getSubtitle = () => {
-		if (isConfigured) {
-			const providers: string[] = [];
-			if (config?.stripeConfigured) {
-				providers.push("Stripe");
-			}
-			if (config?.paddleConfigured) {
-				providers.push("Paddle");
-			}
-			return `Connected to ${providers.join(" & ")}`;
-		}
-		return "Not configured";
-	};
-
 	return (
 		<>
-			<WebsitePageHeader
-				additionalActions={
-					<Button onClick={() => setSettingsOpen(true)} variant="outline">
-						<GearIcon className="mr-2 size-4" weight="duotone" />
-						Configure
-					</Button>
-				}
-				description="Track revenue from Stripe and Paddle"
-				docsUrl="https://databuddy.cc/docs/revenue"
-				icon={<CurrencyDollarIcon />}
-				isLoading={isLoading}
-				subtitle={getSubtitle()}
-				title="Revenue"
-				websiteId={websiteId}
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Revenue</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<Button
+					onClick={() => setSettingsOpen(true)}
+					size="sm"
+					variant="secondary"
+				>
+					<GearIcon className="size-4 shrink-0" weight="duotone" />
+					Configure
+				</Button>
+			</TopBar.Actions>
 
 			{isLoading || hasData ? (
 				<div className="space-y-3 p-4">
@@ -804,7 +768,7 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 									Revenue Trends
 								</h2>
 								<p className="text-sidebar-foreground/70 text-xs sm:text-sm">
-									Daily revenue, transactions, customers, and refunds
+									Revenue, transactions, customers, and refunds over time
 								</p>
 							</div>
 						</div>
@@ -828,16 +792,15 @@ export function RevenueContent({ websiteId }: RevenueContentProps) {
 			) : (
 				<EmptyState
 					action={{
-						label: "Configure Webhooks",
+						label: "Configure webhooks",
 						onClick: () => setSettingsOpen(true),
 					}}
 					description={
 						isConfigured
-							? "Revenue data will appear here once transactions are processed through your payment provider webhooks."
-							: "Connect Stripe or Paddle to start tracking revenue from your payment providers."
+							? "Revenue appears here once webhooks process transactions."
+							: "Connect Stripe or Paddle to track revenue."
 					}
 					icon={<CurrencyDollarIcon />}
-					showPlusBadge={false}
 					title={
 						isConfigured ? "No revenue data yet" : "Set up revenue tracking"
 					}

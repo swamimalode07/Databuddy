@@ -2,15 +2,10 @@
 
 import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
-import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr/Pencil";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { getOperatorLabel } from "@/hooks/use-filters";
 import { useSavedFilters } from "@/hooks/use-saved-filters";
 import {
@@ -19,6 +14,10 @@ import {
 } from "@/stores/jotai/filterAtoms";
 import { SaveFilterDialog } from "./save-filter-dialog";
 import { SavedFiltersMenu } from "./saved-filters-menu";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import { FloppyDiskIcon, PencilIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 function getFieldLabel(field: string): string {
 	return filterOptions.find((o) => o.value === field)?.label ?? field;
@@ -260,7 +259,7 @@ export function FiltersSection() {
 									setIsSaveDialogOpen(true);
 								}}
 								size="sm"
-								variant="outline"
+								variant="secondary"
 							>
 								<FloppyDiskIcon className="size-3.5" weight="duotone" />
 								Save

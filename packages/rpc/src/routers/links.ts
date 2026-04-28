@@ -1,4 +1,5 @@
-import { and, desc, eq, isUniqueViolationFor, links } from "@databuddy/db";
+import { and, desc, eq, isNull, isUniqueViolationFor } from "@databuddy/db";
+import { linkFolders, links } from "@databuddy/db/schema";
 import {
 	type CachedLink,
 	invalidateLinkCache,
@@ -9,7 +10,7 @@ import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import { logger } from "../lib/logger";
-import { protectedProcedure } from "../orpc";
+import { type Context, protectedProcedure } from "../orpc";
 import { withLinksAccess } from "../procedures/with-workspace";
 
 const generateSlug = customAlphabet(
@@ -21,6 +22,11 @@ const listLinksSchema = z
 	.object({
 		organizationId: z.string().optional(),
 		externalId: z.string().optional(),
+		folderId: z.string().nullable().optional(),
+		sourceType: z.string().max(64).optional(),
+		sourceId: z.string().max(255).optional(),
+		sourceOwnerId: z.string().max(255).optional(),
+		targetDomain: z.string().max(255).optional(),
 	})
 	.default({});
 
@@ -42,6 +48,7 @@ const createLinkSchema = z.object({
 	name: z.string().min(1).max(255),
 	targetUrl: z.url(),
 	slug: slugSchema.optional(),
+	folderId: z.string().nullable().optional(),
 	expiresAt: z.date().nullable().optional(),
 	expiredRedirectUrl: z.url().nullable().optional(),
 	ogTitle: z.string().max(200).nullable().optional(),
@@ -51,6 +58,11 @@ const createLinkSchema = z.object({
 	iosUrl: z.url().nullable().optional(),
 	androidUrl: z.url().nullable().optional(),
 	externalId: z.string().max(255).nullable().optional(),
+	sourceType: z.string().max(64).nullable().optional(),
+	sourceId: z.string().max(255).nullable().optional(),
+	sourceOwnerId: z.string().max(255).nullable().optional(),
+	targetDomain: z.string().max(255).nullable().optional(),
+	deepLinkApp: z.string().nullable().optional(),
 });
 
 const updateLinkSchema = z.object({
@@ -58,6 +70,7 @@ const updateLinkSchema = z.object({
 	name: z.string().min(1).max(255).optional(),
 	targetUrl: z.url().optional(),
 	slug: slugSchema.optional(),
+	folderId: z.string().nullable().optional(),
 	expiresAt: z.string().datetime().nullable().optional(),
 	expiredRedirectUrl: z.url().nullable().optional(),
 	ogTitle: z.string().max(200).nullable().optional(),
@@ -67,6 +80,11 @@ const updateLinkSchema = z.object({
 	iosUrl: z.url().nullable().optional(),
 	androidUrl: z.url().nullable().optional(),
 	externalId: z.string().max(255).nullable().optional(),
+	sourceType: z.string().max(64).nullable().optional(),
+	sourceId: z.string().max(255).nullable().optional(),
+	sourceOwnerId: z.string().max(255).nullable().optional(),
+	targetDomain: z.string().max(255).nullable().optional(),
+	deepLinkApp: z.string().nullable().optional(),
 });
 
 const deleteLinkSchema = z.object({
@@ -77,9 +95,14 @@ const linkOutputSchema = z.object({
 	id: z.string(),
 	organizationId: z.string(),
 	createdBy: z.string(),
+	folderId: z.string().nullable(),
 	slug: z.string(),
 	name: z.string(),
 	targetUrl: z.string(),
+	targetDomain: z.string().nullable(),
+	sourceType: z.string().nullable(),
+	sourceId: z.string().nullable(),
+	sourceOwnerId: z.string().nullable(),
 	expiresAt: z.nullable(z.coerce.date()),
 	expiredRedirectUrl: z.string().nullable(),
 	ogTitle: z.string().nullable(),
@@ -89,6 +112,7 @@ const linkOutputSchema = z.object({
 	iosUrl: z.string().nullable(),
 	androidUrl: z.string().nullable(),
 	externalId: z.string().nullable(),
+	deepLinkApp: z.string().nullable(),
 	deletedAt: z.nullable(z.coerce.date()),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
@@ -103,6 +127,66 @@ function validateHttpUrl(url: string): void {
 	}
 }
 
+function normalizeNullableText(
+	value: string | null | undefined
+): string | null {
+	if (value == null) {
+		return null;
+	}
+	const trimmed = value.trim();
+	return trimmed || null;
+}
+
+function normalizeTargetDomain(
+	value: string | null | undefined
+): string | null {
+	const trimmed = normalizeNullableText(value);
+	if (!trimmed) {
+		return null;
+	}
+
+	try {
+		return new URL(
+			trimmed.includes("://") ? trimmed : `https://${trimmed}`
+		).hostname.toLowerCase();
+	} catch {
+		return trimmed.split("/")[0]?.toLowerCase() || null;
+	}
+}
+
+function getTargetDomain(targetUrl: string): string | null {
+	try {
+		return new URL(targetUrl).hostname.toLowerCase();
+	} catch {
+		return null;
+	}
+}
+
+async function assertFolderBelongsToOrganization(
+	db: Context["db"],
+	folderId: string | null | undefined,
+	organizationId: string
+): Promise<void> {
+	if (!folderId) {
+		return;
+	}
+
+	const folder = await db
+		.select({ id: linkFolders.id })
+		.from(linkFolders)
+		.where(
+			and(
+				eq(linkFolders.id, folderId),
+				eq(linkFolders.organizationId, organizationId)
+			)
+		)
+		.limit(1);
+
+	if (folder.length === 0) {
+		throw rpcError.badRequest("Folder does not belong to this organization");
+	}
+}
+
 function toCachedLink(link: {
 	id: string;
 	targetUrl: string;
@@ -114,6 +198,7 @@ function toCachedLink(link: {
 	ogVideoUrl: string | null;
 	iosUrl: string | null;
 	androidUrl: string | null;
+	deepLinkApp: string | null;
 }): CachedLink {
 	return {
 		id: link.id,
@@ -126,6 +211,7 @@ function toCachedLink(link: {
 		ogVideoUrl: link.ogVideoUrl,
 		iosUrl: link.iosUrl,
 		androidUrl: link.androidUrl,
+		deepLinkApp: link.deepLinkApp,
 	};
 }
 
@@ -157,6 +243,26 @@ export const linksRouter = {
 			const conditions = [eq(links.organizationId, organizationId)];
 			if (input.externalId) {
 				conditions.push(eq(links.externalId, input.externalId));
+			}
+			if (input.folderId !== undefined) {
+				conditions.push(
+					input.folderId === null
+						? isNull(links.folderId)
+						: eq(links.folderId, input.folderId)
+				);
+			}
+			if (input.sourceType) {
+				conditions.push(eq(links.sourceType, input.sourceType));
+			}
+			if (input.sourceId) {
+				conditions.push(eq(links.sourceId, input.sourceId));
+			}
+			if (input.sourceOwnerId) {
+				conditions.push(eq(links.sourceOwnerId, input.sourceOwnerId));
+			}
+			const targetDomain = normalizeTargetDomain(input.targetDomain);
+			if (targetDomain) {
+				conditions.push(eq(links.targetDomain, targetDomain));
 			}
 
 			return context.db
@@ -222,7 +328,15 @@ export const linksRouter = {
 			});
 
 			validateHttpUrl(input.targetUrl);
+			await assertFolderBelongsToOrganization(
+				context.db,
+				input.folderId,
+				organizationId
+			);
 			const createdBy = await workspace.getCreatedBy();
+			const targetDomain =
+				normalizeTargetDomain(input.targetDomain) ??
+				getTargetDomain(input.targetUrl);
 
 			const slugsToTry = input.slug
 				? [input.slug]
@@ -237,8 +351,13 @@ export const linksRouter = {
 							slug,
 							organizationId,
 							createdBy,
+							folderId: input.folderId ?? null,
 							name: input.name,
 							targetUrl: input.targetUrl,
+							targetDomain,
+							sourceType: normalizeNullableText(input.sourceType),
+							sourceId: normalizeNullableText(input.sourceId),
+							sourceOwnerId: normalizeNullableText(input.sourceOwnerId),
 							expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
 							expiredRedirectUrl: input.expiredRedirectUrl ?? null,
 							ogTitle: input.ogTitle ?? null,
@@ -248,6 +367,7 @@ export const linksRouter = {
 							iosUrl: input.iosUrl ?? null,
 							androidUrl: input.androidUrl ?? null,
 							externalId: input.externalId ?? null,
+							deepLinkApp: input.deepLinkApp ?? null,
 						})
 						.returning();
 
@@ -304,14 +424,51 @@ export const linksRouter = {
 				validateHttpUrl(input.targetUrl);
 			}
 
-			const { id, expiresAt, ...updates } = input;
+			if (input.folderId !== undefined) {
+				await assertFolderBelongsToOrganization(
+					context.db,
+					input.folderId,
+					link.organizationId
+				);
+			}
+
+			const {
+				id,
+				expiresAt,
+				folderId,
+				sourceType,
+				sourceId,
+				sourceOwnerId,
+				targetDomain,
+				...updates
+			} = input;
 			const oldSlug = link.slug;
+			const nextTargetDomain =
+				targetDomain === undefined
+					? input.targetUrl
+						? getTargetDomain(input.targetUrl)
+						: undefined
+					: normalizeTargetDomain(targetDomain);
 
 			try {
 				const [updatedLink] = await context.db
 					.update(links)
 					.set({
 						...updates,
+						folderId: folderId === undefined ? undefined : folderId,
+						sourceType:
+							sourceType === undefined
+								? undefined
+								: normalizeNullableText(sourceType),
+						sourceId:
+							sourceId === undefined
+								? undefined
+								: normalizeNullableText(sourceId),
+						sourceOwnerId:
+							sourceOwnerId === undefined
+								? undefined
+								: normalizeNullableText(sourceOwnerId),
+						targetDomain: nextTargetDomain,
 						expiresAt:
 							expiresAt === undefined
 								? undefined

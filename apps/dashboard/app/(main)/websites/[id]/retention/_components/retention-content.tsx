@@ -1,21 +1,22 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { StatCard } from "@/components/analytics";
+import { useChartPreferences } from "@/hooks/use-chart-preferences";
+import { useDateFilters } from "@/hooks/use-date-filters";
+import { formatNumber } from "@/lib/formatters";
+import { useDynamicQuery } from "@/hooks/use-dynamic-query";
+import { dayjs } from "@databuddy/ui";
+import { RetentionCohortsGrid } from "./retention-cohorts-grid";
+import { RetentionRateChart } from "./retention-rate-chart";
 import {
 	ArrowCounterClockwiseIcon,
 	ChartLineIcon,
 	TableIcon,
 	UserPlusIcon,
 	UsersIcon,
-} from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
-import { StatCard } from "@/components/analytics";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useChartPreferences } from "@/hooks/use-chart-preferences";
-import { useDateFilters } from "@/hooks/use-date-filters";
-import { useDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
-import { RetentionCohortsGrid } from "./retention-cohorts-grid";
-import { RetentionRateChart } from "./retention-rate-chart";
+} from "@databuddy/ui/icons";
+import { Tabs } from "@databuddy/ui/client";
 
 interface RetentionContentProps {
 	websiteId: string;
@@ -35,8 +36,8 @@ interface RetentionCohort {
 interface RetentionRate {
 	date: string;
 	new_users: number;
-	returning_users: number;
 	retention_rate: number;
+	returning_users: number;
 }
 
 export function RetentionContent({ websiteId }: RetentionContentProps) {
@@ -58,12 +59,12 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 	);
 
 	const cohorts = useMemo(
-		() => (data?.retention_cohorts as RetentionCohort[]) ?? [],
+		() => (data?.retention_cohorts ?? []) as unknown as RetentionCohort[],
 		[data]
 	);
 
 	const rates = useMemo(() => {
-		const rawRates = (data?.retention_rate as RetentionRate[]) ?? [];
+		const rawRates = (data?.retention_rate ?? []) as unknown as RetentionRate[];
 		const hasDateRange = dateRange?.start_date && dateRange?.end_date;
 		if (!hasDateRange) {
 			return rawRates;
@@ -144,19 +145,8 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 		[rates]
 	);
 
-	const formatNumber = (num: number) => {
-		if (num >= 1_000_000) {
-			return `${(num / 1_000_000).toFixed(1)}M`;
-		}
-		if (num >= 1000) {
-			return `${(num / 1000).toFixed(1)}K`;
-		}
-		return num.toLocaleString();
-	};
-
 	return (
 		<div className="flex h-full min-h-0 flex-col gap-4">
-			{/* Stats Grid */}
 			<div className="grid shrink-0 grid-cols-2 gap-4 lg:grid-cols-4">
 				<StatCard
 					chartData={chartData.retentionRate}
@@ -208,7 +198,6 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 				/>
 			</div>
 
-			{/* Tabs Section */}
 			<Tabs
 				className="flex min-h-0 flex-1 flex-col"
 				onValueChange={setActiveTab}
@@ -224,33 +213,33 @@ export function RetentionContent({ websiteId }: RetentionContentProps) {
 								Track user retention over time
 							</p>
 						</div>
-						<TabsList className="h-9">
-							<TabsTrigger className="gap-1.5 px-3 text-xs" value="cohorts">
+						<Tabs.List className="h-9">
+							<Tabs.Tab className="gap-1.5 px-3 text-xs" value="cohorts">
 								<TableIcon className="size-4" weight="duotone" />
 								Cohorts
-							</TabsTrigger>
-							<TabsTrigger className="gap-1.5 px-3 text-xs" value="rate">
+							</Tabs.Tab>
+							<Tabs.Tab className="gap-1.5 px-3 text-xs" value="rate">
 								<ChartLineIcon className="size-4" weight="duotone" />
 								Daily Rate
-							</TabsTrigger>
-						</TabsList>
+							</Tabs.Tab>
+						</Tabs.List>
 					</div>
 
-					<TabsContent
+					<Tabs.Panel
 						className="mt-0 min-h-0 flex-1 overflow-auto data-[state=inactive]:hidden"
 						value="cohorts"
 					>
 						<RetentionCohortsGrid cohorts={cohorts} isLoading={isLoading} />
-					</TabsContent>
+					</Tabs.Panel>
 
-					<TabsContent
+					<Tabs.Panel
 						className="mt-0 min-h-0 flex-1 data-[state=inactive]:hidden"
 						value="rate"
 					>
 						<div className="h-[400px]">
 							<RetentionRateChart data={rates} isLoading={isLoading} />
 						</div>
-					</TabsContent>
+					</Tabs.Panel>
 				</div>
 			</Tabs>
 		</div>

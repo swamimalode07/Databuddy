@@ -1,7 +1,10 @@
-import { and, chQuery, db, eq, member, user } from "@databuddy/db";
-import { UptimeAlertEmail } from "@databuddy/email";
+import { and, db, eq, withTransaction } from "@databuddy/db";
+import { member, uptimeSchedules, user } from "@databuddy/db/schema";
+import { chQuery } from "@databuddy/db/clickhouse";
+import { render, UptimeAlertEmail } from "@databuddy/email";
 import { Resend } from "resend";
 import type { ScheduleData } from "./actions";
+import { UPTIME_ENV } from "./lib/env";
 import { captureError } from "./lib/tracing";
 import { MonitorStatus, type UptimeData } from "./types";
 
@@ -25,7 +28,7 @@ function buildSiteLabel(schedule: ScheduleData): string {
 	}
 }
 
-function resolveTransitionKind(
+export function resolveTransitionKind(
 	previous: number | undefined,
 	current: number
 ): "down" | "recovered" | null {
@@ -44,9 +47,7 @@ function resolveTransitionKind(
 	return null;
 }
 
-async function getVerifiedOrgMemberEmails(
-	organizationId: string
-): Promise<string[]> {
+async function getOrgOwnerEmails(organizationId: string): Promise<string[]> {
 	const rows = await db
 		.select({ email: user.email })
 		.from(member)
@@ -54,6 +55,7 @@ async function getVerifiedOrgMemberEmails(
 		.where(
 			and(
 				eq(member.organizationId, organizationId),
+				eq(member.role, "owner"),
 				eq(user.emailVerified, true)
 			)
 		);
@@ -66,11 +68,45 @@ async function getVerifiedOrgMemberEmails(
 	return [...set];
 }
 
+async function claimTransition(
+	scheduleId: string,
+	currentStatus: number
+): Promise<"down" | "recovered" | null> {
+	try {
+		return await withTransaction(async (tx) => {
+			const [row] = await tx
+				.select({ last: uptimeSchedules.lastNotifiedStatus })
+				.from(uptimeSchedules)
+				.where(eq(uptimeSchedules.id, scheduleId))
+				.for("update");
+
+			if (!row) {
+				return null;
+			}
+
+			const kind = resolveTransitionKind(row.last ?? undefined, currentStatus);
+			if (kind === null) {
+				return null;
+			}
+
+			await tx
+				.update(uptimeSchedules)
+				.set({ lastNotifiedStatus: currentStatus })
+				.where(eq(uptimeSchedules.id, scheduleId));
+
+			return kind;
+		});
+	} catch (error) {
+		captureError(error, { error_step: "transition_claim" });
+		return null;
+	}
+}
+
 export async function getPreviousMonitorStatus(
 	siteId: string
 ): Promise<number | undefined> {
 	if (!process.env.CLICKHOUSE_URL) {
-		return undefined;
+		return;
 	}
 	try {
 		const rows = await chQuery<{ status: number }>(
@@ -83,36 +119,42 @@ export async function getPreviousMonitorStatus(
 		);
 		const row = rows[0];
 		if (row === undefined) {
-			return undefined;
+			return;
 		}
 		return row.status;
 	} catch (error) {
 		captureError(error, { error_step: "clickhouse_previous_status" });
-		return undefined;
+		return;
 	}
 }
 
 export async function sendUptimeTransitionEmailsIfNeeded(options: {
 	schedule: ScheduleData;
 	data: UptimeData;
-	previousStatus: number | undefined;
+	previousStatus?: number;
 }): Promise<void> {
+	if (!UPTIME_ENV.isProduction) {
+		return;
+	}
+
 	const apiKey = process.env.RESEND_API_KEY;
 	if (!apiKey) {
 		return;
 	}
 
-	const kind = resolveTransitionKind(
-		options.previousStatus,
-		options.data.status
-	);
+	if (
+		options.previousStatus !== undefined &&
+		resolveTransitionKind(options.previousStatus, options.data.status) === null
+	) {
+		return;
+	}
+
+	const kind = await claimTransition(options.schedule.id, options.data.status);
 	if (kind === null) {
 		return;
 	}
 
-	const emails = await getVerifiedOrgMemberEmails(
-		options.schedule.organizationId
-	);
+	const emails = await getOrgOwnerEmails(options.schedule.organizationId);
 	if (emails.length === 0) {
 		return;
 	}
@@ -126,14 +168,8 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 		options.data.ssl_expiry > 0 ? options.data.ssl_expiry : undefined;
 
 	try {
-		const result = await resend.emails.send({
-			from: "Databuddy <alerts@databuddy.cc>",
-			to: emails,
-			subject:
-				kind === "down"
-					? `[Databuddy] ${siteLabel} is down`
-					: `[Databuddy] ${siteLabel} is back up`,
-			react: UptimeAlertEmail({
+		const html = await render(
+			UptimeAlertEmail({
 				kind,
 				siteLabel,
 				url: options.data.url,
@@ -146,7 +182,16 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 				sslValid: options.data.ssl_valid === 1,
 				sslExpiryMs: sslExpiry,
 				dashboardUrl,
-			}),
+			})
+		);
+		const result = await resend.emails.send({
+			from: "Databuddy <alerts@databuddy.cc>",
+			to: emails,
+			subject:
+				kind === "down"
+					? `[DOWN] ${siteLabel} is unreachable (HTTP ${options.data.http_code || "timeout"})`
+					: `[Recovered] ${siteLabel} is back up`,
+			html,
 		});
 		if (result.error) {
 			captureError(new Error(result.error.message), {

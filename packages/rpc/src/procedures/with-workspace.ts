@@ -2,40 +2,37 @@ import { hasKeyScope } from "@databuddy/api-keys/resolve";
 import {
 	LINKS_SCOPE_MAP,
 	type LinksPermission,
+	requiredScopesForResource,
 } from "@databuddy/api-keys/scopes";
-import {
-	type PermissionFor,
-	type ResourceType,
-	type User,
-	websitesApi,
-} from "@databuddy/auth";
-import { db, eq, websites } from "@databuddy/db";
+import type { PermissionFor, ResourceType, User } from "@databuddy/auth";
+import { db, eq } from "@databuddy/db";
+import { websites } from "@databuddy/db/schema";
 import { cacheable } from "@databuddy/redis";
 import type { PlanId } from "@databuddy/shared/types/features";
 import { z } from "zod";
 import { rpcError } from "../errors";
-import { logger } from "../lib/logger";
+import { logger, record } from "../lib/logger";
 import { type Context, os } from "../orpc";
 
 type Website = NonNullable<Awaited<ReturnType<typeof getWebsiteById>>>;
 
 export interface Workspace {
-	organizationId: string;
-	user: User | null;
-	role: string | null;
-	plan: PlanId;
-	isPublicAccess: boolean;
-	website: Website | null;
 	getCreatedBy: () => Promise<string>;
+	isPublicAccess: boolean;
+	organizationId: string;
+	plan: PlanId;
+	role: string | null;
+	user: User | null;
+	website: Website | null;
 }
 
 export interface WithWorkspaceOptions<R extends ResourceType = "organization"> {
+	allowPublicAccess?: boolean;
 	organizationId?: string | null;
-	websiteId?: string;
-	resource?: R;
 	permissions?: PermissionFor<R>[];
 	requiredPlans?: PlanId[];
-	allowPublicAccess?: boolean;
+	resource?: R;
+	websiteId?: string;
 }
 
 const getWebsiteById = cacheable(
@@ -82,20 +79,47 @@ const getOrganizationRole = cacheable(_getOrganizationRole, {
 	prefix: "rpc:org_role",
 });
 
-async function checkPermissions<R extends ResourceType>(
-	headers: Headers,
-	resource: R,
-	permissions: PermissionFor<R>[],
-	organizationId?: string
-): Promise<boolean> {
-	const { success } = await websitesApi.hasPermission({
-		headers,
-		body: {
-			...(organizationId && { organizationId }),
-			permissions: { [resource]: permissions },
-		},
-	});
-	return success;
+const ROLE_PERMISSIONS: Record<string, Record<string, readonly string[]>> = {
+	owner: {
+		website: ["create", "read", "update", "delete", "view_analytics"],
+		organization: ["read", "update", "delete"],
+		subscription: ["read", "update"],
+		link: ["create", "read", "update", "delete", "view_analytics"],
+		llm: ["read", "view_analytics", "manage"],
+	},
+	admin: {
+		website: ["create", "read", "update", "delete", "view_analytics"],
+		organization: ["read", "update"],
+		subscription: ["read", "update"],
+		link: ["create", "read", "update", "delete", "view_analytics"],
+		llm: ["read", "view_analytics", "manage"],
+	},
+	member: {
+		website: ["read", "update", "view_analytics"],
+		organization: ["read"],
+		subscription: ["read"],
+		link: ["create", "read", "update", "view_analytics"],
+		llm: ["read", "view_analytics"],
+	},
+	viewer: {
+		website: ["read", "view_analytics"],
+		organization: ["read"],
+		subscription: ["read"],
+		link: ["read", "view_analytics"],
+		llm: ["read", "view_analytics"],
+	},
+};
+
+function hasRolePermission(
+	role: string,
+	resource: string,
+	permissions: string[]
+): boolean {
+	const allowed = ROLE_PERMISSIONS[role]?.[resource];
+	if (!allowed) {
+		return false;
+	}
+	return permissions.every((p) => allowed.includes(p));
 }
 
 async function getPlan(context: Context): Promise<PlanId> {
@@ -112,68 +136,12 @@ function requirePlan(plan: PlanId, requiredPlans: PlanId[] | undefined): void {
 	}
 }
 
-async function resolveUserWorkspace(
-	context: Context & { user: User },
-	organizationId: string,
-	options: {
-		resource: string;
-		permissions: string[];
-		plan: PlanId;
-	}
-): Promise<Omit<Workspace, "website" | "getCreatedBy">> {
-	if (context.user.role === "ADMIN") {
-		return {
-			organizationId,
-			user: context.user,
-			role: "admin",
-			plan: options.plan,
-			isPublicAccess: false,
-		};
-	}
-
-	const role = await getOrganizationRole(context.user.id, organizationId);
-	if (!role) {
-		throw rpcError.forbidden("You are not a member of this organization");
-	}
-
-	if (options.permissions.length > 0) {
-		try {
-			const allowed = await checkPermissions(
-				context.headers,
-				options.resource as ResourceType,
-				options.permissions as PermissionFor<ResourceType>[],
-				organizationId
-			);
-			if (!allowed) {
-				throw rpcError.forbidden(
-					`Missing required ${options.resource} permissions: ${options.permissions.join(", ")}`
-				);
-			}
-		} catch (error) {
-			if (error instanceof Error && "code" in error) {
-				throw error;
-			}
-			logger.error(
-				{ error, resource: options.resource, permissions: options.permissions },
-				"Permission check failed"
-			);
-			throw rpcError.forbidden("Permission check failed");
-		}
-	}
-
-	return {
-		organizationId,
-		user: context.user,
-		role,
-		plan: options.plan,
-		isPublicAccess: false,
-	};
-}
-
 function resolveApiKeyWorkspace(
 	context: Context,
 	organizationId: string,
-	plan: PlanId
+	plan: PlanId,
+	resource: string,
+	permissions: string[]
 ): Omit<Workspace, "website" | "getCreatedBy"> {
 	if (!context.apiKey) {
 		throw rpcError.unauthorized();
@@ -181,6 +149,13 @@ function resolveApiKeyWorkspace(
 
 	if (context.apiKey.organizationId !== organizationId) {
 		throw rpcError.forbidden("API key does not have access to this workspace");
+	}
+
+	const requiredScopes = requiredScopesForResource(resource, permissions);
+	for (const scope of requiredScopes) {
+		if (!hasKeyScope(context.apiKey, scope)) {
+			throw rpcError.forbidden(`API key missing required scope: ${scope}`);
+		}
 	}
 
 	return {
@@ -222,8 +197,13 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 
 	let website: Website | null = null;
 
+	const planPromise = record("ws.getPlan", () => getPlan(context));
+
 	if (websiteId) {
-		const found = await getWebsiteById(websiteId);
+		const [found, plan] = await Promise.all([
+			record("ws.getWebsiteById", () => getWebsiteById(websiteId)),
+			planPromise,
+		]);
 		if (!found) {
 			throw rpcError.notFound("website", websiteId);
 		}
@@ -239,7 +219,7 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 				organizationId: orgId,
 				user: context.user ?? null,
 				role: null,
-				plan: await getPlan(context),
+				plan,
 				isPublicAccess: !context.user,
 				website,
 				getCreatedBy: () => _resolveCreatedBy(context, orgId),
@@ -254,33 +234,54 @@ export async function withWorkspace<R extends ResourceType = "organization">(
 		throw rpcError.badRequest("Workspace is required");
 	}
 
-	const plan = await getPlan(context);
-	requirePlan(plan, requiredPlans);
-
-	const resolvedResource = websiteId
-		? ("website" as string)
-		: (resource as string);
-	const resolvedPermissions = websiteId
-		? (permissions as string[])
-		: (permissions as string[]);
-
+	const effectiveResource = websiteId ? "website" : (resource as string);
+	const effectivePermissions = permissions as string[];
 	const getCreatedBy = () => _resolveCreatedBy(context, organizationId);
 
 	if (context.user) {
-		const ws = await resolveUserWorkspace(
-			context as Context & { user: User },
+		const userId = context.user.id;
+		const [plan, role] = await Promise.all([
+			planPromise,
+			record("ws.getOrgRole", () =>
+				getOrganizationRole(userId, organizationId)
+			),
+		]);
+		requirePlan(plan, requiredPlans);
+
+		if (!role) {
+			throw rpcError.forbidden("You are not a member of this organization");
+		}
+
+		if (
+			effectivePermissions.length > 0 &&
+			!hasRolePermission(role, effectiveResource, effectivePermissions)
+		) {
+			throw rpcError.forbidden(
+				`Missing required ${effectiveResource} permissions: ${effectivePermissions.join(", ")}`
+			);
+		}
+
+		return {
 			organizationId,
-			{
-				resource: resolvedResource,
-				permissions: resolvedPermissions,
-				plan,
-			}
-		);
-		return { ...ws, website, getCreatedBy };
+			user: context.user,
+			role,
+			plan,
+			isPublicAccess: false,
+			website,
+			getCreatedBy,
+		};
 	}
 
 	if (context.apiKey) {
-		const ws = resolveApiKeyWorkspace(context, organizationId, plan);
+		const plan = await planPromise;
+		requirePlan(plan, requiredPlans);
+		const ws = resolveApiKeyWorkspace(
+			context,
+			organizationId,
+			plan,
+			effectiveResource,
+			effectivePermissions
+		);
 		return { ...ws, website, getCreatedBy };
 	}
 
@@ -370,4 +371,5 @@ export const withWebsiteWrite = (
 	});
 
 export type { PermissionFor, ResourceType } from "@databuddy/auth";
-export type { PlanId, Website };
+export type { PlanId } from "@databuddy/shared/types/features";
+export type { Website };

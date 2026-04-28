@@ -6,20 +6,19 @@ import {
 	getMinimumPlanForFeature,
 	PLAN_IDS,
 } from "@databuddy/shared/types/features";
-import {
-	ArrowRightIcon,
-	CrownIcon,
-	LockSimpleIcon,
-	RocketLaunchIcon,
-	SparkleIcon,
-	StarIcon,
-} from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useBillingContext } from "@/components/providers/billing-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import {
+	ArrowRightIcon,
+	CrownIcon,
+	LeafIcon,
+	LockSimpleIcon,
+	RocketLaunchIcon,
+	StarIcon,
+} from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
 
 const PLAN_CONFIG: Record<
 	string,
@@ -27,7 +26,7 @@ const PLAN_CONFIG: Record<
 > = {
 	[PLAN_IDS.FREE]: {
 		name: "Free",
-		icon: SparkleIcon,
+		icon: LeafIcon,
 		color: "text-muted-foreground",
 	},
 	[PLAN_IDS.HOBBY]: {
@@ -44,11 +43,11 @@ const PLAN_CONFIG: Record<
 };
 
 interface FeatureGateProps {
-	feature: GatedFeatureId;
-	children: ReactNode;
-	title?: string;
-	description?: string;
 	blockWhileLoading?: boolean;
+	children: ReactNode;
+	description?: string;
+	feature: GatedFeatureId;
+	title?: string;
 }
 
 export function FeatureGate({
@@ -81,7 +80,7 @@ export function FeatureGate({
 	return (
 		<div className="flex h-full min-h-[400px] items-center justify-center p-4">
 			<Card className="w-full max-w-md overflow-hidden pt-0">
-				<CardHeader className="dotted-bg flex flex-col items-center gap-4 border-b bg-accent py-8">
+				<Card.Header className="dotted-bg flex flex-col items-center gap-4 border-b bg-accent py-8">
 					<div className="flex size-14 items-center justify-center rounded border bg-card">
 						<LockSimpleIcon
 							className="size-7 text-muted-foreground"
@@ -98,10 +97,9 @@ export function FeatureGate({
 								"Upgrade to access this feature."}
 						</p>
 					</div>
-				</CardHeader>
+				</Card.Header>
 
-				<CardContent className="space-y-4 p-4">
-					{/* Required plan */}
+				<Card.Content className="space-y-4 p-4">
 					<div className="flex items-center justify-between rounded border bg-accent/50 px-3 py-2.5">
 						<span className="text-muted-foreground text-sm">Required plan</span>
 						<div className="flex items-center gap-1.5">
@@ -115,7 +113,6 @@ export function FeatureGate({
 						</div>
 					</div>
 
-					{/* Current plan */}
 					<div className="flex items-center justify-between rounded border px-3 py-2.5">
 						<span className="text-muted-foreground text-sm">Your plan</span>
 						<div className="flex items-center gap-1.5">
@@ -129,7 +126,6 @@ export function FeatureGate({
 						</div>
 					</div>
 
-					{/* CTA */}
 					{canUserUpgrade ? (
 						<Button asChild className="group w-full gap-2" size="lg">
 							<Link href="/billing/plans">
@@ -145,7 +141,7 @@ export function FeatureGate({
 							</p>
 						</div>
 					)}
-				</CardContent>
+				</Card.Content>
 			</Card>
 		</div>
 	);

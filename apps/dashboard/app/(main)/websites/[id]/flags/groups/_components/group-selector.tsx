@@ -1,21 +1,13 @@
 "use client";
 
-import {
-	CheckIcon,
-	PlusIcon,
-	UsersThreeIcon,
-	XIcon,
-} from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { GroupSelectorProps, TargetGroup } from "../../_components/types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import { CheckIcon, PlusIcon, UsersThreeIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
+import { Popover } from "@databuddy/ui/client";
 
 function GroupPill({
 	group,
@@ -27,24 +19,22 @@ function GroupPill({
 	return (
 		<motion.div
 			animate={{ opacity: 1, scale: 1 }}
-			className="group relative flex items-center gap-1.5 overflow-hidden rounded border bg-card py-1.5 pr-1.5 pl-3 text-sm shadow-sm transition-shadow hover:shadow-md"
+			className="group inline-flex items-center gap-1.5 rounded-md border bg-card px-2 py-1 text-foreground text-xs shadow-sm"
 			exit={{ opacity: 0, scale: 0.9 }}
 			initial={{ opacity: 0, scale: 0.9 }}
 			layout
 			style={{ borderColor: `${group.color}40` }}
 		>
-			<span className="relative max-w-28 truncate font-medium">
-				{group.name}
-			</span>
+			<span className="max-w-28 truncate font-medium">{group.name}</span>
 			<button
-				className="relative flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+				className="cursor-pointer text-muted-foreground transition-colors hover:text-destructive"
 				onClick={(e) => {
 					e.stopPropagation();
 					onRemove();
 				}}
 				type="button"
 			>
-				<XIcon size={12} weight="bold" />
+				<XIcon className="size-3" weight="bold" />
 			</button>
 		</motion.div>
 	);
@@ -62,8 +52,10 @@ function GroupOption({
 	return (
 		<button
 			className={cn(
-				"relative flex w-full items-center gap-3 overflow-hidden rounded p-2.5 text-left transition-all",
-				isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent"
+				"relative flex w-full cursor-pointer items-center gap-3 overflow-hidden rounded-md p-2.5 text-left transition-all",
+				isSelected
+					? "bg-primary/10 hover:bg-primary/15"
+					: "hover:bg-interactive-hover"
 			)}
 			onClick={onToggle}
 			type="button"
@@ -75,34 +67,36 @@ function GroupOption({
 				/>
 			)}
 			<div
-				className="flex size-8 shrink-0 items-center justify-center rounded shadow-sm"
+				className="flex size-7 shrink-0 items-center justify-center rounded"
 				style={{
 					background: `linear-gradient(135deg, ${group.color}25 0%, ${group.color}15 100%)`,
 				}}
 			>
 				<UsersThreeIcon
-					className="size-4"
+					className="size-3.5"
 					style={{ color: group.color }}
 					weight="duotone"
 				/>
 			</div>
 			<div className="min-w-0 flex-1">
-				<div className="truncate font-medium text-sm">{group.name}</div>
+				<div className="truncate font-medium text-foreground text-xs">
+					{group.name}
+				</div>
 				{group.description && (
-					<div className="truncate text-muted-foreground text-xs">
+					<div className="truncate text-[11px] text-muted-foreground">
 						{group.description}
 					</div>
 				)}
 			</div>
 			<div
 				className={cn(
-					"flex size-5 shrink-0 items-center justify-center rounded border transition-all",
-					isSelected ? "border-transparent shadow-sm" : "border-border"
+					"flex size-4 shrink-0 items-center justify-center rounded border transition-all",
+					isSelected ? "border-transparent" : "border-border"
 				)}
 				style={isSelected ? { backgroundColor: group.color } : undefined}
 			>
 				{isSelected && (
-					<CheckIcon className="text-white" size={12} weight="bold" />
+					<CheckIcon className="text-white" size={10} weight="bold" />
 				)}
 			</div>
 		</button>
@@ -134,14 +128,13 @@ export function GroupSelector({
 
 	if (availableGroups.length === 0) {
 		return (
-			<div className="rounded border border-dashed bg-accent/50 p-4 text-center">
+			<div className="rounded-lg border border-dashed bg-accent/50 p-4 text-center">
 				<UsersThreeIcon
-					className="mx-auto mb-2 size-8 text-muted-foreground"
+					className="mx-auto mb-2 size-6 text-muted-foreground"
 					weight="duotone"
 				/>
-				<p className="text-balance text-muted-foreground text-sm">
-					No groups created yet. Create groups to quickly target the same users
-					across multiple flags.
+				<p className="text-balance text-muted-foreground text-xs">
+					No groups yet. Create one to reuse user targeting across flags.
 				</p>
 			</div>
 		);
@@ -149,9 +142,8 @@ export function GroupSelector({
 
 	return (
 		<div className="space-y-3">
-			{/* Selected groups pills */}
 			{selectedGroupObjects.length > 0 && (
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-1.5">
 					<AnimatePresence mode="popLayout">
 						{selectedGroupObjects.map((group) => (
 							<GroupPill
@@ -164,27 +156,26 @@ export function GroupSelector({
 				</div>
 			)}
 
-			{/* Add group button */}
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
-				<PopoverTrigger asChild>
-					<Button
-						className="w-full text-muted-foreground"
-						size="sm"
-						type="button"
-						variant="outline"
-					>
-						<PlusIcon size={14} />
-						{selectedGroups.length > 0 ? "Add More Groups" : "Add Groups"}
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent align="start" className="w-72 p-2" side="bottom">
+				<Popover.Trigger
+					render={
+						<Button
+							className="w-full text-muted-foreground"
+							size="sm"
+							type="button"
+							variant="secondary"
+						/>
+					}
+				>
+					<PlusIcon className="size-3.5" />
+					{selectedGroups.length > 0 ? "Add more groups" : "Add groups"}
+				</Popover.Trigger>
+				<Popover.Content className="w-72 p-2" side="bottom">
 					<div className="mb-2 px-2 pt-1">
-						<h4 className="font-medium text-sm">Target Groups</h4>
-						<p className="text-muted-foreground text-xs">
-							Select groups to target
-						</p>
+						<Popover.Title>Target Groups</Popover.Title>
+						<Popover.Description>Select groups to target</Popover.Description>
 					</div>
-					<div className="max-h-64 space-y-1 overflow-y-auto">
+					<div className="max-h-64 space-y-0.5 overflow-y-auto">
 						{availableGroups.map((group) => (
 							<GroupOption
 								group={group}
@@ -194,7 +185,7 @@ export function GroupSelector({
 							/>
 						))}
 					</div>
-				</PopoverContent>
+				</Popover.Content>
 			</Popover>
 		</div>
 	);

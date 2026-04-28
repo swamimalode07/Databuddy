@@ -1,16 +1,13 @@
 import { randomUUID } from "node:crypto";
-import type { Website } from "@databuddy/db";
+import { and, db, eq, isUniqueViolationFor } from "@databuddy/db";
 import {
-	and,
-	db,
-	eq,
-	isUniqueViolationFor,
 	type WebsiteInsert,
+	type Website,
 	websites,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import { WebsiteCache } from "./website-cache";
 
-export type { Website } from "@databuddy/db";
+export type { Website } from "@databuddy/db/schema";
 
 export type CreateWebsiteInput = Omit<
 	WebsiteInsert,
@@ -191,9 +188,7 @@ export class WebsiteService {
 				throw new DuplicateDomainError(normalizedDomain);
 			}
 			console.error("WebsiteService.create failed:", { error: String(error) });
-			throw new Error(
-				`Failed to create website: ${error instanceof Error ? error.message : String(error)}`
-			);
+			throw new Error("Failed to create website");
 		}
 	}
 
@@ -267,9 +262,7 @@ export class WebsiteService {
 			console.error("WebsiteService.updateById failed:", {
 				error: String(error),
 			});
-			throw new Error(
-				`Failed to update website: ${error instanceof Error ? error.message : String(error)}`
-			);
+			throw new Error("Failed to update website");
 		}
 	}
 
@@ -297,9 +290,7 @@ export class WebsiteService {
 			console.error("WebsiteService.deleteById failed:", {
 				error: String(error),
 			});
-			throw new Error(
-				`Failed to delete website: ${error instanceof Error ? error.message : String(error)}`
-			);
+			throw new Error("Failed to delete website");
 		}
 	}
 }

@@ -1,30 +1,41 @@
+import type { LanguageModelV3 } from "@ai-sdk/provider";
 import type {
-	LanguageModel,
 	StopCondition,
 	SystemModelMessage,
+	ToolLoopAgent,
 	ToolSet,
 } from "ai";
 
+type ProviderOptions = NonNullable<
+	ConstructorParameters<typeof ToolLoopAgent>[0]["providerOptions"]
+>;
+
+export type AgentThinking = "off" | "low" | "medium" | "high";
+
+export const AGENT_THINKING_LEVELS: readonly AgentThinking[] = [
+	"off",
+	"low",
+	"medium",
+	"high",
+] as const;
+
 export interface AgentContext {
-	userId: string;
-	websiteId: string;
-	websiteDomain: string;
-	timezone: string;
+	billingCustomerId?: string | null;
 	chatId: string;
 	requestHeaders?: Headers;
+	thinking?: AgentThinking;
+	timezone: string;
+	userId: string;
+	websiteDomain: string;
+	websiteId: string;
 }
 
-export type AgentType =
-	| "triage"
-	| "analytics"
-	| "reflection"
-	| "reflection-max";
-
 export interface AgentConfig {
-	model: LanguageModel;
-	system: SystemModelMessage;
-	tools: ToolSet;
-	stopWhen: StopCondition<ToolSet>;
-	temperature: number;
 	experimental_context?: unknown;
+	model: LanguageModelV3;
+	providerOptions?: ProviderOptions;
+	stopWhen: StopCondition<ToolSet>;
+	system: SystemModelMessage;
+	temperature: number;
+	tools: ToolSet;
 }

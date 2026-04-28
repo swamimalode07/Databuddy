@@ -1,20 +1,12 @@
 "use client";
 
 import type { DateRange } from "@databuddy/shared/types/analytics";
-import {
-	CalendarDotsIcon,
-	FunnelIcon,
-	PencilSimpleIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
 import { useAtomValue } from "jotai";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { Layout } from "react-grid-layout";
 import GridLayout, { useContainerWidth } from "react-grid-layout";
 import { StatCard } from "@/components/analytics/stat-card";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
 	formattedDateRangeAtom,
 	timeGranularityAtom,
@@ -24,6 +16,13 @@ import { CardSheet } from "./_components/add-card-sheet";
 import { useDashboardData } from "./_components/hooks/use-dashboard-data";
 import { getCategoryIcon } from "./_components/utils/category-utils";
 import type { DashboardCardConfig } from "./_components/utils/types";
+import {
+	CalendarDotsIcon,
+	FunnelIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
 
 const GRID_COLS = 4;
 const GRID_ROW_HEIGHT = 140;
@@ -156,7 +155,7 @@ export default function TestPage() {
 						{cards.length} card{cards.length === 1 ? "" : "s"}
 					</p>
 				</div>
-				<Button onClick={handleOpenAddSheet} size="sm" variant="outline">
+				<Button onClick={handleOpenAddSheet} size="sm" variant="secondary">
 					<PlusIcon className="mr-1.5 size-4" />
 					Add Card
 				</Button>
@@ -224,7 +223,6 @@ export default function TestPage() {
 					</GridLayout>
 				)}
 
-				{/* Add Card Tile - outside grid */}
 				<Card
 					className="group mt-4 flex h-[140px] cursor-pointer flex-col items-center justify-center gap-2 border-dashed bg-transparent py-0 transition-all hover:border-primary hover:bg-accent/50"
 					onClick={handleOpenAddSheet}

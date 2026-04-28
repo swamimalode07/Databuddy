@@ -1,23 +1,25 @@
 "use client";
 
-import { BrainIcon, CaretDownIcon } from "@phosphor-icons/react";
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import type { ComponentProps, ReactNode } from "react";
-import { createContext, memo, useContext, useEffect, useState } from "react";
-import { Streamdown } from "streamdown";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { useControllableState } from "@radix-ui/react-use-controllable-state";
+import type { ComponentProps, ReactNode } from "react";
+import { createContext, memo, useContext, useEffect, useState } from "react";
+import { Streamdown } from "streamdown";
+import { DotMatrixLoader, useRandomDotMatrixLoader } from "./dotmatrix-loader";
 import { Shimmer } from "./shimmer";
+import { useThinkingPhrase } from "./thinking-phrases";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 
 interface ReasoningContextValue {
-	isStreaming: boolean;
-	isOpen: boolean;
-	setIsOpen: (open: boolean) => void;
 	duration: number | undefined;
+	isOpen: boolean;
+	isStreaming: boolean;
+	setIsOpen: (open: boolean) => void;
 }
 
 const ReasoningContext = createContext<ReasoningContextValue | null>(null);
@@ -117,15 +119,28 @@ export type ReasoningTriggerProps = ComponentProps<
 	getThinkingMessage?: (isStreaming: boolean, duration?: number) => ReactNode;
 };
 
-const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
+interface ThinkingMessageProps {
+	duration?: number;
+	isStreaming: boolean;
+}
+
+const DefaultThinkingMessage = ({
+	isStreaming,
+	duration,
+}: ThinkingMessageProps) => {
+	const phrase = useThinkingPhrase();
 	if (isStreaming || duration === 0) {
-		return <Shimmer duration={1}>Thinking</Shimmer>;
+		return <Shimmer duration={1}>{phrase}</Shimmer>;
 	}
 	if (duration === undefined) {
 		return <span>Thought</span>;
 	}
 	return <span>Thought for {duration}s</span>;
 };
+
+const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => (
+	<DefaultThinkingMessage duration={duration} isStreaming={isStreaming} />
+);
 
 export const ReasoningTrigger = memo(
 	({
@@ -135,6 +150,7 @@ export const ReasoningTrigger = memo(
 		...props
 	}: ReasoningTriggerProps) => {
 		const { isStreaming, isOpen, duration } = useReasoning();
+		const loader = useRandomDotMatrixLoader();
 
 		return (
 			<CollapsibleTrigger
@@ -147,10 +163,15 @@ export const ReasoningTrigger = memo(
 				{children ?? (
 					<>
 						<span className="flex items-center gap-2">
-							<BrainIcon
-								className="size-3.5 shrink-0 opacity-70"
-								weight="duotone"
-							/>
+							{isStreaming ? (
+								<DotMatrixLoader
+									className="text-primary"
+									dotSize={2}
+									label="Thinking"
+									loader={loader}
+									size={14}
+								/>
+							) : null}
 							<span>{getThinkingMessage(isStreaming, duration)}</span>
 						</span>
 						<CaretDownIcon
@@ -184,7 +205,7 @@ export const ReasoningContent = memo(
 			{...props}
 		>
 			<div className="py-1.5 pl-5 text-xs">
-				<Streamdown {...props}>{children}</Streamdown>
+				<Streamdown>{children}</Streamdown>
 			</div>
 		</CollapsibleContent>
 	)

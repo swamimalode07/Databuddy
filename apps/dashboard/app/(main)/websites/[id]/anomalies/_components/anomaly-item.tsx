@@ -1,5 +1,8 @@
 "use client";
 
+import type { ElementType } from "react";
+import { List } from "@/components/ui/composables/list";
+import { cn } from "@/lib/utils";
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
@@ -8,26 +11,22 @@ import {
 	LightningIcon,
 	WarningCircleIcon,
 	WarningIcon,
-} from "@phosphor-icons/react";
-import type { ElementType } from "react";
-import { Badge } from "@/components/ui/badge";
-import { List } from "@/components/ui/composables/list";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+} from "@databuddy/ui/icons";
+import { Badge, Skeleton } from "@databuddy/ui";
 
 export interface AnomalyItemData {
-	metric: "pageviews" | "custom_events" | "errors";
-	type: "spike" | "drop";
-	severity: "warning" | "critical";
-	currentValue: number;
 	baselineMean: number;
 	baselineStdDev: number;
-	zScore: number;
-	percentChange: number;
+	currentValue: number;
 	detectedAt: string;
-	periodStart: string;
-	periodEnd: string;
 	eventName?: string;
+	metric: "pageviews" | "custom_events" | "errors";
+	percentChange: number;
+	periodEnd: string;
+	periodStart: string;
+	severity: "warning" | "critical";
+	type: "spike" | "drop";
+	zScore: number;
 }
 
 const METRIC_CONFIG: Record<
@@ -111,7 +110,7 @@ export function AnomalyItem({ anomaly }: AnomalyItemProps) {
 				<div className="flex items-center gap-2">
 					<Badge
 						className="gap-1"
-						variant={isCritical ? "destructive" : "amber"}
+						variant={isCritical ? "destructive" : "warning"}
 					>
 						<SeverityIcon className="size-3" weight="fill" />
 						{anomaly.severity}

@@ -1,4 +1,4 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Section, Text } from "react-email";
 import { emailBrand } from "./email-brand";
 import { EmailButton } from "./email-button";
 import { EmailLayout } from "./email-layout";
@@ -11,7 +11,7 @@ interface VerificationEmailProps {
 
 export const VerificationEmail = ({ url }: VerificationEmailProps) => (
 	<EmailLayout
-		preview="Verify your email address"
+		preview="Click to verify and start using Databuddy. Link expires in 24 hours."
 		tagline="Welcome to Databuddy"
 	>
 		<Section className="text-center">
@@ -39,5 +39,9 @@ export const VerificationEmail = ({ url }: VerificationEmailProps) => (
 		<EmailLinkFallback href={url} />
 	</EmailLayout>
 );
+
+VerificationEmail.PreviewProps = {
+	url: "https://app.databuddy.cc/verify/abc123",
+} satisfies VerificationEmailProps;
 
 export default VerificationEmail;

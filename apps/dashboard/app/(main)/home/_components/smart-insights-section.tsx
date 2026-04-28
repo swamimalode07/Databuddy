@@ -1,217 +1,32 @@
 "use client";
 
+import { useState } from "react";
+import { InsightCard } from "@/app/(main)/insights/_components/insight-card";
+import type { Insight } from "@/lib/insight-types";
+import { cn } from "@/lib/utils";
 import {
 	ArrowClockwiseIcon,
-	ArrowRightIcon,
-	BugIcon,
-	CaretDownIcon,
 	CheckCircleIcon,
-	GaugeIcon,
-	LightningIcon,
-	RocketIcon,
-	SparkleIcon,
-	TrendDownIcon,
-	TrendUpIcon,
+	LightbulbIcon,
 	WarningCircleIcon,
-} from "@phosphor-icons/react";
-import Link from "next/link";
-import { type ReactNode, useMemo, useState } from "react";
-import { InsightMetrics } from "@/components/insight-metrics";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	changePercentChipClassName,
-	formatSignedChangePercent,
-} from "@/lib/insight-signal-key";
-import type {
-	Insight,
-	InsightSentiment,
-	InsightType,
-} from "@/lib/insight-types";
-import { cn } from "@/lib/utils";
+} from "@databuddy/ui/icons";
+import { Card, Skeleton } from "@databuddy/ui";
 
-function buildDiagnosticPrompt(insight: Insight): string {
-	const parts = [
-		`Diagnose this issue on ${insight.websiteName ?? insight.websiteDomain}:`,
-		`"${insight.title}"`,
-		"",
-		`Context: ${insight.description}`,
-	];
-
-	if (insight.changePercent !== undefined && insight.changePercent !== 0) {
-		parts.push(`Change: ${formatSignedChangePercent(insight.changePercent)}`);
-	}
-
-	parts.push(
-		"",
-		"Investigate the root cause, check the relevant data for the last 7 days, and provide a clear explanation of what's happening and specific steps to fix or improve it."
-	);
-
-	return parts.join("\n");
-}
-
-const ICON_STYLES: Partial<
-	Record<InsightType, { icon: ReactNode; color: string; bg: string }>
-> = {
-	error_spike: {
-		icon: <BugIcon className="size-4" weight="duotone" />,
-		color: "text-red-500",
-		bg: "bg-red-500/10",
-	},
-	vitals_degraded: {
-		icon: <GaugeIcon className="size-4" weight="duotone" />,
-		color: "text-amber-500",
-		bg: "bg-amber-500/10",
-	},
-	custom_event_spike: {
-		icon: <LightningIcon className="size-4" weight="fill" />,
-		color: "text-blue-500",
-		bg: "bg-blue-500/10",
-	},
-	traffic_drop: {
-		icon: <TrendDownIcon className="size-4" weight="fill" />,
-		color: "text-red-500",
-		bg: "bg-red-500/10",
-	},
-	traffic_spike: {
-		icon: <TrendUpIcon className="size-4" weight="fill" />,
-		color: "text-emerald-500",
-		bg: "bg-emerald-500/10",
-	},
-	performance: {
-		icon: <RocketIcon className="size-4" weight="duotone" />,
-		color: "text-violet-500",
-		bg: "bg-violet-500/10",
-	},
-	uptime_issue: {
-		icon: <WarningCircleIcon className="size-4" weight="duotone" />,
-		color: "text-red-500",
-		bg: "bg-red-500/10",
-	},
-};
-
-const DEFAULT_ICON = {
-	icon: <SparkleIcon className="size-4" weight="duotone" />,
-	color: "text-primary",
-	bg: "bg-primary/10",
-};
-
-const SENTIMENT_STYLE: Record<
-	InsightSentiment,
-	{ text: string; color: string }
-> = {
-	positive: { text: "Positive", color: "text-emerald-600" },
-	neutral: { text: "Neutral", color: "text-muted-foreground" },
-	negative: { text: "Needs attention", color: "text-red-500" },
-};
-
-function InsightRow({ insight }: { insight: Insight }) {
+function InsightRowWrapper({ insight }: { insight: Insight }) {
 	const [expanded, setExpanded] = useState(false);
-	const style = ICON_STYLES[insight.type] ?? DEFAULT_ICON;
-	const sentiment =
-		SENTIMENT_STYLE[insight.sentiment] ?? SENTIMENT_STYLE.neutral;
-
-	const agentHref = useMemo(() => {
-		const chatId = crypto.randomUUID();
-		const prompt = encodeURIComponent(buildDiagnosticPrompt(insight));
-		return `/websites/${insight.websiteId}/agent/${chatId}?prompt=${prompt}`;
-	}, [insight]);
-
 	return (
-		<button
-			className={cn(
-				"flex w-full cursor-pointer flex-col text-left transition-colors hover:bg-accent/40",
-				expanded && "bg-accent/20"
-			)}
-			onClick={() => setExpanded((prev) => !prev)}
-			type="button"
-		>
-			<div className="flex w-full items-start gap-3 px-4 py-3">
-				<div
-					className={cn(
-						"mt-0.5 flex size-7 shrink-0 items-center justify-center rounded",
-						style.bg,
-						style.color
-					)}
-				>
-					{style.icon}
-				</div>
-				<div className="min-w-0 flex-1">
-					<div className="flex items-center justify-between gap-2">
-						<p className="truncate font-medium text-foreground text-sm">
-							{insight.title}
-						</p>
-						<div className="flex shrink-0 items-center gap-1.5">
-							<span className="font-mono text-[11px] text-muted-foreground tabular-nums">
-								{insight.priority}/10
-							</span>
-							<CaretDownIcon
-								className={cn(
-									"size-3 text-muted-foreground transition-transform",
-									expanded && "rotate-180"
-								)}
-								weight="fill"
-							/>
-						</div>
-					</div>
-					<div className="mt-0.5 flex items-center gap-1.5 text-xs">
-						<span className="truncate text-muted-foreground">
-							{insight.websiteName ?? insight.websiteDomain}
-						</span>
-						<span className="text-muted-foreground/30">·</span>
-						<span className={sentiment.color}>{sentiment.text}</span>
-						{insight.changePercent !== undefined &&
-							insight.changePercent !== 0 && (
-								<>
-									<span className="text-muted-foreground/30">·</span>
-									<span
-										className={cn(
-											"tabular-nums",
-											changePercentChipClassName(insight.changePercent)
-										)}
-									>
-										{formatSignedChangePercent(insight.changePercent)}
-									</span>
-								</>
-							)}
-					</div>
-					{!expanded && (
-						<p className="mt-1 line-clamp-1 text-muted-foreground text-xs">
-							{insight.description}
-						</p>
-					)}
-				</div>
-			</div>
-
-			{expanded && (
-				<div className="flex flex-col gap-3 px-4 pb-4 pl-14">
-					{insight.metrics && insight.metrics.length > 0 && (
-						<InsightMetrics metrics={insight.metrics} />
-					)}
-					<div className="flex flex-col gap-2">
-						<p className="text-pretty text-[13px] text-muted-foreground leading-relaxed">
-							{insight.description}
-						</p>
-						<p className="text-pretty border-primary/40 border-l-2 pl-3 text-foreground/80 text-xs leading-relaxed">
-							{insight.suggestion}
-						</p>
-					</div>
-					<Link
-						className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs transition-opacity hover:opacity-90"
-						href={agentHref}
-						onClick={(e) => e.stopPropagation()}
-					>
-						Investigate with Databunny
-						<ArrowRightIcon className="size-3" weight="fill" />
-					</Link>
-				</div>
-			)}
-		</button>
+		<InsightCard
+			expanded={expanded}
+			insight={insight}
+			onToggleAction={() => setExpanded((prev) => !prev)}
+			variant="compact"
+		/>
 	);
 }
 
 function InsightSkeleton({ wide }: { wide?: boolean }) {
 	return (
-		<div className="flex items-start gap-3 px-4 py-3">
+		<div className="flex items-start gap-3 px-5 py-3">
 			<Skeleton className="mt-0.5 size-7 shrink-0 rounded" />
 			<div className="min-w-0 flex-1 space-y-2">
 				<div className="flex items-start justify-between gap-2">
@@ -229,10 +44,10 @@ function InsightSkeleton({ wide }: { wide?: boolean }) {
 
 function AnalyzingState() {
 	return (
-		<div className="space-y-0 divide-y">
-			<div className="flex items-center gap-3 px-4 py-4">
+		<div className="divide-y">
+			<div className="flex items-center gap-3 px-5 py-4">
 				<div className="flex size-7 shrink-0 items-center justify-center rounded bg-primary/10">
-					<SparkleIcon
+					<LightbulbIcon
 						className="size-4 animate-pulse text-primary"
 						weight="duotone"
 					/>
@@ -252,9 +67,9 @@ function AnalyzingState() {
 	);
 }
 
-function EmptyState() {
+function InsightsEmptyState() {
 	return (
-		<div className="flex items-center gap-3 px-4 py-4">
+		<div className="flex items-center gap-3 px-5 py-4">
 			<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
 				<CheckCircleIcon className="size-5 text-emerald-500" weight="fill" />
 			</div>
@@ -270,9 +85,9 @@ function EmptyState() {
 	);
 }
 
-function ErrorState({ onRetryAction }: { onRetryAction?: () => void }) {
+function InsightsErrorState({ onRetryAction }: { onRetryAction?: () => void }) {
 	return (
-		<div className="flex items-center gap-3 px-4 py-4">
+		<div className="flex items-center gap-3 px-5 py-4">
 			<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-500/10">
 				<WarningCircleIcon className="size-5 text-red-500" weight="duotone" />
 			</div>
@@ -286,7 +101,7 @@ function ErrorState({ onRetryAction }: { onRetryAction?: () => void }) {
 			</div>
 			{onRetryAction && (
 				<button
-					className="shrink-0 rounded bg-accent px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-accent/80"
+					className="shrink-0 rounded-md bg-accent px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-accent/80"
 					onClick={onRetryAction}
 					type="button"
 				>
@@ -299,20 +114,13 @@ function ErrorState({ onRetryAction }: { onRetryAction?: () => void }) {
 
 interface InsightsSectionProps {
 	insights: Insight[];
-	isLoading?: boolean;
+	isError?: boolean;
 	isFetching?: boolean;
 	isFetchingFresh?: boolean;
-	isError?: boolean;
+	isLoading?: boolean;
 	onRefreshAction?: () => void;
-	/** `compact` = capped list height (home). `full` = grows with parent flex layout (`/insights`). */
 	variant?: "compact" | "full";
 }
-
-const cardShell = (variant: "compact" | "full") =>
-	cn(
-		"rounded border bg-card",
-		variant === "full" && "flex min-h-0 flex-1 flex-col"
-	);
 
 export function SmartInsightsSection({
 	insights,
@@ -325,31 +133,29 @@ export function SmartInsightsSection({
 }: InsightsSectionProps) {
 	if (isLoading) {
 		return (
-			<div className={cardShell(variant)}>
-				<div className="flex items-center gap-2 border-b px-4 py-3">
-					<SparkleIcon className="size-4 text-primary" weight="duotone" />
-					<h3 className="font-semibold text-foreground text-sm">
-						Actionable Insights
-					</h3>
-				</div>
+			<Card className={variant === "full" ? "min-h-0 flex-1" : ""}>
+				<Card.Header className="flex-row items-center justify-between gap-3">
+					<div className="flex items-center gap-2">
+						<LightbulbIcon className="size-4 text-primary" weight="duotone" />
+						<Card.Title className="text-sm">Actionable Insights</Card.Title>
+					</div>
+				</Card.Header>
 				<AnalyzingState />
-			</div>
+			</Card>
 		);
 	}
 
 	if (isError) {
 		return (
-			<div className={cardShell(variant)}>
-				<div className="flex items-center justify-between border-b px-4 py-3">
+			<Card className={variant === "full" ? "min-h-0 flex-1" : ""}>
+				<Card.Header className="flex-row items-center justify-between gap-3">
 					<div className="flex items-center gap-2">
-						<SparkleIcon className="size-4 text-primary" weight="duotone" />
-						<h3 className="font-semibold text-foreground text-sm">
-							Actionable Insights
-						</h3>
+						<LightbulbIcon className="size-4 text-primary" weight="duotone" />
+						<Card.Title className="text-sm">Actionable Insights</Card.Title>
 					</div>
-				</div>
-				<ErrorState onRetryAction={onRefreshAction} />
-			</div>
+				</Card.Header>
+				<InsightsErrorState onRetryAction={onRefreshAction} />
+			</Card>
 		);
 	}
 
@@ -357,20 +163,18 @@ export function SmartInsightsSection({
 	const showEmpty = insights.length === 0;
 
 	return (
-		<div className={cardShell(variant)}>
-			<div className="flex items-center justify-between border-b px-4 py-3">
-				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+		<Card className={variant === "full" ? "min-h-0 flex-1" : ""}>
+			<Card.Header className="flex-row items-center justify-between gap-3">
+				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-2">
-						<SparkleIcon
+						<LightbulbIcon
 							className="size-4 shrink-0 text-primary"
 							weight="duotone"
 						/>
-						<h3 className="font-semibold text-foreground text-sm">
-							Actionable Insights
-						</h3>
+						<Card.Title className="text-sm">Actionable Insights</Card.Title>
 					</div>
 					{isFetchingFresh && (
-						<p className="text-muted-foreground text-xs">
+						<p className="mt-1 text-muted-foreground text-xs">
 							Updating with latest analysis…
 						</p>
 					)}
@@ -395,22 +199,22 @@ export function SmartInsightsSection({
 						</button>
 					)}
 				</div>
-			</div>
-			{showEmpty && <EmptyState />}
+			</Card.Header>
+			{showEmpty && <InsightsEmptyState />}
 			{showInsights && (
 				<div
 					className={cn(
-						"divide-y overflow-y-auto",
+						"overflow-y-auto",
 						variant === "compact"
 							? "max-h-[min(400px,60dvh)]"
 							: "min-h-0 flex-1"
 					)}
 				>
 					{insights.map((insight) => (
-						<InsightRow insight={insight} key={insight.id} />
+						<InsightRowWrapper insight={insight} key={insight.id} />
 					))}
 				</div>
 			)}
-		</div>
+		</Card>
 	);
 }

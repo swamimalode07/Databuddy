@@ -1,46 +1,43 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import {
 	CheckIcon,
 	HeartbeatIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-	XIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
+} from "@databuddy/ui/icons";
+import { Badge, Button, Field, Input } from "@databuddy/ui";
+import { Switch } from "@databuddy/ui/client";
 
 type ToggleKey = "hideUrl" | "hideUptimePercentage" | "hideLatency";
 
 export interface StatusPageMonitor {
+	displayName: string | null;
+	hideLatency: boolean;
+	hideUptimePercentage: boolean;
+	hideUrl: boolean;
 	id: string;
 	statusPageId: string;
-	uptimeScheduleId: string;
-	displayName: string | null;
-	hideUrl: boolean;
-	hideUptimePercentage: boolean;
-	hideLatency: boolean;
 	uptimeSchedule: {
 		id: string;
 		name: string | null;
 		url: string | null;
 		isPaused: boolean;
 	};
+	uptimeScheduleId: string;
 }
 
 interface StatusPageMonitorRowProps {
 	monitor: StatusPageMonitor;
-	statusPageId: string;
 	onRemoveRequestAction: (monitorId: string) => void;
+	statusPageId: string;
 }
 
 export function StatusPageMonitorRow({
@@ -55,7 +52,6 @@ export function StatusPageMonitorRow({
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState("");
-	const inputRef = useRef<HTMLInputElement>(null);
 
 	const updateSettingsMutation = useMutation({
 		...orpc.statusPage.updateMonitorSettings.mutationOptions(),
@@ -110,7 +106,6 @@ export function StatusPageMonitorRow({
 	const startEditing = () => {
 		setEditValue(monitor.displayName ?? "");
 		setIsEditing(true);
-		requestAnimationFrame(() => inputRef.current?.focus());
 	};
 
 	const cancelEditing = () => {
@@ -153,157 +148,153 @@ export function StatusPageMonitorRow({
 	};
 
 	return (
-		<List.Row asChild className={cn(isPaused && "opacity-50")}>
-			<Link href={`/monitors/${schedule.id}`}>
-				<List.Cell>
-					<div
-						className={cn(
-							"flex size-8 items-center justify-center rounded",
-							isPaused
-								? "bg-muted text-muted-foreground"
-								: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-						)}
-					>
-						<HeartbeatIcon className="size-4" weight="duotone" />
-					</div>
-				</List.Cell>
+		<Link
+			className={cn(
+				"group flex items-center gap-4 px-5 py-3 transition-colors hover:bg-interactive-hover",
+				isPaused && "opacity-50"
+			)}
+			href={`/monitors/${schedule.id}`}
+		>
+			<div
+				className={cn(
+					"flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/60",
+					isPaused
+						? "bg-muted text-muted-foreground"
+						: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+				)}
+			>
+				<HeartbeatIcon className="size-4" weight="duotone" />
+			</div>
 
-				<List.Cell className="w-40 min-w-0 lg:w-52">
-					{isEditing ? (
-						<fieldset
-							className="flex items-center gap-1 border-none p-0"
-							onClickCapture={stopNav}
+			<div className="min-w-0 flex-1">
+				{isEditing ? (
+					<fieldset
+						className="flex items-center gap-1 border-none p-0"
+						onClickCapture={stopNav}
+					>
+						<Input
+							autoFocus
+							className="h-7 min-w-0 flex-1"
+							onBlur={saveDisplayName}
+							onChange={(e) => setEditValue(e.target.value)}
+							onKeyDown={handleKeyDown}
+							placeholder={schedule.name || schedule.url || "Display name"}
+							value={editValue}
+						/>
+						<Button
+							aria-label="Save name"
+							className="size-6 shrink-0"
+							onClick={saveDisplayName}
+							size="sm"
+							variant="ghost"
 						>
-							<input
-								className="h-7 min-w-0 flex-1 rounded border border-input bg-background px-2 font-medium text-foreground text-sm outline-none focus:ring-1 focus:ring-ring"
-								onBlur={saveDisplayName}
-								onChange={(e) => setEditValue(e.target.value)}
-								onKeyDown={handleKeyDown}
-								placeholder={schedule.name || schedule.url || "Display name"}
-								ref={inputRef}
-								type="text"
-								value={editValue}
-							/>
-							<Button
-								aria-label="Save name"
-								className="size-6 shrink-0"
-								onClick={saveDisplayName}
-								size="icon"
-								variant="ghost"
-							>
-								<CheckIcon className="size-3.5" />
-							</Button>
-							<Button
-								aria-label="Cancel editing"
-								className="size-6 shrink-0"
-								onClick={cancelEditing}
-								onMouseDown={(e) => e.preventDefault()}
-								size="icon"
-								variant="ghost"
-							>
-								<XIcon className="size-3.5" />
-							</Button>
-						</fieldset>
-					) : (
-						<div className="flex items-center gap-1.5">
-							<div className="flex min-w-0 items-center gap-2">
-								<p className="truncate font-medium text-foreground text-sm">
-									{resolvedName}
-								</p>
-								{monitor.displayName && (
-									<span className="hidden shrink-0 text-muted-foreground/60 text-xs lg:inline">
-										({schedule.name || schedule.url})
-									</span>
-								)}
-								{isPaused && (
-									<Badge className="shrink-0" variant="amber">
-										Paused
-									</Badge>
-								)}
-							</div>
-							<Button
-								aria-label="Rename monitor"
-								className="size-6 shrink-0 opacity-0 group-hover:opacity-100"
-								onClick={(e) => {
-									e.preventDefault();
-									startEditing();
-								}}
-								size="icon"
-								variant="ghost"
-							>
-								<PencilSimpleIcon className="size-3.5" weight="duotone" />
-							</Button>
+							<CheckIcon className="size-3.5" />
+						</Button>
+						<Button
+							aria-label="Cancel editing"
+							className="size-6 shrink-0"
+							onClick={cancelEditing}
+							onMouseDown={(e) => e.preventDefault()}
+							size="sm"
+							variant="ghost"
+						>
+							<XIcon className="size-3.5" />
+						</Button>
+					</fieldset>
+				) : (
+					<div className="flex items-center gap-1.5">
+						<div className="flex min-w-0 items-center gap-2">
+							<p className="truncate font-medium text-foreground text-sm">
+								{resolvedName}
+							</p>
+							{monitor.displayName && (
+								<span className="hidden shrink-0 text-muted-foreground/60 text-xs lg:inline">
+									({schedule.name || schedule.url})
+								</span>
+							)}
+							{isPaused && (
+								<Badge className="shrink-0" variant="warning">
+									Paused
+								</Badge>
+							)}
 						</div>
-					)}
-				</List.Cell>
-
-				<List.Cell grow>
-					<p className="wrap-break-word text-pretty text-muted-foreground text-xs">
-						{schedule.url}
-					</p>
-				</List.Cell>
-
-				<List.Cell
-					className="hidden items-center gap-5 lg:flex"
-					onClickCapture={stopNav}
-				>
-					<div className="flex items-center gap-2">
-						<Switch
-							checked={monitor.hideUrl}
-							id={`hide-url-${monitor.id}`}
-							onCheckedChange={(v) => handleToggle("hideUrl", v)}
-						/>
-						<Label
-							className="cursor-pointer font-normal text-muted-foreground text-xs"
-							htmlFor={`hide-url-${monitor.id}`}
+						<Button
+							aria-label="Rename monitor"
+							className="size-6 shrink-0 opacity-0 group-hover:opacity-100"
+							onClick={(e) => {
+								e.preventDefault();
+								startEditing();
+							}}
+							size="sm"
+							variant="ghost"
 						>
-							Hide URL
-						</Label>
+							<PencilSimpleIcon className="size-3.5" weight="duotone" />
+						</Button>
 					</div>
-					<div className="flex items-center gap-2">
-						<Switch
-							checked={monitor.hideUptimePercentage}
-							id={`hide-uptime-${monitor.id}`}
-							onCheckedChange={(v) => handleToggle("hideUptimePercentage", v)}
-						/>
-						<Label
-							className="cursor-pointer font-normal text-muted-foreground text-xs"
-							htmlFor={`hide-uptime-${monitor.id}`}
-						>
-							Hide Uptime
-						</Label>
-					</div>
-					<div className="flex items-center gap-2">
-						<Switch
-							checked={monitor.hideLatency}
-							id={`hide-latency-${monitor.id}`}
-							onCheckedChange={(v) => handleToggle("hideLatency", v)}
-						/>
-						<Label
-							className="cursor-pointer font-normal text-muted-foreground text-xs"
-							htmlFor={`hide-latency-${monitor.id}`}
-						>
-							Hide Latency
-						</Label>
-					</div>
-				</List.Cell>
+				)}
+				<p className="wrap-break-word truncate text-muted-foreground text-xs">
+					{schedule.url}
+				</p>
+			</div>
 
-				<List.Cell action>
-					<Button
-						aria-label="Remove monitor"
-						className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-						onClick={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							onRemoveRequestAction(monitor.id);
-						}}
-						size="icon"
-						variant="ghost"
+			<div
+				className="hidden items-center gap-5 lg:flex"
+				onClickCapture={stopNav}
+			>
+				<div className="flex items-center gap-2">
+					<Switch
+						checked={monitor.hideUrl}
+						id={`hide-url-${monitor.id}`}
+						onCheckedChange={(v) => handleToggle("hideUrl", v)}
+					/>
+					<Field.Label
+						className="cursor-pointer font-normal text-muted-foreground text-xs"
+						htmlFor={`hide-url-${monitor.id}`}
 					>
-						<TrashIcon className="size-4" weight="duotone" />
-					</Button>
-				</List.Cell>
-			</Link>
-		</List.Row>
+						Hide URL
+					</Field.Label>
+				</div>
+				<div className="flex items-center gap-2">
+					<Switch
+						checked={monitor.hideUptimePercentage}
+						id={`hide-uptime-${monitor.id}`}
+						onCheckedChange={(v) => handleToggle("hideUptimePercentage", v)}
+					/>
+					<Field.Label
+						className="cursor-pointer font-normal text-muted-foreground text-xs"
+						htmlFor={`hide-uptime-${monitor.id}`}
+					>
+						Hide Uptime
+					</Field.Label>
+				</div>
+				<div className="flex items-center gap-2">
+					<Switch
+						checked={monitor.hideLatency}
+						id={`hide-latency-${monitor.id}`}
+						onCheckedChange={(v) => handleToggle("hideLatency", v)}
+					/>
+					<Field.Label
+						className="cursor-pointer font-normal text-muted-foreground text-xs"
+						htmlFor={`hide-latency-${monitor.id}`}
+					>
+						Hide Latency
+					</Field.Label>
+				</div>
+			</div>
+
+			<Button
+				aria-label="Remove monitor"
+				className="shrink-0 text-destructive opacity-0 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					onRemoveRequestAction(monitor.id);
+				}}
+				size="sm"
+				variant="ghost"
+			>
+				<TrashIcon className="size-4" weight="duotone" />
+			</Button>
+		</Link>
 	);
 }

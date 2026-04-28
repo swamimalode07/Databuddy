@@ -1,61 +1,45 @@
 "use client";
 
-import {
-	CaretRightIcon,
-	DotsThreeIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
 import { List } from "@/components/ui/composables/list";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@databuddy/ui";
+import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type {
 	FunnelAnalyticsData,
 	FunnelFilter,
 	FunnelStep,
 } from "@/types/funnels";
+import {
+	CaretRightIcon,
+	DotsThreeIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 export interface FunnelItemData {
-	id: string;
-	name: string;
+	createdAt: string | Date;
 	description?: string | null;
-	steps: FunnelStep[];
 	filters?: FunnelFilter[];
+	id: string;
 	ignoreHistoricData?: boolean;
 	isActive: boolean;
-	createdAt: string | Date;
+	name: string;
+	steps: FunnelStep[];
 	updatedAt: string | Date;
 }
 
 interface FunnelItemProps {
-	funnel: FunnelItemData;
 	analytics?: FunnelAnalyticsData | null;
+	children?: React.ReactNode;
+	className?: string;
+	funnel: FunnelItemData;
 	isExpanded: boolean;
 	isLast?: boolean;
 	isLoadingAnalytics?: boolean;
-	onToggle: (funnelId: string) => void;
-	onEdit: (funnel: FunnelItemData) => void;
 	onDelete: (funnelId: string) => void;
-	children?: React.ReactNode;
-	className?: string;
-}
-
-function formatNumber(num: number): string {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toLocaleString();
+	onEdit: (funnel: FunnelItemData) => void;
+	onToggle: (funnelId: string) => void;
 }
 
 function MiniFunnelPreview({
@@ -113,7 +97,7 @@ export function FunnelItem({
 	className,
 	children,
 }: FunnelItemProps) {
-	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
 		const target = e.target as HTMLElement;
 		if (
 			target.closest("[data-dropdown-trigger]") ||
@@ -132,17 +116,23 @@ export function FunnelItem({
 		<div className={cn("w-full", className)}>
 			<List.Row
 				asChild
-				className={cn(isExpanded && "bg-accent/30", isLast && "border-b-0")}
+				className={cn(
+					"cursor-pointer",
+					isExpanded && "bg-accent/30",
+					isLast && "border-b-0"
+				)}
 			>
-				<button
+				{/* biome-ignore lint/a11y/useSemanticElements: List.Row asChild replaces this element; a real <button> would nest inside the dropdown-menu trigger */}
+				<div
 					onClick={handleClick}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" || e.key === " ") {
+							e.preventDefault();
 							onToggle(funnel.id);
 						}
 					}}
+					role="button"
 					tabIndex={0}
-					type="button"
 				>
 					<List.Cell>
 						<div
@@ -222,27 +212,23 @@ export function FunnelItem({
 
 					<List.Cell action>
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									aria-label="Funnel actions"
-									className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-									data-dropdown-trigger
-									size="icon"
-									variant="ghost"
-								>
-									<DotsThreeIcon className="size-5" weight="bold" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-40">
-								<DropdownMenuItem
+							<DropdownMenu.Trigger
+								aria-label="Funnel actions"
+								className="inline-flex size-8 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+								data-dropdown-trigger
+							>
+								<DotsThreeIcon className="size-5" weight="bold" />
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content align="end" className="w-40">
+								<DropdownMenu.Item
 									className="gap-2"
 									onClick={() => onEdit(funnel)}
 								>
 									<PencilSimpleIcon className="size-4" weight="duotone" />
 									Edit
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item
 									className="gap-2 text-destructive focus:text-destructive"
 									onClick={() => onDelete(funnel.id)}
 									variant="destructive"
@@ -252,11 +238,11 @@ export function FunnelItem({
 										weight="duotone"
 									/>
 									Delete
-								</DropdownMenuItem>
-							</DropdownMenuContent>
+								</DropdownMenu.Item>
+							</DropdownMenu.Content>
 						</DropdownMenu>
 					</List.Cell>
-				</button>
+				</div>
 			</List.Row>
 
 			{isExpanded ? (

@@ -1,20 +1,10 @@
 "use client";
 
-import { BuildingsIcon } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
 import { useOrganizations } from "@/hooks/use-organizations";
+import { BuildingsIcon } from "@databuddy/ui/icons";
+import { Button, Field, Input } from "@databuddy/ui";
+import { Sheet } from "@databuddy/ui/client";
 
 const SLUG_ALLOWED_REGEX = /^[a-z0-9-]+$/;
 const REGEX_NON_SLUG_NAME_CHARS = /[^a-z0-9\s-]/g;
@@ -112,33 +102,31 @@ export function CreateOrganizationDialog({
 
 	return (
 		<Sheet onOpenChange={handleClose} open={isOpen}>
-			<SheetContent className="sm:max-w-lg" side="right">
-				<SheetHeader>
+			<Sheet.Content className="sm:max-w-lg" side="right">
+				<Sheet.Header>
 					<div className="flex items-center gap-4">
 						<div className="flex h-11 w-11 items-center justify-center rounded border bg-secondary-brighter">
 							<BuildingsIcon
-								className="text-accent-foreground"
-								size={22}
+								className="size-[22px] text-accent-foreground"
 								weight="fill"
 							/>
 						</div>
 						<div>
-							<SheetTitle className="text-lg">
+							<Sheet.Title className="text-lg">
 								Create New Organization
-							</SheetTitle>
-							<SheetDescription>
+							</Sheet.Title>
+							<Sheet.Description>
 								Set up a new organization to collaborate with your team
-							</SheetDescription>
+							</Sheet.Description>
 						</div>
 					</div>
-				</SheetHeader>
+				</Sheet.Header>
 
-				<SheetBody className="space-y-6">
-					{/* Organization Name */}
+				<Sheet.Close />
+
+				<Sheet.Body className="space-y-6">
 					<div className="space-y-2">
-						<Label className="font-medium" htmlFor="org-name">
-							Organization Name
-						</Label>
+						<Field.Label htmlFor="org-name">Organization Name</Field.Label>
 						{(() => {
 							const isNameValid = name.trim().length >= 2;
 							const hasUserTyped = name.length > 0;
@@ -160,11 +148,8 @@ export function CreateOrganizationDialog({
 						})()}
 					</div>
 
-					{/* Organization Slug */}
 					<div className="space-y-2">
-						<Label className="font-medium" htmlFor="org-slug">
-							Organization Slug
-						</Label>
+						<Field.Label htmlFor="org-slug">Organization Slug</Field.Label>
 						{(() => {
 							const isSlugValid =
 								SLUG_ALLOWED_REGEX.test(slug) && slug.trim().length >= 2;
@@ -196,33 +181,23 @@ export function CreateOrganizationDialog({
 							);
 						})()}
 					</div>
-				</SheetBody>
+				</Sheet.Body>
 
-				<SheetFooter>
-					<Button
-						disabled={isCreatingOrganization}
-						onClick={handleClose}
-						type="button"
-						variant="outline"
-					>
+				<Sheet.Footer>
+					<Button onClick={handleClose} type="button" variant="secondary">
 						Cancel
 					</Button>
 					<Button
-						disabled={!isFormValid || isCreatingOrganization}
+						disabled={!isFormValid}
+						loading={isCreatingOrganization}
 						onClick={handleSubmit}
 						type="button"
 					>
-						{isCreatingOrganization ? (
-							"Creating..."
-						) : (
-							<>
-								<BuildingsIcon className="mr-2" size={16} />
-								Create Organization
-							</>
-						)}
+						<BuildingsIcon className="size-4" />
+						Create Organization
 					</Button>
-				</SheetFooter>
-			</SheetContent>
+				</Sheet.Footer>
+			</Sheet.Content>
 		</Sheet>
 	);
 }

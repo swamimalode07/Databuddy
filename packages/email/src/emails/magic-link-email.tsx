@@ -1,4 +1,4 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Section, Text } from "react-email";
 import { emailBrand } from "./email-brand";
 import { EmailButton } from "./email-button";
 import { EmailLayout } from "./email-layout";
@@ -11,7 +11,7 @@ interface MagicLinkEmailProps {
 
 export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => (
 	<EmailLayout
-		preview="Your magic link to sign in"
+		preview="Click to sign in instantly. This link is single-use."
 		tagline="Sign in to Databuddy"
 	>
 		<Section className="text-center">
@@ -39,5 +39,9 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => (
 		<EmailLinkFallback href={url} />
 	</EmailLayout>
 );
+
+MagicLinkEmail.PreviewProps = {
+	url: "https://app.databuddy.cc/magic/abc123",
+} satisfies MagicLinkEmailProps;
 
 export default MagicLinkEmail;

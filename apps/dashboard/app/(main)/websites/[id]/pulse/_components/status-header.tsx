@@ -1,26 +1,19 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
 import {
 	CircleIcon,
 	PauseIcon,
 	PencilIcon,
 	PlayIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { orpc } from "@/lib/orpc";
-import { fromNow } from "@/lib/time";
-import { cn } from "@/lib/utils";
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import { Button, Card, GhostTriggerButton, fromNow } from "@databuddy/ui";
 
 const granularityLabels: Record<string, string> = {
 	minute: "Every minute",
@@ -33,6 +26,15 @@ const granularityLabels: Record<string, string> = {
 };
 
 interface StatusHeaderProps {
+	currentStatus?: "up" | "down" | "unknown";
+	lastCheck?: {
+		timestamp: string;
+		status: number;
+		probe_region?: string;
+	};
+	onDeleteAction: () => void;
+	onEditAction: () => void;
+	onRefetchAction: () => void;
 	schedule: {
 		id: string;
 		granularity: string;
@@ -41,15 +43,6 @@ interface StatusHeaderProps {
 		createdAt: Date | string;
 		updatedAt: Date | string;
 	};
-	currentStatus?: "up" | "down" | "unknown";
-	lastCheck?: {
-		timestamp: string;
-		status: number;
-		probe_region?: string;
-	};
-	onEditAction: () => void;
-	onDeleteAction: () => void;
-	onRefetchAction: () => void;
 }
 
 export function StatusHeader({
@@ -150,7 +143,7 @@ export function StatusHeader({
 						}
 						onClick={handleTogglePause}
 						size="sm"
-						variant="outline"
+						variant="secondary"
 					>
 						{schedule.isPaused ? (
 							<>
@@ -168,27 +161,31 @@ export function StatusHeader({
 						className="h-8 gap-2 text-xs"
 						onClick={onEditAction}
 						size="sm"
-						variant="outline"
+						variant="secondary"
 					>
 						<PencilIcon size={14} weight="duotone" />
 						Configure
 					</Button>
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button className="size-8" size="icon" variant="ghost">
-								<CircleIcon className="size-4" weight="bold" />
-								<span className="sr-only">More options</span>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem
+						<DropdownMenu.Trigger
+							render={
+								<GhostTriggerButton
+									aria-label="More options"
+									className="size-8 px-0 data-[state=open]:bg-interactive-hover data-[state=open]:text-foreground"
+								>
+									<CircleIcon className="size-4" weight="bold" />
+								</GhostTriggerButton>
+							}
+						/>
+						<DropdownMenu.Content align="end">
+							<DropdownMenu.Item
 								className="text-destructive focus:text-destructive"
 								onClick={onDeleteAction}
 							>
 								<TrashIcon className="mr-2" size={16} />
 								Delete Monitor
-							</DropdownMenuItem>
-						</DropdownMenuContent>
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
 					</DropdownMenu>
 				</div>
 			</div>

@@ -1,30 +1,28 @@
 "use client";
 
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
-import { EmptyState } from "@/components/empty-state";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Suspense, useState } from "react";
+import { toast } from "sonner";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { FeatureAccessGate } from "@/components/feature-access-gate";
+import { FeatureLockedPanel } from "@/components/feature-access-gate";
+import { FeatureInviteDialog } from "@/components/organizations/feature-invite-dialog";
 import { useOrganizationsContext } from "@/components/providers/organizations-provider";
 import {
 	type StatusPage,
 	StatusPageRow,
-	StatusPageRowSkeleton,
 } from "@/components/status-pages/status-page-row";
 import { StatusPageSheet } from "@/components/status-pages/status-page-sheet";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
 import {
 	ArrowClockwiseIcon,
-	BrowserIcon,
 	PlusIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
-import { toast } from "sonner";
+	UserPlusIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog } from "@databuddy/ui/client";
+import { Button, Card, EmptyState, Skeleton } from "@databuddy/ui";
 
 export default function StatusPagesListPage() {
 	const { hasAccess, isLoading: isAccessLoading } =
@@ -33,6 +31,7 @@ export default function StatusPagesListPage() {
 		useOrganizationsContext();
 	const queryClient = useQueryClient();
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const [showInviteDialog, setShowInviteDialog] = useState(false);
 	const [editingStatusPage, setEditingStatusPage] = useState<StatusPage | null>(
 		null
 	);
@@ -69,11 +68,11 @@ export default function StatusPagesListPage() {
 		setIsSheetOpen(true);
 	};
 
-	const handleConfirmDelete = () => {
+	const handleConfirmDelete = async () => {
 		if (!statusPageToDelete) {
 			return;
 		}
-		deleteMutation.mutate({ statusPageId: statusPageToDelete.id });
+		await deleteMutation.mutateAsync({ statusPageId: statusPageToDelete.id });
 	};
 
 	const handleSheetClose = () => {
@@ -82,110 +81,122 @@ export default function StatusPagesListPage() {
 	};
 
 	const statusPages = statusPagesQuery.data;
-	const isLoading = isAccessLoading || statusPagesQuery.isLoading;
-	const isError = statusPagesQuery.isError;
+	const isLoading =
+		isAccessLoading || (hasAccess && statusPagesQuery.isLoading);
 
 	return (
 		<ErrorBoundary>
-			<div className="h-full overflow-y-auto">
-				<PageHeader
-					count={hasAccess ? statusPages?.length : undefined}
-					description="Create and manage public status pages"
-					icon={<BrowserIcon />}
-					right={
-						hasAccess ? (
-							<>
-								<Button
-									aria-label="Refresh status pages"
-									disabled={
-										statusPagesQuery.isLoading || statusPagesQuery.isFetching
-									}
-									onClick={() => statusPagesQuery.refetch()}
-									size="icon"
-									variant="outline"
-								>
-									<ArrowClockwiseIcon
-										className={cn(
-											(statusPagesQuery.isLoading ||
-												statusPagesQuery.isFetching) &&
-												"animate-spin"
-										)}
-									/>
-								</Button>
-								<Button onClick={handleCreate}>
-									<PlusIcon />
-									Create Status Page
-								</Button>
-							</>
-						) : undefined
-					}
-					title="Status Pages"
-				/>
+			<div className="flex-1 overflow-y-auto">
+				{isAccessLoading || hasAccess ? (
+					<div className="mx-auto max-w-2xl space-y-6 p-5">
+						<Card>
+							<Card.Header className="flex-row items-start justify-between gap-4">
+								<div>
+									<Card.Title>Status Pages</Card.Title>
+									<Card.Description>
+										{isLoading
+											? "Loading status pages…"
+											: statusPages && statusPages.length === 0
+												? "Create and manage public status pages"
+												: `${statusPages?.length ?? 0} status page${statusPages?.length === 1 ? "" : "s"}`}
+									</Card.Description>
+								</div>
+								{hasAccess && (
+									<div className="flex items-center gap-2">
+										<Button
+											onClick={() => setShowInviteDialog(true)}
+											size="sm"
+											variant="secondary"
+										>
+											<UserPlusIcon className="size-3.5" weight="duotone" />
+											Invite
+										</Button>
+										<Button
+											aria-label="Refresh status pages"
+											disabled={
+												statusPagesQuery.isLoading ||
+												statusPagesQuery.isFetching
+											}
+											onClick={() => statusPagesQuery.refetch()}
+											size="sm"
+											variant="ghost"
+										>
+											<ArrowClockwiseIcon
+												className={cn(
+													"size-3.5",
+													(statusPagesQuery.isLoading ||
+														statusPagesQuery.isFetching) &&
+														"animate-spin"
+												)}
+											/>
+										</Button>
+										<Button onClick={handleCreate} size="sm">
+											<PlusIcon className="size-3.5" />
+											Create Status Page
+										</Button>
+									</div>
+								)}
+							</Card.Header>
+							<Card.Content className="p-0">
+								{isLoading && (
+									<div className="divide-y">
+										{Array.from({ length: 3 }).map((_, i) => (
+											<div
+												className="flex items-center gap-4 px-5 py-3"
+												key={`skel-${i + 1}`}
+											>
+												<Skeleton className="size-10 shrink-0 rounded-lg" />
+												<div className="min-w-0 flex-1 space-y-2">
+													<div className="flex items-center gap-2">
+														<Skeleton className="h-4 w-40" />
+														<Skeleton className="h-4 w-16 rounded-full" />
+													</div>
+													<Skeleton className="h-3.5 w-56" />
+												</div>
+											</div>
+										))}
+									</div>
+								)}
 
-				<FeatureAccessGate
-					flagKey="monitors"
-					loadingFallback={
-						<div className="rounded bg-card">
-							{Array.from({ length: 3 }).map((_, i) => (
-								<StatusPageRowSkeleton key={`skeleton-${i + 1}`} />
-							))}
-						</div>
-					}
-				>
-					{isLoading && (
-						<div className="rounded bg-card">
-							{Array.from({ length: 3 }).map((_, i) => (
-								<StatusPageRowSkeleton key={`skeleton-${i + 1}`} />
-							))}
-						</div>
-					)}
+								{!isLoading && statusPages && statusPages.length === 0 && (
+									<div className="px-5 py-12">
+										<EmptyState
+											action={
+												<Button
+													onClick={handleCreate}
+													size="sm"
+													variant="secondary"
+												>
+													<PlusIcon className="size-3.5" />
+													Create Status Page
+												</Button>
+											}
+											description="Create a public status page to keep your users informed about system availability."
+											icon={<BrowserIcon weight="duotone" />}
+											title="No status pages yet"
+										/>
+									</div>
+								)}
 
-					{isError && (
-						<div className="flex flex-1 items-center justify-center py-16">
-							<EmptyState
-								action={{
-									label: "Retry",
-									onClick: () => statusPagesQuery.refetch(),
-								}}
-								description="Something went wrong while fetching status pages."
-								icon={<BrowserIcon weight="duotone" />}
-								title="Failed to load"
-								variant="error"
-							/>
-						</div>
-					)}
-
-					{!(isLoading || isError) &&
-						statusPages &&
-						statusPages.length === 0 && (
-							<div className="flex flex-1 items-center justify-center py-16">
-								<EmptyState
-									action={{
-										label: "Create Status Page",
-										onClick: handleCreate,
-									}}
-									description="Create a public status page to keep your users informed about system availability."
-									icon={<BrowserIcon weight="duotone" />}
-									title="No status pages yet"
-									variant="minimal"
-								/>
-							</div>
-						)}
-
-					{!(isLoading || isError) && statusPages && statusPages.length > 0 && (
-						<List className="rounded bg-card">
-							{statusPages.map((statusPage) => (
-								<StatusPageRow
-									key={statusPage.id}
-									onDeleteAction={() => setStatusPageToDelete(statusPage)}
-									onEditAction={() => handleEdit(statusPage)}
-									onTransferSuccessAction={() => statusPagesQuery.refetch()}
-									statusPage={statusPage}
-								/>
-							))}
-						</List>
-					)}
-				</FeatureAccessGate>
+								{!isLoading && statusPages && statusPages.length > 0 && (
+									<div className="divide-y">
+										{statusPages.map((statusPage) => (
+											<StatusPageRow
+												key={statusPage.id}
+												onDeleteAction={() => setStatusPageToDelete(statusPage)}
+												onEditAction={() => handleEdit(statusPage)}
+												onTransferSuccessAction={statusPagesQuery.refetch}
+												statusPage={statusPage}
+											/>
+										))}
+									</div>
+								)}
+							</Card.Content>
+						</Card>
+					</div>
+				) : (
+					<FeatureLockedPanel flagKey="monitors" />
+				)}
 
 				{isSheetOpen && (
 					<Suspense fallback={null}>
@@ -196,6 +207,14 @@ export default function StatusPagesListPage() {
 							statusPage={editingStatusPage}
 						/>
 					</Suspense>
+				)}
+
+				{showInviteDialog && (
+					<FeatureInviteDialog
+						flagKey="monitors"
+						onOpenChangeAction={setShowInviteDialog}
+						open={showInviteDialog}
+					/>
 				)}
 
 				<DeleteDialog

@@ -1,33 +1,27 @@
 "use client";
 
-import { InfoIcon, TrendDownIcon, TrendUpIcon } from "@phosphor-icons/react";
 import { GaugeChart, type GaugeRating } from "@/components/charts/gauge-chart";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { InfoIcon, TrendDownIcon, TrendUpIcon } from "@databuddy/ui/icons";
+import { Card, Skeleton, Tooltip } from "@databuddy/ui";
 
 interface VitalConfig {
-	name: string;
-	label: string;
+	/** Color for the chart line */
+	color: string;
 	description: string;
 	/** Detailed explanation for users who don't know what this metric means */
 	explanation: string;
+	goodThreshold: number;
 	/** What users should do to improve this metric */
 	improvementTips: string[];
-	unit: string;
-	goodThreshold: number;
-	poorThreshold: number;
+	label: string;
 	/** If true, lower is better (most metrics). If false, higher is better (FPS) */
 	lowerIsBetter?: boolean;
 	/** Max value for the gauge (determines 100% fill) */
 	maxValue: number;
-	/** Color for the chart line */
-	color: string;
+	name: string;
+	poorThreshold: number;
+	unit: string;
 }
 
 export const VITAL_CONFIGS: Record<string, VitalConfig> = {
@@ -175,22 +169,22 @@ const RATING_LABELS: Record<GaugeRating, { label: string; className: string }> =
 	};
 
 interface TrendData {
-	previousValue: number | null;
 	change: number | null;
+	previousValue: number | null;
 }
 
 interface VitalGaugeCardProps {
-	metricName: keyof typeof VITAL_CONFIGS;
-	value: number | null;
-	samples?: number;
-	isLoading?: boolean;
 	className?: string;
 	/** Whether this metric is selected/active for the chart */
 	isActive?: boolean;
+	isLoading?: boolean;
+	metricName: keyof typeof VITAL_CONFIGS;
 	/** Callback when the card is clicked to toggle */
 	onToggleAction?: () => void;
+	samples?: number;
 	/** Trend data comparing to previous period */
 	trend?: TrendData;
+	value: number | null;
 }
 
 export function VitalGaugeCard({
@@ -300,55 +294,57 @@ export function VitalGaugeCard({
 				)}
 
 				<div className="absolute top-2 right-2">
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<button
-								aria-label={`Learn more about ${config.label}`}
-								className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-background/50 hover:text-foreground"
-								onClick={(e) => e.stopPropagation()}
-								type="button"
-							>
-								<InfoIcon className="size-3.5" weight="duotone" />
-							</button>
-						</TooltipTrigger>
-						<TooltipContent className="max-w-xs p-0" side="top">
-							<div className="border-b bg-accent px-3 py-2">
-								<p className="font-semibold text-foreground text-sm">
-									{config.label}
-								</p>
-								<p className="mt-0.5 text-muted-foreground text-xs">
-									{config.explanation}
-								</p>
-							</div>
-							{rating === "poor" && config.improvementTips.length > 0 && (
-								<div className="border-b px-3 py-2">
-									<p className="mb-1 font-medium text-warning text-xs">
-										How to improve:
+					<Tooltip
+						content={
+							<div className="max-w-xs p-0">
+								<div className="border-b bg-accent px-3 py-2">
+									<p className="font-semibold text-foreground text-sm">
+										{config.label}
 									</p>
-									<ul className="space-y-0.5">
-										{config.improvementTips.slice(0, 3).map((tip) => (
-											<li className="text-muted-foreground text-xs" key={tip}>
-												• {tip}
-											</li>
-										))}
-									</ul>
+									<p className="mt-0.5 text-muted-foreground text-xs">
+										{config.explanation}
+									</p>
 								</div>
-							)}
-							<div className="flex justify-between bg-accent px-3 py-1.5">
-								<span className="text-muted-foreground text-xs">
-									Good: {config.lowerIsBetter === false ? "≥" : "≤"}{" "}
-									{config.name === "CLS"
-										? config.goodThreshold
-										: `${config.goodThreshold}${config.unit}`}
-								</span>
-								<span className="text-muted-foreground text-xs">
-									Poor: {config.lowerIsBetter === false ? "<" : ">"}{" "}
-									{config.name === "CLS"
-										? config.poorThreshold
-										: `${config.poorThreshold}${config.unit}`}
-								</span>
+								{rating === "poor" && config.improvementTips.length > 0 && (
+									<div className="border-b px-3 py-2">
+										<p className="mb-1 font-medium text-warning text-xs">
+											How to improve:
+										</p>
+										<ul className="space-y-0.5">
+											{config.improvementTips.slice(0, 3).map((tip) => (
+												<li className="text-muted-foreground text-xs" key={tip}>
+													• {tip}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
+								<div className="flex justify-between bg-accent px-3 py-1.5">
+									<span className="text-muted-foreground text-xs">
+										Good: {config.lowerIsBetter === false ? "≥" : "≤"}{" "}
+										{config.name === "CLS"
+											? config.goodThreshold
+											: `${config.goodThreshold}${config.unit}`}
+									</span>
+									<span className="text-muted-foreground text-xs">
+										Poor: {config.lowerIsBetter === false ? "<" : ">"}{" "}
+										{config.name === "CLS"
+											? config.poorThreshold
+											: `${config.poorThreshold}${config.unit}`}
+									</span>
+								</div>
 							</div>
-						</TooltipContent>
+						}
+						side="top"
+					>
+						<button
+							aria-label={`Learn more about ${config.label}`}
+							className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-background/50 hover:text-foreground"
+							onClick={(e) => e.stopPropagation()}
+							type="button"
+						>
+							<InfoIcon className="size-3.5" weight="duotone" />
+						</button>
 					</Tooltip>
 				</div>
 

@@ -1,32 +1,29 @@
 import { auth } from "@databuddy/auth";
 import {
-	and,
-	db,
-	eq,
-	isNull,
-	links,
-	member,
-	uptimeSchedules,
-	websites,
-} from "@databuddy/db";
-import { filterOptions } from "@databuddy/shared/lists/filters";
-import type { CustomQueryRequest } from "@databuddy/shared/types/custom-query";
-import { Elysia, t } from "elysia";
-import { getAccessibleWebsites } from "../lib/accessible-websites";
-import {
 	type ApiKeyRow,
 	getAccessibleWebsiteIds,
 	getApiKeyFromHeader,
 	hasGlobalAccess,
 	hasKeyScope,
 	isApiKeyPresent,
-} from "../lib/api-key";
+} from "@databuddy/api-keys/resolve";
+import { and, db, eq, isNull } from "@databuddy/db";
+import { links, member, uptimeSchedules, websites } from "@databuddy/db/schema";
+import { ratelimit } from "@databuddy/redis/rate-limit";
+import { filterOptions } from "@databuddy/shared/lists/filters";
+import type { CustomQueryRequest } from "@databuddy/shared/types/custom-query";
+import { Elysia, t } from "elysia";
+import { getAccessibleWebsites } from "../lib/accessible-websites";
 import { resolveDatePreset } from "../lib/date-presets";
 import { mergeWideEvent } from "../lib/tracing";
 import { getCachedWebsiteDomain, getWebsiteDomain } from "../lib/website-utils";
 import { compileQuery, executeBatch } from "../query";
 import { QueryBuilders } from "../query/builders";
 import { executeCustomQuery } from "../query/custom-query-builder";
+import {
+	isNormalizedQueryDate,
+	normalizeClickHouseDateTime,
+} from "../query/date-utils";
 import type { Filter, QueryRequest } from "../query/types";
 import {
 	CompileRequestSchema,
@@ -38,34 +35,10 @@ import {
 
 const MAX_HOURLY_DAYS = 30;
 const MS_PER_DAY = 86_400_000;
-const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const ISO_DATETIME_REGEX = /^\d{4}-\d{2}-\d{2}T/;
 
-/**
- * Normalize date input to YYYY-MM-DD format
- * Accepts: "2024-01-15", "2024-01-15T14:30:00.000Z", etc.
- */
 function normalizeDate(input: string): string {
-	// Already in correct format
-	if (DATE_FORMAT_REGEX.test(input)) {
-		return input;
-	}
-	// ISO datetime format - extract date part
-	if (ISO_DATETIME_REGEX.test(input)) {
-		return input.split("T")[0] as string;
-	}
-	// Try to parse as date
-	const parsed = new Date(input);
-	if (!Number.isNaN(parsed.getTime())) {
-		return parsed.toISOString().split("T")[0] as string;
-	}
-	// Return as-is (will fail validation)
-	return input;
+	return normalizeClickHouseDateTime(input);
 }
-
-// ============================================================================
-// Validation Helpers
-// ============================================================================
 
 interface ValidationError {
 	field: string;
@@ -81,7 +54,6 @@ function findClosestMatch(input: string, options: string[]): string | null {
 	for (const option of options) {
 		const optionLower = option.toLowerCase();
 
-		// Exact prefix match
 		if (
 			optionLower.startsWith(inputLower) ||
 			inputLower.startsWith(optionLower)
@@ -95,7 +67,6 @@ function findClosestMatch(input: string, options: string[]): string | null {
 			}
 		}
 
-		// Levenshtein-like simple check (for typos)
 		let matches = 0;
 		for (let i = 0; i < Math.min(inputLower.length, optionLower.length); i++) {
 			if (inputLower[i] === optionLower[i]) {
@@ -121,7 +92,6 @@ function validateQueryRequest(
 	const errors: ValidationError[] = [];
 	const queryTypes = Object.keys(QueryBuilders);
 
-	// Validate parameters
 	if (!request.parameters || request.parameters.length === 0) {
 		errors.push({
 			field: "parameters",
@@ -142,8 +112,6 @@ function validateQueryRequest(
 		}
 	}
 
-	// Resolve dates from preset or explicit values
-	// Normalize dates to YYYY-MM-DD (accepts ISO datetime strings too)
 	let startDate = request.startDate
 		? normalizeDate(request.startDate)
 		: undefined;
@@ -167,7 +135,6 @@ function validateQueryRequest(
 		}
 	}
 
-	// Check date requirements
 	if (!(startDate || request.preset)) {
 		errors.push({
 			field: "startDate",
@@ -181,21 +148,19 @@ function validateQueryRequest(
 		});
 	}
 
-	// Validate normalized date format
-	if (startDate && !DATE_FORMAT_REGEX.test(startDate)) {
+	if (startDate && !isNormalizedQueryDate(startDate)) {
 		errors.push({
 			field: "startDate",
 			message: `Invalid date: ${request.startDate}. Could not parse as a valid date`,
 		});
 	}
-	if (endDate && !DATE_FORMAT_REGEX.test(endDate)) {
+	if (endDate && !isNormalizedQueryDate(endDate)) {
 		errors.push({
 			field: "endDate",
 			message: `Invalid date: ${request.endDate}. Could not parse as a valid date`,
 		});
 	}
 
-	// Validate limit
 	if (request.limit !== undefined) {
 		if (request.limit < 1) {
 			errors.push({
@@ -210,7 +175,6 @@ function validateQueryRequest(
 		}
 	}
 
-	// Validate page
 	if (request.page !== undefined && request.page < 1) {
 		errors.push({
 			field: "page",
@@ -234,16 +198,12 @@ function generateRequestId(): string {
 }
 
 interface AuthContext {
-	apiKey: ApiKeyRow | null;
-	user: { id: string; name: string; email: string; role?: string } | null;
-	isAuthenticated: boolean;
-	authMethod: "api_key" | "session" | "none";
-	/** Session active org; used when query omits organization_id. */
+	// Session active org; used when query omits organization_id.
 	activeOrganizationId: string | null;
-}
-
-function isAdminUser(user: AuthContext["user"]): boolean {
-	return Boolean(user && "role" in user && user.role === "ADMIN");
+	apiKey: ApiKeyRow | null;
+	authMethod: "api_key" | "session" | "none";
+	isAuthenticated: boolean;
+	user: { id: string; name: string; email: string } | null;
 }
 
 type ProjectType = "website" | "schedule" | "link" | "organization";
@@ -270,6 +230,43 @@ function createAuthFailedResponse(requestId: string): Response {
 			requestId,
 		}),
 		{ status: 401, headers: { "Content-Type": "application/json" } }
+	);
+}
+
+async function enforceQueryRateLimit(
+	ctx: AuthContext,
+	endpoint: "compile" | "execute" | "custom",
+	limit: number,
+	requestId: string
+): Promise<Response | null> {
+	const principal = ctx.apiKey
+		? `apikey:${ctx.apiKey.id}`
+		: ctx.user
+			? `user:${ctx.user.id}`
+			: null;
+	if (!principal) {
+		return null;
+	}
+	const rl = await ratelimit(`query:${endpoint}:${principal}`, limit, 60);
+	if (rl.success) {
+		return null;
+	}
+	return new Response(
+		JSON.stringify({
+			success: false,
+			error: "Rate limit exceeded",
+			code: "RATE_LIMITED",
+			requestId,
+		}),
+		{
+			status: 429,
+			headers: {
+				"Content-Type": "application/json",
+				"X-RateLimit-Limit": String(rl.limit),
+				"X-RateLimit-Remaining": String(rl.remaining),
+				"X-RateLimit-Reset": String(rl.reset),
+			},
+		}
 	);
 }
 
@@ -313,20 +310,6 @@ function createValidationErrorResponse(
 	);
 }
 
-async function getOrganizationWebsiteIds(
-	organizationId: string
-): Promise<string[]> {
-	const result = await db.query.websites.findMany({
-		where: eq(websites.organizationId, organizationId),
-		columns: { id: true },
-	});
-	return result.map((w) => w.id);
-}
-
-/**
- * Get the owner ID for a website (organizationId)
- * Used for LLM queries which are scoped by owner, not website
- */
 async function getWebsiteOwnerId(websiteId: string): Promise<string | null> {
 	const website = await db.query.websites.findFirst({
 		where: eq(websites.id, websiteId),
@@ -361,11 +344,6 @@ function verifyWebsiteAccess(
 		if (!website) {
 			mergeWideEvent({ access_result: "not_found" });
 			return false;
-		}
-
-		if (isAdminUser(ctx.user)) {
-			mergeWideEvent({ access_result: "admin" });
-			return true;
 		}
 
 		if (website.isPublic) {
@@ -438,17 +416,13 @@ function verifyScheduleAccess(
 			columns: {
 				id: true,
 				organizationId: true,
+				websiteId: true,
 			},
 		});
 
 		if (!schedule) {
 			mergeWideEvent({ access_result: "not_found" });
 			return false;
-		}
-
-		if (isAdminUser(ctx.user)) {
-			mergeWideEvent({ access_result: "admin" });
-			return true;
 		}
 
 		if (!ctx.isAuthenticated) {
@@ -471,9 +445,24 @@ function verifyScheduleAccess(
 		}
 
 		if (ctx.apiKey) {
-			const granted = ctx.apiKey.organizationId === schedule.organizationId;
+			const orgMatch =
+				hasKeyScope(ctx.apiKey, "read:data") &&
+				ctx.apiKey.organizationId === schedule.organizationId;
+			if (!orgMatch) {
+				mergeWideEvent({ access_result: "api_key_denied" });
+				return false;
+			}
+			if (hasGlobalAccess(ctx.apiKey)) {
+				mergeWideEvent({ access_result: "api_key_match" });
+				return true;
+			}
+			const accessible = getAccessibleWebsiteIds(ctx.apiKey);
+			const granted =
+				!!schedule.websiteId && accessible.includes(schedule.websiteId);
 			mergeWideEvent({
-				access_result: granted ? "api_key_match" : "api_key_denied",
+				access_result: granted
+					? "api_key_website_match"
+					: "api_key_website_denied",
 			});
 			return granted;
 		}
@@ -499,11 +488,6 @@ function verifyLinkAccess(ctx: AuthContext, linkId: string): Promise<boolean> {
 		if (!link) {
 			mergeWideEvent({ access_result: "not_found" });
 			return false;
-		}
-
-		if (isAdminUser(ctx.user)) {
-			mergeWideEvent({ access_result: "admin" });
-			return true;
 		}
 
 		if (!ctx.isAuthenticated) {
@@ -534,7 +518,10 @@ function verifyLinkAccess(ctx: AuthContext, linkId: string): Promise<boolean> {
 		}
 
 		if (ctx.apiKey) {
-			const granted = ctx.apiKey.organizationId === link.organizationId;
+			const granted =
+				hasKeyScope(ctx.apiKey, "read:data") &&
+				ctx.apiKey.organizationId === link.organizationId &&
+				hasGlobalAccess(ctx.apiKey);
 			mergeWideEvent({
 				access_result: granted ? "api_key_match" : "api_key_denied",
 			});
@@ -556,11 +543,6 @@ function verifyOrganizationAccess(
 			organization_id: organizationId,
 		});
 
-		if (isAdminUser(ctx.user)) {
-			mergeWideEvent({ access_result: "admin" });
-			return true;
-		}
-
 		if (!ctx.isAuthenticated) {
 			mergeWideEvent({ access_result: "unauthenticated" });
 			return false;
@@ -581,7 +563,9 @@ function verifyOrganizationAccess(
 		}
 
 		if (ctx.apiKey) {
-			const granted = ctx.apiKey.organizationId === organizationId;
+			const granted =
+				hasKeyScope(ctx.apiKey, "read:data") &&
+				ctx.apiKey.organizationId === organizationId;
 			mergeWideEvent({
 				access_result: granted ? "api_key_match" : "api_key_denied",
 			});
@@ -604,7 +588,6 @@ async function resolveProjectAccess(
 ): Promise<ProjectAccessResult> {
 	const { websiteId, scheduleId, linkId, organizationId } = options;
 
-	// Check link_id first (for link shortener)
 	if (linkId) {
 		const hasAccess = await verifyLinkAccess(ctx, linkId);
 		if (!hasAccess) {
@@ -620,7 +603,6 @@ async function resolveProjectAccess(
 		return { success: true, projectId: linkId, projectType: "link" };
 	}
 
-	// Check schedule_id (for custom uptime monitors)
 	if (scheduleId) {
 		const hasAccess = await verifyScheduleAccess(ctx, scheduleId);
 		if (!hasAccess) {
@@ -636,7 +618,6 @@ async function resolveProjectAccess(
 		return { success: true, projectId: scheduleId, projectType: "schedule" };
 	}
 
-	// Check website access (handles public websites)
 	if (websiteId) {
 		const hasAccess = await verifyWebsiteAccess(ctx, websiteId);
 		if (!hasAccess) {
@@ -652,11 +633,15 @@ async function resolveProjectAccess(
 		return { success: true, projectId: websiteId, projectType: "website" };
 	}
 
+	const apiKeyOrgFallback =
+		ctx.apiKey && hasGlobalAccess(ctx.apiKey)
+			? ctx.apiKey.organizationId
+			: null;
 	const resolvedOrganizationId =
 		organizationId ??
 		(websiteId || scheduleId || linkId
 			? null
-			: (ctx.activeOrganizationId ?? ctx.apiKey?.organizationId ?? null));
+			: (ctx.activeOrganizationId ?? apiKeyOrgFallback ?? null));
 	if (resolvedOrganizationId) {
 		const hasAccess = await verifyOrganizationAccess(
 			ctx,
@@ -679,7 +664,6 @@ async function resolveProjectAccess(
 		};
 	}
 
-	// No project identifier provided
 	if (!ctx.isAuthenticated) {
 		return {
 			success: false,
@@ -692,7 +676,7 @@ async function resolveProjectAccess(
 	return {
 		success: false,
 		error:
-			"Missing project identifier (website_id, schedule_id, link_id, or organization_id)",
+			"Missing resource identifier (website_id, schedule_id, link_id, or organization_id)",
 		code: "MISSING_PROJECT_ID",
 		status: 400,
 	};
@@ -741,10 +725,10 @@ function parseQueryParameter(param: ParameterInput) {
 }
 
 interface QueryResult {
-	parameter: string;
-	success: boolean;
 	data: Record<string, unknown>[];
 	error?: string;
+	parameter: string;
+	success: boolean;
 }
 
 async function executeDynamicQuery(
@@ -766,19 +750,16 @@ async function executeDynamicQuery(
 }> {
 	const { startDate: from, endDate: to } = request;
 
-	// Try to get domain for website IDs (will return null for schedule IDs)
 	const domain =
 		domainCache?.[projectId] ??
 		(await getWebsiteDomain(projectId).catch(() => null));
 
-	// Check if any LLM queries are requested - they need owner_id, not website_id
+	// LLM queries are scoped by owner (organizationId/userId), not website_id.
 	const hasLlmQueries = request.parameters.some((param) => {
 		const name = typeof param === "string" ? param : param.name;
 		return name.startsWith("llm_");
 	});
 
-	// Resolve owner ID for LLM queries (organizationId or userId)
-	// If projectType is "organization", the projectId IS the owner ID
 	let ownerId: string | null = null;
 	if (hasLlmQueries) {
 		ownerId =
@@ -787,17 +768,15 @@ async function executeDynamicQuery(
 				: await getWebsiteOwnerId(projectId);
 	}
 
-	// For org-level queries, resolve all website IDs so custom_events queries
-	// can match events by website_id (owner_id may differ between ingestion paths)
+	// Org-level custom_events queries: builder scans by owner_id (= organizationId
+	// set at ingestion) via primary key instead of matching website_id.
 	const hasCustomEventsQueries = request.parameters.some((param) => {
 		const name = typeof param === "string" ? param : param.name;
 		return name.startsWith("custom_event");
 	});
 
-	let orgWebsiteIds: string[] | undefined;
-	if (projectType === "organization" && hasCustomEventsQueries) {
-		orgWebsiteIds = await getOrganizationWebsiteIds(projectId);
-	}
+	const isOrgCustomEvents =
+		projectType === "organization" && hasCustomEventsQueries;
 
 	type PreparedParameter =
 		| { id: string; error: string }
@@ -805,11 +784,18 @@ async function executeDynamicQuery(
 
 	const prepared: PreparedParameter[] = request.parameters.map((param) => {
 		const { name, id, start, end, granularity } = parseQueryParameter(param);
-		const paramFrom = start || from;
-		const paramTo = end || to;
+		const paramFrom = start ? normalizeDate(start) : from;
+		const paramTo = end ? normalizeDate(end) : to;
 
 		if (!QueryBuilders[name]) {
 			return { id, error: `Unknown query type: ${name}` };
+		}
+
+		if (
+			(paramFrom && !isNormalizedQueryDate(paramFrom)) ||
+			(paramTo && !isNormalizedQueryDate(paramTo))
+		) {
+			return { id, error: "Invalid parameter date range" };
 		}
 
 		const isLlmQuery = name.startsWith("llm_");
@@ -823,7 +809,7 @@ async function executeDynamicQuery(
 				error:
 					isLlmQuery && !ownerId
 						? "Could not resolve owner for LLM query"
-						: "Missing project identifier, start_date, or end_date",
+						: "Missing resource identifier, start_date, or end_date",
 			};
 		}
 
@@ -843,7 +829,8 @@ async function executeDynamicQuery(
 				limit: request.limit || 100,
 				offset: request.page ? (request.page - 1) * (request.limit || 100) : 0,
 				timezone,
-				organizationWebsiteIds: isCustomEventsQuery ? orgWebsiteIds : undefined,
+				organizationWebsiteIds:
+					isCustomEventsQuery && isOrgCustomEvents ? [] : undefined,
 			},
 		};
 	});
@@ -858,7 +845,6 @@ async function executeDynamicQuery(
 
 	const resultMap = new Map<string, QueryResult>();
 
-	// Add error results
 	for (const errorParam of errorParameters) {
 		resultMap.set(errorParam.id, {
 			parameter: errorParam.id,
@@ -868,7 +854,6 @@ async function executeDynamicQuery(
 		});
 	}
 
-	// Execute valid queries
 	if (validParameters.length > 0) {
 		const results = await executeBatch(
 			validParameters.map((v) => v.request),
@@ -889,7 +874,6 @@ async function executeDynamicQuery(
 		}
 	}
 
-	// Build results array maintaining parameter order
 	const allResults = prepared.map(
 		(p) =>
 			resultMap.get(p.id) || {
@@ -900,7 +884,6 @@ async function executeDynamicQuery(
 			}
 	);
 
-	// Sort: successes first, then errors
 	const sortedResults = allResults.sort((a, b) => {
 		const aIsError = !a.success;
 		const bIsError = !b.success;
@@ -1014,6 +997,15 @@ export const query = new Elysia({ prefix: "/v1/query" })
 			auth: AuthContext;
 		}) => {
 			const requestId = generateRequestId();
+			const rateLimited = await enforceQueryRateLimit(
+				ctx,
+				"compile",
+				300,
+				requestId
+			);
+			if (rateLimited) {
+				return rateLimited;
+			}
 			const accessResult = await resolveProjectAccess(ctx, {
 				websiteId: q.website_id,
 			});
@@ -1068,6 +1060,15 @@ export const query = new Elysia({ prefix: "/v1/query" })
 			(async () => {
 				const requestId = generateRequestId();
 				const timezone = q.timezone || "UTC";
+				const rateLimited = await enforceQueryRateLimit(
+					ctx,
+					"execute",
+					120,
+					requestId
+				);
+				if (rateLimited) {
+					return rateLimited;
+				}
 
 				const accessResult = await resolveProjectAccess(ctx, {
 					websiteId: q.website_id,
@@ -1092,7 +1093,6 @@ export const query = new Elysia({ prefix: "/v1/query" })
 				});
 
 				if (isBatch) {
-					// Validate all requests in batch first
 					for (let i = 0; i < body.length; i++) {
 						const req = body[i];
 						if (req) {
@@ -1160,7 +1160,6 @@ export const query = new Elysia({ prefix: "/v1/query" })
 					return { success: true, requestId, batch: true, results };
 				}
 
-				// Single query - validate and resolve dates
 				const validation = validateQueryRequest(body, timezone);
 				if (!validation.valid) {
 					return createValidationErrorResponse(validation.errors, requestId);
@@ -1204,6 +1203,15 @@ export const query = new Elysia({ prefix: "/v1/query" })
 		}) =>
 			(async () => {
 				const requestId = generateRequestId();
+				const rateLimited = await enforceQueryRateLimit(
+					ctx,
+					"custom",
+					60,
+					requestId
+				);
+				if (rateLimited) {
+					return rateLimited;
+				}
 
 				if (!q.website_id) {
 					return createErrorResponse(

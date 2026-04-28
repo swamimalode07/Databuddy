@@ -1,59 +1,48 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { TransferToOrgDialog } from "@/components/transfer-to-org-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { getStatusPageUrl } from "@/lib/app-url";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BrowserIcon } from "@phosphor-icons/react/dist/ssr";
 import {
 	ArrowSquareOutIcon,
-	BrowserIcon,
 	CopyIcon,
 	DotsThreeIcon,
-	HeartbeatIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+} from "@databuddy/ui/icons";
+import { Badge, Field } from "@databuddy/ui";
+import { DropdownMenu, Switch } from "@databuddy/ui/client";
 
 export interface StatusPage {
+	createdAt: Date | string;
+	customCss?: string | null;
+	description: string | null;
+	faviconUrl?: string | null;
+	hideBranding?: boolean;
 	id: string;
+	logoUrl?: string | null;
+	monitorCount: number;
+	name: string;
 	organizationId: string;
 	slug: string;
-	name: string;
-	description: string | null;
-	logoUrl?: string | null;
-	faviconUrl?: string | null;
-	websiteUrl?: string | null;
 	supportUrl?: string | null;
 	theme?: string | null;
-	hideBranding?: boolean;
-	customCss?: string | null;
-	monitorCount: number;
-	createdAt: Date | string;
 	updatedAt: Date | string;
+	websiteUrl?: string | null;
 }
 
 interface StatusPageRowProps {
-	statusPage: StatusPage;
-	onEditAction: () => void;
 	onDeleteAction: () => void;
+	onEditAction: () => void;
 	onTransferSuccessAction?: () => void;
+	statusPage: StatusPage;
 }
 
 function StatusPageActions({
@@ -66,18 +55,13 @@ function StatusPageActions({
 	const [isTransferOpen, setIsTransferOpen] = useState(false);
 	const [includeMonitors, setIncludeMonitors] = useState(true);
 
+	const { copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("URL copied to clipboard"),
+	});
+
 	const transferMutation = useMutation({
 		...orpc.statusPage.transfer.mutationOptions(),
 	});
-
-	const handleCopyUrl = useCallback(async () => {
-		try {
-			await navigator.clipboard.writeText(url);
-			toast.success("URL copied to clipboard");
-		} catch {
-			toast.error("Failed to copy URL");
-		}
-	}, [url]);
 
 	const handleTransfer = async (targetOrganizationId: string) => {
 		try {
@@ -101,67 +85,71 @@ function StatusPageActions({
 	return (
 		<>
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						aria-label="Status page actions"
-						className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-						data-dropdown-trigger
-						size="icon"
-						variant="ghost"
+				<DropdownMenu.Trigger
+					aria-label="Status page actions"
+					className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-interactive-hover hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
+					data-dropdown-trigger
+				>
+					<DotsThreeIcon className="size-4" weight="bold" />
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end" className="w-52">
+					<DropdownMenu.Item
+						render={
+							<Link
+								className="gap-2"
+								href={`/monitors/status-pages/${statusPage.id}`}
+							/>
+						}
 					>
-						<DotsThreeIcon className="size-5" weight="bold" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-52">
-					<DropdownMenuItem asChild>
-						<Link
-							className="gap-2"
-							href={`/monitors/status-pages/${statusPage.id}`}
-						>
-							<PencilSimpleIcon className="size-4" weight="duotone" />
-							Manage Monitors
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuItem className="gap-2" onClick={onEditAction}>
+						<PencilSimpleIcon className="size-4" weight="duotone" />
+						Manage Monitors
+					</DropdownMenu.Item>
+					<DropdownMenu.Item className="gap-2" onClick={onEditAction}>
 						<PencilSimpleIcon className="size-4" weight="duotone" />
 						Edit Details
-					</DropdownMenuItem>
-					<DropdownMenuItem className="gap-2" onClick={handleCopyUrl}>
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
+						className="gap-2"
+						onClick={() => copyToClipboard(url)}
+					>
 						<CopyIcon className="size-4" weight="duotone" />
 						Copy URL
-					</DropdownMenuItem>
-					<DropdownMenuItem asChild>
-						<Link
-							className="gap-2"
-							href={url}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							<ArrowSquareOutIcon className="size-4" weight="duotone" />
-							View Page
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuItem
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
+						render={
+							<Link
+								className="gap-2"
+								href={url}
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						}
+					>
+						<ArrowSquareOutIcon className="size-4" weight="duotone" />
+						View Page
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
 						className="gap-2"
 						onClick={() => setIsTransferOpen(true)}
 					>
 						<ArrowSquareOutIcon className="size-4" weight="duotone" />
-						Transfer to Workspace
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+						Transfer to Organization
+					</DropdownMenu.Item>
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item
+						className="gap-2 text-destructive focus:text-destructive"
 						onClick={onDeleteAction}
+						variant="destructive"
 					>
-						<TrashIcon className="size-4" weight="duotone" />
+						<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 						Delete
-					</DropdownMenuItem>
-				</DropdownMenuContent>
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
 			</DropdownMenu>
 
 			<TransferToOrgDialog
 				currentOrganizationId={statusPage.organizationId}
-				description={`Move "${statusPage.name}" to a different workspace.`}
+				description={`Move "${statusPage.name}" to a different organization.`}
 				isPending={transferMutation.isPending}
 				onOpenChangeAction={setIsTransferOpen}
 				onTransferAction={handleTransfer}
@@ -170,12 +158,12 @@ function StatusPageActions({
 				warning="The status page and its configuration will be transferred to {orgName}."
 			>
 				<div className="flex items-center justify-between rounded border p-3">
-					<Label
+					<Field.Label
 						className="cursor-pointer text-sm"
 						htmlFor="include-monitors-row"
 					>
 						Include all linked monitors
-					</Label>
+					</Field.Label>
 					<Switch
 						checked={includeMonitors}
 						id="include-monitors-row"
@@ -207,89 +195,63 @@ export function StatusPageRow({
 	};
 
 	return (
-		<List.Row asChild className="py-4">
-			<Link
-				href={`/monitors/status-pages/${statusPage.id}`}
-				onClick={handleClick}
-			>
-				<List.Cell>
-					<div
-						className={cn(
-							"flex size-10 items-center justify-center rounded",
-							hasMonitors
-								? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-								: "bg-muted text-muted-foreground"
-						)}
-					>
-						<BrowserIcon className="size-5" weight="duotone" />
-					</div>
-				</List.Cell>
-
-				<List.Cell className="w-48 min-w-0 flex-col gap-0.5 lg:w-60">
-					<p className="wrap-break-word text-pretty font-medium text-foreground text-sm">
-						{statusPage.name}
-					</p>
-					<p className="truncate text-muted-foreground text-xs">
-						/{statusPage.slug}
-					</p>
-				</List.Cell>
-
-				<List.Cell className="hidden md:flex" grow>
-					{statusPage.description ? (
-						<p className="line-clamp-2 text-muted-foreground text-xs leading-relaxed">
-							{statusPage.description}
-						</p>
-					) : (
-						<p className="text-muted-foreground/50 text-xs italic">
-							No description
-						</p>
+		<Link
+			className="group flex items-center hover:bg-interactive-hover"
+			href={`/monitors/status-pages/${statusPage.id}`}
+			onClick={handleClick}
+		>
+			<div className="flex flex-1 items-center gap-4 px-5 py-3">
+				<div
+					className={cn(
+						"flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60",
+						hasMonitors
+							? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+							: "bg-secondary text-muted-foreground"
 					)}
-				</List.Cell>
-
-				<List.Cell className="hidden w-28 gap-1.5 lg:flex">
-					<HeartbeatIcon
-						className="size-3.5 text-muted-foreground"
-						weight="duotone"
-					/>
-					<span className="text-muted-foreground text-xs tabular-nums">
-						{statusPage.monitorCount}{" "}
-						{statusPage.monitorCount === 1 ? "monitor" : "monitors"}
-					</span>
-				</List.Cell>
-
-				<List.Cell className="w-20">
-					<Badge
-						className="shrink-0"
-						variant={hasMonitors ? "green" : "secondary"}
-					>
-						{hasMonitors ? "Active" : "Empty"}
-					</Badge>
-				</List.Cell>
-
-				<List.Cell action>
-					<StatusPageActions
-						onDeleteAction={onDeleteAction}
-						onEditAction={onEditAction}
-						onTransferSuccessAction={onTransferSuccessAction}
-						statusPage={statusPage}
-					/>
-				</List.Cell>
-			</Link>
-		</List.Row>
-	);
-}
-
-export function StatusPageRowSkeleton() {
-	return (
-		<div className="flex items-center gap-4 border-border/80 border-b px-4 py-4 last:border-b-0">
-			<Skeleton className="size-10 shrink-0 rounded" />
-			<div className="flex w-48 min-w-0 flex-col gap-1.5 lg:w-60">
-				<Skeleton className="h-4 w-32 rounded" />
-				<Skeleton className="h-3 w-20 rounded" />
+				>
+					<BrowserIcon className="size-5" weight="duotone" />
+				</div>
+				<div className="min-w-0 flex-1">
+					<div className="flex items-center gap-2">
+						<span className="truncate font-medium text-foreground text-sm">
+							{statusPage.name}
+						</span>
+						<Badge
+							className="shrink-0"
+							variant={hasMonitors ? "success" : "muted"}
+						>
+							{hasMonitors ? "Active" : "Empty"}
+						</Badge>
+					</div>
+					<div className="mt-0.5 flex items-center gap-1.5">
+						<span className="truncate text-muted-foreground text-xs">
+							/{statusPage.slug}
+						</span>
+						{statusPage.description && (
+							<>
+								<span className="text-muted-foreground text-xs">·</span>
+								<span className="hidden truncate text-muted-foreground text-xs md:inline">
+									{statusPage.description}
+								</span>
+							</>
+						)}
+						<span className="text-muted-foreground text-xs">·</span>
+						<span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+							{statusPage.monitorCount}{" "}
+							{statusPage.monitorCount === 1 ? "monitor" : "monitors"}
+						</span>
+					</div>
+				</div>
 			</div>
-			<Skeleton className="hidden h-3 min-w-0 flex-1 md:block" />
-			<Skeleton className="hidden h-3 w-20 lg:block" />
-			<Skeleton className="h-5 w-16 rounded-full" />
-		</div>
+
+			<div className="flex shrink-0 items-center pr-4">
+				<StatusPageActions
+					onDeleteAction={onDeleteAction}
+					onEditAction={onEditAction}
+					onTransferSuccessAction={onTransferSuccessAction}
+					statusPage={statusPage}
+				/>
+			</div>
+		</Link>
 	);
 }

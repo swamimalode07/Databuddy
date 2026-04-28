@@ -1,29 +1,40 @@
 "use client";
 
-import type { Link } from "@databuddy/db";
+import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
+import { dayjs } from "@databuddy/ui";
+import { orpc } from "@/lib/orpc";
+import type { Link, LinkFolder } from "@databuddy/db/schema";
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import { orpc } from "@/lib/orpc";
 
-export type { Link } from "@databuddy/db";
+export type { Link, LinkFolder } from "@databuddy/db/schema";
+
+export interface LinkListInput {
+	externalId?: string;
+	folderId?: string | null;
+	organizationId?: string;
+	sourceId?: string;
+	sourceOwnerId?: string;
+	sourceType?: string;
+	targetDomain?: string;
+}
 
 interface GeoEntry {
-	name: string;
+	clicks: number;
 	country_code: string;
 	country_name: string;
-	clicks: number;
+	name: string;
 	percentage: number;
 }
 
 interface ReferrerEntry {
-	name: string;
-	referrer: string;
 	clicks: number;
-	percentage: number;
 	domain?: string;
+	name: string;
+	percentage: number;
+	referrer: string;
 }
 
 interface TimeSeriesEntry {
@@ -32,25 +43,31 @@ interface TimeSeriesEntry {
 }
 
 interface DeviceEntry {
-	name: string;
 	clicks: number;
+	name: string;
 	percentage: number;
 }
 
 export interface LinkStats {
-	totalClicks: number;
 	clicksByDay: Array<{ date: string; clicks: number }>;
-	referrersByDay: TimeSeriesEntry[];
 	countriesByDay: TimeSeriesEntry[];
-	topReferrers: ReferrerEntry[];
-	topCountries: GeoEntry[];
-	topRegions: GeoEntry[];
+	referrersByDay: TimeSeriesEntry[];
 	topCities: GeoEntry[];
+	topCountries: GeoEntry[];
 	topDevices: DeviceEntry[];
+	topReferrers: ReferrerEntry[];
+	topRegions: GeoEntry[];
+	totalClicks: number;
 }
 
-export const getLinksListKey = (): QueryKey =>
-	orpc.links.list.queryKey({ input: {} });
+const EMPTY_LINKS: Link[] = [];
+const EMPTY_LINK_FOLDERS: LinkFolder[] = [];
+
+export const getLinksListKey = (input: LinkListInput = {}): QueryKey =>
+	orpc.links.list.queryKey({ input });
+
+export const getLinkFoldersListKey = (): QueryKey =>
+	orpc.linkFolders.list.queryKey({ input: {} });
 
 export const getLinkByIdKey = (id: string): QueryKey =>
 	orpc.links.get.queryKey({ input: { id } });
@@ -85,16 +102,36 @@ const removeLinkFromList = (
 	return old.filter((l) => l.id !== linkId);
 };
 
-export function useLinks(options?: { enabled?: boolean }) {
+export function useLinks(options?: {
+	enabled?: boolean;
+	input?: LinkListInput;
+}) {
 	const query = useQuery({
 		...orpc.links.list.queryOptions({
+			input: options?.input ?? {},
+		}),
+		enabled: options?.enabled !== false,
+	});
+
+	return {
+		links: query.data ?? EMPTY_LINKS,
+		isLoading: query.isLoading,
+		isFetching: query.isFetching,
+		isError: query.isError,
+		refetch: query.refetch,
+	};
+}
+
+export function useLinkFolders(options?: { enabled?: boolean }) {
+	const query = useQuery({
+		...orpc.linkFolders.list.queryOptions({
 			input: {},
 		}),
 		enabled: options?.enabled !== false,
 	});
 
 	return {
-		links: query.data ?? [],
+		folders: query.data ?? EMPTY_LINK_FOLDERS,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
 		isError: query.isError,
@@ -109,6 +146,26 @@ export function useLink(id: string) {
 		}),
 		enabled: !!id,
 	});
+}
+
+function fillEmptyDays<T extends { date: string }>(
+	data: T[],
+	startDate: string,
+	endDate: string,
+	defaults: Omit<T, "date">
+): T[] {
+	const dataMap = new Map(
+		data.map((d) => [dayjs(d.date).format("YYYY-MM-DD"), d])
+	);
+	const filled: T[] = [];
+	let current = dayjs(startDate);
+	const end = dayjs(endDate);
+	while (current.isBefore(end) || current.isSame(end, "day")) {
+		const key = current.format("YYYY-MM-DD");
+		filled.push(dataMap.get(key) ?? ({ ...defaults, date: key } as T));
+		current = current.add(1, "day");
+	}
+	return filled;
 }
 
 function addPercentages<T extends { clicks: number }>(
@@ -200,16 +257,31 @@ export function useLinkStats(linkId: string, dateRange: DateRange) {
 
 		return {
 			totalClicks: (totalClicksData[0] as { total?: number })?.total ?? 0,
-			clicksByDay: clicksByDayData as Array<{ date: string; clicks: number }>,
-			referrersByDay: referrersByDayData ?? [],
-			countriesByDay: countriesByDayData ?? [],
+			clicksByDay: fillEmptyDays(
+				(clicksByDayData ?? []) as Array<{ date: string; clicks: number }>,
+				dateRange.start_date,
+				dateRange.end_date,
+				{ clicks: 0 }
+			),
+			referrersByDay: fillEmptyDays(
+				(referrersByDayData ?? []) as TimeSeriesEntry[],
+				dateRange.start_date,
+				dateRange.end_date,
+				{ value: 0 }
+			),
+			countriesByDay: fillEmptyDays(
+				(countriesByDayData ?? []) as TimeSeriesEntry[],
+				dateRange.start_date,
+				dateRange.end_date,
+				{ value: 0 }
+			),
 			topReferrers: addPercentages(topReferrersData),
 			topCountries: addPercentages(topCountriesData),
 			topRegions: addPercentages(topRegionsData),
 			topCities: addPercentages(topCitiesData),
 			topDevices: addPercentages(topDevicesData ?? []),
 		};
-	}, [getDataForQuery]);
+	}, [getDataForQuery, dateRange.start_date, dateRange.end_date]);
 
 	return {
 		data: stats,
@@ -229,6 +301,7 @@ export function useCreateLink() {
 			queryClient.setQueryData<Link[]>(listKey, (old) =>
 				addLinkToList(old, newLink)
 			);
+			queryClient.invalidateQueries({ queryKey: orpc.links.list.key() });
 		},
 	});
 }
@@ -245,6 +318,7 @@ export function useUpdateLink() {
 			);
 
 			queryClient.setQueryData(getLinkByIdKey(updatedLink.id), updatedLink);
+			queryClient.invalidateQueries({ queryKey: orpc.links.list.key() });
 		},
 	});
 }
@@ -269,6 +343,49 @@ export function useDeleteLink() {
 			if (context?.previousData && context.listKey) {
 				queryClient.setQueryData(context.listKey, context.previousData);
 			}
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: orpc.links.list.key() });
+		},
+	});
+}
+
+export function useCreateLinkFolder() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		...orpc.linkFolders.create.mutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: orpc.linkFolders.list.key(),
+			});
+		},
+	});
+}
+
+export function useUpdateLinkFolder() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		...orpc.linkFolders.update.mutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: orpc.linkFolders.list.key(),
+			});
+		},
+	});
+}
+
+export function useDeleteLinkFolder() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		...orpc.linkFolders.delete.mutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: orpc.linkFolders.list.key(),
+			});
+			queryClient.invalidateQueries({ queryKey: orpc.links.list.key() });
 		},
 	});
 }

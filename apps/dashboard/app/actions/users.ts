@@ -1,7 +1,8 @@
 "use server";
 
 import { auth } from "@databuddy/auth";
-import { account, and, db, eq, user } from "@databuddy/db";
+import { and, db, eq } from "@databuddy/db";
+import { account, user } from "@databuddy/db/schema";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { cache } from "react";
@@ -120,38 +121,5 @@ export async function setPasswordForOAuthUser(newPassword: string) {
 			return { error: error.message };
 		}
 		return { error: "Failed to set password" };
-	}
-}
-
-/**
- * Handles soft deletion of a user account
- */
-export async function deactivateUserAccount(formData: FormData) {
-	const currentUser = await getUser();
-	if (!currentUser) {
-		return { error: "Unauthorized" };
-	}
-
-	try {
-		const password = formData.get("password");
-		if (!password || typeof password !== "string") {
-			return { error: "Password is required" };
-		}
-
-		const email = formData.get("email");
-		if (!email || typeof email !== "string" || email !== currentUser.email) {
-			return { error: "Email address doesn't match your account" };
-		}
-		await db
-			.update(user)
-			.set({
-				deletedAt: new Date().toISOString(),
-			})
-			.where(eq(user.id, currentUser.id));
-		revalidatePath("/settings");
-		return { success: true };
-	} catch (error) {
-		console.error("Account deletion error:", error);
-		return { error: "Failed to process account deletion" };
 	}
 }

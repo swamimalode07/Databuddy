@@ -1,8 +1,8 @@
-import { ClockIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Branding } from "@/components/logo/branding";
-import { Button } from "@/components/ui/button";
+import { ClockIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 export const metadata: Metadata = {
 	title: "Link Expired - Databuddy",

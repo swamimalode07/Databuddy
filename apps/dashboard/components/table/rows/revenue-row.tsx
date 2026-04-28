@@ -1,40 +1,33 @@
-import { CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
-import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
-import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
-import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
+import {
+	CurrencyDollarIcon,
+	MapPinIcon,
+	QuestionIcon,
+} from "@databuddy/ui/icons";
+import { PercentageBadge } from "@databuddy/ui";
 
 export interface RevenueEntry {
-	name: string;
-	revenue: number;
-	transactions: number;
-	customers: number;
-	percentage: number;
 	country_code?: string;
 	country_name?: string;
+	customers: number;
+	name: string;
+	percentage: number;
+	revenue: number;
+	transactions: number;
 }
 
-const formatNumber = (value: number | null | undefined): string => {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
-};
-
-const formatCurrency = (amount: number, currency = "USD"): string => {
-	return new Intl.NumberFormat("en-US", {
+const formatCurrency = (amount: number, currency = "USD"): string =>
+	new Intl.NumberFormat("en-US", {
 		style: "currency",
 		currency,
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
 	}).format(amount);
-};
 
 interface RevenueRowProps {
+	nameLabel?: string;
 	type?:
 		| "default"
 		| "country"
@@ -45,7 +38,6 @@ interface RevenueRowProps {
 		| "os"
 		| "referrer"
 		| "utm";
-	nameLabel?: string;
 }
 
 export function createRevenueColumns({
@@ -80,7 +72,7 @@ export function createRevenueColumns({
 					if (isUnattributed) {
 						return (
 							<QuestionIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -93,11 +85,11 @@ export function createRevenueColumns({
 							countryCode !== "Unknown" &&
 							countryCode !== "Unattributed"
 						) {
-							return <CountryFlag country={countryCode} size={16} />;
+							return <CountryFlag country={countryCode} size={18} />;
 						}
 						return (
 							<MapPinIcon
-								className="size-4 text-muted-foreground"
+								className="size-[18px] text-muted-foreground"
 								weight="duotone"
 							/>
 						);
@@ -113,7 +105,7 @@ export function createRevenueColumns({
 
 					return (
 						<CurrencyDollarIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);

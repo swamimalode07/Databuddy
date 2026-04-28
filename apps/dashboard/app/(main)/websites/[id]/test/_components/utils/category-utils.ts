@@ -1,3 +1,4 @@
+import type { ElementType } from "react";
 import {
 	ChartLineUpIcon,
 	ClockIcon,
@@ -8,8 +9,7 @@ import {
 	SquaresFourIcon,
 	UsersIcon,
 	WarningIcon,
-} from "@phosphor-icons/react";
-import type { ElementType } from "react";
+} from "@databuddy/ui/icons";
 
 /** Icon mapping for query type categories */
 export const CATEGORY_ICONS: Record<string, ElementType> = {

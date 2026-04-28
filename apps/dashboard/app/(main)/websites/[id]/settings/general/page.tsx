@@ -1,24 +1,36 @@
 "use client";
 
-import {
-	ArrowSquareOutIcon,
-	CheckIcon,
-	ClipboardIcon,
-	GearIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import { Label } from "@/components/ui/label";
+import { NoticeBanner } from "@/app/(main)/websites/_components/notice-banner";
 import { WebsiteDialog } from "@/components/website-dialog";
-import { useDeleteWebsite, useWebsite } from "@/hooks/use-websites";
-import { PageHeader } from "../../../_components/page-header";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import {
+	updateWebsiteCache,
+	useDeleteWebsite,
+	useWebsite,
+	type Website,
+} from "@/hooks/use-websites";
+import { orpc } from "@/lib/orpc";
 import { TOAST_MESSAGES } from "../../_components/shared/tracking-constants";
+import {
+	CheckIcon,
+	ClipboardIcon,
+	InfoIcon,
+	PencilSimpleIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog, Switch } from "@databuddy/ui/client";
+import {
+	Badge,
+	Button,
+	SettingCard,
+	SettingCardGroup,
+	SettingsZone,
+	SettingsZoneRow,
+} from "@databuddy/ui";
 
 export default function GeneralSettingsPage() {
 	const params = useParams();
@@ -26,10 +38,30 @@ export default function GeneralSettingsPage() {
 	const websiteId = params.id as string;
 	const { data: websiteData, refetch } = useWebsite(websiteId);
 	const deleteWebsiteMutation = useDeleteWebsite();
+	const queryClient = useQueryClient();
 
 	const [showEditDialog, setShowEditDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-	const [copiedWebsiteId, setCopiedWebsiteId] = useState(false);
+
+	const toggleMutation = useMutation({
+		...orpc.websites.togglePublic.mutationOptions(),
+		onSuccess: (updatedWebsite: Website) => {
+			updateWebsiteCache(queryClient, updatedWebsite);
+		},
+	});
+
+	const { isCopied: copiedId, copyToClipboard: copyId } = useCopyToClipboard({
+		onCopy: () => toast.success("Client ID copied to clipboard"),
+	});
+	const { isCopied: copiedLink, copyToClipboard: copyLink } =
+		useCopyToClipboard({
+			onCopy: () => toast.success("Link copied to clipboard!"),
+		});
+
+	const isPublic = websiteData?.isPublic ?? false;
+	const shareableLink = websiteData
+		? `${window.location.origin}/public/${websiteId}`
+		: "";
 
 	const handleWebsiteUpdated = useCallback(() => {
 		setShowEditDialog(false);
@@ -57,12 +89,19 @@ export default function GeneralSettingsPage() {
 		}
 	}, [websiteData, websiteId, deleteWebsiteMutation, router]);
 
-	const handleCopyWebsiteId = useCallback(() => {
-		navigator.clipboard.writeText(websiteId);
-		setCopiedWebsiteId(true);
-		toast.success("Website ID copied to clipboard");
-		setTimeout(() => setCopiedWebsiteId(false), 2000);
-	}, [websiteId]);
+	const handleTogglePublic = useCallback(() => {
+		if (!websiteData) {
+			return;
+		}
+		toast.promise(
+			toggleMutation.mutateAsync({ id: websiteId, isPublic: !isPublic }),
+			{
+				loading: "Updating privacy settings...",
+				success: "Privacy settings updated",
+				error: "Failed to update privacy settings",
+			}
+		);
+	}, [websiteData, websiteId, isPublic, toggleMutation]);
 
 	if (!websiteData) {
 		return (
@@ -73,24 +112,21 @@ export default function GeneralSettingsPage() {
 	}
 
 	return (
-		<div className="flex h-full flex-col">
-			<PageHeader
-				description="Manage name, domain, and basic settings"
-				icon={<GearIcon />}
-				title="General"
-			/>
-			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-none">
-				{/* Website ID */}
-				<section className="border-b px-4 py-5 sm:px-6">
-					<div className="flex items-center justify-between gap-3">
-						<div className="min-w-0 flex-1">
-							<Label className="block font-medium text-sm">Website ID</Label>
-							<p className="mt-1 truncate font-mono text-muted-foreground text-sm">
-								{websiteId}
-							</p>
-						</div>
-						<Button onClick={handleCopyWebsiteId} size="sm" variant="outline">
-							{copiedWebsiteId ? (
+		<div className="flex-1 overflow-y-auto">
+			<div className="mx-auto max-w-2xl space-y-6 p-5">
+				<SettingCardGroup>
+					<SettingCard
+						description={
+							<code className="font-mono text-[11px]">{websiteId}</code>
+						}
+						title="Client ID"
+					>
+						<Button
+							onClick={() => copyId(websiteId)}
+							size="sm"
+							variant="secondary"
+						>
+							{copiedId ? (
 								<>
 									<CheckIcon className="size-3.5" weight="bold" />
 									Copied
@@ -102,88 +138,100 @@ export default function GeneralSettingsPage() {
 								</>
 							)}
 						</Button>
-					</div>
-				</section>
-
-				{/* Name */}
-				<section className="border-b px-4 py-5 sm:px-6">
-					<div className="flex items-center justify-between gap-3">
-						<div className="min-w-0">
-							<Label className="block font-medium text-sm">Name</Label>
-							<p className="truncate text-muted-foreground text-sm">
-								{websiteData.name || "Not set"}
-							</p>
-						</div>
+					</SettingCard>
+					<SettingCard description={websiteData.name || "Not set"} title="Name">
 						<Button
 							onClick={() => setShowEditDialog(true)}
 							size="sm"
-							variant="outline"
+							variant="secondary"
 						>
-							<PencilSimpleIcon className="size-3.5" /> Edit
+							<PencilSimpleIcon className="size-3.5" />
+							Edit
 						</Button>
-					</div>
-				</section>
-
-				{/* Domain */}
-				<section className="border-b px-4 py-5 sm:px-6">
-					<div className="flex items-center justify-between gap-3">
-						<div className="min-w-0">
-							<Label className="block font-medium text-sm">Domain</Label>
-							<p className="truncate text-muted-foreground text-sm">
-								{websiteData.domain || "Not set"}
-							</p>
-						</div>
+					</SettingCard>
+					<SettingCard
+						description={websiteData.domain || "Not set"}
+						title="Domain"
+					>
 						<Button
 							onClick={() => setShowEditDialog(true)}
 							size="sm"
-							variant="outline"
+							variant="secondary"
 						>
-							<PencilSimpleIcon className="size-3.5" /> Edit
+							<PencilSimpleIcon className="size-3.5" />
+							Edit
 						</Button>
-					</div>
-				</section>
+					</SettingCard>
+				</SettingCardGroup>
 
-				<section className="border-b px-4 py-5 sm:px-6">
-					<div className="flex items-center justify-between gap-3">
-						<div>
-							<h2 className="font-medium text-sm">Transfer Website</h2>
-							<p className="text-muted-foreground text-sm">
-								Move this website to a different organization
-							</p>
-						</div>
-						<Button
-							onClick={() =>
-								router.push(`/websites/${websiteId}/settings/transfer`)
-							}
-							size="sm"
-							variant="outline"
-						>
-							<ArrowSquareOutIcon className="size-3.5" /> Transfer
-						</Button>
-					</div>
-				</section>
+				<SettingCardGroup>
+					<SettingCard
+						description="Anyone with the link sees the overview only — no settings or other tabs"
+						expandable={
+							isPublic ? (
+								<div className="space-y-3">
+									<div className="flex items-center gap-2">
+										<p className="font-medium text-sm">Public overview link</p>
+										<Badge variant="muted">Read-only</Badge>
+									</div>
+									<div className="flex items-center gap-2">
+										<code className="flex-1 overflow-x-auto break-all rounded border bg-secondary px-3 py-2 font-mono text-xs">
+											{shareableLink}
+										</code>
+										<Button
+											aria-label="Copy public overview link"
+											onClick={() => copyLink(shareableLink)}
+											size="sm"
+											variant="ghost"
+										>
+											{copiedLink ? (
+												<CheckIcon
+													className="size-4 text-success"
+													weight="bold"
+												/>
+											) : (
+												<ClipboardIcon className="size-4" />
+											)}
+										</Button>
+									</div>
+									<NoticeBanner
+										description="This URL opens your public overview only. Visitors cannot access settings, other analytics sections, or delete your site."
+										icon={<InfoIcon />}
+									/>
+								</div>
+							) : undefined
+						}
+						title="Public sharing"
+					>
+						<Switch
+							aria-label="Toggle public access"
+							checked={isPublic}
+							onCheckedChange={handleTogglePublic}
+						/>
+					</SettingCard>
+				</SettingCardGroup>
 
-				{/* Danger Zone */}
-				<section className="px-4 py-5 sm:px-6">
-					<div className="flex items-center justify-between gap-3">
-						<div>
-							<h2 className="font-medium text-sm">Danger Zone</h2>
-							<p className="text-muted-foreground text-sm">
-								Permanently delete this website and all its data
-							</p>
-						</div>
-						<Button
-							onClick={() => setShowDeleteDialog(true)}
-							size="sm"
-							variant="destructive"
-						>
-							<TrashIcon className="size-3.5" /> Delete Website
-						</Button>
-					</div>
-				</section>
+				<SettingsZone title="Destructive actions" variant="destructive">
+					<SettingsZoneRow
+						action={{
+							label: "Transfer",
+							onClick: () =>
+								router.push(`/websites/${websiteId}/settings/transfer`),
+						}}
+						description="Move to another organization"
+						title="Transfer website"
+					/>
+					<SettingsZoneRow
+						action={{
+							label: "Delete",
+							onClick: () => setShowDeleteDialog(true),
+						}}
+						description="Permanently delete this website and all its data"
+						title="Delete website"
+					/>
+				</SettingsZone>
 			</div>
 
-			{/* Dialogs */}
 			<WebsiteDialog
 				onOpenChange={setShowEditDialog}
 				onSave={handleWebsiteUpdated}
@@ -200,9 +248,9 @@ export default function GeneralSettingsPage() {
 				onConfirm={handleDeleteWebsite}
 				title="Delete Website"
 			>
-				<div className="rounded-md bg-secondary p-3 text-sm">
+				<div className="rounded border bg-secondary p-3 text-sm">
 					<div className="flex items-start gap-2">
-						<WarningCircleIcon className="size-5 shrink-0" />
+						<WarningCircleIcon className="size-5 shrink-0 text-destructive" />
 						<div className="space-y-1">
 							<p className="font-medium">Warning:</p>
 							<ul className="list-disc space-y-1 pl-4 text-xs">

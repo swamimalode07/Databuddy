@@ -3,29 +3,18 @@ import type {
 	ProcessedMiniChartData,
 	Website,
 } from "@databuddy/shared/types/website";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
-import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight";
-import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { GearIcon } from "@phosphor-icons/react/dist/ssr/Gear";
-import { MinusIcon } from "@phosphor-icons/react/dist/ssr/Minus";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import { PrefetchZone } from "@/components/ds/prefetch-zone";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+const WebsiteDialog = dynamic(
+	() => import("@/components/website-dialog").then((mod) => mod.WebsiteDialog),
+	{ ssr: false }
+);
 import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FaviconImage } from "@/components/analytics/favicon-image";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -33,19 +22,33 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { WebsiteDialog } from "@/components/website-dialog";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useDeleteWebsite } from "@/hooks/use-websites";
+import { formatNumber } from "@/lib/formatters";
 import { TOAST_MESSAGES } from "../[id]/_components/shared/tracking-constants";
 import MiniChart from "./mini-chart";
 import { TransferWebsiteDialog } from "./transfer-website-dialog";
+import {
+	ArrowSquareOutIcon,
+	ArrowsLeftRightIcon,
+	CodeIcon,
+	CopyIcon,
+	EyeIcon,
+	GearIcon,
+	MinusIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+	TrendDownIcon,
+	TrendUpIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog } from "@databuddy/ui/client";
+import { Card, Skeleton, StatusDot } from "@databuddy/ui";
 
 interface WebsiteCardProps {
-	website: Website | WebsiteOutput;
-	chartData?: ProcessedMiniChartData;
 	activeUsers?: number;
+	chartData?: ProcessedMiniChartData;
 	isLoadingChart?: boolean;
+	website: Website | WebsiteOutput;
 }
 
 function TrendStat({
@@ -87,16 +90,6 @@ function TrendStat({
 	);
 }
 
-const formatNumber = (num: number) => {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toString();
-};
-
 export const WebsiteCard = memo(
 	({ website, chartData, activeUsers, isLoadingChart }: WebsiteCardProps) => {
 		const router = useRouter();
@@ -113,15 +106,13 @@ export const WebsiteCard = memo(
 			window.open(`/websites/${website.id}`, "_blank", "noopener,noreferrer");
 		}, [website.id]);
 
-		const handleCopyLink = useCallback(async () => {
-			const url = `${window.location.origin}/websites/${website.id}`;
-			try {
-				await navigator.clipboard.writeText(url);
-				toast.success("Link copied to clipboard");
-			} catch {
-				toast.error("Failed to copy link");
-			}
-		}, [website.id]);
+		const { copyToClipboard } = useCopyToClipboard({
+			onCopy: () => toast.success("Link copied to clipboard"),
+		});
+
+		const handleCopyLink = useCallback(() => {
+			copyToClipboard(`${window.location.origin}/websites/${website.id}`);
+		}, [copyToClipboard, website.id]);
 
 		const handleEdit = useCallback(() => {
 			setShowEditDialog(true);
@@ -164,7 +155,10 @@ export const WebsiteCard = memo(
 				<ContextMenu>
 					{/* Wrapper trigger: avoid merging Radix handlers onto Link (fixes stray click on RMB). */}
 					<ContextMenuTrigger asChild>
-						<div className="block h-full rounded outline-none focus-visible:outline-none">
+						<PrefetchZone
+							className="block h-full rounded outline-none focus-visible:outline-none"
+							href={`/websites/${website.id}`}
+						>
 							<Link
 								aria-label={`Open ${website.name} analytics`}
 								className="group block h-full rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -175,13 +169,10 @@ export const WebsiteCard = memo(
 								href={`/websites/${website.id}`}
 							>
 								<Card className="relative z-0 flex h-full select-none flex-col gap-0 bg-background p-0 transition-all duration-300 ease-in-out group-hover:z-50 group-hover:border-primary/60 motion-reduce:transform-none motion-reduce:transition-none">
-									<CardHeader className="dotted-bg relative gap-0! rounded-t border-b bg-accent px-0 pt-4 pb-0!">
+									<Card.Header className="dotted-bg relative gap-0! rounded-t border-b bg-accent px-0 pt-4 pb-0!">
 										{activeUsers !== undefined && activeUsers > 0 && (
 											<div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 font-medium text-success text-xs tabular-nums backdrop-blur-sm">
-												<span className="relative flex size-1.5">
-													<span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
-													<span className="relative inline-flex size-1.5 rounded-full bg-success" />
-												</span>
+												<StatusDot color="success" pulse size="sm" />
 												{activeUsers}
 											</div>
 										)}
@@ -223,8 +214,8 @@ export const WebsiteCard = memo(
 												Failed to load
 											</div>
 										)}
-									</CardHeader>
-									<CardContent className="space-y-1 px-4 py-3">
+									</Card.Header>
+									<Card.Content className="space-y-1 px-4 py-3">
 										<div className="flex items-center gap-3">
 											<FaviconImage
 												altText={`${website.name} favicon`}
@@ -234,12 +225,12 @@ export const WebsiteCard = memo(
 											/>
 											<div className="flex min-w-0 flex-1 items-center justify-between gap-2">
 												<div className="min-w-0 space-y-0.5">
-													<CardTitle className="truncate font-semibold text-sm leading-tight">
+													<Card.Title className="truncate font-semibold text-sm leading-tight">
 														{website.name}
-													</CardTitle>
-													<CardDescription className="truncate text-muted-foreground text-xs">
+													</Card.Title>
+													<Card.Description className="truncate text-muted-foreground text-xs">
 														{website.domain}
-													</CardDescription>
+													</Card.Description>
 												</div>
 												<div className="flex shrink-0 flex-col items-end space-y-0.5">
 													<span className="flex items-center gap-1 font-semibold text-foreground text-xs tabular-nums">
@@ -258,10 +249,10 @@ export const WebsiteCard = memo(
 												</div>
 											</div>
 										</div>
-									</CardContent>
+									</Card.Content>
 								</Card>
 							</Link>
-						</div>
+						</PrefetchZone>
 					</ContextMenuTrigger>
 					<ContextMenuContent className="min-w-48 rounded border-border/50 bg-popover/95 p-0 shadow-lg backdrop-blur-sm">
 						<ContextMenuItem
@@ -350,10 +341,10 @@ WebsiteCard.displayName = "WebsiteCard";
 export function WebsiteCardSkeleton() {
 	return (
 		<Card className="h-full overflow-hidden pt-0">
-			<CardHeader className="dotted-bg gap-0! border-b bg-accent px-0 pt-4 pb-0!">
+			<Card.Header className="dotted-bg gap-0! border-b bg-accent px-0 pt-4 pb-0!">
 				<Skeleton className="h-28 w-full" />
-			</CardHeader>
-			<CardContent className="space-y-1 px-4 py-3">
+			</Card.Header>
+			<Card.Content className="space-y-1 px-4 py-3">
 				<div className="flex items-center gap-3">
 					<Skeleton className="size-7 shrink-0 rounded" />
 					<div className="flex min-w-0 flex-1 items-center justify-between gap-2">
@@ -367,7 +358,7 @@ export function WebsiteCardSkeleton() {
 						</div>
 					</div>
 				</div>
-			</CardContent>
+			</Card.Content>
 		</Card>
 	);
 }

@@ -1,27 +1,26 @@
 "use client";
 
-import {
-	CalendarIcon,
-	CheckIcon,
-	ClockIcon,
-	InfinityIcon,
-	XIcon,
-} from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CalendarIcon,
+	CheckIcon,
+	ClockIcon,
+	InfinityIcon,
+} from "@databuddy/ui/icons";
+import { Calendar } from "@databuddy/ui/client";
+import { Button, dayjs } from "@databuddy/ui";
 
 interface ExpirationPreset {
+	getDate: () => Date;
 	label: string;
 	value: string;
-	getDate: () => Date;
 }
 
 const EXPIRATION_PRESETS: ExpirationPreset[] = [
@@ -73,9 +72,9 @@ function formatPresetPreview(preset: ExpirationPreset): string {
 }
 
 interface ExpirationPickerProps {
-	value?: string;
-	onChange: (value: string) => void;
 	className?: string;
+	onChange: (value: string) => void;
+	value?: string;
 }
 
 export function ExpirationPicker({
@@ -240,7 +239,6 @@ export function ExpirationPicker({
 			>
 				{showCustom ? (
 					<div className="flex flex-col">
-						{/* Header */}
 						<div className="flex items-center justify-between border-b px-4 py-3">
 							<button
 								aria-label="Go back to presets"
@@ -254,7 +252,6 @@ export function ExpirationPicker({
 							<div className="w-10" />
 						</div>
 
-						{/* Calendar */}
 						<div className="p-3">
 							<Calendar
 								defaultMonth={customDate || new Date()}
@@ -265,7 +262,6 @@ export function ExpirationPicker({
 							/>
 						</div>
 
-						{/* Time picker */}
 						<div className="border-t px-4 py-3">
 							<div className="flex items-center gap-3">
 								<ClockIcon
@@ -299,7 +295,6 @@ export function ExpirationPicker({
 							)}
 						</div>
 
-						{/* Footer */}
 						<div className="flex items-center justify-end gap-2 border-t bg-secondary/50 px-4 py-3">
 							<Button
 								onClick={() => setShowCustom(false)}

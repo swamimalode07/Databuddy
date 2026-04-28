@@ -1,11 +1,15 @@
 import "./polyfills/compression";
 import { auth } from "@databuddy/auth";
+import { setPgTraceFn } from "@databuddy/db";
+import { setChRecordFn } from "@databuddy/db/clickhouse";
+import { setCacheTraceFn } from "@databuddy/redis";
 import {
 	appRouter,
 	createAbortSignalInterceptor,
 	createRPCContext,
 	getBillingCustomerId,
 	recordORPCError,
+	setRpcRecordFn,
 } from "@databuddy/rpc";
 import cors from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -17,7 +21,7 @@ import { autumnHandler } from "autumn-js/fetch";
 import { Elysia } from "elysia";
 import { initLogger, log, parseError } from "evlog";
 import { evlog, useLogger } from "evlog/elysia";
-import { applyAuthWideEvent } from "@/lib/auth-wide-event";
+import { applyAuthWideEvent, getResolvedAuth } from "@/lib/auth-wide-event";
 import { AUTUMN_API_PREFIX, withAutumnApiPath } from "@/lib/autumn-mount";
 import {
 	apiLoggerDrain,
@@ -25,7 +29,7 @@ import {
 	flushBatchedApiDrain,
 } from "@/lib/evlog-api";
 import { initTccTracing, shutdownTccTracing } from "@/lib/tcc-otel";
-import { captureError } from "@/lib/tracing";
+import { captureError, record } from "@/lib/tracing";
 import { agent } from "./routes/agent";
 import { health } from "./routes/health";
 import { insights } from "./routes/insights";
@@ -41,6 +45,35 @@ initLogger({
 		rates: { info: 20, warn: 50, debug: 5 },
 		keep: [{ status: 400 }, { duration: 1500 }],
 	},
+});
+
+setChRecordFn(record);
+setRpcRecordFn(record);
+const pgAcc = new WeakMap<
+	object,
+	[count: number, totalMs: number, maxMs: number]
+>();
+setPgTraceFn((ms) => {
+	try {
+		const log = useLogger();
+		const prev = pgAcc.get(log) ?? [0, 0, 0];
+		const next: [number, number, number] = [
+			prev[0] + 1,
+			prev[1] + ms,
+			Math.max(prev[2], ms),
+		];
+		pgAcc.set(log, next);
+		log.set({
+			"pg.query_count": next[0],
+			"pg.total_ms": Math.round(next[1] * 100) / 100,
+			"pg.max_ms": next[2],
+		});
+	} catch {}
+});
+setCacheTraceFn((fields) => {
+	try {
+		useLogger().set(fields);
+	} catch {}
 });
 
 try {
@@ -83,7 +116,16 @@ async function handleRpcRoute(
 ) {
 	const { request } = ctx;
 	try {
-		const rpcContext = await createRPCContext({ headers: request.headers });
+		const resolved = getResolvedAuth(request.headers);
+		const preResolved = resolved
+			? {
+					session: resolved.session,
+					apiKey: resolved.apiKeyResult?.key ?? null,
+				}
+			: undefined;
+		const rpcContext = await record("rpc.context", () =>
+			createRPCContext({ headers: request.headers }, preResolved)
+		);
 		const run = async () => {
 			const result = await handle(request, rpcContext);
 			return result.response ?? new Response("Not Found", { status: 404 });
@@ -226,7 +268,7 @@ const openApiHandler = new OpenAPIHandler(docsRouter, {
 
 **Scope requirements:** Session auth uses organization membership and roles; no scopes. API key auth may require scopes. The Links router enforces scopes: \`read:links\` for list/get, \`write:links\` for create/update/delete. Operations that require scopes include \`x-required-scopes\` in their schema.
 
-**Available scopes:** read:data | write:llm | track:events | read:links | write:links
+**Available scopes:** read:data | track:events | track:llm | read:links | write:links | manage:websites | manage:flags | manage:config
 
 **Creating keys:** Keys are created in the dashboard (Organization → API Keys) and must be scoped to an organization. Store the secret securely; it is shown only once.`,
 						},
@@ -382,9 +424,16 @@ export default {
 	idleTimeout: BUN_IDLE_TIMEOUT_SECONDS,
 };
 
-process.on("SIGINT", async () => {
-	log.info("lifecycle", "SIGINT received, shutting down gracefully");
+async function shutdown(signal: string) {
+	log.info("lifecycle", `${signal} received, shutting down gracefully`);
+	const { shutdownRedis } = await import("@databuddy/redis");
 	await Promise.all([
+		shutdownRedis().catch((error) =>
+			log.error({
+				lifecycle: "redisShutdown",
+				error_message: error instanceof Error ? error.message : String(error),
+			})
+		),
 		flushBatchedApiDrain().catch((error) =>
 			log.error({
 				lifecycle: "drainFlush",
@@ -399,23 +448,7 @@ process.on("SIGINT", async () => {
 		),
 	]);
 	process.exit(0);
-});
+}
 
-process.on("SIGTERM", async () => {
-	log.info("lifecycle", "SIGTERM received, shutting down gracefully");
-	await Promise.all([
-		flushBatchedApiDrain().catch((error) =>
-			log.error({
-				lifecycle: "drainFlush",
-				error_message: error instanceof Error ? error.message : String(error),
-			})
-		),
-		shutdownTccTracing().catch((error) =>
-			log.error({
-				lifecycle: "tccOtelShutdown",
-				error_message: error instanceof Error ? error.message : String(error),
-			})
-		),
-	]);
-	process.exit(0);
-});
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));

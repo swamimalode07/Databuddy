@@ -1,24 +1,12 @@
 "use client";
 
-import { BuildingsIcon, EnvelopeIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/utils";
 import { useUserInvitations } from "./hooks/use-user-invitations";
+import { BuildingsIcon, EnvelopeIcon } from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Tooltip, dayjs } from "@databuddy/ui";
 
 export function PendingInvitationsButton() {
 	const [isOpen, setIsOpen] = useState(false);
@@ -30,66 +18,61 @@ export function PendingInvitationsButton() {
 
 	return (
 		<DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<DropdownMenuTrigger asChild>
-						<Button
-							className="relative flex size-8 items-center justify-center"
-							type="button"
-							variant="ghost"
-						>
-							<EnvelopeIcon className="size-5" weight="duotone" />
-							<Badge
-								className={cn(
-									"absolute -top-1 -right-1 flex size-4 items-center justify-center p-0 text-[10px]",
-									"zoom-in-50 animate-in duration-200"
-								)}
-								variant="destructive"
-							>
-								{count > 9 ? "9+" : count}
-							</Badge>
-						</Button>
-					</DropdownMenuTrigger>
-				</TooltipTrigger>
-				<TooltipContent side="right">
-					{count} pending invitation{count === 1 ? "" : "s"}
-				</TooltipContent>
+			<Tooltip
+				content={`${count} pending invitation${count === 1 ? "" : "s"}`}
+				side="bottom"
+			>
+				<DropdownMenu.Trigger
+					aria-label={`${count} pending invitations`}
+					className={cn(
+						"relative flex size-8 items-center justify-center rounded-md",
+						"text-sidebar-foreground/65 transition-colors duration-(--duration-quick) ease-(--ease-smooth)",
+						"hover:bg-sidebar-accent hover:text-sidebar-foreground",
+						"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+					)}
+				>
+					<EnvelopeIcon className="size-4" weight="duotone" />
+					<Badge
+						className={cn(
+							"absolute -top-1 -right-1 flex size-4 items-center justify-center bg-destructive p-0 text-[10px] text-destructive-foreground",
+							"zoom-in-50 animate-in duration-200"
+						)}
+					>
+						{count > 9 ? "9+" : count}
+					</Badge>
+				</DropdownMenu.Trigger>
 			</Tooltip>
 
-			<DropdownMenuContent align="start" className="w-72" side="right">
-				<div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">
-					Pending Invitations
-				</div>
+			<DropdownMenu.Content align="end" className="w-72">
+				<DropdownMenu.Group>
+					<DropdownMenu.GroupLabel>Pending Invitations</DropdownMenu.GroupLabel>
+				</DropdownMenu.Group>
 				{invitations.map((invitation) => (
-					<DropdownMenuItem
-						asChild
-						className="cursor-pointer"
+					<DropdownMenu.Item
+						className="h-auto items-start gap-3 py-2"
 						key={invitation.id}
+						render={
+							<Link
+								href={`/invitations/${invitation.id}`}
+								onClick={() => setIsOpen(false)}
+							/>
+						}
 					>
-						<Link
-							className="flex items-start gap-3 py-2"
-							href={`/invitations/${invitation.id}`}
-							onClick={() => setIsOpen(false)}
-						>
-							<div className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10">
-								<BuildingsIcon
-									className="size-4 text-primary"
-									weight="duotone"
-								/>
-							</div>
-							<div className="min-w-0 flex-1">
-								<p className="truncate font-medium text-sm">
-									{invitation.organizationName}
-								</p>
-								<p className="text-muted-foreground text-xs">
-									{invitation.role} · expires{" "}
-									{dayjs(invitation.expiresAt).fromNow()}
-								</p>
-							</div>
-						</Link>
-					</DropdownMenuItem>
+						<div className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10">
+							<BuildingsIcon className="size-4 text-primary" weight="duotone" />
+						</div>
+						<div className="min-w-0 flex-1">
+							<p className="truncate font-medium text-sm">
+								{invitation.organizationName}
+							</p>
+							<p className="text-muted-foreground text-xs">
+								{invitation.role} · expires{" "}
+								{dayjs(invitation.expiresAt).fromNow()}
+							</p>
+						</div>
+					</DropdownMenu.Item>
 				))}
-			</DropdownMenuContent>
+			</DropdownMenu.Content>
 		</DropdownMenu>
 	);
 }

@@ -4,27 +4,10 @@ import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DateRange } from "@databuddy/shared/types/analytics";
 import type { CustomQueryConfig } from "@databuddy/shared/types/custom-query";
 import type { QueryOutputField } from "@databuddy/shared/types/query";
-import {
-	CalendarDotsIcon,
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineUpIcon,
-	CheckIcon,
-	CodeIcon,
-	FunnelIcon,
-	GaugeIcon,
-	PencilSimpleIcon,
-	PlusIcon,
-	SpinnerGapIcon,
-	SquaresFourIcon,
-	TextTIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { StatCardDisplayMode } from "@/components/analytics/stat-card";
 import { StatCard } from "@/components/analytics/stat-card";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
-import { Button } from "@/components/ui/button";
 import {
 	Command,
 	CommandEmpty,
@@ -33,31 +16,11 @@ import {
 	CommandItem,
 	CommandList,
 } from "@/components/ui/command";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { operatorOptions } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
@@ -77,11 +40,26 @@ import type {
 	DataSourceMode,
 	DateRangePreset,
 } from "./utils/types";
+import {
+	CalendarDotsIcon,
+	CaretDownIcon,
+	ChartBarIcon,
+	ChartLineUpIcon,
+	CheckIcon,
+	CodeIcon,
+	FunnelIcon,
+	GaugeIcon,
+	PencilSimpleIcon,
+	PlusIcon,
+	SquaresFourIcon,
+	TextTIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { DeleteDialog, DropdownMenu, Sheet } from "@databuddy/ui/client";
+import { Button, Field, Input, Skeleton } from "@databuddy/ui";
 
-// Re-export for convenience
 export type { DashboardCardConfig } from "./utils/types";
 
-/** Visualization types compatible with stat cards */
 const CARD_COMPATIBLE_VISUALIZATIONS = new Set([
 	"metric",
 	"timeseries",
@@ -90,13 +68,13 @@ const CARD_COMPATIBLE_VISUALIZATIONS = new Set([
 ]);
 
 interface CardSheetProps {
-	isOpen: boolean;
-	onCloseAction: () => void;
-	onSaveAction: (card: DashboardCardConfig) => void;
-	onDeleteAction?: (cardId: string) => void;
-	websiteId: string;
 	dateRange: DateRange;
 	editingCard?: DashboardCardConfig | null;
+	isOpen: boolean;
+	onCloseAction: () => void;
+	onDeleteAction?: (cardId: string) => void;
+	onSaveAction: (card: DashboardCardConfig) => void;
+	websiteId: string;
 }
 
 function mapVisualizationToDisplayMode(
@@ -154,13 +132,11 @@ export function CardSheet({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-	// Check if form is valid for saving
 	const canSave =
 		dataSourceMode === "predefined"
 			? Boolean(selectedQueryType && selectedField)
 			: Boolean(customQuery?.table);
 
-	// Filter and group query types for cards
 	const { metricTypes, trendTypes } = useMemo(() => {
 		const compatible = queryTypes.filter((t) =>
 			CARD_COMPATIBLE_VISUALIZATIONS.has(t.defaultVisualization || "")
@@ -174,13 +150,11 @@ export function CardSheet({
 		};
 	}, [queryTypes]);
 
-	// Compute the preview date range based on preset
 	const previewDateRange = useMemo(
 		() => resolveDateRange(dateRangePreset, dateRange),
 		[dateRangePreset, dateRange]
 	);
 
-	// Create a temporary widget config for preview data fetching
 	const previewWidgets = useMemo(
 		() =>
 			selectedQueryType
@@ -220,7 +194,6 @@ export function CardSheet({
 	};
 
 	const initializeFromCard = (card: DashboardCardConfig) => {
-		// Set data source mode
 		const mode = card.dataSourceMode || "predefined";
 		setDataSourceMode(mode);
 
@@ -309,7 +282,6 @@ export function CardSheet({
 
 			setIsSubmitting(true);
 
-			// Get the first select's alias as the label
 			const firstSelect = customQuery.selects.at(0);
 			const label =
 				firstSelect?.alias || `${firstSelect?.aggregate}_${firstSelect?.field}`;
@@ -320,7 +292,7 @@ export function CardSheet({
 				queryType: `custom_${customQuery.table}`,
 				field: firstSelect?.field || "",
 				label,
-				displayMode: "text", // Custom queries only support text for now
+				displayMode: "text",
 				title: customTitle.trim() || undefined,
 				category: "Custom",
 				dateRangePreset:
@@ -409,14 +381,13 @@ export function CardSheet({
 			? getChartData("preview", selectedQueryType.key, selectedField.name)
 			: undefined;
 
-	// Check if chart mode is supported for selected query type
 	const supportsChart =
 		selectedQueryType && isTrendType(selectedQueryType.defaultVisualization);
 
 	return (
 		<Sheet onOpenChange={handleOpenChange} open={isOpen}>
-			<SheetContent className="sm:max-w-md" side="right">
-				<SheetHeader>
+			<Sheet.Content className="sm:max-w-md" side="right">
+				<Sheet.Header>
 					<div className="flex items-center gap-4">
 						<div className="flex size-11 items-center justify-center rounded border bg-secondary">
 							{isEditMode ? (
@@ -432,22 +403,21 @@ export function CardSheet({
 							)}
 						</div>
 						<div>
-							<SheetTitle className="text-lg">
+							<Sheet.Title className="text-lg">
 								{isEditMode ? "Edit Card" : "Add Card"}
-							</SheetTitle>
-							<SheetDescription>
+							</Sheet.Title>
+							<Sheet.Description>
 								{isEditMode
 									? "Modify your stat card configuration"
 									: "Create a new stat card from your analytics data"}
-							</SheetDescription>
+							</Sheet.Description>
 						</div>
 					</div>
-				</SheetHeader>
+				</Sheet.Header>
 
-				<SheetBody className="space-y-6">
-					{/* Live Preview */}
+				<Sheet.Body className="space-y-6">
 					<div className="space-y-2">
-						<Label className="text-muted-foreground">Preview</Label>
+						<Field.Label className="text-muted-foreground">Preview</Field.Label>
 						<StatCard
 							chartData={previewChartData}
 							chartType="area"
@@ -461,12 +431,10 @@ export function CardSheet({
 						/>
 					</div>
 
-					{/* Separator */}
 					<div className="h-px bg-border" />
 
-					{/* Data Source Mode Toggle */}
 					<div className="space-y-2">
-						<Label>Data Source Type</Label>
+						<Field.Label>Data Source Type</Field.Label>
 						<div className="flex gap-2">
 							<Button
 								className={cn(
@@ -476,7 +444,7 @@ export function CardSheet({
 								)}
 								onClick={() => setDataSourceMode("predefined")}
 								type="button"
-								variant="outline"
+								variant="secondary"
 							>
 								<GaugeIcon className="size-4" weight="duotone" />
 								Predefined
@@ -488,7 +456,7 @@ export function CardSheet({
 								)}
 								onClick={() => setDataSourceMode("custom")}
 								type="button"
-								variant="outline"
+								variant="secondary"
 							>
 								<CodeIcon className="size-4" weight="duotone" />
 								Custom Query
@@ -498,11 +466,10 @@ export function CardSheet({
 
 					{dataSourceMode === "predefined" ? (
 						<>
-							{/* Query Type Selector */}
 							<div className="space-y-2">
-								<Label>
+								<Field.Label>
 									Data Source <span className="text-destructive">*</span>
-								</Label>
+								</Field.Label>
 								{isLoadingTypes ? (
 									<Skeleton className="h-10 w-full" />
 								) : (
@@ -514,7 +481,7 @@ export function CardSheet({
 											<Button
 												className="w-full justify-between"
 												role="combobox"
-												variant="outline"
+												variant="secondary"
 											>
 												{selectedQueryType ? (
 													<div className="flex items-center gap-2 truncate">
@@ -555,7 +522,6 @@ export function CardSheet({
 												>
 													<CommandEmpty>No data source found.</CommandEmpty>
 
-													{/* Metrics Section */}
 													{metricTypes.length > 0 && (
 														<CommandGroup
 															heading={
@@ -605,7 +571,6 @@ export function CardSheet({
 														</CommandGroup>
 													)}
 
-													{/* Trends Section */}
 													{trendTypes.length > 0 && (
 														<CommandGroup
 															heading={
@@ -661,18 +626,17 @@ export function CardSheet({
 								)}
 							</div>
 
-							{/* Field Selector */}
 							{selectedQueryType && (
 								<div className="space-y-2">
-									<Label>
+									<Field.Label>
 										Field to Display <span className="text-destructive">*</span>
-									</Label>
+									</Field.Label>
 									<Popover onOpenChange={setIsFieldOpen} open={isFieldOpen}>
 										<PopoverTrigger asChild>
 											<Button
 												className="w-full justify-between"
 												role="combobox"
-												variant="outline"
+												variant="secondary"
 											>
 												{selectedField ? (
 													<span className="truncate">
@@ -736,10 +700,9 @@ export function CardSheet({
 								</div>
 							)}
 
-							{/* Display Mode - only show if trends data supports chart */}
 							{selectedField && supportsChart && (
 								<div className="space-y-2">
-									<Label>Display Mode</Label>
+									<Field.Label>Display Mode</Field.Label>
 									<div className="flex gap-2">
 										{(
 											[
@@ -780,15 +743,14 @@ export function CardSheet({
 								</div>
 							)}
 
-							{/* Custom Title */}
 							{selectedField && (
 								<div className="space-y-2">
-									<Label
+									<Field.Label
 										className="text-muted-foreground"
 										htmlFor="customTitle"
 									>
 										Custom Title (optional)
-									</Label>
+									</Field.Label>
 									<Input
 										id="customTitle"
 										onChange={(e) => setCustomTitle(e.target.value)}
@@ -800,21 +762,19 @@ export function CardSheet({
 						</>
 					) : (
 						<>
-							{/* Custom Query Builder */}
 							<CustomQueryBuilder
 								onChangeAction={setCustomQuery}
 								value={customQuery}
 							/>
 
-							{/* Custom Title for Custom Query */}
 							{customQuery && customQuery.selects.length > 0 && (
 								<div className="space-y-2">
-									<Label
+									<Field.Label
 										className="text-muted-foreground"
 										htmlFor="customTitle"
 									>
 										Custom Title (optional)
-									</Label>
+									</Field.Label>
 									<Input
 										id="customTitle"
 										onChange={(e) => setCustomTitle(e.target.value)}
@@ -828,18 +788,16 @@ export function CardSheet({
 						</>
 					)}
 
-					{/* Advanced Options - Date Range & Filters (shared) */}
 					{(selectedField ||
 						(customQuery && customQuery.selects.length > 0)) && (
 						<>
 							<div className="h-px bg-border" />
 
-							{/* Date Range Override */}
 							<div className="space-y-2">
-								<Label className="flex items-center gap-1.5 text-muted-foreground">
+								<Field.Label className="flex items-center gap-1.5 text-muted-foreground">
 									<CalendarDotsIcon className="size-3.5" weight="duotone" />
 									Date Range
-								</Label>
+								</Field.Label>
 								<Popover
 									onOpenChange={setIsDateRangeOpen}
 									open={isDateRangeOpen}
@@ -848,7 +806,7 @@ export function CardSheet({
 										<Button
 											className="w-full justify-between"
 											role="combobox"
-											variant="outline"
+											variant="secondary"
 										>
 											<span
 												className={cn(
@@ -896,12 +854,11 @@ export function CardSheet({
 								</Popover>
 							</div>
 
-							{/* Filters */}
 							<div className="space-y-2">
-								<Label className="flex items-center gap-1.5 text-muted-foreground">
+								<Field.Label className="flex items-center gap-1.5 text-muted-foreground">
 									<FunnelIcon className="size-3.5" weight="duotone" />
 									Filters
-								</Label>
+								</Field.Label>
 
 								{filters.length > 0 && (
 									<div className="space-y-2">
@@ -910,47 +867,54 @@ export function CardSheet({
 												className="flex items-center gap-2 rounded border bg-card p-2.5"
 												key={`filter-${index}`}
 											>
-												<Select
-													onValueChange={(value) =>
-														handleUpdateFilter(index, "field", value)
-													}
-													value={filter.field}
-												>
-													<SelectTrigger className="h-8 w-28 text-xs">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														{filterOptions.map((option) => (
-															<SelectItem
-																key={option.value}
-																value={option.value}
-															>
-																{option.label}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
+												<DropdownMenu>
+													<DropdownMenu.Trigger className="flex h-8 w-28 cursor-pointer select-none items-center justify-between rounded-md bg-secondary px-3 text-foreground text-xs transition-colors hover:bg-interactive-hover">
+														{filterOptions.find((o) => o.value === filter.field)
+															?.label ?? filter.field}
+													</DropdownMenu.Trigger>
+													<DropdownMenu.Content align="start" side="bottom">
+														<DropdownMenu.RadioGroup
+															onValueChange={(value) =>
+																handleUpdateFilter(index, "field", value)
+															}
+															value={filter.field}
+														>
+															{filterOptions.map((option) => (
+																<DropdownMenu.RadioItem
+																	key={option.value}
+																	value={option.value}
+																>
+																	{option.label}
+																</DropdownMenu.RadioItem>
+															))}
+														</DropdownMenu.RadioGroup>
+													</DropdownMenu.Content>
+												</DropdownMenu>
 
-												<Select
-													onValueChange={(value) =>
-														handleUpdateFilter(index, "operator", value)
-													}
-													value={filter.operator}
-												>
-													<SelectTrigger className="h-8 w-24 text-xs">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														{operatorOptions.map((option) => (
-															<SelectItem
-																key={option.value}
-																value={option.value}
-															>
-																{option.label}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
+												<DropdownMenu>
+													<DropdownMenu.Trigger className="flex h-8 w-24 cursor-pointer select-none items-center justify-between rounded-md bg-secondary px-3 text-foreground text-xs transition-colors hover:bg-interactive-hover">
+														{operatorOptions.find(
+															(o) => o.value === filter.operator
+														)?.label ?? filter.operator}
+													</DropdownMenu.Trigger>
+													<DropdownMenu.Content align="start" side="bottom">
+														<DropdownMenu.RadioGroup
+															onValueChange={(value) =>
+																handleUpdateFilter(index, "operator", value)
+															}
+															value={filter.operator}
+														>
+															{operatorOptions.map((option) => (
+																<DropdownMenu.RadioItem
+																	key={option.value}
+																	value={option.value}
+																>
+																	{option.label}
+																</DropdownMenu.RadioItem>
+															))}
+														</DropdownMenu.RadioGroup>
+													</DropdownMenu.Content>
+												</DropdownMenu>
 
 												<AutocompleteInput
 													className="flex-1 text-xs"
@@ -967,10 +931,9 @@ export function CardSheet({
 													aria-label="Remove filter"
 													className="size-6 shrink-0 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
 													onClick={() => handleRemoveFilter(index)}
-													size="icon"
 													variant="ghost"
 												>
-													<TrashIcon size={14} />
+													<TrashIcon className="size-3.5" />
 												</Button>
 											</div>
 										))}
@@ -982,7 +945,7 @@ export function CardSheet({
 									onClick={handleAddFilter}
 									size="sm"
 									type="button"
-									variant="outline"
+									variant="secondary"
 								>
 									<PlusIcon className="size-4" />
 									Add Filter
@@ -990,13 +953,13 @@ export function CardSheet({
 							</div>
 						</>
 					)}
-				</SheetBody>
+				</Sheet.Body>
 
-				<SheetFooter className="flex-row justify-between sm:justify-between">
+				<Sheet.Footer className="flex-row justify-between sm:justify-between">
 					{isEditMode && onDeleteAction ? (
 						<Button
-							className="text-destructive hover:bg-destructive/10 hover:text-destructive"
 							onClick={() => setShowDeleteConfirm(true)}
+							tone="destructive"
 							type="button"
 							variant="ghost"
 						>
@@ -1007,28 +970,20 @@ export function CardSheet({
 						<div />
 					)}
 					<div className="flex gap-2">
-						<Button onClick={onCloseAction} type="button" variant="outline">
+						<Button onClick={onCloseAction} type="button" variant="secondary">
 							Cancel
 						</Button>
 						<Button
 							className="min-w-24"
-							disabled={isSubmitting || !canSave}
+							disabled={!canSave}
+							loading={isSubmitting}
 							onClick={handleSubmit}
 							type="button"
 						>
-							{isSubmitting ? (
-								<>
-									<SpinnerGapIcon className="animate-spin" size={16} />
-									{isEditMode ? "Saving…" : "Adding…"}
-								</>
-							) : isEditMode ? (
-								"Save Changes"
-							) : (
-								"Add Card"
-							)}
+							{isEditMode ? "Save Changes" : "Add Card"}
 						</Button>
 					</div>
-				</SheetFooter>
+				</Sheet.Footer>
 
 				<DeleteDialog
 					isOpen={showDeleteConfirm}
@@ -1037,7 +992,8 @@ export function CardSheet({
 					onConfirm={handleDelete}
 					title="Delete Card"
 				/>
-			</SheetContent>
+				<Sheet.Close />
+			</Sheet.Content>
 		</Sheet>
 	);
 }

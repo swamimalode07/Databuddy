@@ -1,15 +1,23 @@
 import {
 	and,
-	chQuery,
 	db,
+	desc,
 	eq,
+	gte,
 	inArray,
+	withTransaction,
+} from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
+import {
+	incidentAffectedMonitors,
+	incidentUpdates,
+	incidents,
 	organization,
 	statusPageMonitors,
 	statusPages,
 	uptimeSchedules,
 	websites,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import { cacheable, invalidateCacheableWithArgs } from "@databuddy/redis";
 import { randomUUIDv7 } from "bun";
 import { z } from "zod";
@@ -52,6 +60,41 @@ const statusPageCustomizationSchema = z.object({
 	customCss: z.string().nullable(),
 });
 
+const incidentStatus = z.enum([
+	"investigating",
+	"identified",
+	"monitoring",
+	"resolved",
+]);
+
+const incidentSeverity = z.enum(["minor", "major", "critical"]);
+
+const incidentUpdateSchema = z.object({
+	id: z.string(),
+	status: incidentStatus,
+	message: z.string(),
+	createdAt: z.string(),
+});
+
+const incidentImpact = z.enum(["degraded", "down"]);
+
+const incidentAffectedMonitorSchema = z.object({
+	statusPageMonitorId: z.string(),
+	monitorName: z.string(),
+	impact: incidentImpact,
+});
+
+const incidentSchema = z.object({
+	id: z.string(),
+	title: z.string(),
+	status: incidentStatus,
+	severity: incidentSeverity,
+	createdAt: z.string(),
+	resolvedAt: z.string().nullable(),
+	updates: z.array(incidentUpdateSchema),
+	affectedMonitors: z.array(incidentAffectedMonitorSchema),
+});
+
 const statusPageOutputSchema = z.object({
 	organization: z.object({
 		name: z.string(),
@@ -66,13 +109,56 @@ const statusPageOutputSchema = z.object({
 		.merge(statusPageCustomizationSchema),
 	overallStatus: z.enum(["operational", "degraded", "outage"]),
 	monitors: z.array(monitorSchema),
+	incidents: z.array(incidentSchema),
+});
+
+const publicStatusPageSitemapEntrySchema = z.object({
+	slug: z.string(),
+	updatedAt: z.string().datetime(),
 });
 
 type StatusPageOutput = z.infer<typeof statusPageOutputSchema>;
 
+async function listPublicStatusPageSitemapEntries() {
+	const rows = await db
+		.select({
+			slug: statusPages.slug,
+			updatedAt: statusPages.updatedAt,
+		})
+		.from(statusPages)
+		.orderBy(desc(statusPages.updatedAt));
+
+	return rows.map((row) => ({
+		slug: row.slug,
+		updatedAt: row.updatedAt.toISOString(),
+	}));
+}
+
 function deriveOverallStatus(
-	monitors: { currentStatus: "up" | "down" | "degraded" | "unknown" }[]
+	monitors: { currentStatus: "up" | "down" | "degraded" | "unknown" }[],
+	activeIncidents: {
+		severity: string;
+		affectedMonitors: { impact: string }[];
+	}[] = []
 ): "operational" | "degraded" | "outage" {
+	const activeUnresolved = activeIncidents.filter(
+		(i) => !("resolvedAt" in i && (i as { resolvedAt: unknown }).resolvedAt)
+	);
+
+	if (activeUnresolved.some((i) => i.severity === "critical")) {
+		return "outage";
+	}
+	if (
+		activeUnresolved.some((i) =>
+			i.affectedMonitors.some((m) => m.impact === "down")
+		)
+	) {
+		return "outage";
+	}
+	if (activeUnresolved.length > 0) {
+		return "degraded";
+	}
+
 	if (monitors.length === 0) {
 		return "operational";
 	}
@@ -93,21 +179,21 @@ function deriveOverallStatus(
 }
 
 interface DailyRow {
-	site_id: string;
-	date: string;
-	uptime_percentage: number;
-	total_checks: number;
-	successful_checks: number;
-	downtime_seconds: number;
 	avg_response_time: number;
+	date: string;
+	downtime_seconds: number;
 	p95_response_time: number;
+	site_id: string;
+	successful_checks: number;
+	total_checks: number;
+	uptime_percentage: number;
 }
 
 interface LatestCheckRow {
-	site_id: string;
-	last_timestamp: string;
-	last_status: number;
 	last_http_code: number;
+	last_status: number;
+	last_timestamp: string;
+	site_id: string;
 }
 
 async function _fetchStatusPageData(
@@ -116,6 +202,7 @@ async function _fetchStatusPageData(
 ): Promise<StatusPageOutput | null> {
 	const rows = await db
 		.select({
+			statusPageId: statusPages.id,
 			orgName: organization.name,
 			orgSlug: organization.slug,
 			orgLogo: organization.logo,
@@ -128,6 +215,7 @@ async function _fetchStatusPageData(
 			theme: statusPages.theme,
 			hideBranding: statusPages.hideBranding,
 			customCss: statusPages.customCss,
+			statusPageMonitorId: statusPageMonitors.id,
 			scheduleId: uptimeSchedules.id,
 			websiteId: uptimeSchedules.websiteId,
 			scheduleName: uptimeSchedules.name,
@@ -201,20 +289,24 @@ async function _fetchStatusPageData(
 
 	const siteIds = schedules.map((s) => s.websiteId ?? s.id);
 
-	const [websiteRows, allDailyData, allRecentChecks] = await Promise.all([
-		websiteIds.length > 0
-			? db
-					.select({
-						id: websites.id,
-						domain: websites.domain,
-						name: websites.name,
-					})
-					.from(websites)
-					.where(inArray(websites.id, websiteIds))
-			: Promise.resolve([]),
-		siteIds.length > 0
-			? chQuery<DailyRow>(
-					`SELECT
+	const ninetyDaysAgoDate = new Date();
+	ninetyDaysAgoDate.setDate(ninetyDaysAgoDate.getDate() - 90);
+
+	const [websiteRows, allDailyData, allRecentChecks, recentIncidents] =
+		await Promise.all([
+			websiteIds.length > 0
+				? db
+						.select({
+							id: websites.id,
+							domain: websites.domain,
+							name: websites.name,
+						})
+						.from(websites)
+						.where(inArray(websites.id, websiteIds))
+				: Promise.resolve([]),
+			siteIds.length > 0
+				? chQuery<DailyRow>(
+						`SELECT
 					site_id,
 					date,
 					round(100 * (1 - least(downtime_seconds, 86400) / 86400), 2) as uptime_percentage,
@@ -255,12 +347,12 @@ async function _fetchStatusPageData(
 					GROUP BY site_id, date
 				)
 				ORDER BY site_id, date ASC`,
-					{ siteIds, startDate, endDate }
-				)
-			: Promise.resolve([]),
-		siteIds.length > 0
-			? chQuery<LatestCheckRow>(
-					`SELECT
+						{ siteIds, startDate, endDate }
+					)
+				: Promise.resolve([]),
+			siteIds.length > 0
+				? chQuery<LatestCheckRow>(
+						`SELECT
 						site_id,
 						max(timestamp) as last_timestamp,
 						argMax(status, timestamp) as last_status,
@@ -269,12 +361,27 @@ async function _fetchStatusPageData(
 					WHERE site_id IN ({siteIds:Array(String)})
 						AND timestamp >= now() - INTERVAL 7 DAY
 					GROUP BY site_id`,
-					{ siteIds }
-				)
-			: Promise.resolve([]),
-	]);
+						{ siteIds }
+					)
+				: Promise.resolve([]),
+			db.query.incidents.findMany({
+				where: and(
+					eq(incidents.statusPageId, rows[0].statusPageId),
+					gte(incidents.createdAt, ninetyDaysAgoDate)
+				),
+				orderBy: [desc(incidents.createdAt)],
+				limit: 50,
+				with: {
+					updates: {
+						orderBy: [desc(incidentUpdates.createdAt)],
+						limit: 20,
+					},
+					affectedMonitors: true,
+				},
+			}),
+		]);
 
-	const websiteMap = new Map(websiteRows.map((w) => [w.id, w]));
+	const websiteMap = new Map(websiteRows.map((w) => [w.id, w] as const));
 
 	const dailyBySite = new Map<string, DailyRow[]>();
 	for (const row of allDailyData) {
@@ -364,11 +471,74 @@ async function _fetchStatusPageData(
 		};
 	});
 
+	const spmIdToName = new Map(
+		rows
+			.filter((r) => r.statusPageMonitorId)
+			.map(
+				(r) =>
+					[
+						r.statusPageMonitorId,
+						r.monitorDisplayName ??
+							r.scheduleName ??
+							r.scheduleUrl ??
+							"Unknown",
+					] as const
+			)
+	);
+
+	const formattedIncidents = recentIncidents.map((incident) => ({
+		id: incident.id,
+		title: incident.title,
+		status: incident.status,
+		severity: incident.severity,
+		createdAt: incident.createdAt.toISOString(),
+		resolvedAt: incident.resolvedAt?.toISOString() ?? null,
+		updates: incident.updates.map((update) => ({
+			id: update.id,
+			status: update.status,
+			message: update.message,
+			createdAt: update.createdAt.toISOString(),
+		})),
+		affectedMonitors: incident.affectedMonitors.map((am) => ({
+			statusPageMonitorId: am.statusPageMonitorId,
+			monitorName: spmIdToName.get(am.statusPageMonitorId) ?? "Unknown",
+			impact: am.impact,
+		})),
+	}));
+
+	const activeIncidents = formattedIncidents.filter(
+		(i) => i.status !== "resolved"
+	);
+
+	const spmToScheduleId = new Map(
+		rows
+			.filter((r) => r.scheduleId)
+			.map((r) => [r.statusPageMonitorId, r.scheduleId] as const)
+	);
+
+	for (const incident of activeIncidents) {
+		for (const am of incident.affectedMonitors) {
+			const scheduleId = spmToScheduleId.get(am.statusPageMonitorId);
+			if (!scheduleId) {
+				continue;
+			}
+			const monitor = monitors.find((m) => m.id === scheduleId);
+			if (!monitor) {
+				continue;
+			}
+			const impact = am.impact as "degraded" | "down";
+			if (impact === "down" || monitor.currentStatus === "up") {
+				monitor.currentStatus = impact === "down" ? "down" : "degraded";
+			}
+		}
+	}
+
 	return {
 		organization: org,
 		statusPage: statusPageInfo,
-		overallStatus: deriveOverallStatus(monitors),
+		overallStatus: deriveOverallStatus(monitors, formattedIncidents),
 		monitors,
+		incidents: formattedIncidents,
 	};
 }
 
@@ -380,6 +550,16 @@ const fetchStatusPageData = cacheable(_fetchStatusPageData, {
 });
 
 export const statusPageRouter = {
+	listPublic: publicProcedure
+		.route({
+			method: "POST",
+			path: "/statusPage/listPublic",
+			summary: "List public status pages for sitemap generation",
+			tags: ["StatusPage"],
+		})
+		.output(z.array(publicStatusPageSitemapEntrySchema))
+		.handler(async () => listPublicStatusPageSitemapEntries()),
+
 	getBySlug: publicProcedure
 		.route({
 			method: "POST",
@@ -716,29 +896,31 @@ export const statusPageRouter = {
 				permissions: ["create"],
 			});
 
-			await db
-				.update(statusPages)
-				.set({
-					organizationId: input.targetOrganizationId,
-					updatedAt: new Date(),
-				})
-				.where(eq(statusPages.id, input.statusPageId));
+			await withTransaction(async (tx) => {
+				await tx
+					.update(statusPages)
+					.set({
+						organizationId: input.targetOrganizationId,
+						updatedAt: new Date(),
+					})
+					.where(eq(statusPages.id, input.statusPageId));
 
-			if (input.includeMonitors) {
-				const monitorIds = statusPage.statusPageMonitors.map(
-					(m: { uptimeScheduleId: string }) => m.uptimeScheduleId
-				);
+				if (input.includeMonitors) {
+					const monitorIds = statusPage.statusPageMonitors.map(
+						(m: { uptimeScheduleId: string }) => m.uptimeScheduleId
+					);
 
-				if (monitorIds.length > 0) {
-					await db
-						.update(uptimeSchedules)
-						.set({
-							organizationId: input.targetOrganizationId,
-							updatedAt: new Date(),
-						})
-						.where(inArray(uptimeSchedules.id, monitorIds));
+					if (monitorIds.length > 0) {
+						await tx
+							.update(uptimeSchedules)
+							.set({
+								organizationId: input.targetOrganizationId,
+								updatedAt: new Date(),
+							})
+							.where(inArray(uptimeSchedules.id, monitorIds));
+					}
 				}
-			}
+			});
 
 			await invalidateCacheableWithArgs("status-page", [statusPage.slug]);
 
@@ -900,6 +1082,218 @@ export const statusPageRouter = {
 
 			return db.query.statusPageMonitors.findFirst({
 				where: eq(statusPageMonitors.id, input.monitorId),
+			});
+		}),
+
+	createIncident: monitorsProcedure
+		.route({
+			method: "POST",
+			path: "/statusPage/createIncident",
+			summary: "Create a new incident",
+			tags: ["StatusPage"],
+		})
+		.input(
+			z.object({
+				statusPageId: z.string(),
+				title: z.string().min(1),
+				severity: incidentSeverity.optional().default("minor"),
+				message: z.string().min(1),
+				affectedMonitors: z
+					.array(
+						z.object({
+							statusPageMonitorId: z.string(),
+							impact: incidentImpact,
+						})
+					)
+					.optional()
+					.default([]),
+			})
+		)
+		.handler(async ({ context, input }) => {
+			const statusPage = await db.query.statusPages.findFirst({
+				where: eq(statusPages.id, input.statusPageId),
+			});
+
+			if (!statusPage) {
+				throw rpcError.notFound("StatusPage", input.statusPageId);
+			}
+
+			await withWorkspace(context, {
+				organizationId: statusPage.organizationId,
+				resource: "website",
+				permissions: ["update"],
+			});
+
+			const incidentId = randomUUIDv7();
+			const updateId = randomUUIDv7();
+
+			await withTransaction(async (tx) => {
+				await tx.insert(incidents).values({
+					id: incidentId,
+					statusPageId: input.statusPageId,
+					title: input.title,
+					severity: input.severity,
+					status: "investigating",
+				});
+
+				await tx.insert(incidentUpdates).values({
+					id: updateId,
+					incidentId,
+					status: "investigating",
+					message: input.message,
+				});
+
+				if (input.affectedMonitors.length > 0) {
+					await tx.insert(incidentAffectedMonitors).values(
+						input.affectedMonitors.map((am) => ({
+							id: randomUUIDv7(),
+							incidentId,
+							statusPageMonitorId: am.statusPageMonitorId,
+							impact: am.impact,
+						}))
+					);
+				}
+			});
+
+			await invalidateCacheableWithArgs("status-page", [statusPage.slug]);
+
+			return db.query.incidents.findFirst({
+				where: eq(incidents.id, incidentId),
+				with: { updates: true, affectedMonitors: true },
+			});
+		}),
+
+	updateIncident: monitorsProcedure
+		.route({
+			method: "POST",
+			path: "/statusPage/updateIncident",
+			summary: "Post an update to an incident",
+			tags: ["StatusPage"],
+		})
+		.input(
+			z.object({
+				incidentId: z.string(),
+				status: incidentStatus,
+				message: z.string().min(1),
+			})
+		)
+		.handler(async ({ context, input }) => {
+			const incident = await db.query.incidents.findFirst({
+				where: eq(incidents.id, input.incidentId),
+				with: { statusPage: true },
+			});
+
+			if (!incident) {
+				throw rpcError.notFound("Incident", input.incidentId);
+			}
+
+			await withWorkspace(context, {
+				organizationId: incident.statusPage.organizationId,
+				resource: "website",
+				permissions: ["update"],
+			});
+
+			await withTransaction(async (tx) => {
+				await tx.insert(incidentUpdates).values({
+					id: randomUUIDv7(),
+					incidentId: input.incidentId,
+					status: input.status,
+					message: input.message,
+				});
+
+				await tx
+					.update(incidents)
+					.set({
+						status: input.status,
+						...(input.status === "resolved" ? { resolvedAt: new Date() } : {}),
+					})
+					.where(eq(incidents.id, input.incidentId));
+			});
+
+			await invalidateCacheableWithArgs("status-page", [
+				incident.statusPage.slug,
+			]);
+
+			return db.query.incidents.findFirst({
+				where: eq(incidents.id, input.incidentId),
+				with: { updates: { orderBy: [desc(incidentUpdates.createdAt)] } },
+			});
+		}),
+
+	deleteIncident: monitorsProcedure
+		.route({
+			method: "POST",
+			path: "/statusPage/deleteIncident",
+			summary: "Delete an incident",
+			tags: ["StatusPage"],
+		})
+		.input(z.object({ incidentId: z.string() }))
+		.handler(async ({ context, input }) => {
+			const incident = await db.query.incidents.findFirst({
+				where: eq(incidents.id, input.incidentId),
+				with: { statusPage: true },
+			});
+
+			if (!incident) {
+				throw rpcError.notFound("Incident", input.incidentId);
+			}
+
+			await withWorkspace(context, {
+				organizationId: incident.statusPage.organizationId,
+				resource: "website",
+				permissions: ["update"],
+			});
+
+			await db.delete(incidents).where(eq(incidents.id, input.incidentId));
+
+			await invalidateCacheableWithArgs("status-page", [
+				incident.statusPage.slug,
+			]);
+
+			return { deleted: true };
+		}),
+
+	listIncidents: monitorsProcedure
+		.route({
+			method: "POST",
+			path: "/statusPage/listIncidents",
+			summary: "List incidents for a status page",
+			tags: ["StatusPage"],
+		})
+		.input(z.object({ statusPageId: z.string() }))
+		.handler(async ({ context, input }) => {
+			const statusPage = await db.query.statusPages.findFirst({
+				where: eq(statusPages.id, input.statusPageId),
+			});
+
+			if (!statusPage) {
+				throw rpcError.notFound("StatusPage", input.statusPageId);
+			}
+
+			await withWorkspace(context, {
+				organizationId: statusPage.organizationId,
+				resource: "website",
+				permissions: ["read"],
+			});
+
+			return db.query.incidents.findMany({
+				where: eq(incidents.statusPageId, input.statusPageId),
+				orderBy: [desc(incidents.createdAt)],
+				with: {
+					updates: {
+						orderBy: [desc(incidentUpdates.createdAt)],
+					},
+					affectedMonitors: {
+						with: {
+							statusPageMonitor: {
+								columns: { id: true, displayName: true },
+								with: {
+									uptimeSchedule: { columns: { name: true } },
+								},
+							},
+						},
+					},
+				},
 			});
 		}),
 };

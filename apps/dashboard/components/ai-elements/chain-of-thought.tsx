@@ -1,9 +1,9 @@
 "use client";
 
-import { CheckCircleIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ReactNode } from "react";
 import { memo } from "react";
 import { cn } from "@/lib/utils";
+import { CheckCircleIcon, CircleNotchIcon } from "@databuddy/ui/icons";
 
 export type ToolStepProps = ComponentProps<"div"> & {
 	label: ReactNode;

@@ -1,13 +1,7 @@
 "use client";
 
-import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
-import { useState } from "react";
 import { FeatureGate } from "@/components/feature-gate";
 import { List } from "@/components/ui/composables/list";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import {
@@ -16,7 +10,12 @@ import {
 	useFunnels,
 } from "@/hooks/use-funnels";
 import type { CreateFunnelData } from "@/types/funnels";
-import { WebsitePageHeader } from "../_components/website-page-header";
+import { cn } from "@/lib/utils";
+import { GATED_FEATURES } from "@databuddy/shared/types/features";
+import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import { TopBar } from "@/components/layout/top-bar";
 import {
 	FunnelAnalytics,
 	FunnelAnalyticsByReferrer,
@@ -24,6 +23,9 @@ import {
 	FunnelItemSkeleton,
 	FunnelsList,
 } from "./_components";
+import { ArrowClockwiseIcon, FunnelIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 const EditFunnelDialog = dynamic(
 	() =>
@@ -54,11 +56,9 @@ export default function FunnelsPage() {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const {
-		funnels,
 		analyticsMap,
 		loadingIds,
 		listOutcome,
-		isLoading,
 		isFetching,
 		error,
 		refreshAction,
@@ -133,46 +133,37 @@ export default function FunnelsPage() {
 	return (
 		<FeatureGate feature={GATED_FEATURES.FUNNELS}>
 			<div className="relative flex h-full flex-col">
-				<WebsitePageHeader
-					createActionLabel="Create Funnel"
-					currentUsage={funnels.length}
-					description="Track user journeys and optimize conversion drop-off points"
-					feature={GATED_FEATURES.FUNNELS}
-					hasError={listOutcome.status === "error"}
-					icon={
-						<FunnelIcon
-							className="size-6 text-accent-foreground"
-							weight="duotone"
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Conversion Funnels</h1>
+				</TopBar.Title>
+				<TopBar.Actions>
+					<Button
+						aria-label="Refresh"
+						disabled={isFetching}
+						onClick={refreshAction}
+						size="sm"
+						variant="secondary"
+					>
+						<ArrowClockwiseIcon
+							className={cn("size-4 shrink-0", isFetching && "animate-spin")}
 						/>
-					}
-					isLoading={isLoading}
-					isRefreshing={isFetching}
-					onCreateAction={() => setEditing("new")}
-					onRefreshAction={refreshAction}
-					subtitle={
-						isLoading
-							? undefined
-							: `${funnels.length} funnel${funnels.length === 1 ? "" : "s"}`
-					}
-					title="Conversion Funnels"
-					websiteId={websiteId}
-				/>
+					</Button>
+					<Button onClick={() => setEditing("new")} size="sm">
+						<PlusIcon className="size-4 shrink-0" />
+						Create Funnel
+					</Button>
+				</TopBar.Actions>
 
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-none">
 					<List.Content
 						emptyProps={{
 							action: {
-								label: "Create Your First Funnel",
+								label: "Create a funnel",
 								onClick: () => setEditing("new"),
 							},
 							description:
-								"Create your first funnel to start tracking user conversion journeys and identify optimization opportunities in your user flow.",
-							icon: (
-								<FunnelIcon
-									className="size-6 text-accent-foreground"
-									weight="duotone"
-								/>
-							),
+								"Define a multi-step journey to see where users drop off.",
+							icon: <FunnelIcon className="size-6" weight="duotone" />,
 							title: "No funnels yet",
 						}}
 						errorProps={{
@@ -180,12 +171,7 @@ export default function FunnelsPage() {
 							description:
 								error?.message ??
 								"Something went wrong while loading funnel data.",
-							icon: (
-								<FunnelIcon
-									className="size-6 text-accent-foreground"
-									weight="duotone"
-								/>
-							),
+							icon: <FunnelIcon className="size-6" weight="duotone" />,
 							title: "Failed to load funnels",
 						}}
 						loading={<FunnelsListSkeleton />}
@@ -261,7 +247,11 @@ export default function FunnelsPage() {
 						isOpen={!!deletingId}
 						itemName="this funnel"
 						onClose={() => setDeletingId(null)}
-						onConfirm={() => deletingId && handleDelete(deletingId)}
+						onConfirm={() => {
+							if (deletingId) {
+								return handleDelete(deletingId);
+							}
+						}}
 						title="Delete Funnel"
 					/>
 				)}

@@ -9,6 +9,7 @@ admin
 
 # Local env files
 .env
+.mcp.json
 .env.local
 .env.development.local
 .env.test.local
@@ -28,6 +29,7 @@ coverage
 .next/
 out/
 build
+*.bun-build
 # generated
 # packages/db/generated
 packages/db/src/drizzle/meta/0000_snapshot.json
@@ -63,3 +65,5 @@ tmp
 
 # next-agents-md
 .next-docs/
+.gstack/
+.superpowers/

@@ -9,15 +9,17 @@
     "./client": "./src/client/auth-client.ts"
   },
   "dependencies": {
+    "@better-auth/redis-storage": "^1.6.5",
     "@better-auth/sso": "^1.4.10",
     "@databuddy/db": "*",
-    "@databuddy/notifications": "workspace:*",
     "@databuddy/email": "*",
+    "@databuddy/notifications": "workspace:*",
     "@databuddy/redis": "*",
     "@databuddy/shared": "*",
     "better-auth": "^1.4.10",
     "better-auth-harmony": "^1.2.5",
     "drizzle-kit": "^0.31.8",
+    "evlog": "catalog:",
     "resend": "^4.8.0",
     "zod": "catalog:"
   }

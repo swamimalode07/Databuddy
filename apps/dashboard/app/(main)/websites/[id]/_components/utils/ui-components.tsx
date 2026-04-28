@@ -1,13 +1,8 @@
-import { ExternalLink, HelpCircle } from "lucide-react";
 import type React from "react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { PERFORMANCE_THRESHOLDS } from "./analytics-helpers";
+import { ArrowSquareOutIcon, QuestionIcon } from "@databuddy/ui/icons";
+import { StatusDot, Tooltip } from "@databuddy/ui";
 
 // Consistent border radius values
 export const BORDER_RADIUS = {
@@ -19,10 +14,10 @@ export const BORDER_RADIUS = {
 };
 
 interface MetricToggleProps {
-	label: string;
 	checked: boolean;
-	onChange: () => void;
 	color: string;
+	label: string;
+	onChange: () => void;
 }
 
 export const MetricToggle: React.FC<MetricToggleProps> = ({
@@ -98,10 +93,10 @@ export const MetricToggle: React.FC<MetricToggleProps> = ({
 };
 
 interface MetricTogglesProps {
-	metrics: Record<string, boolean>;
-	onToggle: (metric: string) => void;
 	colors: Record<string, string>;
 	labels?: Record<string, string>;
+	metrics: Record<string, boolean>;
+	onToggle: (metric: string) => void;
 }
 
 const EMPTY_LABELS: Record<string, string> = {};
@@ -125,15 +120,17 @@ export const MetricToggles: React.FC<MetricTogglesProps> = ({
 	</div>
 );
 
-interface ExternalLinkButtonProps {
+interface ArrowSquareOutIconButtonProps {
+	className?: string;
 	href: string;
 	label: string;
-	title?: string;
-	className?: string;
 	showTooltip?: boolean;
+	title?: string;
 }
 
-export const ExternalLinkButton: React.FC<ExternalLinkButtonProps> = ({
+export const ArrowSquareOutIconButton: React.FC<
+	ArrowSquareOutIconButtonProps
+> = ({
 	href,
 	label,
 	title,
@@ -148,7 +145,7 @@ export const ExternalLinkButton: React.FC<ExternalLinkButtonProps> = ({
 			target="_blank"
 		>
 			{label}
-			<ExternalLink className="size-3 opacity-70" />
+			<ArrowSquareOutIcon className="size-3 opacity-70" />
 		</a>
 	);
 
@@ -156,16 +153,7 @@ export const ExternalLinkButton: React.FC<ExternalLinkButtonProps> = ({
 		return content;
 	}
 
-	return (
-		<TooltipProvider>
-			<Tooltip>
-				<TooltipTrigger asChild>{content}</TooltipTrigger>
-				<TooltipContent className="border bg-background p-2 text-foreground text-xs shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
-					{title || href}
-				</TooltipContent>
-			</Tooltip>
-		</TooltipProvider>
-	);
+	return <Tooltip content={title || href}>{content}</Tooltip>;
 };
 
 export const EmptyState: React.FC<{
@@ -198,28 +186,22 @@ export const MetricTooltip = ({
 }) => {
 	const threshold = PERFORMANCE_THRESHOLDS[metricKey];
 	return (
-		<TooltipProvider>
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<div className="relative w-full">
-						{children}
-						<HelpCircle className="absolute top-2 right-2 size-3 text-muted-foreground/50" />
-					</div>
-				</TooltipTrigger>
-				<TooltipContent className="max-w-[300px] space-y-2 border bg-background p-3 text-foreground shadow-lg">
+		<Tooltip
+			content={
+				<div className="max-w-[300px] space-y-2">
 					<div className="font-medium text-xs">
 						{label || String(metricKey).replace(/_/g, " ")}
 					</div>
 					<div className="space-y-1 text-xs">
 						<div className="flex items-center">
-							<div className="mr-1.5 size-2 rounded-full bg-green-500" />
+							<StatusDot className="mr-1.5" color="success" size="md" />
 							<span>
 								Good: &lt; {threshold.good}
 								{threshold.unit}
 							</span>
 						</div>
 						<div className="flex items-center">
-							<div className="mr-1.5 size-2 rounded-full bg-yellow-500" />
+							<StatusDot className="mr-1.5" color="warning" size="md" />
 							<span>
 								Needs improvement: {threshold.good}
 								{threshold.unit} - {threshold.average}
@@ -227,15 +209,20 @@ export const MetricTooltip = ({
 							</span>
 						</div>
 						<div className="flex items-center">
-							<div className="mr-1.5 size-2 rounded-full bg-red-500" />
+							<StatusDot className="mr-1.5" color="destructive" size="md" />
 							<span>
 								Poor: &gt; {threshold.average}
 								{threshold.unit}
 							</span>
 						</div>
 					</div>
-				</TooltipContent>
-			</Tooltip>
-		</TooltipProvider>
+				</div>
+			}
+		>
+			<div className="relative w-full">
+				{children}
+				<QuestionIcon className="absolute top-2 right-2 size-3 text-muted-foreground/50" />
+			</div>
+		</Tooltip>
 	);
 };

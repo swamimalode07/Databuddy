@@ -1,30 +1,23 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import type { Flag } from "../../_components/types";
 import {
 	ArrowCounterClockwiseIcon,
 	DotsThreeIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
-import type { Flag } from "../../_components/types";
+} from "@databuddy/ui/icons";
+import { Badge, Button } from "@databuddy/ui";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 interface ArchivedFlagItemProps {
-	flag: Flag;
-	onEdit: (flag: Flag) => void;
-	onDelete: (flagId: string) => void;
 	className?: string;
+	flag: Flag;
+	onDelete: (flagId: string) => void;
+	onEdit: (flag: Flag) => void;
 }
 
 export function ArchivedFlagItem({
@@ -56,22 +49,20 @@ export function ArchivedFlagItem({
 	return (
 		<div className={cn("border-border border-b", className)}>
 			<div className="group flex h-15 items-center hover:bg-accent/50">
-				{/* Clickable area for editing */}
 				<button
 					className="flex flex-1 cursor-pointer items-center gap-4 px-4 text-left sm:px-6"
 					onClick={() => onEdit(flag)}
 					type="button"
 				>
-					{/* Flag details */}
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">
 							<h3 className="truncate font-medium text-foreground">
 								{flag.name || flag.key}
 							</h3>
-							<Badge className="shrink-0" variant="gray">
+							<Badge className="shrink-0" variant="muted">
 								{flag.type}
 							</Badge>
-							<Badge className="gap-1.5" variant="amber">
+							<Badge className="gap-1.5" variant="warning">
 								<span className="size-1.5 rounded bg-amber-500" />
 								Archived
 							</Badge>
@@ -87,53 +78,52 @@ export function ArchivedFlagItem({
 					</div>
 				</button>
 
-				{/* Restore button */}
 				<div className="shrink-0 pr-2">
 					<Button
 						disabled={restoreMutation.isPending}
 						onClick={handleRestore}
 						size="sm"
-						variant="outline"
+						variant="secondary"
 					>
 						<ArrowCounterClockwiseIcon className="size-4" weight="duotone" />
 						<span className="hidden sm:inline">Restore</span>
 					</Button>
 				</div>
 
-				{/* Actions dropdown */}
 				<div className="shrink-0 pr-4 sm:pr-6">
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								aria-label="Archived flag actions"
-								className="size-8 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-								size="icon"
-								variant="ghost"
-							>
-								<DotsThreeIcon className="size-5" weight="bold" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-40">
-							<DropdownMenuItem onClick={() => onEdit(flag)}>
+						<DropdownMenu.Trigger
+							aria-label="Archived flag actions"
+							className={cn(
+								"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-all duration-(--duration-quick) ease-(--ease-smooth) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50",
+								"bg-transparent text-muted-foreground hover:bg-interactive-hover hover:text-foreground",
+								"size-8 p-0",
+								"opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+							)}
+						>
+							<DotsThreeIcon className="size-5" weight="bold" />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end" className="w-40">
+							<DropdownMenu.Item onClick={() => onEdit(flag)}>
 								<PencilSimpleIcon className="size-4" weight="duotone" />
 								Edit
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={handleRestore}>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onClick={handleRestore}>
 								<ArrowCounterClockwiseIcon
 									className="size-4"
 									weight="duotone"
 								/>
 								Restore
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
+							</DropdownMenu.Item>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item
 								className="text-destructive focus:text-destructive"
 								onClick={() => onDelete(flag.id)}
 							>
 								<TrashIcon className="size-4" weight="duotone" />
 								Delete
-							</DropdownMenuItem>
-						</DropdownMenuContent>
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
 					</DropdownMenu>
 				</div>
 			</div>

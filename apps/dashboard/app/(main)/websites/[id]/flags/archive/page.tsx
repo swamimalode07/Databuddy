@@ -1,18 +1,18 @@
 "use client";
 
-import { ArchiveIcon } from "@phosphor-icons/react/dist/ssr/Archive";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { orpc } from "@/lib/orpc";
 import { isFlagSheetOpenAtom } from "@/stores/jotai/flagsAtoms";
 import { FlagSheet } from "../_components/flag-sheet";
 import type { Flag } from "../_components/types";
 import { ArchivedFlagItem } from "./_components/archived-flag-item";
+import { ArchiveIcon } from "@databuddy/ui/icons";
+import { EmptyState } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 const ArchivedFlagsListSkeleton = () => (
 	<div className="border-border border-t">
@@ -44,9 +44,10 @@ export default function ArchivePage() {
 	const [flagToDelete, setFlagToDelete] = useState<Flag | null>(null);
 	const queryClient = useQueryClient();
 
-	const { data: flags, isLoading: flagsLoading } = useQuery({
+	const { data: flagsRaw, isLoading: flagsLoading } = useQuery({
 		...orpc.flags.list.queryOptions({ input: { websiteId } }),
 	});
+	const flags = flagsRaw as Flag[] | undefined;
 
 	const archivedFlags = useMemo(
 		() => flags?.filter((f) => f.status === "archived") ?? [],
@@ -70,7 +71,7 @@ export default function ArchivePage() {
 	const handleDeleteFlagRequest = (flagId: string) => {
 		const flag = archivedFlags.find((f) => f.id === flagId);
 		if (flag) {
-			setFlagToDelete(flag as Flag);
+			setFlagToDelete(flag);
 		}
 	};
 
@@ -92,12 +93,12 @@ export default function ArchivePage() {
 
 	return (
 		<ErrorBoundary>
-			<div className="h-full overflow-y-auto">
+			<div className="flex h-full flex-col overflow-y-auto">
 				<Suspense fallback={<ArchivedFlagsListSkeleton />}>
 					{archivedFlags.length === 0 ? (
 						<div className="flex flex-1 items-center justify-center py-16">
 							<EmptyState
-								description="Archived flags will appear here. You can archive flags from the main flags view."
+								description="Archive a flag from the Flags tab to retire it here."
 								icon={<ArchiveIcon weight="duotone" />}
 								title="No archived flags"
 								variant="minimal"
@@ -107,7 +108,7 @@ export default function ArchivePage() {
 						<div>
 							{archivedFlags.map((flag) => (
 								<ArchivedFlagItem
-									flag={flag as Flag}
+									flag={flag}
 									key={flag.id}
 									onDelete={handleDeleteFlagRequest}
 									onEdit={handleEditFlag}

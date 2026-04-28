@@ -1,5 +1,6 @@
 "use client";
 
+import type { BaseComponentProps } from "../../types";
 import {
 	CalendarIcon,
 	DotsThreeIcon,
@@ -7,35 +8,25 @@ import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { fromNow } from "@/lib/time";
-import type { BaseComponentProps } from "../../types";
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Button, Card, fromNow } from "@databuddy/ui";
 
 interface AnnotationItem {
-	id: string;
-	text: string;
 	annotationType: "point" | "line" | "range";
-	xValue: string;
-	xEndValue?: string | null;
 	color?: string | null;
-	tags?: string[];
-	isPublic?: boolean;
 	createdAt?: string;
+	id: string;
+	isPublic?: boolean;
+	tags?: string[];
+	text: string;
+	xEndValue?: string | null;
+	xValue: string;
 }
 
 export interface AnnotationsListProps extends BaseComponentProps {
-	title?: string;
 	annotations: AnnotationItem[];
+	title?: string;
 }
 
 function AnnotationTypeLabel({ type }: { type: string }) {
@@ -45,7 +36,7 @@ function AnnotationTypeLabel({ type }: { type: string }) {
 		range: "Range",
 	};
 	return (
-		<Badge className="text-[10px]" variant="secondary">
+		<Badge className="text-[10px]" variant="muted">
 			{labels[type] ?? type}
 		</Badge>
 	);
@@ -98,19 +89,19 @@ function AnnotationRow({
 					{Array.isArray(annotation.tags) && annotation.tags.length > 0 && (
 						<div className="flex gap-1">
 							{annotation.tags.slice(0, 3).map((tag) => (
-								<Badge className="text-[10px]" key={tag} variant="outline">
+								<Badge className="text-[10px]" key={tag} variant="default">
 									{tag}
 								</Badge>
 							))}
 							{annotation.tags.length > 3 && (
-								<Badge className="text-[10px]" variant="outline">
+								<Badge className="text-[10px]" variant="default">
 									+{annotation.tags.length - 3}
 								</Badge>
 							)}
 						</div>
 					)}
 					{annotation.isPublic && (
-						<Badge className="text-[10px]" variant="gray">
+						<Badge className="text-[10px]" variant="muted">
 							Public
 						</Badge>
 					)}
@@ -130,31 +121,27 @@ function AnnotationRow({
 				role="presentation"
 			>
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							aria-label="Actions"
-							className="size-7 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-							size="icon"
-							variant="ghost"
-						>
-							<DotsThreeIcon className="size-4" weight="bold" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-40">
-						<DropdownMenuItem className="gap-2" onClick={onEdit}>
+					<DropdownMenu.Trigger
+						aria-label="Actions"
+						className="inline-flex size-7 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+					>
+						<DotsThreeIcon className="size-4" weight="bold" />
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end" className="w-40">
+						<DropdownMenu.Item className="gap-2" onClick={onEdit}>
 							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Edit
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
+						</DropdownMenu.Item>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item
 							className="gap-2"
 							onClick={onDelete}
 							variant="destructive"
 						>
 							<TrashIcon className="size-4" weight="duotone" />
 							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
 				</DropdownMenu>
 			</div>
 		</div>
@@ -190,7 +177,7 @@ export function AnnotationsListRenderer({
 					<p className="text-muted-foreground text-xs">
 						Add annotations to mark important events on charts
 					</p>
-					<Button className="mt-2" size="sm" variant="outline">
+					<Button className="mt-2" size="sm" variant="secondary">
 						<PlusIcon className="size-4" />
 						Create Annotation
 					</Button>

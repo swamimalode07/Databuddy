@@ -1,7 +1,7 @@
-import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
-import { Button } from "@/components/ui/button";
+import { CheckCircleIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 export default function PaymentSuccess() {
 	return (

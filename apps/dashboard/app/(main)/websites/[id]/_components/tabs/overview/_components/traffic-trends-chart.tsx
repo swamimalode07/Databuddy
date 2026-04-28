@@ -1,9 +1,5 @@
 "use client";
 
-import { EyeIcon, EyeSlashIcon, NoteIcon, XIcon } from "@phosphor-icons/react";
-import { ChartLineIcon } from "@phosphor-icons/react/dist/ssr/ChartLine";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
-import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useMemo, useState } from "react";
@@ -17,15 +13,12 @@ import {
 import { RangeSelectionPopup } from "@/components/charts/range-selection-popup";
 import { useDynamicDasharray } from "@/components/charts/use-dynamic-dasharray";
 import { SectionBrandOverlay } from "@/components/logo/section-brand-overlay";
-import { Button } from "@/components/ui/button";
 import {
 	Chart,
 	type ChartInteractiveFeatures,
 	mergeChartInteractiveFeatures,
 } from "@/components/ui/composables/chart";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useChartPreferences } from "@/hooks/use-chart-preferences";
-import { usePersistentState } from "@/hooks/use-persistent-state";
 import {
 	ANNOTATION_STORAGE_KEYS,
 	CHART_ANNOTATION_STYLES,
@@ -39,7 +32,6 @@ import {
 	chartRechartsLegendInteractiveWrapperStyle,
 } from "@/lib/chart-presentation";
 import { chartQueryOutcome } from "@/lib/chart-query-outcome";
-import dayjs from "@/lib/dayjs";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -54,6 +46,16 @@ import type {
 	CreateAnnotationData,
 } from "@/types/annotations";
 import type { DateRange } from "../../../utils/types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ChartLineIcon,
+	EyeIcon,
+	EyeSlashIcon,
+	NoteIcon,
+	WarningCircleIcon,
+	WarningIcon,
+} from "@databuddy/ui/icons";
+import { Button, Skeleton, dayjs, usePersistentState } from "@databuddy/ui";
 
 const {
 	Area,
@@ -70,18 +72,18 @@ const {
 } = Chart.Recharts;
 
 interface TooltipPayloadEntry {
-	dataKey: string;
-	value: number;
 	color: string;
+	dataKey: string;
 	payload: Record<string, unknown>;
+	value: number;
 }
 
 interface TooltipProps {
 	active?: boolean;
-	payload?: TooltipPayloadEntry[];
-	label?: string;
 	isDragging?: boolean;
 	justFinishedDragging?: boolean;
+	label?: string;
+	payload?: TooltipPayloadEntry[];
 }
 
 const CustomTooltip = ({
@@ -143,8 +145,8 @@ const CustomTooltip = ({
 };
 
 interface DateRangeState {
-	startDate: Date;
 	endDate: Date;
+	startDate: Date;
 }
 
 interface CreateAnnotationInput {
@@ -300,9 +302,7 @@ export function TrafficTrendsRechartsPlot({
 		const promise = createAnnotation.mutateAsync(createData);
 
 		toast.promise(promise, {
-			error: (err) => {
-				return err?.message || "Failed to create annotation";
-			},
+			error: (err) => err?.message || "Failed to create annotation",
 			loading: "Creating annotation...",
 			success: () => {
 				refetchAnnotations();
@@ -321,9 +321,7 @@ export function TrafficTrendsRechartsPlot({
 		const promise = deleteAnnotation.mutateAsync({ id });
 
 		toast.promise(promise, {
-			error: (err) => {
-				return err?.message || "Failed to delete annotation";
-			},
+			error: (err) => err?.message || "Failed to delete annotation",
 			loading: "Deleting annotation...",
 			success: () => {
 				refetchAnnotations();
@@ -341,9 +339,7 @@ export function TrafficTrendsRechartsPlot({
 		const promise = updateAnnotation.mutateAsync({ id, ...updates });
 
 		toast.promise(promise, {
-			error: (err) => {
-				return err?.message || "Failed to update annotation";
-			},
+			error: (err) => err?.message || "Failed to update annotation",
 			loading: "Updating annotation...",
 			success: () => {
 				refetchAnnotations();
@@ -525,7 +521,6 @@ export function TrafficTrendsRechartsPlot({
 							</div>
 						)}
 
-						{/* Drag instruction pill */}
 						{mergedFeatures.rangeSelection &&
 							refAreaLeft !== null &&
 							refAreaRight === null && (
@@ -536,7 +531,6 @@ export function TrafficTrendsRechartsPlot({
 								</div>
 							)}
 
-						{/* Onboarding tip */}
 						{mergedFeatures.annotations &&
 							mergedFeatures.rangeSelection &&
 							!refAreaLeft &&
@@ -871,7 +865,6 @@ export function TrafficTrendsRechartsPlot({
 					</div>
 				</div>
 
-				{/* Range Selection Popup */}
 				{mergedFeatures.rangeSelection &&
 					showRangePopup === true &&
 					selectedDateRange !== null && (
@@ -917,14 +910,14 @@ export function TrafficTrendsRechartsPlot({
 }
 
 interface TrafficTrendsChartProps {
-	websiteId: string;
-	dateRange: DateRange;
 	chartData: ChartDataRow[];
 	dateDiff: number;
+	dateRange: DateRange;
 	isError: boolean;
 	isLoading: boolean;
 	isMobile: boolean;
 	onRangeSelect: (range: { startDate: Date; endDate: Date }) => void;
+	websiteId: string;
 }
 
 export function TrafficTrendsChart({

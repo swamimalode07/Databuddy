@@ -1,21 +1,22 @@
-import { db, eq, inArray, member, websites } from "@databuddy/db";
 import {
 	type ApiKeyRow,
 	getAccessibleWebsiteIds,
 	hasGlobalAccess,
-} from "./api-key";
+} from "@databuddy/api-keys/resolve";
+import { db, eq, inArray } from "@databuddy/db";
+import { member, websites } from "@databuddy/db/schema";
 
 export interface WebsiteSummary {
-	id: string;
-	name: string | null;
-	domain: string | null;
-	isPublic: boolean | null;
 	createdAt: Date | null;
+	domain: string | null;
+	id: string;
+	isPublic: boolean | null;
+	name: string | null;
 }
 
 export interface AccessibleWebsitesAuth {
-	user: { id: string; role?: string } | null;
 	apiKey: ApiKeyRow | null;
+	user: { id: string; role?: string } | null;
 }
 
 export async function getAccessibleWebsites(
@@ -28,13 +29,6 @@ export async function getAccessibleWebsites(
 		isPublic: websites.isPublic,
 		createdAt: websites.createdAt,
 	};
-
-	if (authCtx.user?.role === "ADMIN") {
-		return db
-			.select(select)
-			.from(websites)
-			.orderBy((t) => t.createdAt);
-	}
 
 	if (authCtx.user) {
 		const userMemberships = await db.query.member.findMany({

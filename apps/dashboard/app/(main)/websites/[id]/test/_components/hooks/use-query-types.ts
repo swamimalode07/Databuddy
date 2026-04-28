@@ -4,8 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 interface QueryTypesResponse {
-	success: boolean;
-	types: string[];
 	configs: Record<
 		string,
 		{
@@ -15,16 +13,18 @@ interface QueryTypesResponse {
 			meta?: QueryBuilderMeta;
 		}
 	>;
+	success: boolean;
+	types: string[];
 }
 
 export interface QueryTypeOption {
-	key: string;
-	title: string;
-	description: string;
 	category: string;
-	outputFields: NonNullable<QueryBuilderMeta["output_fields"]>;
 	defaultVisualization: QueryBuilderMeta["default_visualization"];
+	description: string;
+	key: string;
+	outputFields: NonNullable<QueryBuilderMeta["output_fields"]>;
 	supportsGranularity: QueryBuilderMeta["supports_granularity"];
+	title: string;
 }
 
 async function fetchQueryTypes(): Promise<QueryTypeOption[]> {
@@ -90,19 +90,16 @@ export function useQueryTypes() {
 	/** Get query types filtered by visualization type */
 	const getByVisualization = (
 		viz: QueryBuilderMeta["default_visualization"]
-	): QueryTypeOption[] => {
-		return (query.data || []).filter((t) => t.defaultVisualization === viz);
-	};
+	): QueryTypeOption[] =>
+		(query.data || []).filter((t) => t.defaultVisualization === viz);
 
 	/** Get query types filtered by category */
-	const getByCategory = (category: string): QueryTypeOption[] => {
-		return (query.data || []).filter((t) => t.category === category);
-	};
+	const getByCategory = (category: string): QueryTypeOption[] =>
+		(query.data || []).filter((t) => t.category === category);
 
 	/** Find a query type by key */
-	const getByKey = (key: string): QueryTypeOption | undefined => {
-		return (query.data || []).find((t) => t.key === key);
-	};
+	const getByKey = (key: string): QueryTypeOption | undefined =>
+		(query.data || []).find((t) => t.key === key);
 
 	return {
 		queryTypes: query.data || [],

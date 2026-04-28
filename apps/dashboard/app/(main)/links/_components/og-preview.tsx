@@ -1,32 +1,29 @@
 "use client";
 
-import {
-	ArrowCounterClockwiseIcon,
-	ArrowsClockwiseIcon,
-	CheckCircleIcon,
-	CircleNotchIcon,
-	XIcon as CloseIcon,
-	ImageIcon,
-	VideoIcon,
-	WarningCircleIcon,
-} from "@phosphor-icons/react";
 import { useCallback, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	type FetchedOgData,
 	getProxiedImageUrl,
 	useImageValidation,
 	useOgMetadata,
 } from "./use-og-metadata";
+import { XIcon as CloseIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowCounterClockwiseIcon,
+	ArrowsClockwiseIcon,
+	CheckCircleIcon,
+	CircleNotchIcon,
+	ImageIcon,
+	VideoIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
+import { Button, Field, Input, Textarea } from "@databuddy/ui";
+import { Switch } from "@databuddy/ui/client";
 
 export interface OgData {
-	ogTitle: string;
 	ogDescription: string;
 	ogImageUrl: string;
+	ogTitle: string;
 	ogVideoUrl: string;
 }
 
@@ -34,11 +31,11 @@ const TITLE_MAX = 120;
 const DESCRIPTION_MAX = 240;
 
 interface OgPreviewProps {
-	targetUrl: string;
-	value: OgData;
 	onChange: (data: OgData) => void;
-	useCustomOg: boolean;
 	onUseCustomOgChange: (useCustom: boolean) => void;
+	targetUrl: string;
+	useCustomOg: boolean;
+	value: OgData;
 }
 
 export function OgPreview({
@@ -122,7 +119,7 @@ export function OgPreview({
 											onClick={retryImage}
 											size="sm"
 											type="button"
-											variant="outline"
+											variant="secondary"
 										>
 											<ArrowsClockwiseIcon className="mr-1.5 size-3.5" />
 											Retry
@@ -207,9 +204,9 @@ export function OgPreview({
 			</div>
 
 			<div className="flex items-center justify-between">
-				<Label className="text-sm" htmlFor="use-custom-og">
+				<Field.Label className="text-sm" htmlFor="use-custom-og">
 					Use custom social preview
-				</Label>
+				</Field.Label>
 				<Switch
 					checked={useCustomOg}
 					id="use-custom-og"
@@ -221,9 +218,9 @@ export function OgPreview({
 				<div className="space-y-3 border-primary/20 border-l-2 pl-4">
 					<div className="grid gap-1.5">
 						<div className="flex items-center justify-between">
-							<Label className="text-xs" htmlFor="og-title">
+							<Field.Label className="text-xs" htmlFor="og-title">
 								Title
-							</Label>
+							</Field.Label>
 							<span
 								aria-live="polite"
 								className="text-muted-foreground text-xs tabular-nums"
@@ -247,9 +244,9 @@ export function OgPreview({
 
 					<div className="grid gap-1.5">
 						<div className="flex items-center justify-between">
-							<Label className="text-xs" htmlFor="og-description">
+							<Field.Label className="text-xs" htmlFor="og-description">
 								Description
-							</Label>
+							</Field.Label>
 							<span
 								aria-live="polite"
 								className="text-muted-foreground text-xs tabular-nums"
@@ -276,9 +273,9 @@ export function OgPreview({
 
 					<div className="grid gap-1.5">
 						<div className="flex items-center justify-between">
-							<Label className="text-xs" htmlFor="og-image">
+							<Field.Label className="text-xs" htmlFor="og-image">
 								Image URL
-							</Label>
+							</Field.Label>
 							{customImageUrl && (
 								<span className="flex items-center gap-1 text-xs">
 									{imageStatus === "loading" && (
@@ -334,13 +331,13 @@ export function OgPreview({
 					</div>
 
 					<div className="grid gap-1.5">
-						<Label
+						<Field.Label
 							className="flex items-center gap-1.5 text-xs"
 							htmlFor="og-video"
 						>
 							<VideoIcon size={12} weight="duotone" />
 							Video URL (optional)
-						</Label>
+						</Field.Label>
 						<Input
 							className="h-8 text-sm"
 							id="og-video"

@@ -4,13 +4,9 @@ import {
 	ArrowClockwiseIcon,
 	TrendUpIcon,
 	WarningCircleIcon,
-} from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
+} from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
-/**
- * Empty state for the usage section when no features have been used yet.
- * Used in the main content area of billing overview.
- */
 export function EmptyUsageState() {
 	return (
 		<div className="flex flex-col items-center justify-center py-16 text-center">
@@ -34,10 +30,6 @@ interface ErrorStateProps {
 	onRetry: () => void;
 }
 
-/**
- * Error state shown when billing data fails to load.
- * Provides a retry action for the user.
- */
 export function ErrorState({ error, onRetry }: ErrorStateProps) {
 	const errorMessage =
 		error instanceof Error ? error.message : "Failed to load billing data";
@@ -55,7 +47,7 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
 			<p className="mt-1 mb-4 max-w-xs text-center text-muted-foreground text-sm">
 				{errorMessage}
 			</p>
-			<Button className="mt-2" onClick={onRetry} size="sm" variant="outline">
+			<Button className="mt-2" onClick={onRetry} size="sm" variant="secondary">
 				<ArrowClockwiseIcon size={14} />
 				Try again
 			</Button>

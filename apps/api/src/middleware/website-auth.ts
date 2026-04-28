@@ -1,12 +1,14 @@
-import { auth } from "@databuddy/auth";
-import { and, db, eq, member } from "@databuddy/db";
-import { Elysia } from "elysia";
-import { useLogger } from "evlog/elysia";
 import {
 	getApiKeyFromHeader,
 	hasWebsiteScope,
 	isApiKeyPresent,
-} from "../lib/api-key";
+} from "@databuddy/api-keys/resolve";
+import { auth } from "@databuddy/auth";
+import { and, db, eq } from "@databuddy/db";
+import { member } from "@databuddy/db/schema";
+import { Elysia } from "elysia";
+import { useLogger } from "evlog/elysia";
+import { record } from "../lib/tracing";
 import { getCachedWebsite, getTimezone } from "../lib/website-utils";
 
 function json(status: number, body: unknown) {
@@ -29,11 +31,15 @@ export function websiteAuth() {
 
 			const url = new URL(request.url);
 			const websiteId = url.searchParams.get("website_id");
-			const { sessionUser, apiKey, apiKeyPresent } =
-				await getAuthContext(request);
+			const { sessionUser, apiKey, apiKeyPresent } = await record(
+				"getAuthContext",
+				() => getAuthContext(request)
+			);
 
 			const outcome = websiteId
-				? await checkWebsiteAuth(websiteId, sessionUser, apiKey, apiKeyPresent)
+				? await record("checkWebsiteAuth", () =>
+						checkWebsiteAuth(websiteId, sessionUser, apiKey, apiKeyPresent)
+					)
 				: checkNoWebsiteAuth(sessionUser, apiKey);
 
 			if (debug) {
@@ -49,11 +55,15 @@ export function websiteAuth() {
 			const apiKeyPresent = isApiKeyPresent(request.headers);
 			const session = apiKeyPresent
 				? null
-				: await auth.api.getSession({ headers: request.headers });
+				: await record("getSession", () =>
+						auth.api.getSession({ headers: request.headers })
+					);
 			const timezone = session?.user
 				? await getTimezone(request, session)
 				: await getTimezone(request, null);
-			const website = websiteId ? await getCachedWebsite(websiteId) : undefined;
+			const website = websiteId
+				? await record("getCachedWebsite", () => getCachedWebsite(websiteId))
+				: undefined;
 			return {
 				user: session?.user ?? null,
 				session,
@@ -115,10 +125,7 @@ async function checkWebsiteAuth(
 
 	// Check session-based authentication
 	if (sessionUser && typeof sessionUser === "object" && "id" in sessionUser) {
-		const userObj = sessionUser as { id: string; role?: string };
-		if (userObj.role === "ADMIN") {
-			return null;
-		}
+		const userObj = sessionUser as { id: string };
 
 		const userId = userObj.id;
 

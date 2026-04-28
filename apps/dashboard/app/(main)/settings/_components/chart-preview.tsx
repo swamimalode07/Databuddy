@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Chart } from "@/components/ui/composables/chart";
 import { cn } from "@/lib/utils";
+import { Card } from "@databuddy/ui";
 
 const previewData = [
 	{ date: "Mon", value: 186 },
@@ -40,7 +40,7 @@ const ChartPreview = ({
 			)}
 			style={{ width: `${size}px`, height: `${size}px` }}
 		>
-			<CardContent className="flex size-full items-center justify-center p-2">
+			<Card.Content className="flex size-full items-center justify-center p-2">
 				<div className="size-full">
 					<Chart.SingleSeries
 						color="var(--color-chart-1)"
@@ -52,7 +52,7 @@ const ChartPreview = ({
 						tooltip={false}
 					/>
 				</div>
-			</CardContent>
+			</Card.Content>
 		</Card>
 	);
 };

@@ -3,21 +3,21 @@ import type { NotificationPayload, NotificationPriority } from "../types";
 export type UptimeNotificationKind = "down" | "recovered";
 
 export interface UptimeNotificationInput {
-	kind: UptimeNotificationKind;
-	/** Display name for the monitored site or service */
-	siteLabel: string;
-	url: string;
 	/** Check time as Unix ms (UTC formatting is applied in the builder) */
 	checkedAt: number;
-	httpCode: number;
 	/** Error detail when the check failed; use empty string when none */
 	error: string;
+	httpCode: number;
+	kind: UptimeNotificationKind;
 	probeRegion?: string;
-	totalMs?: number;
-	ttfbMs?: number;
-	sslValid?: boolean;
+	/** Display name for the monitored site or service */
+	siteLabel: string;
 	/** SSL certificate expiry as Unix ms, if known */
 	sslExpiryMs?: number;
+	sslValid?: boolean;
+	totalMs?: number;
+	ttfbMs?: number;
+	url: string;
 }
 
 const utcMediumFormatter = new Intl.DateTimeFormat("en-US", {
@@ -37,14 +37,14 @@ function formatUtcTimestamp(ms: number): string {
 
 function formatDurationMs(ms: number | undefined): string | undefined {
 	if (ms === undefined || Number.isNaN(ms)) {
-		return undefined;
+		return;
 	}
 	return `${Math.round(ms)} ms`;
 }
 
 function sslLine(input: UptimeNotificationInput): string | undefined {
 	if (input.sslValid === undefined) {
-		return undefined;
+		return;
 	}
 	const status = input.sslValid ? "valid" : "invalid";
 	if (

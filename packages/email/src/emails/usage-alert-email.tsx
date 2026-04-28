@@ -1,13 +1,13 @@
-import { Heading, Link, Section, Text } from "@react-email/components";
+import { Heading, Link, Section, Text } from "react-email";
 import { emailBrand } from "./email-brand";
 import { EmailButton } from "./email-button";
 import { EmailLayout } from "./email-layout";
 
 interface UsageAlertEmailProps {
+	alertName?: string;
 	featureName?: string;
 	threshold?: number;
 	thresholdType?: "usage" | "usage_percentage_threshold";
-	alertName?: string;
 	userName?: string;
 }
 
@@ -27,7 +27,7 @@ export const UsageAlertEmail = ({
 
 	return (
 		<EmailLayout
-			preview={`Usage alert: ${thresholdLabel} of your ${featureName} ${isPercentage ? "allowance" : "limit"} reached`}
+			preview={`You've used ${thresholdLabel} of your ${featureName.toLowerCase()}. Upgrade to avoid interruption.`}
 			tagline="Usage Alert"
 		>
 			<Section className="text-center">
@@ -101,5 +101,12 @@ export const UsageAlertEmail = ({
 		</EmailLayout>
 	);
 };
+
+UsageAlertEmail.PreviewProps = {
+	featureName: "Events",
+	threshold: 80,
+	thresholdType: "usage_percentage_threshold",
+	userName: "Ada",
+} satisfies UsageAlertEmailProps;
 
 export default UsageAlertEmail;

@@ -1,31 +1,32 @@
 "use client";
 
-import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { DeviceTypeCell } from "@/components/analytics";
 import { ReferrerSourceCell } from "@/components/atomic/ReferrerSourceCell";
 import { CountryFlag } from "@/components/icon";
-import { PercentageBadge } from "@/components/ui/percentage-badge";
+import { formatNumber } from "@/lib/formatters";
+import { MapPinIcon } from "@databuddy/ui/icons";
+import { PercentageBadge } from "@databuddy/ui";
 
 export interface SourceEntry {
-	name: string;
 	clicks: number;
+	domain?: string;
+	name: string;
 	percentage: number;
 	referrer?: string;
-	domain?: string;
 }
 
 export interface GeoEntry {
-	name: string;
+	clicks: number;
 	country_code: string;
 	country_name: string;
-	clicks: number;
+	name: string;
 	percentage: number;
 }
 
 function extractDomain(referrer: string | undefined): string | undefined {
 	if (!referrer || referrer === "Direct" || referrer === "") {
-		return undefined;
+		return;
 	}
 	try {
 		if (referrer.startsWith("http://") || referrer.startsWith("https://")) {
@@ -35,20 +36,10 @@ function extractDomain(referrer: string | undefined): string | undefined {
 		if (cleaned.includes(".")) {
 			return cleaned.split("/")[0];
 		}
-		return undefined;
+		return;
 	} catch {
-		return undefined;
+		return;
 	}
-}
-
-function formatNumber(value: number): string {
-	if (value == null || Number.isNaN(value)) {
-		return "0";
-	}
-	return Intl.NumberFormat(undefined, {
-		notation: "compact",
-		maximumFractionDigits: 1,
-	}).format(value);
 }
 
 export function createReferrerColumns(): ColumnDef<SourceEntry>[] {
@@ -108,14 +99,14 @@ export function createGeoColumns(
 
 				const getIcon = () => {
 					if (countryCode && countryCode !== "Unknown" && countryCode !== "") {
-						return <CountryFlag country={countryCode} size={16} />;
+						return <CountryFlag country={countryCode} size={18} />;
 					}
 					if (type === "country" && name && name !== "Unknown") {
-						return <CountryFlag country={name} size={16} />;
+						return <CountryFlag country={name} size={18} />;
 					}
 					return (
 						<MapPinIcon
-							className="size-4 text-muted-foreground"
+							className="size-[18px] text-muted-foreground"
 							weight="duotone"
 						/>
 					);

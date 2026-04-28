@@ -1,29 +1,33 @@
 import { logger } from "@/logger";
 import {
+	cacheKeyBelongsToContext,
 	buildQueryParams,
 	DEFAULT_RESULT,
 	fetchAllFlags as fetchAllFlagsApi,
 	getCacheKey,
+	getFlagKey,
 	RequestBatcher,
 } from "./shared";
 import type {
 	FlagResult,
-	FlagState,
 	FlagsConfig,
 	FlagsManager,
 	FlagsManagerOptions,
 	FlagsSnapshot,
+	FlagState,
 	StorageInterface,
 	UserContext,
 } from "./types";
 
 const ANON_ID_KEY = "did";
+const OVERRIDES_KEY = "databuddy:flag-overrides:v1";
 const DEFAULT_API = "https://api.databuddy.cc";
+const DEFAULT_MAX_CACHE_SIZE = 5000;
 
 interface CacheEntry {
+	expiresAt: number;
 	promise: Promise<FlagResult>;
 	result: FlagResult | null;
-	expiresAt: number;
 	staleAt: number;
 }
 
@@ -54,7 +58,8 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	protected readonly storage?: StorageInterface;
 
 	private readonly cache = new Map<string, CacheEntry>();
-	private batcher: RequestBatcher | null = null;
+	protected readonly overrides = new Map<string, FlagResult>();
+	private readonly batchers = new Map<string, RequestBatcher>();
 	private ready = false;
 	private readonly listeners = new Set<() => void>();
 	private snapshot: FlagsSnapshot = { flags: {}, isReady: false };
@@ -66,6 +71,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 			debug: false,
 			autoFetch: true,
 			cacheTtl: 60_000,
+			maxCacheSize: DEFAULT_MAX_CACHE_SIZE,
 			staleTime: 30_000,
 			...options.config,
 		};
@@ -82,7 +88,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	protected onFlagEvaluated(_key: string, _result: FlagResult): void {}
 
 	protected async runInit(): Promise<void> {
-		if (this.storage) {
+		if (this.storage && !this.config.skipStorage) {
 			this.hydrate();
 		}
 		if (this.config.autoFetch && !this.config.isPending) {
@@ -100,7 +106,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 			const { ttl, stale } = this.ttls();
 			for (const [key, value] of Object.entries(stored)) {
 				if (value && typeof value === "object") {
-					this.cache.set(key, resolved(value, ttl, stale));
+					this.setCache(key, resolved(value, ttl, stale));
 				}
 			}
 			if (this.cache.size > 0) {
@@ -112,7 +118,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	protected persist(): void {
-		if (!this.storage) {
+		if (!(this.storage && !this.config.skipStorage)) {
 			return;
 		}
 		try {
@@ -144,16 +150,57 @@ export abstract class BaseFlagsManager implements FlagsManager {
 		return null;
 	}
 
-	private ensureBatcher(): RequestBatcher {
-		if (!this.batcher) {
-			const params = buildQueryParams(this.config);
-			this.batcher = new RequestBatcher(
-				this.config.apiUrl ?? DEFAULT_API,
-				params,
-				this.batchDelay()
-			);
+	private setCache(cacheKey: string, entry: CacheEntry): void {
+		this.cache.set(cacheKey, entry);
+		this.pruneCache();
+	}
+
+	private pruneCache(): void {
+		const maxCacheSize = Math.max(
+			0,
+			Math.floor(this.config.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE)
+		);
+		if (maxCacheSize === 0) {
+			this.cache.clear();
+			return;
 		}
-		return this.batcher;
+
+		const now = Date.now();
+		for (const [key, entry] of this.cache) {
+			if (now > entry.expiresAt) {
+				this.cache.delete(key);
+			}
+		}
+
+		while (this.cache.size > maxCacheSize) {
+			const oldest = this.cache.keys().next().value;
+			if (oldest === undefined) {
+				return;
+			}
+			this.cache.delete(oldest);
+		}
+	}
+
+	private ensureBatcher(user?: UserContext): RequestBatcher {
+		const params = buildQueryParams(this.config, user);
+		const batcherKey = `${this.config.apiUrl ?? DEFAULT_API}?${params}`;
+		const existing = this.batchers.get(batcherKey);
+		if (existing) {
+			return existing;
+		}
+
+		const batcher = new RequestBatcher(
+			this.config.apiUrl ?? DEFAULT_API,
+			params,
+			this.batchDelay(),
+			() => {
+				if (this.batchers.get(batcherKey) === batcher) {
+					this.batchers.delete(batcherKey);
+				}
+			}
+		);
+		this.batchers.set(batcherKey, batcher);
+		return batcher;
 	}
 
 	protected batchDelay(): number {
@@ -161,30 +208,30 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	private pruneStaleKeys(validKeys: Set<string>, user?: UserContext): void {
-		const ctx = user ?? this.config.user;
-		const suffix =
-			ctx?.userId || ctx?.email
-				? `:${ctx.userId ?? ""}:${ctx.email ?? ""}`
-				: "";
-
 		for (const key of this.cache.keys()) {
-			const belongsToUser = suffix ? key.endsWith(suffix) : !key.includes(":");
-			if (belongsToUser && !validKeys.has(key)) {
+			if (
+				cacheKeyBelongsToContext(
+					key,
+					user ?? this.config.user,
+					this.config.environment
+				) &&
+				!validKeys.has(key)
+			) {
 				this.cache.delete(key);
 			}
 		}
 	}
 
-	private revalidate(key: string, cacheKey: string): void {
+	private revalidate(key: string, cacheKey: string, user?: UserContext): void {
 		const existing = this.cache.get(cacheKey);
 		if (existing && !existing.result) {
 			return;
 		}
 
 		const { ttl, stale } = this.ttls();
-		const promise = this.ensureBatcher().request(key);
+		const promise = this.ensureBatcher(user).request(key);
 
-		this.cache.set(cacheKey, {
+		this.setCache(cacheKey, {
 			promise,
 			result: existing?.result ?? null,
 			expiresAt: existing?.expiresAt ?? Date.now() + ttl,
@@ -193,7 +240,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 
 		promise
 			.then((result) => {
-				this.cache.set(cacheKey, resolved(result, ttl, stale));
+				this.setCache(cacheKey, resolved(result, ttl, stale));
 				this.emit();
 				this.onCacheUpdated();
 			})
@@ -203,6 +250,10 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	async getFlag(key: string, user?: UserContext): Promise<FlagResult> {
+		const override = this.overrides.get(key);
+		if (override) {
+			return override;
+		}
 		if (this.config.disabled) {
 			return DEFAULT_RESULT;
 		}
@@ -210,12 +261,16 @@ export abstract class BaseFlagsManager implements FlagsManager {
 			return { ...DEFAULT_RESULT, reason: "SESSION_PENDING" };
 		}
 
-		const cacheKey = getCacheKey(key, user ?? this.config.user);
+		const cacheKey = getCacheKey(
+			key,
+			user ?? this.config.user,
+			this.config.environment
+		);
 		const entry = this.validEntry(cacheKey);
 
 		if (entry) {
 			if (isStale(entry) && !this.shouldSkipFetch()) {
-				this.revalidate(key, cacheKey);
+				this.revalidate(key, cacheKey, user);
 			}
 			return entry.result ?? entry.promise;
 		}
@@ -226,9 +281,9 @@ export abstract class BaseFlagsManager implements FlagsManager {
 		}
 
 		const { ttl, stale } = this.ttls();
-		const promise = this.ensureBatcher().request(key);
+		const promise = this.ensureBatcher(user).request(key);
 
-		this.cache.set(cacheKey, {
+		this.setCache(cacheKey, {
 			promise,
 			result: null,
 			expiresAt: Date.now() + ttl,
@@ -237,7 +292,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 
 		try {
 			const result = await promise;
-			this.cache.set(cacheKey, resolved(result, ttl, stale));
+			this.setCache(cacheKey, resolved(result, ttl, stale));
 			this.emit();
 			this.onCacheUpdated();
 			this.onFlagEvaluated(key, result);
@@ -248,11 +303,14 @@ export abstract class BaseFlagsManager implements FlagsManager {
 		}
 	}
 
-	async fetchAllFlags(user?: UserContext): Promise<void> {
-		if (this.config.disabled || this.config.isPending) {
+	async fetchAllFlags(
+		user?: UserContext,
+		options?: { force?: boolean }
+	): Promise<void> {
+		if (!options?.force && (this.config.disabled || this.config.isPending)) {
 			return;
 		}
-		if (this.shouldSkipFetch() && this.cache.size > 0) {
+		if (!options?.force && this.shouldSkipFetch() && this.cache.size > 0) {
 			return;
 		}
 
@@ -265,7 +323,11 @@ export abstract class BaseFlagsManager implements FlagsManager {
 				params
 			);
 			const entries = Object.entries(flags).map(([key, result]) => ({
-				cacheKey: getCacheKey(key, user ?? this.config.user),
+				cacheKey: getCacheKey(
+					key,
+					user ?? this.config.user,
+					this.config.environment
+				),
 				entry: resolved(result, ttl, stale),
 			}));
 
@@ -275,7 +337,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 			);
 
 			for (const { cacheKey, entry } of entries) {
-				this.cache.set(cacheKey, entry);
+				this.setCache(cacheKey, entry);
 			}
 
 			this.ready = true;
@@ -287,12 +349,26 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	isEnabled(key: string): FlagState {
-		const cacheKey = getCacheKey(key, this.config.user);
+		const override = this.overrides.get(key);
+		if (override) {
+			return {
+				on: override.enabled,
+				status: "ready",
+				loading: false,
+				value: override.value,
+				variant: override.variant,
+			};
+		}
+		const cacheKey = getCacheKey(
+			key,
+			this.config.user,
+			this.config.environment
+		);
 		const entry = this.validEntry(cacheKey);
 
 		if (entry?.result) {
 			if (isStale(entry) && !this.shouldSkipFetch()) {
-				this.revalidate(key, cacheKey);
+				this.revalidate(key, cacheKey, this.config.user);
 			}
 			return {
 				on: entry.result.enabled,
@@ -313,12 +389,20 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	getValue<T = boolean | string | number>(key: string, defaultValue?: T): T {
-		const cacheKey = getCacheKey(key, this.config.user);
+		const override = this.overrides.get(key);
+		if (override) {
+			return override.value as T;
+		}
+		const cacheKey = getCacheKey(
+			key,
+			this.config.user,
+			this.config.environment
+		);
 		const entry = this.validEntry(cacheKey);
 
 		if (entry?.result) {
 			if (isStale(entry) && !this.shouldSkipFetch()) {
-				this.revalidate(key, cacheKey);
+				this.revalidate(key, cacheKey, this.config.user);
 			}
 			return entry.result.value as T;
 		}
@@ -334,23 +418,27 @@ export abstract class BaseFlagsManager implements FlagsManager {
 
 	updateUser(user: UserContext): void {
 		this.config = { ...this.config, user: this.enrichUser(user) };
-		this.resetBatcher();
+		this.resetBatchers();
 		this.refresh().catch((err) => logger.error("Refresh error:", err));
 	}
 
-	async refresh(forceClear = false): Promise<void> {
+	async refresh(
+		forceClear = false,
+		options?: { force?: boolean }
+	): Promise<void> {
 		if (forceClear) {
 			this.cache.clear();
 			this.storage?.clear();
 			this.emit();
 		}
-		await this.fetchAllFlags();
+		await this.fetchAllFlags(undefined, options);
 	}
 
 	updateConfig(config: FlagsConfig): void {
 		const wasInactive = this.config.disabled || this.config.isPending;
 		this.config = { ...this.config, ...config };
-		this.resetBatcher();
+		this.resetBatchers();
+		this.emit();
 
 		if (wasInactive && !this.config.disabled && !this.config.isPending) {
 			this.fetchAllFlags().catch((err) => logger.error("Fetch error:", err));
@@ -361,10 +449,70 @@ export abstract class BaseFlagsManager implements FlagsManager {
 		const flags: Record<string, FlagResult> = {};
 		for (const [key, entry] of this.cache) {
 			if (entry.result) {
-				flags[key.split(":").at(0) ?? key] = entry.result;
+				flags[getFlagKey(key)] = entry.result;
 			}
 		}
+		for (const [key, override] of this.overrides) {
+			flags[key] = override;
+		}
 		return flags;
+	}
+
+	setOverride(key: string, override: FlagResult | null): void {
+		if (override === null) {
+			if (!this.overrides.delete(key)) {
+				return;
+			}
+		} else {
+			this.overrides.set(key, { ...override, reason: "OVERRIDE" });
+		}
+		this.onOverridesChanged();
+		this.emit();
+	}
+
+	protected onOverridesChanged(): void {}
+
+	getDevtoolsConfig(): {
+		apiUrl: string | null;
+		autoFetch: boolean;
+		cacheSize: number;
+		cacheTtl: number | null;
+		clientId: string | null;
+		defaults: Record<string, boolean | string | number>;
+		disabled: boolean;
+		environment: string | null;
+		isPending: boolean;
+		skipStorage: boolean;
+		staleTime: number | null;
+		user: {
+			email: string | null;
+			organizationId: string | null;
+			teamId: string | null;
+			userId: string | null;
+		} | null;
+	} {
+		const user = this.config.user;
+		return {
+			apiUrl: this.config.apiUrl ?? null,
+			autoFetch: this.config.autoFetch ?? true,
+			cacheSize: this.cache.size,
+			cacheTtl: this.config.cacheTtl ?? null,
+			clientId: this.config.clientId ?? null,
+			defaults: this.config.defaults ?? {},
+			disabled: Boolean(this.config.disabled),
+			environment: this.config.environment ?? null,
+			isPending: Boolean(this.config.isPending),
+			skipStorage: Boolean(this.storage === undefined),
+			staleTime: this.config.staleTime ?? null,
+			user: user
+				? {
+						email: user.email ?? null,
+						organizationId: user.organizationId ?? null,
+						teamId: user.teamId ?? null,
+						userId: user.userId ?? null,
+					}
+				: null,
+		};
 	}
 
 	isReady(): boolean {
@@ -372,7 +520,7 @@ export abstract class BaseFlagsManager implements FlagsManager {
 	}
 
 	destroy(): void {
-		this.batcher?.destroy();
+		this.resetBatchers();
 		this.cache.clear();
 		this.listeners.clear();
 	}
@@ -397,9 +545,11 @@ export abstract class BaseFlagsManager implements FlagsManager {
 		}
 	}
 
-	private resetBatcher(): void {
-		this.batcher?.destroy();
-		this.batcher = null;
+	private resetBatchers(): void {
+		for (const batcher of this.batchers.values()) {
+			batcher.destroy();
+		}
+		this.batchers.clear();
 	}
 
 	protected revalidateStale(): void {
@@ -423,8 +573,45 @@ export class BrowserFlagsManager extends BaseFlagsManager {
 		super(options);
 		this.config.user = this.enrichUser(this.config.user ?? {});
 		this.config.autoFetch = options.config.autoFetch !== false;
+		this.loadOverrides();
 		this.setupVisibilityListener();
 		this.runInit();
+	}
+
+	protected override onOverridesChanged(): void {
+		if (typeof localStorage === "undefined") {
+			return;
+		}
+		try {
+			if (this.overrides.size === 0) {
+				localStorage.removeItem(OVERRIDES_KEY);
+				return;
+			}
+			localStorage.setItem(
+				OVERRIDES_KEY,
+				JSON.stringify(Object.fromEntries(this.overrides))
+			);
+		} catch {
+			// storage blocked
+		}
+	}
+
+	private loadOverrides(): void {
+		if (typeof localStorage === "undefined") {
+			return;
+		}
+		try {
+			const raw = localStorage.getItem(OVERRIDES_KEY);
+			if (!raw) {
+				return;
+			}
+			const stored = JSON.parse(raw) as Record<string, FlagResult>;
+			for (const [k, v] of Object.entries(stored)) {
+				this.overrides.set(k, v);
+			}
+		} catch {
+			// ignore corrupt storage
+		}
 	}
 
 	protected override shouldSkipFetch(): boolean {
@@ -466,6 +653,36 @@ export class BrowserFlagsManager extends BaseFlagsManager {
 			return user;
 		}
 		return { ...user, userId: anonId };
+	}
+
+	override updateConfig(config: FlagsConfig): void {
+		if (!("user" in config)) {
+			super.updateConfig(config);
+			return;
+		}
+		const incoming = config.user;
+		const incomingHasIdentity = Boolean(incoming?.userId || incoming?.email);
+		const isPending = config.isPending ?? this.config.isPending ?? false;
+		const currentIsReal = this.isRealIdentity(this.config.user);
+		let resolvedUser: UserContext;
+		if (incomingHasIdentity) {
+			resolvedUser = this.enrichUser(incoming as UserContext);
+		} else if (isPending && currentIsReal) {
+			resolvedUser = this.config.user as UserContext;
+		} else {
+			resolvedUser = this.enrichUser(incoming ?? {});
+		}
+		super.updateConfig({ ...config, user: resolvedUser });
+	}
+
+	private isRealIdentity(user: UserContext | undefined): boolean {
+		if (!user) {
+			return false;
+		}
+		if (user.email) {
+			return true;
+		}
+		return Boolean(user.userId && !user.userId.startsWith("anon_"));
 	}
 
 	override destroy(): void {

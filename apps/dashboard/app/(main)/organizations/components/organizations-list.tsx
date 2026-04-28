@@ -1,12 +1,6 @@
 "use client";
 
 import { authClient } from "@databuddy/auth/client";
-import {
-	BuildingsIcon,
-	CaretRightIcon,
-	CheckCircleIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,18 +12,22 @@ import {
 } from "@/components/providers/organizations-provider";
 import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import dayjs from "@/lib/dayjs";
 import { cn, getOrganizationInitials } from "@/lib/utils";
+import {
+	BuildingsIcon,
+	CaretRightIcon,
+	CheckCircleIcon,
+	PlusIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, dayjs } from "@databuddy/ui";
 
 function getDicebearUrl(seed: string): string {
 	return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(seed)}`;
 }
 
 interface OrganizationsListProps {
-	organizations: Organization[] | null | undefined;
 	activeOrganization: Organization | null | undefined;
+	organizations: Organization[] | null | undefined;
 }
 
 function EmptyState() {
@@ -60,10 +58,10 @@ function EmptyState() {
 }
 
 interface OrganizationRowProps {
-	organization: Organization;
 	isActive: boolean;
 	isProcessing: boolean;
 	onClick: () => void;
+	organization: Organization;
 }
 
 function OrganizationRow({
@@ -105,7 +103,7 @@ function OrganizationRow({
 			</div>
 
 			{isActive && (
-				<Badge variant="green">
+				<Badge variant="success">
 					<CheckCircleIcon className="mr-1" size={12} weight="fill" />
 					Active
 				</Badge>
@@ -143,18 +141,18 @@ export function OrganizationsList({
 				organizationId: orgId,
 			});
 			if (error) {
-				toast.error(error.message ?? "Failed to switch workspace");
+				toast.error(error.message ?? "Failed to switch organization");
 			} else {
 				await queryClient.invalidateQueries({
 					queryKey: AUTH_QUERY_KEYS.activeOrganization,
 				});
 				queryClient.invalidateQueries();
-				toast.success("Workspace updated");
+				toast.success("Organization updated");
 				await new Promise((resolve) => setTimeout(resolve, 300));
 				router.push("/organizations/settings");
 			}
 		} catch {
-			toast.error("Failed to switch workspace");
+			toast.error("Failed to switch organization");
 		} finally {
 			setProcessingId(null);
 		}
@@ -166,7 +164,6 @@ export function OrganizationsList({
 
 	return (
 		<div className="h-full lg:grid lg:grid-cols-[1fr_18rem]">
-			{/* Organizations List */}
 			<div className="flex flex-col border-b lg:border-b-0">
 				<div className="flex-1 divide-y overflow-y-auto">
 					{organizations.map((org) => (
@@ -181,7 +178,6 @@ export function OrganizationsList({
 				</div>
 			</div>
 
-			{/* Sidebar */}
 			<RightSidebar className="gap-4 p-5">
 				<Button
 					className="w-full"

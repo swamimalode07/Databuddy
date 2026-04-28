@@ -1,15 +1,5 @@
 "use client";
 
-import { CircleNotchIcon } from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import {
 	Drawer,
 	DrawerContent,
@@ -19,20 +9,22 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@databuddy/ui";
+import { Dialog } from "@databuddy/ui/client";
 
 interface FormDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	title: string;
-	description?: string;
-	children: React.ReactNode;
-	onSubmit: () => void;
-	submitLabel?: string;
 	cancelLabel?: string;
-	isSubmitting?: boolean;
-	submitDisabled?: boolean;
+	children: React.ReactNode;
+	description?: string;
 	icon?: React.ReactNode;
+	isSubmitting?: boolean;
+	onOpenChange: (open: boolean) => void;
+	onSubmit: () => void;
+	open: boolean;
 	size?: "sm" | "md" | "lg";
+	submitDisabled?: boolean;
+	submitLabel?: string;
+	title: string;
 }
 
 export function FormDialog({
@@ -65,7 +57,7 @@ export function FormDialog({
 						{icon}
 					</div>
 					<div className="flex-1">
-						<div className="font-semibold text-foreground text-base leading-none">
+						<div className="font-semibold text-base text-foreground leading-none">
 							{title}
 						</div>
 						{description && (
@@ -99,23 +91,16 @@ export function FormDialog({
 				className="flex-1"
 				disabled={isSubmitting}
 				onClick={() => onOpenChange(false)}
-				type="button"
-				variant="outline"
+				variant="secondary"
 			>
 				{cancelLabel}
 			</Button>
 			<Button
 				className="flex-1"
-				disabled={isSubmitting || submitDisabled}
+				disabled={submitDisabled}
+				loading={isSubmitting}
 				onClick={onSubmit}
-				type="submit"
 			>
-				{isSubmitting && (
-					<CircleNotchIcon
-						className="mr-2 size-4 animate-spin"
-						weight="duotone"
-					/>
-				)}
 				{submitLabel}
 			</Button>
 		</>
@@ -146,21 +131,21 @@ export function FormDialog({
 
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
-			<DialogContent className={sizeClasses[size]}>
+			<Dialog.Content className={sizeClasses[size]}>
 				{icon ? (
 					<div className="mb-4">{headerContent}</div>
 				) : (
-					<DialogHeader>
-						<DialogTitle>{title}</DialogTitle>
+					<Dialog.Header>
+						<Dialog.Title>{title}</Dialog.Title>
 						{description && (
-							<DialogDescription>{description}</DialogDescription>
+							<Dialog.Description>{description}</Dialog.Description>
 						)}
-					</DialogHeader>
+					</Dialog.Header>
 				)}
-				{formContent}
-				<DialogFooter className="gap-2">{footerContent}</DialogFooter>
-			</DialogContent>
+				<Dialog.Body>{formContent}</Dialog.Body>
+				<Dialog.Footer className="gap-2">{footerContent}</Dialog.Footer>
+				<Dialog.Close />
+			</Dialog.Content>
 		</Dialog>
 	);
 }
-

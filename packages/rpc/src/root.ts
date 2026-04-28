@@ -1,3 +1,4 @@
+import { agentChatsRouter } from "./routers/agent-chats";
 import { alarmsRouter } from "./routers/alarms";
 import { annotationsRouter } from "./routers/annotations";
 import { anomaliesRouter } from "./routers/anomalies";
@@ -10,6 +11,7 @@ import { flagsRouter } from "./routers/flags";
 import { funnelsRouter } from "./routers/funnels";
 import { goalsRouter } from "./routers/goals";
 import { insightsRouter } from "./routers/insights";
+import { linkFoldersRouter } from "./routers/link-folders";
 import { linksRouter } from "./routers/links";
 import { organizationsRouter } from "./routers/organizations";
 import { preferencesRouter } from "./routers/preferences";
@@ -20,6 +22,7 @@ import { uptimeRouter } from "./routers/uptime";
 import { websitesRouter } from "./routers/websites";
 
 export const appRouter = {
+	agentChats: agentChatsRouter,
 	alarms: alarmsRouter,
 	anomalies: anomaliesRouter,
 	annotations: annotationsRouter,
@@ -38,6 +41,7 @@ export const appRouter = {
 	billing: billingRouter,
 	statusPage: statusPageRouter,
 	uptime: uptimeRouter,
+	linkFolders: linkFoldersRouter,
 	links: linksRouter,
 	revenue: revenueRouter,
 };

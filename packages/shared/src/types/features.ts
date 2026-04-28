@@ -1,6 +1,3 @@
-/**
- * Plan tiers - ordered from lowest to highest
- */
 export const PLAN_IDS = {
 	FREE: "free",
 	HOBBY: "hobby",
@@ -10,7 +7,6 @@ export const PLAN_IDS = {
 
 export type PlanId = (typeof PLAN_IDS)[keyof typeof PLAN_IDS];
 
-/** Plan tier hierarchy (index = tier level, higher = more features) */
 export const PLAN_HIERARCHY: PlanId[] = [
 	PLAN_IDS.FREE,
 	PLAN_IDS.HOBBY,
@@ -18,30 +14,24 @@ export const PLAN_HIERARCHY: PlanId[] = [
 	PLAN_IDS.SCALE,
 ];
 
-/** Usage-based features tracked by Autumn billing */
 export const FEATURE_IDS = {
 	EVENTS: "events",
-	ASSISTANT_MESSAGES: "assistant_message",
+	AGENT_CREDITS: "agent_credits",
 } as const;
 
 export type FeatureId = (typeof FEATURE_IDS)[keyof typeof FEATURE_IDS];
 
-/** Gated features - locked behind specific plans (not usage-based) */
 export const GATED_FEATURES = {
-	// Product Analytics
 	FUNNELS: "funnels",
 	GOALS: "goals",
 	RETENTION: "retention",
 	USERS: "users",
 	FEATURE_FLAGS: "feature_flags",
-	// Web Analytics
 	WEB_VITALS: "web_vitals",
 	ERROR_TRACKING: "error_tracking",
 	GEOGRAPHIC: "geographic",
-	// AI
 	AI_ASSISTANT: "ai_assistant",
 	AI_AGENT: "ai_agent",
-	// Enterprise
 	TEAM_ROLES: "team_roles",
 	TARGET_GROUPS: "target_groups",
 } as const;
@@ -49,7 +39,6 @@ export const GATED_FEATURES = {
 export type GatedFeatureId =
 	(typeof GATED_FEATURES)[keyof typeof GATED_FEATURES];
 
-/** Features to hide from pricing table (still gated, just not advertised) */
 export const HIDDEN_PRICING_FEATURES: GatedFeatureId[] = [
 	GATED_FEATURES.RETENTION,
 	GATED_FEATURES.ERROR_TRACKING,
@@ -58,18 +47,8 @@ export const HIDDEN_PRICING_FEATURES: GatedFeatureId[] = [
 	GATED_FEATURES.TARGET_GROUPS,
 ];
 
-/**
- * Feature limit types:
- * - number: specific limit (e.g., 5 funnels, 3 team members)
- * - "unlimited": no limit
- * - false: feature not available
- */
 export type FeatureLimit = number | "unlimited" | false;
 
-/**
- * Plan feature limits - edit this to control usage limits per plan
- * Numbers represent the maximum allowed (e.g., 5 = can create up to 5)
- */
 export const PLAN_FEATURE_LIMITS: Record<
 	PlanId,
 	Record<GatedFeatureId, FeatureLimit>
@@ -84,8 +63,8 @@ export const PLAN_FEATURE_LIMITS: Record<
 		[GATED_FEATURES.ERROR_TRACKING]: false, // Hobby+
 		[GATED_FEATURES.GEOGRAPHIC]: "unlimited",
 		[GATED_FEATURES.AI_ASSISTANT]: "unlimited",
-		[GATED_FEATURES.AI_AGENT]: false, // no AI agent
-		[GATED_FEATURES.TEAM_ROLES]: 2, // owner + 1 viewer
+		[GATED_FEATURES.AI_AGENT]: "unlimited", // gated by agent_credits budget, not a hard lock
+		[GATED_FEATURES.TEAM_ROLES]: "unlimited",
 		[GATED_FEATURES.TARGET_GROUPS]: false, // Hobby+
 	},
 	[PLAN_IDS.HOBBY]: {
@@ -98,8 +77,8 @@ export const PLAN_FEATURE_LIMITS: Record<
 		[GATED_FEATURES.ERROR_TRACKING]: "unlimited",
 		[GATED_FEATURES.GEOGRAPHIC]: "unlimited",
 		[GATED_FEATURES.AI_ASSISTANT]: "unlimited",
-		[GATED_FEATURES.AI_AGENT]: false, // no AI agent
-		[GATED_FEATURES.TEAM_ROLES]: 5, // up to 5 team members
+		[GATED_FEATURES.AI_AGENT]: "unlimited", // gated by agent_credits budget, not a hard lock
+		[GATED_FEATURES.TEAM_ROLES]: "unlimited",
 		[GATED_FEATURES.TARGET_GROUPS]: 5, // 5 target groups
 	},
 	[PLAN_IDS.PRO]: {
@@ -113,7 +92,7 @@ export const PLAN_FEATURE_LIMITS: Record<
 		[GATED_FEATURES.GEOGRAPHIC]: "unlimited",
 		[GATED_FEATURES.AI_ASSISTANT]: "unlimited",
 		[GATED_FEATURES.AI_AGENT]: "unlimited",
-		[GATED_FEATURES.TEAM_ROLES]: 25, // up to 25 team members
+		[GATED_FEATURES.TEAM_ROLES]: "unlimited",
 		[GATED_FEATURES.TARGET_GROUPS]: 25, // 25 target groups
 	},
 	[PLAN_IDS.SCALE]: {
@@ -132,40 +111,21 @@ export const PLAN_FEATURE_LIMITS: Record<
 	},
 };
 
-/**
- * Generate PLAN_FEATURES from PLAN_FEATURE_LIMITS
- * Maps each plan/feature: if limit === false then feature is false, otherwise true
- */
-function generatePlanFeatures(): Record<
+const PLAN_FEATURES: Record<
 	PlanId,
 	Record<GatedFeatureId, boolean>
-> {
-	const result = {} as Record<PlanId, Record<GatedFeatureId, boolean>>;
+> = Object.fromEntries(
+	PLAN_HIERARCHY.map((planId) => [
+		planId,
+		Object.fromEntries(
+			Object.values(GATED_FEATURES).map((f) => [
+				f,
+				PLAN_FEATURE_LIMITS[planId][f] !== false,
+			])
+		),
+	])
+) as Record<PlanId, Record<GatedFeatureId, boolean>>;
 
-	for (const planId of PLAN_HIERARCHY) {
-		result[planId] = {} as Record<GatedFeatureId, boolean>;
-		const planLimits = PLAN_FEATURE_LIMITS[planId];
-
-		for (const featureId of Object.values(GATED_FEATURES)) {
-			const limit = planLimits[featureId];
-			result[planId][featureId] = limit !== false;
-		}
-	}
-
-	return result;
-}
-
-/**
- * @deprecated Use PLAN_FEATURE_LIMITS instead
- * Legacy boolean feature matrix for backward compatibility
- * Auto-generated from PLAN_FEATURE_LIMITS to prevent drift
- */
-export const PLAN_FEATURES: Record<
-	PlanId,
-	Record<GatedFeatureId, boolean>
-> = generatePlanFeatures();
-
-/** AI capability identifiers */
 export const AI_CAPABILITIES = {
 	SUMMARIZATION: "summarization",
 	WORKSPACE_QA: "workspace_qa",
@@ -179,19 +139,14 @@ export const AI_CAPABILITIES = {
 export type AiCapabilityId =
 	(typeof AI_CAPABILITIES)[keyof typeof AI_CAPABILITIES];
 
-/** AI capabilities per plan */
 export type PlanAiCapabilities = Record<AiCapabilityId, boolean>;
 
-/** Complete plan capabilities including features and AI capabilities */
 export interface PlanCapabilities {
+	ai: PlanAiCapabilities;
 	features: Record<GatedFeatureId, boolean>;
 	limits: Record<GatedFeatureId, FeatureLimit>;
-	ai: PlanAiCapabilities;
 }
 
-/**
- * Plan capabilities matrix - combines features and AI capabilities per plan
- */
 export const PLAN_CAPABILITIES: Record<PlanId, PlanCapabilities> = {
 	[PLAN_IDS.FREE]: {
 		features: PLAN_FEATURES[PLAN_IDS.FREE],
@@ -248,11 +203,11 @@ export const PLAN_CAPABILITIES: Record<PlanId, PlanCapabilities> = {
 };
 
 interface FeatureMeta {
-	name: string;
 	description: string;
-	upgradeMessage: string;
 	minPlan?: PlanId;
+	name: string;
 	unit?: string; // e.g., "funnels", "flags", "exports/month"
+	upgradeMessage: string;
 }
 
 export const FEATURE_METADATA: Record<FeatureId | GatedFeatureId, FeatureMeta> =
@@ -262,10 +217,12 @@ export const FEATURE_METADATA: Record<FeatureId | GatedFeatureId, FeatureMeta> =
 			description: "Track pageviews and custom events",
 			upgradeMessage: "Upgrade to track more events",
 		},
-		[FEATURE_IDS.ASSISTANT_MESSAGES]: {
-			name: "AI Messages",
-			description: "Chat with your analytics assistant",
-			upgradeMessage: "Upgrade for more AI messages",
+		[FEATURE_IDS.AGENT_CREDITS]: {
+			name: "Agent Credits",
+			description:
+				"Credits power Databunny conversations. Heavier questions consume more credits.",
+			upgradeMessage: "Upgrade for more agent credits",
+			unit: "credits",
 		},
 		[GATED_FEATURES.FUNNELS]: {
 			name: "Funnels",
@@ -326,18 +283,16 @@ export const FEATURE_METADATA: Record<FeatureId | GatedFeatureId, FeatureMeta> =
 		[GATED_FEATURES.AI_AGENT]: {
 			name: "AI Agent",
 			description: "Autonomous AI agent for advanced analytics insights",
-			upgradeMessage: "Upgrade to Pro for AI Agent access",
-			minPlan: PLAN_IDS.PRO,
+			upgradeMessage: "Upgrade for more agent credits",
 		},
 		[GATED_FEATURES.TEAM_ROLES]: {
 			name: "Team Roles",
 			description: "Assign roles and permissions to team members",
-			upgradeMessage: "Upgrade for more team members",
+			upgradeMessage: "Team members are unlimited on all plans",
 			unit: "members",
 		},
 	};
 
-/** Check if a plan has access to a gated feature */
 export function isPlanFeatureEnabled(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId
@@ -346,7 +301,6 @@ export function isPlanFeatureEnabled(
 	return PLAN_FEATURES[plan]?.[feature] ?? false;
 }
 
-/** Get the usage limit for a feature on a specific plan */
 export function getPlanFeatureLimit(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId
@@ -355,7 +309,6 @@ export function getPlanFeatureLimit(
 	return PLAN_FEATURE_LIMITS[plan]?.[feature] ?? false;
 }
 
-/** Check if a feature has unlimited usage on a plan */
 export function isFeatureUnlimited(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId
@@ -363,7 +316,6 @@ export function isFeatureUnlimited(
 	return getPlanFeatureLimit(planId, feature) === "unlimited";
 }
 
-/** Check if a feature is available (has any limit > 0 or unlimited) */
 export function isFeatureAvailable(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId
@@ -372,7 +324,6 @@ export function isFeatureAvailable(
 	return limit === "unlimited" || (typeof limit === "number" && limit > 0);
 }
 
-/** Check if current usage is within the plan's limit */
 export function isWithinLimit(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId,
@@ -388,7 +339,6 @@ export function isWithinLimit(
 	return currentUsage < limit;
 }
 
-/** Get remaining usage for a feature */
 export function getRemainingUsage(
 	planId: PlanId | string | null,
 	feature: GatedFeatureId,
@@ -404,7 +354,6 @@ export function getRemainingUsage(
 	return Math.max(0, limit - currentUsage);
 }
 
-/** Get the next plan that increases the limit for a feature */
 export function getNextPlanForFeature(
 	currentPlan: PlanId | string | null,
 	feature: GatedFeatureId
@@ -417,7 +366,6 @@ export function getNextPlanForFeature(
 		const nextPlan = PLAN_HIERARCHY[i];
 		const nextLimit = PLAN_FEATURE_LIMITS[nextPlan][feature];
 
-		// Check if limit increases
 		if (nextLimit === "unlimited") {
 			return nextPlan;
 		}
@@ -436,7 +384,6 @@ export function getNextPlanForFeature(
 	return null;
 }
 
-/** Get the minimum plan required for a feature */
 export function getMinimumPlanForFeature(
 	feature: GatedFeatureId
 ): PlanId | null {
@@ -448,7 +395,6 @@ export function getMinimumPlanForFeature(
 	return null;
 }
 
-/** Check if a plan has access to an AI capability */
 export function isPlanAiCapabilityEnabled(
 	planId: PlanId | string | null,
 	capability: AiCapabilityId
@@ -457,7 +403,6 @@ export function isPlanAiCapabilityEnabled(
 	return PLAN_CAPABILITIES[plan]?.ai[capability] ?? false;
 }
 
-/** Get the minimum plan required for an AI capability */
 export function getMinimumPlanForAiCapability(
 	capability: AiCapabilityId
 ): PlanId | null {
@@ -469,7 +414,6 @@ export function getMinimumPlanForAiCapability(
 	return null;
 }
 
-/** Get all capabilities for a plan */
 export function getPlanCapabilities(
 	planId: PlanId | string | null
 ): PlanCapabilities {

@@ -1,9 +1,11 @@
 "use client";
 
-import dayjs from "@/lib/dayjs";
 import { useMemo } from "react";
-import { buildUptimeHeatmapDays } from "./heatmap-days";
-import { UptimeHeatmapStrip } from "./heatmap-strip";
+import { dayjs } from "@databuddy/ui";
+import {
+	buildUptimeHeatmapDays,
+	UptimeHeatmapStrip,
+} from "@databuddy/ui/uptime";
 
 interface UptimeHeatmapProps {
 	data: {

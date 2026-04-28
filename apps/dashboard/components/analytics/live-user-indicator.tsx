@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import { useRealTimeStats } from "./use-realtime-stats";
 
 interface LiveUserIndicatorProps {
@@ -31,24 +32,23 @@ export function LiveUserIndicator({ websiteId }: LiveUserIndicatorProps) {
 		prevCountRef.current = count;
 	}, [count]);
 
-	const getChangeColor = () => {
-		if (change === "up") {
-			return "text-green-500";
-		}
-		if (change === "down") {
-			return "text-red-500";
-		}
-		return "text-foreground";
-	};
-
 	return (
-		<div className="flex h-8 shrink-0 items-center gap-2 rounded border px-3 text-sm">
-			<span className="relative flex size-2 shrink-0">
-				<span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500 opacity-75" />
-				<span className="relative inline-flex size-2 rounded-full bg-green-500" />
+		<div className="flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-sidebar-accent/55 px-2.5 text-[12px]">
+			<span className="relative flex size-1.5">
+				<span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500/60" />
+				<span className="relative inline-flex size-1.5 rounded-full bg-green-500" />
 			</span>
-			<span className={`tabular-nums ${getChangeColor()}`}>{count}</span>
-			<span className="hidden text-muted-foreground sm:inline">online</span>
+			<span
+				className={cn(
+					"font-medium tabular-nums",
+					change === "up" && "text-green-600 dark:text-green-400",
+					change === "down" && "text-red-600 dark:text-red-400",
+					!change && "text-foreground"
+				)}
+			>
+				{count}
+			</span>
+			<span className="text-muted-foreground">live</span>
 		</div>
 	);
 }

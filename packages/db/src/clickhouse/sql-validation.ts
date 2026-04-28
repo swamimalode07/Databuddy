@@ -1,142 +1,168 @@
-const FORBIDDEN_KEYWORDS = [
-	"INSERT INTO",
-	"UPDATE SET",
-	"DELETE FROM",
-	"DROP TABLE",
-	"DROP DATABASE",
-	"CREATE TABLE",
-	"CREATE DATABASE",
-	"ALTER TABLE",
-	"EXEC ",
-	"EXECUTE ",
-	"TRUNCATE",
-	"MERGE",
-	"BULK",
-	"RESTORE",
-	"BACKUP",
-	"GRANT ",
-	"REVOKE ",
-	"KILL QUERY",
-	"KILL MUTATION",
-	"INTO OUTFILE",
-	"INTO TEMPORARY",
-	"ATTACH ",
-	"DETACH ",
-] as const;
-
-/**
- * Broader single-word commands that are never valid in a read-only context.
- * Checked as whole-word matches at the start of a statement (after WITH/SELECT is
- * already validated) or as standalone tokens.
- */
-const FORBIDDEN_STATEMENT_STARTS = [
-	"SET ",
-	"SYSTEM ",
-	"OPTIMIZE ",
-	"RENAME ",
-	"EXCHANGE ",
-] as const;
-
-const DANGEROUS_PATTERNS = [
-	/\$\{[^}]+\}/,
-	/'[^']*\+[^']*'/,
-	/"[^"]*\+[^"]*"/,
-] as const;
-
-/**
- * Databases that must never appear in queries.
- * Covers ClickHouse system catalogs that expose internal metadata.
- */
-const BLOCKED_DATABASES = [
-	"system.",
-	"information_schema.",
-	"_temporary_and_external_tables.",
-] as const;
-
 const ALLOWED_TABLE_PREFIX = "analytics.";
+const BLOCKED_KEYWORD_PATTERN =
+	/\b(?:ALTER|ATTACH|BACKUP|CREATE|DELETE|DETACH|DROP|EXCHANGE|INSERT|KILL|MOVE|OPTIMIZE|RENAME|REPLACE|RESTORE|SET|TRUNCATE|UPDATE|USE)\b/i;
+const SELECT_OR_WITH_PATTERN = /^\s*(?:SELECT|WITH)\b/i;
+const CTE_PATTERN = /(?:\bWITH\b|,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s+AS\s*\(/gi;
+const RELATION_PATTERN =
+	/\b(?:FROM|JOIN)\s+(`[^`]+`|"[^"]+"|[a-zA-Z_][a-zA-Z0-9_.]*)(\s*\()?/gi;
+const TENANT_FILTER_PATTERN = /\bclient_id\s*=\s*\{websiteId\s*:\s*String\}/i;
 
-/**
- * Extracts `database.table` references from FROM / JOIN clauses.
- * Handles backtick-quoted and unquoted identifiers.
- */
-function extractTableReferences(sql: string): string[] {
-	const refs: string[] = [];
-	const pattern = /(?:FROM|JOIN)\s+`?(\w+\.\w+)`?/gi;
-	let match = pattern.exec(sql);
-	while (match) {
-		refs.push(match.at(1) as string);
-		match = pattern.exec(sql);
+function maskCommentsAndStrings(sql: string): string {
+	let result = "";
+	let index = 0;
+
+	while (index < sql.length) {
+		const char = sql[index];
+		const next = sql[index + 1];
+
+		if (char === "-" && next === "-") {
+			result += "  ";
+			index += 2;
+			while (index < sql.length && sql[index] !== "\n") {
+				result += " ";
+				index += 1;
+			}
+			continue;
+		}
+
+		if (char === "/" && next === "*") {
+			result += "  ";
+			index += 2;
+			while (index < sql.length) {
+				if (sql[index] === "*" && sql[index + 1] === "/") {
+					result += "  ";
+					index += 2;
+					break;
+				}
+				result += sql[index] === "\n" ? "\n" : " ";
+				index += 1;
+			}
+			continue;
+		}
+
+		if (char === "'") {
+			result += " ";
+			index += 1;
+			while (index < sql.length) {
+				if (sql[index] === "\\") {
+					result += "  ";
+					index += 2;
+					continue;
+				}
+				const current = sql[index];
+				result += current === "\n" ? "\n" : " ";
+				index += 1;
+				if (current === "'") {
+					break;
+				}
+			}
+			continue;
+		}
+
+		result += char;
+		index += 1;
 	}
+
+	return result;
+}
+
+function normalizeRelationName(raw: string): string {
+	return raw.replace(/[`"]/g, "").toLowerCase();
+}
+
+function extractCteNames(sql: string): Set<string> {
+	const ctes = new Set<string>();
+	let match = CTE_PATTERN.exec(sql);
+
+	while (match) {
+		ctes.add((match[1] as string).toLowerCase());
+		match = CTE_PATTERN.exec(sql);
+	}
+
+	return ctes;
+}
+
+function extractRelationReferences(sql: string): {
+	name: string;
+	isFunction: boolean;
+	raw: string;
+}[] {
+	const refs: { name: string; isFunction: boolean; raw: string }[] = [];
+	let match = RELATION_PATTERN.exec(sql);
+
+	while (match) {
+		const raw = match[1] as string;
+		refs.push({
+			name: normalizeRelationName(raw),
+			isFunction: Boolean(match[2]),
+			raw,
+		});
+		match = RELATION_PATTERN.exec(sql);
+	}
+
 	return refs;
 }
 
-/**
- * Validates that a SQL query is safe for agent execution.
- *
- * Enforces:
- * - SELECT / WITH only
- * - Keyword blocklist (DDL, DML, admin commands)
- * - Dangerous interpolation pattern detection
- * - Table reference allowlist (analytics.* only)
- * - System database access block
- */
 export function validateAgentSQL(sql: string): {
 	valid: boolean;
 	reason: string | null;
 } {
-	const upperSQL = sql.toUpperCase();
-	const trimmed = upperSQL.trim();
+	const sanitized = maskCommentsAndStrings(sql);
 
-	if (!(trimmed.startsWith("SELECT") || trimmed.startsWith("WITH"))) {
+	if (!SELECT_OR_WITH_PATTERN.test(sanitized)) {
 		return {
 			valid: false,
-			reason: "Only SELECT and WITH statements are allowed.",
+			reason: "Only SELECT/WITH queries are allowed.",
 		};
 	}
 
-	for (const keyword of FORBIDDEN_KEYWORDS) {
-		if (upperSQL.includes(keyword)) {
-			return {
-				valid: false,
-				reason: `Forbidden keyword detected: ${keyword.trim()}`,
-			};
-		}
+	if (sanitized.includes(";")) {
+		return {
+			valid: false,
+			reason: "Multiple statements are not allowed.",
+		};
 	}
 
-	for (const start of FORBIDDEN_STATEMENT_STARTS) {
-		if (upperSQL.includes(start)) {
-			return {
-				valid: false,
-				reason: `Forbidden command detected: ${start.trim()}`,
-			};
-		}
+	if (BLOCKED_KEYWORD_PATTERN.test(sanitized)) {
+		return {
+			valid: false,
+			reason: "Query contains a blocked SQL keyword.",
+		};
 	}
 
-	for (const pattern of DANGEROUS_PATTERNS) {
-		if (pattern.test(sql)) {
-			return {
-				valid: false,
-				reason: "Dangerous string interpolation pattern detected.",
-			};
-		}
+	const cteNames = extractCteNames(sanitized);
+	const refs = extractRelationReferences(sanitized);
+
+	if (refs.length === 0) {
+		return {
+			valid: false,
+			reason: "Query must read from an allowed analytics table.",
+		};
 	}
 
-	const lowerSQL = sql.toLowerCase();
-	for (const db of BLOCKED_DATABASES) {
-		if (lowerSQL.includes(db)) {
+	for (const ref of refs) {
+		if (ref.isFunction) {
 			return {
 				valid: false,
-				reason: `Access to ${db.replace(".", "")} database is not allowed.`,
+				reason: `Table function "${ref.raw}" is not allowed.`,
 			};
 		}
-	}
 
-	const tableRefs = extractTableReferences(sql);
-	for (const ref of tableRefs) {
-		if (!ref.toLowerCase().startsWith(ALLOWED_TABLE_PREFIX)) {
+		if (cteNames.has(ref.name)) {
+			continue;
+		}
+
+		if (!ref.name.includes(".")) {
 			return {
 				valid: false,
-				reason: `Table "${ref}" is outside the allowed analytics database.`,
+				reason: `Table "${ref.raw}" must use an explicit database prefix.`,
+			};
+		}
+
+		if (!ref.name.startsWith(ALLOWED_TABLE_PREFIX)) {
+			return {
+				valid: false,
+				reason: `Table "${ref.raw}" is outside the allowed analytics database.`,
 			};
 		}
 	}
@@ -144,15 +170,8 @@ export function validateAgentSQL(sql: string): {
 	return { valid: true, reason: null };
 }
 
-const TENANT_FILTER_PATTERN = /client_id\s*=\s*\{websiteId\s*:\s*String\}/i;
-
-/**
- * Verifies that the SQL references the `websiteId` parameter for tenant isolation.
- * This is a structural check — it ensures `client_id` is filtered by the parameterized
- * websiteId, not just mentioned in a string.
- */
 export function requiresTenantFilter(sql: string): boolean {
-	return TENANT_FILTER_PATTERN.test(sql);
+	return TENANT_FILTER_PATTERN.test(maskCommentsAndStrings(sql));
 }
 
 export const AGENT_SQL_VALIDATION_ERROR =

@@ -1,38 +1,21 @@
 "use client";
 
-import { CreditCardIcon } from "@phosphor-icons/react";
 import { usePathname } from "next/navigation";
-import { PageHeader } from "../../websites/_components/page-header";
+import { TopBar } from "@/components/layout/top-bar";
 
-const PAGE_TITLES: Record<string, { title: string; description: string }> = {
-	"/billing": {
-		title: "Usage & Metrics",
-		description: "Monitor your usage and billing metrics",
-	},
-	"/billing/plans": {
-		title: "Plans & Pricing",
-		description: "Manage your subscription and billing plan",
-	},
-	"/billing/history": {
-		title: "Payment History",
-		description: "View your billing history and invoices",
-	},
-};
-
-const DEFAULT_TITLE = {
-	title: "Billing & Subscription",
-	description: "Manage your subscription, usage, and billing preferences",
+const PAGE_TITLES: Record<string, string> = {
+	"/billing": "Billing Overview",
+	"/billing/plans": "Plans",
+	"/billing/history": "Invoices",
 };
 
 export function BillingHeader() {
 	const pathname = usePathname();
-	const { title, description } = PAGE_TITLES[pathname] ?? DEFAULT_TITLE;
+	const title = PAGE_TITLES[pathname] ?? "Billing";
+	const items =
+		pathname === "/billing"
+			? [{ label: "Billing" }]
+			: [{ label: "Billing", href: "/billing" }, { label: title }];
 
-	return (
-		<PageHeader
-			description={description}
-			icon={<CreditCardIcon weight="duotone" />}
-			title={title}
-		/>
-	);
+	return <TopBar.Breadcrumbs items={items} />;
 }

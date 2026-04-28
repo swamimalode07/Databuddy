@@ -1,20 +1,26 @@
 "use client";
 
-import { HeartbeatIcon, LockIcon, PlusIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useBatchDynamicQuery } from "@/hooks/use-dynamic-query";
-import dayjs from "@/lib/dayjs";
-import { formatDateOnly } from "@/lib/time";
-import { buildUptimeHeatmapDays } from "@/lib/uptime/heatmap-days";
-import { UptimeHeatmapStrip } from "@/lib/uptime/heatmap-strip";
+import { buildUptimeHeatmapDays } from "@databuddy/ui/uptime";
+import { UptimeHeatmapStrip } from "@databuddy/ui/uptime";
 import { cn } from "@/lib/utils";
+import { HeartbeatIcon, LockIcon, PlusIcon } from "@databuddy/ui/icons";
+import {
+	Badge,
+	Button,
+	Card,
+	Skeleton,
+	dayjs,
+	formatDateOnly,
+} from "@databuddy/ui";
 
 interface MonitorsSectionProps {
+	activeMonitors: number;
+	hasAccess: boolean;
+	isLoading: boolean;
 	monitors: Array<{
 		id: string;
 		name: string | null;
@@ -23,11 +29,8 @@ interface MonitorsSectionProps {
 		isPaused: boolean;
 		granularity: string;
 	}>;
-	totalMonitors: number;
-	activeMonitors: number;
-	hasAccess: boolean;
-	isLoading: boolean;
 	onCreateMonitorAction?: () => void;
+	totalMonitors: number;
 }
 
 function HomeMonitorHeatmap({
@@ -79,11 +82,13 @@ function MonitorRow({
 		[]
 	);
 
-	const queryIdOptions = useMemo(() => {
-		return monitor.websiteId
-			? { websiteId: monitor.websiteId }
-			: { scheduleId: monitor.id };
-	}, [monitor.websiteId, monitor.id]);
+	const queryIdOptions = useMemo(
+		() =>
+			monitor.websiteId
+				? { websiteId: monitor.websiteId }
+				: { scheduleId: monitor.id },
+		[monitor.websiteId, monitor.id]
+	);
 
 	const heatmapQueries = useMemo(
 		() => [
@@ -113,7 +118,7 @@ function MonitorRow({
 
 	return (
 		<Link
-			className="block px-4 py-3 transition-colors hover:bg-accent/50"
+			className="block px-5 py-3 transition-colors hover:bg-accent/50"
 			href={`/monitors/${monitor.id}`}
 		>
 			<div className="flex items-center gap-3">
@@ -147,7 +152,7 @@ function MonitorRow({
 
 function MonitorRowSkeleton() {
 	return (
-		<div className="px-4 py-3">
+		<div className="px-5 py-3">
 			<div className="flex items-center gap-3">
 				<Skeleton className="size-7 shrink-0 rounded" />
 				<div className="min-w-0 flex-1 space-y-1">
@@ -160,9 +165,9 @@ function MonitorRowSkeleton() {
 	);
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function MonitorsEmptyState({ onAdd }: { onAdd: () => void }) {
 	return (
-		<div className="flex items-center gap-3 px-4 py-4">
+		<div className="flex items-center gap-3 px-5 py-4">
 			<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted">
 				<HeartbeatIcon
 					className="size-5 text-muted-foreground"
@@ -187,15 +192,15 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 
 function LockedCard() {
 	return (
-		<div className="divide-y rounded border bg-card">
-			<div className="flex items-center justify-between px-4 py-3">
+		<Card>
+			<Card.Header className="flex-row items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
 					<HeartbeatIcon className="size-4 text-primary" weight="duotone" />
-					<h3 className="font-semibold text-foreground text-sm">Monitors</h3>
+					<Card.Title className="text-sm">Monitors</Card.Title>
 				</div>
-				<Badge variant="secondary">Coming soon</Badge>
-			</div>
-			<div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
+				<Badge variant="muted">Coming soon</Badge>
+			</Card.Header>
+			<Card.Content className="flex flex-col items-center gap-3 text-center">
 				<div className="flex size-10 items-center justify-center rounded border bg-secondary">
 					<LockIcon className="size-5 text-muted-foreground" weight="duotone" />
 				</div>
@@ -208,8 +213,8 @@ function LockedCard() {
 						need an invite to access this feature.
 					</p>
 				</div>
-			</div>
-		</div>
+			</Card.Content>
+		</Card>
 	);
 }
 
@@ -233,14 +238,16 @@ export function MonitorsSection({
 
 	if (isLoading) {
 		return (
-			<div className="divide-y rounded border bg-card">
-				<div className="flex items-center gap-2 border-b px-4 py-3">
+			<Card>
+				<Card.Header className="flex-row items-center gap-3">
 					<HeartbeatIcon className="size-4 text-primary" weight="duotone" />
 					<Skeleton className="h-4 w-20" />
+				</Card.Header>
+				<div className="divide-y">
+					<MonitorRowSkeleton />
+					<MonitorRowSkeleton />
 				</div>
-				<MonitorRowSkeleton />
-				<MonitorRowSkeleton />
-			</div>
+			</Card>
 		);
 	}
 
@@ -251,16 +258,11 @@ export function MonitorsSection({
 	const hasIssues = activeMonitors < totalMonitors;
 
 	return (
-		<div
-			className={cn(
-				"divide-y rounded border bg-card",
-				hasIssues && "border-amber-500/30"
-			)}
-		>
-			<div className="flex items-center justify-between px-4 py-3">
+		<Card className={hasIssues ? "border-amber-500/30" : ""}>
+			<Card.Header className="flex-row items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
 					<HeartbeatIcon className="size-4 text-primary" weight="duotone" />
-					<h3 className="font-semibold text-foreground text-sm">Monitors</h3>
+					<Card.Title className="text-sm">Monitors</Card.Title>
 				</div>
 				{totalMonitors > 0 ? (
 					<span className="text-muted-foreground text-xs">
@@ -277,18 +279,20 @@ export function MonitorsSection({
 						Add
 					</Button>
 				)}
-			</div>
+			</Card.Header>
 
 			{totalMonitors === 0 ? (
-				<EmptyState onAdd={handleAddMonitor} />
+				<MonitorsEmptyState onAdd={handleAddMonitor} />
 			) : (
 				<>
-					{monitors.slice(0, 3).map((monitor) => (
-						<MonitorRow key={monitor.id} monitor={monitor} />
-					))}
+					<div className="divide-y">
+						{monitors.slice(0, 3).map((monitor) => (
+							<MonitorRow key={monitor.id} monitor={monitor} />
+						))}
+					</div>
 					{totalMonitors > 3 && (
 						<Link
-							className="block px-4 py-2 text-center text-muted-foreground text-xs hover:bg-accent/50 hover:text-foreground"
+							className="block border-t px-5 py-2 text-center text-muted-foreground text-xs hover:bg-accent/50 hover:text-foreground"
 							href="/monitors"
 						>
 							View all {totalMonitors} monitors →
@@ -296,6 +300,6 @@ export function MonitorsSection({
 					)}
 				</>
 			)}
-		</div>
+		</Card>
 	);
 }

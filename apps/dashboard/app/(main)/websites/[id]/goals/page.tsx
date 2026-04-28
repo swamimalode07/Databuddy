@@ -1,15 +1,10 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target";
-import { TrendDownIcon } from "@phosphor-icons/react/dist/ssr/TrendDown";
-import { useAtomValue } from "jotai";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { FeatureGate } from "@/components/feature-gate";
-import { Card, CardContent } from "@/components/ui/card";
 import { List } from "@/components/ui/composables/list";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useAutocompleteData } from "@/hooks/use-autocomplete";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import {
@@ -18,11 +13,13 @@ import {
 	useBulkGoalAnalytics,
 	useGoals,
 } from "@/hooks/use-goals";
-import { isAnalyticsRefreshingAtom } from "@/stores/jotai/filterAtoms";
-import { WebsitePageHeader } from "../_components/website-page-header";
+import { TopBar } from "@/components/layout/top-bar";
 import { EditGoalDialog } from "./_components/edit-goal-dialog";
 import { GoalItemSkeleton } from "./_components/goal-item";
 import { GoalsList } from "./_components/goals-list";
+import { PlusIcon, TrendDownIcon } from "@databuddy/ui/icons";
+import { Button, Card } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 function GoalsListSkeleton() {
 	return (
@@ -37,7 +34,6 @@ function GoalsListSkeleton() {
 export default function GoalsPage() {
 	const { id } = useParams();
 	const websiteId = id as string;
-	const isRefreshing = useAtomValue(isAnalyticsRefreshingAtom);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 	const [deletingGoalId, setDeletingGoalId] = useState<string | null>(null);
@@ -113,7 +109,7 @@ export default function GoalsPage() {
 		return (
 			<div className="p-4">
 				<Card className="border-destructive/20 bg-destructive/5">
-					<CardContent className="pt-6">
+					<Card.Content className="pt-6">
 						<div className="flex items-center gap-2">
 							<TrendDownIcon
 								className="size-5 text-destructive"
@@ -126,7 +122,7 @@ export default function GoalsPage() {
 						<p className="mt-2 text-destructive/80 text-sm">
 							{goalsError.message}
 						</p>
-					</CardContent>
+					</Card.Content>
 				</Card>
 			</div>
 		);
@@ -135,32 +131,21 @@ export default function GoalsPage() {
 	return (
 		<FeatureGate feature={GATED_FEATURES.GOALS}>
 			<div className="relative flex h-full flex-col">
-				<WebsitePageHeader
-					createActionLabel="Create Goal"
-					currentUsage={goals.length}
-					description="Track key conversions and measure success"
-					feature={GATED_FEATURES.GOALS}
-					hasError={!!goalsError}
-					icon={
-						<TargetIcon
-							className="size-6 text-accent-foreground"
-							weight="duotone"
-						/>
-					}
-					isLoading={goalsLoading}
-					isRefreshing={isRefreshing}
-					onCreateAction={() => {
-						setEditingGoal(null);
-						setIsDialogOpen(true);
-					}}
-					subtitle={
-						goalsLoading
-							? undefined
-							: `${goals.length} goal${goals.length === 1 ? "" : "s"}`
-					}
-					title="Goals"
-					websiteId={websiteId}
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">Goals</h1>
+				</TopBar.Title>
+				<TopBar.Actions>
+					<Button
+						onClick={() => {
+							setEditingGoal(null);
+							setIsDialogOpen(true);
+						}}
+						size="sm"
+					>
+						<PlusIcon className="size-4 shrink-0" />
+						Create Goal
+					</Button>
+				</TopBar.Actions>
 
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-none">
 					{goalsLoading ? (
@@ -204,7 +189,11 @@ export default function GoalsPage() {
 						description="Are you sure you want to delete this goal? This action cannot be undone and will permanently remove all associated analytics data."
 						isOpen={!!deletingGoalId}
 						onClose={() => setDeletingGoalId(null)}
-						onConfirm={() => deletingGoalId && handleDeleteGoal(deletingGoalId)}
+						onConfirm={() => {
+							if (deletingGoalId) {
+								return handleDeleteGoal(deletingGoalId);
+							}
+						}}
 						title="Delete Goal"
 					/>
 				)}

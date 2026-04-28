@@ -1,18 +1,18 @@
 "use client";
 
-import type { Website } from "@databuddy/db";
+import type { Website } from "@databuddy/db/schema";
 import type { ProcessedMiniChartData } from "@databuddy/shared/types/website";
 
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 
-export type { Website } from "@databuddy/db";
+export type { Website } from "@databuddy/db/schema";
 
 export interface WebsitesListData {
-	websites: Website[];
-	chartData: Record<string, ProcessedMiniChartData>;
 	activeUsers: Record<string, number>;
+	chartData: Record<string, ProcessedMiniChartData>;
+	websites: Website[];
 }
 
 export const getWebsiteByIdKey = (id: string): QueryKey =>
@@ -22,6 +22,8 @@ export const getWebsitesListKey = (): QueryKey =>
 	orpc.websites.listWithCharts.queryKey({
 		input: {},
 	});
+
+const EMPTY_WEBSITES: Website[] = [];
 
 export const updateWebsiteInList = (
 	old: WebsitesListData | undefined,
@@ -94,7 +96,7 @@ export function useWebsites(options?: { enabled?: boolean }) {
 	});
 
 	return {
-		websites: query.data?.websites ?? [],
+		websites: query.data?.websites ?? EMPTY_WEBSITES,
 		chartData: query.data?.chartData,
 		activeUsers: query.data?.activeUsers,
 		isLoading: query.isLoading,
@@ -110,11 +112,10 @@ export function useWebsitesLight(options?: { enabled?: boolean }) {
 			input: {},
 		}),
 		enabled: options?.enabled !== false,
-		staleTime: 5 * 60 * 1000,
 	});
 
 	return {
-		websites: query.data ?? [],
+		websites: query.data ?? EMPTY_WEBSITES,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
 		isError: query.isError,
@@ -136,6 +137,7 @@ export function useCreateWebsite() {
 
 	return useMutation({
 		...orpc.websites.create.mutationOptions(),
+		meta: { suppressGlobalErrorToast: true },
 		onSuccess: (data) => {
 			const newWebsite = data as Website;
 			const listKey = getWebsitesListKey();
@@ -163,6 +165,7 @@ export function useUpdateWebsite() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		...orpc.websites.update.mutationOptions(),
+		meta: { suppressGlobalErrorToast: true },
 		onSuccess: (data) => {
 			const updatedWebsite = data as Website;
 			updateWebsiteCache(queryClient, updatedWebsite);
@@ -177,7 +180,7 @@ export function useDeleteWebsite() {
 		...orpc.websites.delete.mutationOptions(),
 		onMutate: async ({ id }) => {
 			const getByIdKey = getWebsiteByIdKey(id);
-			const previousWebsite = queryClient.getQueryData<Website>(getByIdKey);
+			const _previousWebsite = queryClient.getQueryData<Website>(getByIdKey);
 
 			const listKey = getWebsitesListKey();
 

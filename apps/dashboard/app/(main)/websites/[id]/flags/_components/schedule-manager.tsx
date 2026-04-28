@@ -1,20 +1,8 @@
 "use client";
 
 import { DATE_FORMATS, formatDate } from "@lib/formatters";
-import {
-	CalendarIcon,
-	ClockIcon,
-	LightningIcon,
-	PlusIcon,
-	PowerIcon,
-	TrashIcon,
-	XIcon,
-} from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { AnimatePresence, motion } from "motion/react";
 import { FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
 	Popover,
 	PopoverContent,
@@ -22,6 +10,17 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { ScheduleManagerProps } from "./types";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+	CalendarIcon,
+	ClockIcon,
+	LightningIcon,
+	PlusIcon,
+	PowerIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Button, Input } from "@databuddy/ui";
+import { Calendar } from "@databuddy/ui/client";
 
 type ScheduleType = "enable" | "disable" | "update_rollout";
 
@@ -216,7 +215,6 @@ export function ScheduleManager({ form, flagId }: ScheduleManagerProps) {
 	// Enabled - show configuration
 	return (
 		<div className="space-y-4">
-			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					{scheduleType === "enable" && (
@@ -249,7 +247,6 @@ export function ScheduleManager({ form, flagId }: ScheduleManagerProps) {
 				</button>
 			</div>
 
-			{/* Simple enable/disable */}
 			{scheduleType !== "update_rollout" && (
 				<FormField
 					control={form.control}
@@ -262,7 +259,6 @@ export function ScheduleManager({ form, flagId }: ScheduleManagerProps) {
 				/>
 			)}
 
-			{/* Rollout steps */}
 			{scheduleType === "update_rollout" && (
 				<div className="space-y-3">
 					<AnimatePresence mode="popLayout">

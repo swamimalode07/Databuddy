@@ -73,7 +73,7 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		expect(result.hasRemoteOnly).toBe(true);
 	});
 
-	test("getFlag(key, user): per-call user affects cache key; bulk request uses config user", async ({
+	test("getFlag(key, user): per-call user affects cache key", async ({
 		page,
 	}) => {
 		await bulkOnlyRoute(page, (keys) =>
@@ -114,24 +114,27 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		page,
 	}) => {
 		let bulkCount = 0;
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			const url = new URL(route.request().url());
-			if (url.pathname.includes("/bulk")) {
-				bulkCount++;
-				const keysParam = url.searchParams.get("keys") ?? "";
-				const keys = keysParam.split(",").filter(Boolean);
-				const flags = Object.fromEntries(
-					keys.map((k) => [k, MOCK_FLAG_ENABLED])
-				);
-				await route.fulfill({
-					status: 200,
-					contentType: "application/json",
-					body: JSON.stringify({ flags }),
-				});
-				return;
+		await page.route(
+			"**/api.databuddy.cc/public/v1/flags/**",
+			async (route) => {
+				const url = new URL(route.request().url());
+				if (url.pathname.includes("/bulk")) {
+					bulkCount++;
+					const keysParam = url.searchParams.get("keys") ?? "";
+					const keys = keysParam.split(",").filter(Boolean);
+					const flags = Object.fromEntries(
+						keys.map((k) => [k, MOCK_FLAG_ENABLED])
+					);
+					await route.fulfill({
+						status: 200,
+						contentType: "application/json",
+						body: JSON.stringify({ flags }),
+					});
+					return;
+				}
+				await route.fulfill({ status: 200, body: "{}" });
 			}
-			await route.fulfill({ status: 200, body: "{}" });
-		});
+		);
 
 		await page.goto("/test");
 		await waitForSDK(page);
@@ -154,7 +157,7 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		expect(bulkCount).toBe(1);
 	});
 
-	test("getMemoryFlags: colon in flag keys — last wins for same first segment", async ({
+	test("getMemoryFlags: preserves flag keys that contain colons", async ({
 		page,
 	}) => {
 		await bulkOnlyRoute(page, (keys) => {
@@ -185,37 +188,42 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 			const mem = manager.getMemoryFlags();
 
 			manager.destroy();
-			return { keys: Object.keys(mem), x: mem.x };
+			return { keys: Object.keys(mem), y: mem["x:y"], z: mem["x:z"] };
 		});
 
-		expect(result.keys).toContain("x");
-		expect(result.x?.enabled).toBe(false);
+		expect(result.keys).toContain("x:y");
+		expect(result.keys).toContain("x:z");
+		expect(result.y?.enabled).toBe(true);
+		expect(result.z?.enabled).toBe(false);
 	});
 
 	test("fetchAllFlags with empty flags removes prior cache entries", async ({
 		page,
 	}) => {
 		let call = 0;
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			const url = new URL(route.request().url());
-			if (!url.pathname.includes("/bulk")) {
-				await route.fulfill({ status: 200, body: "{}" });
-				return;
-			}
-			call++;
-			const body =
-				call === 1
-					? JSON.stringify({
-						flags: { keepMe: MOCK_FLAG_ENABLED },
-					})
-					: JSON.stringify({ flags: {} });
+		await page.route(
+			"**/api.databuddy.cc/public/v1/flags/**",
+			async (route) => {
+				const url = new URL(route.request().url());
+				if (!url.pathname.includes("/bulk")) {
+					await route.fulfill({ status: 200, body: "{}" });
+					return;
+				}
+				call++;
+				const body =
+					call === 1
+						? JSON.stringify({
+								flags: { keepMe: MOCK_FLAG_ENABLED },
+							})
+						: JSON.stringify({ flags: {} });
 
-			await route.fulfill({
-				status: 200,
-				contentType: "application/json",
-				body,
-			});
-		});
+				await route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body,
+				});
+			}
+		);
 
 		await page.goto("/test");
 		await waitForSDK(page);
@@ -243,27 +251,30 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 	test("isEnabled surfaces error status when result.reason is ERROR", async ({
 		page,
 	}) => {
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			const url = new URL(route.request().url());
-			if (url.pathname.includes("/bulk")) {
-				await route.fulfill({
-					status: 200,
-					contentType: "application/json",
-					body: JSON.stringify({
-						flags: {
-							errFlag: {
-								enabled: false,
-								value: false,
-								payload: null,
-								reason: "ERROR",
+		await page.route(
+			"**/api.databuddy.cc/public/v1/flags/**",
+			async (route) => {
+				const url = new URL(route.request().url());
+				if (url.pathname.includes("/bulk")) {
+					await route.fulfill({
+						status: 200,
+						contentType: "application/json",
+						body: JSON.stringify({
+							flags: {
+								errFlag: {
+									enabled: false,
+									value: false,
+									payload: null,
+									reason: "ERROR",
+								},
 							},
-						},
-					}),
-				});
-				return;
+						}),
+					});
+					return;
+				}
+				await route.fulfill({ status: 200, body: "{}" });
 			}
-			await route.fulfill({ status: 200, body: "{}" });
-		});
+		);
 
 		await page.goto("/test");
 		await waitForSDK(page);
@@ -288,21 +299,24 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		page,
 	}) => {
 		let bulkCount = 0;
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			const url = new URL(route.request().url());
-			if (url.pathname.includes("/bulk")) {
-				bulkCount++;
-				await route.fulfill({
-					status: 200,
-					contentType: "application/json",
-					body: JSON.stringify({
-						flags: { warm: MOCK_FLAG_ENABLED },
-					}),
-				});
-				return;
+		await page.route(
+			"**/api.databuddy.cc/public/v1/flags/**",
+			async (route) => {
+				const url = new URL(route.request().url());
+				if (url.pathname.includes("/bulk")) {
+					bulkCount++;
+					await route.fulfill({
+						status: 200,
+						contentType: "application/json",
+						body: JSON.stringify({
+							flags: { warm: MOCK_FLAG_ENABLED },
+						}),
+					});
+					return;
+				}
+				await route.fulfill({ status: 200, body: "{}" });
 			}
-			await route.fulfill({ status: 200, body: "{}" });
-		});
+		);
 
 		await page.goto("/test");
 		await waitForSDK(page);
@@ -327,7 +341,9 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		});
 
 		await page.evaluate(async () => {
-			const w = window as unknown as { __tm: { fetchAllFlags: () => Promise<void> } };
+			const w = window as unknown as {
+				__tm: { fetchAllFlags: () => Promise<void> };
+			};
 			await w.__tm.fetchAllFlags();
 		});
 
@@ -342,7 +358,9 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 		});
 
 		await page.evaluate(async () => {
-			const w = window as unknown as { __tm: { fetchAllFlags: () => Promise<void> } };
+			const w = window as unknown as {
+				__tm: { fetchAllFlags: () => Promise<void> };
+			};
 			await w.__tm.fetchAllFlags();
 		});
 
@@ -356,9 +374,12 @@ test.describe("BrowserFlagsManager — edge cases", () => {
 	});
 
 	test("getFlag rejects when bulk fetch network fails", async ({ page }) => {
-		await page.route("**/api.databuddy.cc/public/v1/flags/**", async (route) => {
-			await route.abort("failed");
-		});
+		await page.route(
+			"**/api.databuddy.cc/public/v1/flags/**",
+			async (route) => {
+				await route.abort("failed");
+			}
+		);
 
 		await page.goto("/test");
 		await waitForSDK(page);

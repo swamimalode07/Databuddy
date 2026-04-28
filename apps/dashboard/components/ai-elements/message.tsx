@@ -1,12 +1,6 @@
 "use client";
 
 import type { FileUIPart, UIMessage } from "ai";
-import {
-	ChevronLeftIcon,
-	ChevronRightIcon,
-	PaperclipIcon,
-	XIcon,
-} from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
 import {
@@ -21,15 +15,11 @@ import {
 	MdTh,
 	MdThead,
 } from "@/components/ai-elements/markdown-table";
-import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { PaperclipIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeftIcon, CaretRightIcon } from "@databuddy/ui/icons";
+import { Button, Tooltip } from "@databuddy/ui";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 	from: UIMessage["role"];
@@ -55,8 +45,8 @@ export const MessageContent = ({
 }: MessageContentProps) => (
 	<div
 		className={cn(
-			"is-user:dark flex w-fit flex-col gap-2 overflow-hidden text-sm",
-			"group-[.is-user]:ml-auto group-[.is-user]:rounded-lg group-[.is-user]:bg-secondary group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-foreground",
+			"flex w-fit flex-col gap-2 overflow-hidden text-sm",
+			"group-[.is-user]:ml-auto group-[.is-user]:rounded group-[.is-user]:border group-[.is-user]:border-border/60 group-[.is-user]:bg-muted/40 group-[.is-user]:px-3.5 group-[.is-user]:py-2.5 group-[.is-user]:text-foreground",
 			"group-[.is-assistant]:text-foreground",
 			className
 		)}
@@ -99,28 +89,19 @@ export const MessageAction = ({
 	);
 
 	if (tooltip) {
-		return (
-			<TooltipProvider>
-				<Tooltip>
-					<TooltipTrigger asChild>{button}</TooltipTrigger>
-					<TooltipContent>
-						<p>{tooltip}</p>
-					</TooltipContent>
-				</Tooltip>
-			</TooltipProvider>
-		);
+		return <Tooltip content={<p>{tooltip}</p>}>{button}</Tooltip>;
 	}
 
 	return button;
 };
 
 interface MessageBranchContextType {
-	currentBranch: number;
-	totalBranches: number;
-	goToPrevious: () => void;
-	goToNext: () => void;
 	branches: ReactElement[];
+	currentBranch: number;
+	goToNext: () => void;
+	goToPrevious: () => void;
 	setBranches: (branches: ReactElement[]) => void;
+	totalBranches: number;
 }
 
 const MessageBranchContext = createContext<MessageBranchContextType | null>(
@@ -262,7 +243,7 @@ export const MessageBranchPrevious = ({
 			variant="ghost"
 			{...props}
 		>
-			{children ?? <ChevronLeftIcon size={14} />}
+			{children ?? <CaretLeftIcon size={14} />}
 		</Button>
 	);
 };
@@ -286,7 +267,7 @@ export const MessageBranchNext = ({
 			variant="ghost"
 			{...props}
 		>
-			{children ?? <ChevronRightIcon size={14} />}
+			{children ?? <CaretRightIcon size={14} />}
 		</Button>
 	);
 };
@@ -402,15 +383,10 @@ export function MessageAttachment({
 				</>
 			) : (
 				<>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<div className="flex size-full shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-								<PaperclipIcon className="size-4" />
-							</div>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>{attachmentLabel}</p>
-						</TooltipContent>
+					<Tooltip content={<p>{attachmentLabel}</p>}>
+						<div className="flex size-full shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+							<PaperclipIcon className="size-4" />
+						</div>
 					</Tooltip>
 					{onRemove && (
 						<Button

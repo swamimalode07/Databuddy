@@ -1,31 +1,5 @@
 "use client";
 
-import {
-	BugIcon,
-	CaretDownIcon,
-	ChartBarIcon,
-	ChartLineIcon,
-	CheckCircleIcon,
-	ClipboardIcon,
-	CopyIcon,
-	DatabaseIcon,
-	DesktopIcon,
-	FunnelIcon,
-	GearIcon,
-	InfoIcon,
-	LightningIcon,
-	MonitorIcon,
-	MoonIcon,
-	PresentationChartIcon,
-	SpinnerIcon,
-	SquaresFourIcon,
-	StackIcon,
-	SunIcon,
-	TrashIcon,
-	UsersIcon,
-	WarningCircleIcon,
-	XIcon,
-} from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
@@ -58,6 +32,33 @@ import {
 	SelectValue,
 } from "../ui/select";
 import { Separator } from "../ui/separator";
+import { XIcon } from "@phosphor-icons/react/dist/ssr";
+import type { NavIcon } from "@/components/layout/navigation/types";
+import {
+	BugIcon,
+	CaretDownIcon,
+	ChartBarIcon,
+	ChartLineIcon,
+	CheckCircleIcon,
+	ClipboardIcon,
+	CopyIcon,
+	DatabaseIcon,
+	DesktopIcon,
+	FunnelIcon,
+	GearIcon,
+	InfoIcon,
+	LightningIcon,
+	MonitorIcon,
+	MoonIcon,
+	PresentationChartIcon,
+	SpinnerIcon,
+	SquaresFourIcon,
+	StackIcon,
+	SunIcon,
+	TrashIcon,
+	UsersIcon,
+	WarningCircleIcon,
+} from "@databuddy/ui/icons";
 
 function InfoSection({
 	title,
@@ -83,7 +84,7 @@ function ActionButton({
 	onClick,
 	variant = "outline",
 }: {
-	icon: typeof BugIcon;
+	icon: NavIcon;
 	label: string;
 	onClick: () => void;
 	variant?: "outline" | "destructive";
@@ -95,7 +96,7 @@ function ActionButton({
 			size="sm"
 			variant={variant}
 		>
-			<Icon className="size-4" weight="duotone" />
+			<Icon className="size-4" />
 			{label}
 		</Button>
 	);
@@ -363,15 +364,11 @@ function PerformanceInfo() {
 	});
 
 	const calculateBreakdown = useCallback(() => {
-		// DOM nodes count
 		const domNodes = document.querySelectorAll("*").length;
 
-		// Event listeners count (approximate by checking common elements)
 		let eventListeners = 0;
 		const allElements = document.querySelectorAll("*");
 		for (const el of allElements) {
-			// We can't directly count listeners, but we can estimate
-			// by checking if elements have common event handler patterns
 			if (
 				el instanceof HTMLElement &&
 				(el.onclick ||
@@ -383,24 +380,20 @@ function PerformanceInfo() {
 			}
 		}
 
-		// React Query cache size estimate
 		const cache = queryClient.getQueryCache();
 		const queries = cache.getAll();
 		let reactQueryCache = 0;
 		for (const query of queries) {
 			const state = query.state;
 			if (state.data) {
-				// Rough estimate: JSON stringify size
 				try {
 					reactQueryCache += JSON.stringify(state.data).length;
 				} catch {
-					// If circular or non-serializable, estimate by object keys
 					reactQueryCache += Object.keys(state.data).length * 100;
 				}
 			}
 		}
 
-		// Storage size
 		let storage = 0;
 		for (const key in localStorage) {
 			if (Object.hasOwn(localStorage, key)) {
@@ -413,34 +406,22 @@ function PerformanceInfo() {
 			}
 		}
 
-		// Images size estimate
 		const images = document.querySelectorAll("img");
 		let imagesSize = 0;
 		for (const img of images) {
 			if (img.complete && img.naturalWidth && img.naturalHeight) {
-				// Rough estimate: width * height * 4 bytes (RGBA)
 				imagesSize += img.naturalWidth * img.naturalHeight * 4;
 			}
 		}
 
-		// Scripts count
 		const scripts = document.querySelectorAll("script").length;
 
-		// Count active timers and intervals (approximate)
-		// We can't directly count these, but we can check for common patterns
 		const timers = 0;
 		const intervals = 0;
-		// Note: We can't actually count these without patching setTimeout/setInterval
-		// This is just a placeholder for future enhancement
 
-		// WebSocket connections
 		const websockets = 0;
-		// Check if there are any WebSocket instances (can't directly enumerate)
-		// This would require tracking at creation time
 
-		// Web Workers count
 		const workers = 0;
-		// Can't enumerate workers without tracking them at creation
 
 		setBreakdown({
 			domNodes,
@@ -502,7 +483,7 @@ function PerformanceInfo() {
 	useEffect(() => {
 		let animationFrameId: number;
 		let lastUpdate = 0;
-		const throttleMs = 500; // Update at most every 500ms
+		const throttleMs = 500;
 
 		const updateMemory = (timestamp: number) => {
 			if (timestamp - lastUpdate >= throttleMs) {
@@ -523,7 +504,6 @@ function PerformanceInfo() {
 			animationFrameId = requestAnimationFrame(updateMemory);
 		};
 
-		// Initial update
 		if ("memory" in performance) {
 			const mem = (performance as { memory?: typeof memoryInfo }).memory;
 			if (mem) {
@@ -577,7 +557,6 @@ function PerformanceInfo() {
 	return (
 		<InfoSection title="Performance">
 			<div className="space-y-3">
-				{/* Overall Heap Stats */}
 				<div className="space-y-1.5 text-xs">
 					<div className="flex items-center justify-between">
 						<span className="text-muted-foreground">Used Heap:</span>
@@ -599,7 +578,6 @@ function PerformanceInfo() {
 					</div>
 				</div>
 
-				{/* Advanced Memory Measurement */}
 				{canMeasureAdvanced && (
 					<>
 						<Separator />
@@ -653,7 +631,6 @@ function PerformanceInfo() {
 
 				<Separator />
 
-				{/* Memory Breakdown */}
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
 						<h4 className="font-medium text-muted-foreground text-xs">
@@ -726,7 +703,7 @@ const THEME_OPTIONS = [
 const CHART_TYPE_OPTIONS: {
 	id: ChartSeriesKind;
 	name: string;
-	icon: typeof ChartBarIcon;
+	icon: NavIcon;
 }[] = [
 	{ id: "bar", name: "Bar", icon: ChartBarIcon },
 	{ id: "line", name: "Line", icon: ChartLineIcon },
@@ -741,12 +718,13 @@ const STEP_TYPE_OPTIONS: { id: ChartCurveType; name: string }[] = [
 	{ id: "stepAfter", name: "Step After" },
 ];
 
-const LOCATION_ICONS: Record<ChartLocation, typeof ChartLineIcon> = {
+const LOCATION_ICONS: Record<ChartLocation, NavIcon> = {
 	"overview-stats": SquaresFourIcon,
 	"overview-main": PresentationChartIcon,
 	funnels: FunnelIcon,
 	retention: UsersIcon,
 	"website-list": ChartLineIcon,
+	events: ChartBarIcon,
 };
 
 function AppearanceSettings() {
@@ -773,7 +751,6 @@ function AppearanceSettings() {
 
 	return (
 		<div className="space-y-4">
-			{/* Theme */}
 			<div className="space-y-2">
 				<h3 className="flex items-center gap-2 font-medium text-sm">
 					<MonitorIcon className="size-4" weight="duotone" />
@@ -797,14 +774,12 @@ function AppearanceSettings() {
 
 			<Separator />
 
-			{/* Chart Preferences */}
 			<div className="space-y-2">
 				<h3 className="flex items-center gap-2 font-medium text-sm">
 					<ChartLineIcon className="size-4" weight="duotone" />
 					Charts
 				</h3>
 
-				{/* Global Settings */}
 				<div className="rounded border bg-muted/30 p-3">
 					<div className="mb-2 flex items-center justify-between">
 						<span className="text-muted-foreground text-xs">All Charts</span>
@@ -822,7 +797,7 @@ function AppearanceSettings() {
 									{CHART_TYPE_OPTIONS.map(({ id, name, icon: OptIcon }) => (
 										<SelectItem key={id} value={id}>
 											<div className="flex items-center gap-2">
-												<OptIcon className="size-3" weight="duotone" />
+												<OptIcon className="size-3" />
 												{name}
 											</div>
 										</SelectItem>
@@ -870,7 +845,6 @@ function AppearanceSettings() {
 						/>
 					</Button>
 
-					{/* Granular Settings */}
 					{showGranular ? (
 						<div className="mt-2 space-y-1 border-t pt-2">
 							{CHART_LOCATIONS.map((location) => {
@@ -887,10 +861,7 @@ function AppearanceSettings() {
 										key={location}
 									>
 										<div className="flex items-center gap-2">
-											<Icon
-												className="size-3 shrink-0 text-muted-foreground"
-												weight="duotone"
-											/>
+											<Icon className="size-3 shrink-0 text-muted-foreground" />
 											<span className="truncate">
 												{CHART_LOCATION_LABELS[location]}
 											</span>
@@ -916,10 +887,7 @@ function AppearanceSettings() {
 														({ id, name, icon: OptIcon }) => (
 															<SelectItem key={id} value={id}>
 																<div className="flex items-center gap-2">
-																	<OptIcon
-																		className="size-3"
-																		weight="duotone"
-																	/>
+																	<OptIcon className="size-3" />
 																	{name}
 																</div>
 															</SelectItem>
@@ -1089,11 +1057,9 @@ export function DevToolsDrawer() {
 
 					<div className="overflow-y-auto p-4 pb-8">
 						<div className="space-y-6">
-							{/* Appearance Settings */}
 							<AppearanceSettings />
 							<Separator />
 
-							{/* Debug Tools */}
 							<EnvironmentInfo />
 							<Separator />
 							<ToastPreview />

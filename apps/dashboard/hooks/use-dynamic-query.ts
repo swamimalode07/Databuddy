@@ -10,17 +10,27 @@ import type {
 } from "@databuddy/shared/types/parameters";
 import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
-import { guessTimezone } from "@/lib/dayjs";
+import { guessTimezone } from "@databuddy/ui";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
+export const dynamicQueryKeys = {
+	all: () => ["dynamic-query"] as const,
+	byWebsite: (websiteId: string) => ["dynamic-query", websiteId] as const,
+};
+
+export const batchDynamicQueryKeys = {
+	all: () => ["batch-dynamic-query"] as const,
+	byWebsite: (websiteId: string) => ["batch-dynamic-query", websiteId] as const,
+};
+
 interface BuildParamsOptions {
-	websiteId?: string;
-	scheduleId?: string;
+	additionalParams?: Record<string, string | number>;
+	dateRange?: DateRange;
 	linkId?: string;
 	organizationId?: string;
-	dateRange?: DateRange;
-	additionalParams?: Record<string, string | number>;
+	scheduleId?: string;
+	websiteId?: string;
 }
 
 function buildParams({
@@ -89,10 +99,10 @@ function transformFilters(filters?: DynamicQueryRequest["filters"]) {
 }
 
 interface FetchOptions {
-	websiteId?: string;
-	scheduleId?: string;
 	linkId?: string;
 	organizationId?: string;
+	scheduleId?: string;
+	websiteId?: string;
 }
 
 async function fetchDynamicQuery(
@@ -227,10 +237,10 @@ export function useDynamicQuery<T extends (keyof ParameterDataMap)[]>(
 }
 
 interface BatchQueryOptions {
-	websiteId?: string;
-	scheduleId?: string;
 	linkId?: string;
 	organizationId?: string;
+	scheduleId?: string;
+	websiteId?: string;
 }
 
 export function useBatchDynamicQuery(

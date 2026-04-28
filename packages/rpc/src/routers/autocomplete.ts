@@ -1,4 +1,4 @@
-import { chQuery } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
 import { createDrizzleCache, redis } from "@databuddy/redis";
 import { z } from "zod";
 import { rpcError } from "../errors";
@@ -195,9 +195,7 @@ export const autocompleteRouter = {
 						logger.error(
 							`Failed to fetch autocomplete data for website ${input.websiteId}: ${error instanceof Error ? error.message : String(error)}`
 						);
-						throw rpcError.internal(
-							`Failed to fetch autocomplete data for website ${input.websiteId}: ${error instanceof Error ? error.message : String(error)}`
-						);
+						throw rpcError.internal("Failed to fetch autocomplete data");
 					}
 				},
 			});

@@ -1,27 +1,25 @@
+import { redisStorage } from "@better-auth/redis-storage";
 import { sso } from "@better-auth/sso";
+import { db, eq } from "@databuddy/db";
 import {
-	db,
-	eq,
 	member as memberTable,
 	organization as organizationTable,
-	user,
-} from "@databuddy/db";
+} from "@databuddy/db/schema";
 import {
+	DeleteAccountEmail,
 	InvitationEmail,
 	MagicLinkEmail,
 	OtpEmail,
+	render,
 	ResetPasswordEmail,
 	VerificationEmail,
 } from "@databuddy/email";
-import {
-	type NotificationResult,
-	sendSlackWebhook,
-} from "@databuddy/notifications";
+import { SlackProvider } from "@databuddy/notifications";
+import { getRedisCache, ratelimit } from "@databuddy/redis";
 import { createId } from "@databuddy/shared/utils/ids";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
 import {
-	customSession,
 	emailOTP,
 	lastLoginMethod,
 	magicLink,
@@ -29,16 +27,19 @@ import {
 	organization,
 	twoFactor,
 } from "better-auth/plugins";
+import { log } from "evlog";
 import { Resend } from "resend";
 import { ac, admin, member, owner, viewer } from "./permissions";
 
 function generateOrgSlug(name: string): string {
-	return name
+	const base = name
 		.toLowerCase()
 		.replace(/[^a-z0-9\s-]/g, "")
 		.replace(/\s+/g, "-")
 		.replace(/-+/g, "-")
 		.slice(0, 48);
+	const suffix = createId().slice(0, 6);
+	return `${base}-${suffix}`;
 }
 
 function getOrgNameFromUser(userName: string, email: string): string {
@@ -55,44 +56,80 @@ function isProduction() {
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL ?? "";
 
+function notifySlack(
+	title: string,
+	message: string,
+	priority: "high" | "normal",
+	metadata: Record<string, string>
+): void {
+	if (!SLACK_WEBHOOK_URL) {
+		return;
+	}
+
+	new SlackProvider({ webhookUrl: SLACK_WEBHOOK_URL })
+		.send({ title, message, priority, metadata })
+		.then((result) => {
+			if (!result.success) {
+				console.error(
+					`Failed to send Slack notification (${title}):`,
+					result.error
+				);
+			}
+		})
+		.catch((error) => {
+			console.error(`Failed to send Slack notification (${title}):`, error);
+		});
+}
+
 function notifySignUpSlackAction(input: {
 	userId: string;
 	email: string;
 	name: string | null;
 	organizationId: string;
 }): void {
-	if (!SLACK_WEBHOOK_URL) {
-		return;
-	}
-
-	sendSlackWebhook(SLACK_WEBHOOK_URL, {
-		title: "New sign-up",
-		message: "A new user created an account.",
-		priority: "normal",
-		metadata: {
-			email: input.email,
-			name: input.name ?? "—",
-			userId: input.userId,
-			organizationId: input.organizationId,
-		},
-	})
-		.then((result: NotificationResult) => {
-			if (!result.success) {
-				console.error(
-					"Failed to send Slack notification for sign-up:",
-					result.error
-				);
-			}
-		})
-		.catch((error) => {
-			console.error("Failed to send Slack notification for sign-up:", error);
-		});
+	notifySlack("New sign-up", "A new user created an account.", "normal", {
+		email: input.email,
+		name: input.name ?? "—",
+		userId: input.userId,
+		organizationId: input.organizationId,
+	});
 }
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
 	}),
+	secondaryStorage: redisStorage({
+		client: getRedisCache(),
+		keyPrefix: "ba:",
+	}),
+	session: {
+		storeSessionInDatabase: true,
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60,
+		},
+	},
+	rateLimit: {
+		window: 60,
+		max: 100,
+		customStorage: {
+			get: async (key) => {
+				const value = await getRedisCache().get(key);
+				return value ? JSON.parse(value) : null;
+			},
+			set: async (key, value) => {
+				await getRedisCache().set(key, JSON.stringify(value), "EX", 120);
+			},
+		},
+		customRules: {
+			"/sign-up/email": { window: 60, max: 3 },
+			"/sign-in/email": { window: 10, max: 3 },
+			"/forget-password": { window: 60, max: 3 },
+			"/magic-link/send": { window: 60, max: 3 },
+			"/email-otp/send": { window: 60, max: 3 },
+		},
+	},
 	account: {
 		accountLinking: {
 			enabled: true,
@@ -110,22 +147,33 @@ export const auth = betterAuth({
 						createdUser.email
 					);
 
-					await db.transaction(async (tx) => {
-						await tx.insert(organizationTable).values({
-							id: orgId,
-							name: orgName,
-							slug: generateOrgSlug(orgName),
-							createdAt: new Date(),
-						});
+					try {
+						await db.transaction(async (tx) => {
+							await tx.insert(organizationTable).values({
+								id: orgId,
+								name: orgName,
+								slug: generateOrgSlug(orgName),
+								createdAt: new Date(),
+							});
 
-						await tx.insert(memberTable).values({
-							id: createId(),
-							organizationId: orgId,
-							userId: createdUser.id,
-							role: "owner",
-							createdAt: new Date(),
+							await tx.insert(memberTable).values({
+								id: createId(),
+								organizationId: orgId,
+								userId: createdUser.id,
+								role: "owner",
+								createdAt: new Date(),
+							});
 						});
-					});
+					} catch (error) {
+						log.error({
+							service: "auth",
+							auth_hook: "user.create.after",
+							auth_user_id: createdUser.id,
+							auth_org_id: orgId,
+							error: error instanceof Error ? error.message : String(error),
+						});
+						return;
+					}
 
 					notifySignUpSlackAction({
 						userId: createdUser.id,
@@ -158,10 +206,12 @@ export const auth = betterAuth({
 							};
 						}
 					} catch (error) {
-						console.error(
-							"Failed to set active organization for session:",
-							error
-						);
+						log.error({
+							service: "auth",
+							auth_hook: "session.create.before",
+							auth_user_id: sessionData.userId,
+							error: error instanceof Error ? error.message : String(error),
+						});
 					}
 
 					return { data: sessionData };
@@ -172,6 +222,27 @@ export const auth = betterAuth({
 	user: {
 		deleteUser: {
 			enabled: true,
+			sendDeleteAccountVerification: async ({ user: targetUser, url }) => {
+				const resend = new Resend(process.env.RESEND_API_KEY as string);
+				await resend.emails.send({
+					from: "no-reply@databuddy.cc",
+					to: targetUser.email,
+					subject: "[Action required] Confirm account deletion",
+					html: await render(DeleteAccountEmail({ url })),
+				});
+			},
+			beforeDelete: async (userToDelete) => {
+				await notifySlack(
+					"Account deleted",
+					"A user deleted their account.",
+					"high",
+					{
+						email: userToDelete.email,
+						name: userToDelete.name ?? "—",
+						userId: userToDelete.id,
+					}
+				);
+			},
 		},
 	},
 	appName: "databuddy.cc",
@@ -212,12 +283,23 @@ export const auth = betterAuth({
 		autoSignIn: false,
 		requireEmailVerification: process.env.NODE_ENV === "production",
 		sendResetPassword: async ({ user, url }: { user: any; url: string }) => {
+			const { success } = await ratelimit(`reset:${user.email}`, 3, 3600);
+			if (!success) {
+				log.warn({
+					service: "auth",
+					auth_rate_limited: true,
+					auth_callback: "reset_password",
+					auth_rate_limit_email: user.email,
+				});
+				return;
+			}
+
 			const resend = new Resend(process.env.RESEND_API_KEY as string);
 			await resend.emails.send({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
-				subject: "Reset your password",
-				react: ResetPasswordEmail({ url }),
+				subject: "[Action required] Reset your password",
+				html: await render(ResetPasswordEmail({ url })),
 			});
 		},
 	},
@@ -232,12 +314,23 @@ export const auth = betterAuth({
 			user: any;
 			url: string;
 		}) => {
+			const { success } = await ratelimit(`verify:${user.email}`, 3, 900);
+			if (!success) {
+				log.warn({
+					service: "auth",
+					auth_rate_limited: true,
+					auth_callback: "verify_email",
+					auth_rate_limit_email: user.email,
+				});
+				return;
+			}
+
 			const resend = new Resend(process.env.RESEND_API_KEY as string);
 			await resend.emails.send({
 				from: "no-reply@databuddy.cc",
 				to: user.email,
-				subject: "Verify your email",
-				react: VerificationEmail({ url }),
+				subject: "[Action required] Verify your email to get started",
+				html: await render(VerificationEmail({ url })),
 			});
 		},
 	},
@@ -257,25 +350,37 @@ export const auth = betterAuth({
 			},
 		}),
 		emailOTP({
-			// biome-ignore lint/suspicious/useAwait: we don't want to await here
 			async sendVerificationOTP({ email, otp, type }) {
-				const resend = new Resend(process.env.RESEND_API_KEY as string);
-
-				let subject = "Your verification code";
-				if (type === "sign-in") {
-					subject = "Sign in to Databuddy";
-				} else if (type === "email-verification") {
-					subject = "Verify your email address";
-				} else if (type === "forget-password") {
-					subject = "Reset your password";
+				const { success } = await ratelimit(`otp:${email}`, 3, 900);
+				if (!success) {
+					log.warn({
+						service: "auth",
+						auth_rate_limited: true,
+						auth_callback: "verification_otp",
+						auth_otp_type: type,
+						auth_rate_limit_email: email,
+					});
+					return;
 				}
 
+				const resend = new Resend(process.env.RESEND_API_KEY as string);
+
+				let subject = `${otp} is your verification code`;
+				if (type === "sign-in") {
+					subject = `${otp} — Sign in to Databuddy`;
+				} else if (type === "email-verification") {
+					subject = `${otp} — Verify your email`;
+				} else if (type === "forget-password") {
+					subject = `${otp} — Reset your password`;
+				}
+
+				const otpHtml = await render(OtpEmail({ otp }));
 				resend.emails
 					.send({
 						from: "no-reply@databuddy.cc",
 						to: email,
 						subject,
-						react: OtpEmail({ otp }),
+						html: otpHtml,
 					})
 					.catch((error) => {
 						console.error("Failed to send OTP email:", error);
@@ -283,13 +388,24 @@ export const auth = betterAuth({
 			},
 		}),
 		magicLink({
-			sendMagicLink: ({ email, url }) => {
+			sendMagicLink: async ({ email, url }) => {
+				const { success } = await ratelimit(`magic:${email}`, 3, 900);
+				if (!success) {
+					log.warn({
+						service: "auth",
+						auth_rate_limited: true,
+						auth_callback: "magic_link",
+						auth_rate_limit_email: email,
+					});
+					return;
+				}
+
 				const resend = new Resend(process.env.RESEND_API_KEY as string);
 				resend.emails.send({
 					from: "no-reply@databuddy.cc",
 					to: email,
-					subject: "Login to Databuddy",
-					react: MagicLinkEmail({ url }),
+					subject: "Your sign-in link for Databuddy",
+					html: await render(MagicLinkEmail({ url })),
 				});
 			},
 		}),
@@ -300,22 +416,6 @@ export const auth = betterAuth({
 			},
 		}),
 		twoFactor(),
-		customSession(async ({ user: sessionUser, session }) => {
-			const [dbUser] = await db
-				.select({ role: user.role, twoFactorEnabled: user.twoFactorEnabled })
-				.from(user)
-				.where(eq(user.id, session.userId))
-				.limit(1);
-			return {
-				role: dbUser?.role,
-				user: {
-					...sessionUser,
-					role: dbUser?.role,
-					twoFactorEnabled: dbUser?.twoFactorEnabled ?? false,
-				},
-				session,
-			};
-		}),
 		organization({
 			creatorRole: "owner",
 			teams: {
@@ -334,17 +434,34 @@ export const auth = betterAuth({
 				organization,
 				invitation,
 			}) => {
+				const { success } = await ratelimit(
+					`invite:${organization.id}`,
+					5,
+					3600
+				);
+				if (!success) {
+					log.warn({
+						service: "auth",
+						auth_rate_limited: true,
+						auth_callback: "invitation",
+						auth_organization_id: organization.id,
+					});
+					return;
+				}
+
 				const invitationLink = `https://app.databuddy.cc/invitations/${invitation.id}`;
 				const resend = new Resend(process.env.RESEND_API_KEY as string);
 				await resend.emails.send({
 					from: "no-reply@databuddy.cc",
 					to: email,
-					subject: `You're invited to join ${organization.name}`,
-					react: InvitationEmail({
-						inviterName: inviter.user.name ?? "",
-						organizationName: organization.name,
-						invitationLink,
-					}),
+					subject: `${inviter.user.name ?? "Someone"} invited you to join ${organization.name}`,
+					html: await render(
+						InvitationEmail({
+							inviterName: inviter.user.name ?? "",
+							organizationName: organization.name,
+							invitationLink,
+						})
+					),
 				});
 			},
 		}),
@@ -355,8 +472,5 @@ export const websitesApi = {
 	hasPermission: auth.api.hasPermission,
 };
 
-export type User = (typeof auth)["$Infer"]["Session"]["user"] & {
-	role?: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
-	twoFactorEnabled?: boolean;
-};
+export type User = (typeof auth)["$Infer"]["Session"]["user"];
 export type Session = (typeof auth)["$Infer"]["Session"];

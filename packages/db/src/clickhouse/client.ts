@@ -1,7 +1,21 @@
 import { createClient, type ResponseJSON } from "@clickhouse/client";
 import type { NodeClickHouseClientConfigOptions } from "@clickhouse/client/dist/config";
-import { SpanStatusCode, trace } from "@opentelemetry/api";
+
 import SqlString from "sqlstring";
+
+let _record:
+	| (<T>(name: string, fn: () => Promise<T> | T) => Promise<T>)
+	| null = null;
+
+export function setChRecordFn(
+	fn: <T>(name: string, fn: () => Promise<T> | T) => Promise<T>
+) {
+	_record = fn;
+}
+
+function traced<T>(name: string, fn: () => Promise<T>): Promise<T> {
+	return _record ? _record(name, fn) : fn();
+}
 /**
  * ClickHouse table names used throughout the application
  */
@@ -89,83 +103,64 @@ export const clickHouse = new Proxy(clickHouseOG, {
 	},
 });
 
-export function chQueryWithMeta<T extends Record<string, any>>(
+export interface ChQueryOptions {
+	readonly?: boolean;
+}
+
+export async function chQueryWithMeta<T extends Record<string, any>>(
 	query: string,
-	params?: Record<string, unknown>
+	params?: Record<string, unknown>,
+	options?: ChQueryOptions
 ): Promise<ResponseJSON<T>> {
-	const tracer = trace.getTracer("clickhouse");
-	return tracer.startActiveSpan("chQuery", async (span) => {
-		const preview =
-			query.length > 200 ? `${query.substring(0, 200)}...` : query;
-		span.setAttribute("db.system", "clickhouse");
-		span.setAttribute("db.statement", preview);
-
-		try {
-			const res = await clickHouse.query({
-				query,
-				query_params: params,
-			});
-			const json = await res.json<T>();
-			const keys = Object.keys(json.data[0] || {});
-
-			span.setAttribute("db.row_count", json.data.length);
-			span.setAttribute("db.stats.rows_read", json.statistics?.rows_read ?? 0);
-			span.setAttribute(
-				"db.stats.bytes_read",
-				json.statistics?.bytes_read ?? 0
-			);
-			span.setAttribute("db.stats.elapsed_sec", json.statistics?.elapsed ?? 0);
-			span.setStatus({ code: SpanStatusCode.OK });
-
-			const response = {
-				...json,
-				data: json.data.map((item) =>
-					keys.reduce(
-						(acc, key) => {
-							const meta = json.meta?.find((m) => m.name === key);
-							acc[key] =
-								item[key] && meta?.type.includes("Int")
-									? Number.parseFloat(item[key] as string)
-									: item[key];
-							return acc;
-						},
-						{} as Record<string, any>
-					)
-				),
-			};
-
-			return response as ResponseJSON<T>;
-		} catch (error) {
-			span.setStatus({
-				code: SpanStatusCode.ERROR,
-				message: error instanceof Error ? error.message : String(error),
-			});
-			span.recordException(
-				error instanceof Error ? error : new Error(String(error))
-			);
-			throw error;
-		} finally {
-			span.end();
-		}
+	const json = await traced("ch.query", async () => {
+		const res = await clickHouse.query({
+			query,
+			query_params: params,
+			...(options?.readonly && {
+				clickhouse_settings: { readonly: "1" },
+			}),
+		});
+		return res.json<T>();
 	});
+	const keys = Object.keys(json.data[0] || {});
+
+	return {
+		...json,
+		data: json.data.map((item) =>
+			keys.reduce(
+				(acc, key) => {
+					const meta = json.meta?.find((m) => m.name === key);
+					acc[key] =
+						item[key] && meta?.type.includes("Int")
+							? Number.parseFloat(item[key] as string)
+							: item[key];
+					return acc;
+				},
+				{} as Record<string, any>
+			)
+		),
+	} as ResponseJSON<T>;
 }
 
 export function chQuery<T extends Record<string, any>>(
 	query: string,
-	params?: Record<string, unknown>
+	params?: Record<string, unknown>,
+	options?: ChQueryOptions
 ): Promise<T[]> {
-	return chQueryWithMeta<T>(query, params).then((res) => res.data);
+	return chQueryWithMeta<T>(query, params, options).then((res) => res.data);
 }
 
 export async function chCommand(
 	query: string,
 	params?: Record<string, unknown>
 ): Promise<void> {
-	await clickHouse.command({
-		query,
-		query_params: params,
-		clickhouse_settings: { wait_end_of_query: 1 },
-	});
+	await traced("ch.command", () =>
+		clickHouse.command({
+			query,
+			query_params: params,
+			clickhouse_settings: { wait_end_of_query: 1 },
+		})
+	);
 }
 
 const Z_REGEX = /Z+$/;

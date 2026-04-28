@@ -4,13 +4,12 @@ import type { Filter, SimpleQueryConfig, TimeUnit } from "../types";
 function projectWhereClause(
 	filterParams?: Record<string, Filter["value"]>
 ): string {
-	if (
-		filterParams?.orgWebsiteIds &&
-		Array.isArray(filterParams.orgWebsiteIds) &&
-		filterParams.orgWebsiteIds.length > 0
-	) {
-		return "(owner_id = {projectId:String} OR website_id = {projectId:String} OR website_id IN {orgWebsiteIds:Array(String)})";
+	// Org-level: owner_id is always the organizationId at ingestion, so a
+	// primary-key scan on owner_id alone covers all events for the org.
+	if (filterParams?.__orgLevel) {
+		return "owner_id = {projectId:String}";
 	}
+	// Website-level: match either owner_id or website_id (bloom-filter indexed).
 	return "(owner_id = {projectId:String} OR website_id = {projectId:String})";
 }
 
@@ -516,13 +515,14 @@ export const CustomEventsBuilders: Record<string, SimpleQueryConfig> = {
 			return {
 				sql: `
 					WITH property_values AS (
-						SELECT 
+						SELECT
 							event_name,
-							arrayJoin(JSONExtractKeys(properties)) as property_key,
-							JSONExtractRaw(properties, arrayJoin(JSONExtractKeys(properties))) as raw_value,
-							trim(BOTH '"' FROM JSONExtractRaw(properties, arrayJoin(JSONExtractKeys(properties)))) as clean_value
+							kv.1 as property_key,
+							kv.2 as raw_value,
+							trim(BOTH '"' FROM kv.2) as clean_value
 						FROM ${Analytics.custom_events}
-						WHERE 
+						ARRAY JOIN arrayMap(k -> (k, JSONExtractRaw(properties, k)), JSONExtractKeys(properties)) as kv
+						WHERE
 							${projectWhereClause(filterParams)}
 							AND timestamp >= toDateTime({startDate:String})
 							AND timestamp <= toDateTime(concat({endDate:String}, ' 23:59:59'))
@@ -651,13 +651,14 @@ export const CustomEventsBuilders: Record<string, SimpleQueryConfig> = {
 			return {
 				sql: `
 					WITH all_values AS (
-						SELECT 
+						SELECT
 							event_name,
-							arrayJoin(JSONExtractKeys(properties)) as property_key,
-							trim(BOTH '"' FROM JSONExtractRaw(properties, arrayJoin(JSONExtractKeys(properties)))) as property_value,
+							kv.1 as property_key,
+							trim(BOTH '"' FROM kv.2) as property_value,
 							COUNT(*) as count
 						FROM ${Analytics.custom_events}
-						WHERE 
+						ARRAY JOIN arrayMap(k -> (k, JSONExtractRaw(properties, k)), JSONExtractKeys(properties)) as kv
+						WHERE
 							${projectWhereClause(filterParams)}
 							AND timestamp >= toDateTime({startDate:String})
 							AND timestamp <= toDateTime(concat({endDate:String}, ' 23:59:59'))
@@ -741,12 +742,13 @@ export const CustomEventsBuilders: Record<string, SimpleQueryConfig> = {
 			return {
 				sql: `
 					WITH property_data AS (
-						SELECT 
+						SELECT
 							event_name,
-							arrayJoin(JSONExtractKeys(properties)) as property_key,
-							trim(BOTH '"' FROM JSONExtractRaw(properties, arrayJoin(JSONExtractKeys(properties)))) as property_value
+							kv.1 as property_key,
+							trim(BOTH '"' FROM kv.2) as property_value
 						FROM ${Analytics.custom_events}
-						WHERE 
+						ARRAY JOIN arrayMap(k -> (k, JSONExtractRaw(properties, k)), JSONExtractKeys(properties)) as kv
+						WHERE
 							${projectWhereClause(filterParams)}
 							AND timestamp >= toDateTime({startDate:String})
 							AND timestamp <= toDateTime(concat({endDate:String}, ' 23:59:59'))

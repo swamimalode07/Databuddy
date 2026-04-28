@@ -1,36 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	CheckIcon,
-	SpinnerGapIcon,
-	UsersThreeIcon,
-} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-	Sheet,
-	SheetBody,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +14,9 @@ import {
 	type UserRule,
 } from "../../_components/types";
 import { UserRulesBuilder } from "../../_components/user-rules-builder";
+import { CheckIcon, UsersThreeIcon } from "@databuddy/ui/icons";
+import { Button, Divider, Field, Input, Textarea } from "@databuddy/ui";
+import { Sheet } from "@databuddy/ui/client";
 
 const groupFormSchema = z.object({
 	name: z.string().min(1, "Name is required").max(100),
@@ -127,7 +105,6 @@ export function GroupSheet({
 		}
 	};
 
-	// Reset form when group changes
 	useEffect(() => {
 		if (isOpen) {
 			resetForm();
@@ -177,8 +154,8 @@ export function GroupSheet({
 
 	return (
 		<Sheet onOpenChange={handleOpenChange} open={isOpen}>
-			<SheetContent className="sm:max-w-xl" side="right">
-				<SheetHeader>
+			<Sheet.Content className="sm:max-w-xl" side="right">
+				<Sheet.Header>
 					<div className="flex items-center gap-4">
 						<div
 							className="flex size-11 items-center justify-center rounded border"
@@ -191,166 +168,145 @@ export function GroupSheet({
 							/>
 						</div>
 						<div>
-							<SheetTitle className="text-lg">
+							<Sheet.Title className="text-lg">
 								{isEditing ? "Edit Group" : "Create Group"}
-							</SheetTitle>
-							<SheetDescription>
+							</Sheet.Title>
+							<Sheet.Description>
 								{isEditing
 									? `Editing ${group?.name}`
 									: "Create a reusable targeting group"}
-							</SheetDescription>
+							</Sheet.Description>
 						</div>
 					</div>
-				</SheetHeader>
+				</Sheet.Header>
 
-				<Form {...form}>
-					<form
-						className="flex flex-1 flex-col overflow-hidden"
-						onSubmit={form.handleSubmit(onSubmit, (errors) => {
-							console.error("Validation errors:", JSON.stringify(errors));
-							toast.error("Please fix the form errors");
-						})}
-					>
-						<SheetBody className="space-y-6">
-							{/* Basic Info */}
-							<div className="space-y-4">
-								<FormField
-									control={form.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>
-												Name <span className="text-destructive">*</span>
-											</FormLabel>
-											<FormControl>
-												<Input placeholder="Beta Testers…" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="description"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-muted-foreground">
-												Description (optional)
-											</FormLabel>
-											<FormControl>
-												<Textarea
-													className="min-h-16 resize-none"
-													placeholder="Who belongs to this group?…"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* Color Picker */}
-								<FormField
-									control={form.control}
-									name="color"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-muted-foreground">
-												Color
-											</FormLabel>
-											<FormControl>
-												<div className="flex flex-wrap gap-2">
-													{GROUP_COLORS.map((color) => (
-														<button
-															className={cn(
-																"relative flex size-9 items-center justify-center rounded shadow-sm transition-all hover:scale-110 hover:shadow-md",
-																field.value === color.value &&
-																	"ring-2 ring-offset-2 ring-offset-background"
-															)}
-															key={color.value}
-															onClick={() => {
-																field.onChange(color.value);
-																setSelectedColor(color.value);
-															}}
-															style={{
-																background: `linear-gradient(135deg, ${color.value} 0%, ${color.value}cc 100%)`,
-																...(field.value === color.value && {
-																	ringColor: color.value,
-																}),
-															}}
-															title={color.label}
-															type="button"
-														>
-															{field.value === color.value && (
-																<CheckIcon
-																	className="text-white drop-shadow-sm"
-																	size={14}
-																	weight="bold"
-																/>
-															)}
-														</button>
-													))}
-												</div>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-
-							{/* Separator */}
-							<div className="h-px bg-border" />
-
-							{/* Targeting Rules */}
-							<div className="space-y-3">
-								<div className="flex items-center justify-between">
-									<div>
-										<h3 className="font-medium text-sm">Targeting Rules</h3>
-										<p className="text-muted-foreground text-xs">
-											Define who belongs to this group
-										</p>
-									</div>
-									{watchedRules.length > 0 && (
-										<span className="flex size-6 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
-											{watchedRules.length}
-										</span>
-									)}
-								</div>
-
-								<FormField
-									control={form.control}
-									name="rules"
-									render={({ field }) => (
-										<UserRulesBuilder
-											onChange={field.onChange}
-											rules={(field.value as UserRule[]) ?? []}
-										/>
-									)}
-								/>
-							</div>
-						</SheetBody>
-
-						<SheetFooter>
-							<Button onClick={onCloseAction} type="button" variant="outline">
-								Cancel
-							</Button>
-							<Button className="min-w-28" disabled={isLoading} type="submit">
-								{isLoading ? (
-									<>
-										<SpinnerGapIcon className="animate-spin" size={16} />
-										{isEditing ? "Saving…" : "Creating…"}
-									</>
-								) : isEditing ? (
-									"Save Changes"
-								) : (
-									"Create Group"
+				<form
+					className="flex flex-1 flex-col overflow-hidden"
+					onSubmit={form.handleSubmit(onSubmit, (errors) => {
+						console.error("Validation errors:", JSON.stringify(errors));
+						toast.error("Please fix the form errors");
+					})}
+				>
+					<Sheet.Body className="space-y-6">
+						<div className="space-y-4">
+							<Controller
+								control={form.control}
+								name="name"
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>
+											Name <span className="text-destructive">*</span>
+										</Field.Label>
+										<Input placeholder="Beta Testers…" {...field} />
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
 								)}
-							</Button>
-						</SheetFooter>
-					</form>
-				</Form>
-			</SheetContent>
+							/>
+
+							<Controller
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<Field>
+										<Field.Label className="text-muted-foreground">
+											Description (optional)
+										</Field.Label>
+										<Textarea
+											className="min-h-16 resize-none"
+											placeholder="Who belongs to this group?…"
+											{...field}
+										/>
+									</Field>
+								)}
+							/>
+
+							<Controller
+								control={form.control}
+								name="color"
+								render={({ field }) => (
+									<Field>
+										<Field.Label className="text-muted-foreground">
+											Color
+										</Field.Label>
+										<div className="flex flex-wrap gap-2">
+											{GROUP_COLORS.map((color) => (
+												<button
+													className={cn(
+														"relative flex size-9 items-center justify-center rounded shadow-sm transition-all hover:scale-110 hover:shadow-md",
+														field.value === color.value &&
+															"ring-2 ring-offset-2 ring-offset-background"
+													)}
+													key={color.value}
+													onClick={() => {
+														field.onChange(color.value);
+														setSelectedColor(color.value);
+													}}
+													style={{
+														background: `linear-gradient(135deg, ${color.value} 0%, ${color.value}cc 100%)`,
+														...(field.value === color.value && {
+															ringColor: color.value,
+														}),
+													}}
+													title={color.label}
+													type="button"
+												>
+													{field.value === color.value && (
+														<CheckIcon
+															className="size-3.5 text-white drop-shadow-sm"
+															weight="bold"
+														/>
+													)}
+												</button>
+											))}
+										</div>
+									</Field>
+								)}
+							/>
+						</div>
+
+						<Divider />
+
+						<div className="space-y-3">
+							<div className="flex items-center justify-between">
+								<div>
+									<h3 className="font-medium text-sm">Targeting Rules</h3>
+									<p className="text-muted-foreground text-xs">
+										Define who belongs to this group
+									</p>
+								</div>
+								{watchedRules.length > 0 && (
+									<span className="flex size-6 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+										{watchedRules.length}
+									</span>
+								)}
+							</div>
+
+							<Controller
+								control={form.control}
+								name="rules"
+								render={({ field }) => (
+									<UserRulesBuilder
+										onChange={field.onChange}
+										rules={(field.value as UserRule[]) ?? []}
+									/>
+								)}
+							/>
+						</div>
+					</Sheet.Body>
+
+					<Sheet.Footer>
+						<Button onClick={onCloseAction} type="button" variant="secondary">
+							Cancel
+						</Button>
+						<Button className="min-w-28" loading={isLoading} type="submit">
+							{isEditing ? "Save Changes" : "Create Group"}
+						</Button>
+					</Sheet.Footer>
+				</form>
+				<Sheet.Close />
+			</Sheet.Content>
 		</Sheet>
 	);
 }

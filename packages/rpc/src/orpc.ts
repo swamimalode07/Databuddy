@@ -1,4 +1,7 @@
-import { getApiKeyFromHeader } from "@databuddy/api-keys/resolve";
+import {
+	type ApiKeyRow,
+	getApiKeyFromHeader,
+} from "@databuddy/api-keys/resolve";
 import { auth, type User } from "@databuddy/auth";
 import { db } from "@databuddy/db";
 import { os as createOS } from "@orpc/server";
@@ -6,6 +9,7 @@ import { baseErrors } from "./errors";
 import {
 	enrichRpcWideEventContext,
 	recordORPCError,
+	setRpcProcedurePath,
 	setRpcProcedureType,
 } from "./lib/rpc-log-context";
 import {
@@ -14,11 +18,21 @@ import {
 	getOrganizationOwnerId,
 } from "./utils/billing";
 
-export const createRPCContext = async (opts: { headers: Headers }) => {
-	const [session, apiKey] = await Promise.all([
-		auth.api.getSession({ headers: opts.headers }),
-		getApiKeyFromHeader(opts.headers),
-	]);
+interface PreResolvedAuth {
+	apiKey: ApiKeyRow | null;
+	session: Awaited<ReturnType<typeof auth.api.getSession>> | null;
+}
+
+export const createRPCContext = async (
+	opts: { headers: Headers },
+	preResolved?: PreResolvedAuth
+) => {
+	const [session, apiKey] = preResolved
+		? [preResolved.session, preResolved.apiKey]
+		: await Promise.all([
+				auth.api.getSession({ headers: opts.headers }),
+				getApiKeyFromHeader(opts.headers),
+			]);
 
 	const user = session?.user as User | undefined;
 
@@ -69,14 +83,16 @@ export type Context = Awaited<ReturnType<typeof createRPCContext>>;
 
 const os = createOS.$context<Context>().errors(baseErrors);
 
-export const publicProcedure = os.use(({ context, next }) => {
+export const publicProcedure = os.use(({ context, next, path }) => {
 	setRpcProcedureType("public");
+	setRpcProcedurePath(path);
 	enrichRpcWideEventContext(context);
 	return next();
 });
 
-export const protectedProcedure = os.use(({ context, next, errors }) => {
+export const protectedProcedure = os.use(({ context, next, errors, path }) => {
 	setRpcProcedureType("protected");
+	setRpcProcedurePath(path);
 	enrichRpcWideEventContext(context);
 
 	if (!(context.user || context.apiKey)) {
@@ -101,23 +117,6 @@ export const sessionProcedure = protectedProcedure.use(
 				session: context.session,
 			},
 		});
-	}
-);
-
-export const adminProcedure = protectedProcedure.use(
-	({ context, next, errors }) => {
-		setRpcProcedureType("admin");
-		enrichRpcWideEventContext(context);
-
-		if (!context.user || context.user.role !== "ADMIN") {
-			recordORPCError({
-				code: "FORBIDDEN",
-				message: "Admin access required",
-			});
-			throw errors.FORBIDDEN({ message: "Admin access required" });
-		}
-
-		return next({ context });
 	}
 );
 

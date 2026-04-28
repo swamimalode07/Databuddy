@@ -1,45 +1,52 @@
 import {
 	ArrowSquareOutIcon,
-	AtomIcon,
 	BookOpenIcon,
-	BrainIcon,
-	ChartBarIcon,
+	BracketsSquareIcon,
+	CalendarIcon,
 	CodeIcon,
-	CurrencyDollarIcon,
+	CompassIcon,
 	DatabaseIcon,
 	FileTextIcon,
-	type IconWeight,
+	GaugeIcon,
+	GlobeSimpleIcon,
+	Grid2x2Icon,
+	IdBadgeIcon,
 	KeyIcon,
+	LightbulbIcon,
 	LockIcon,
+	DownloadSimpleIcon,
+	MediaPlayIcon,
 	MonitorIcon,
+	PackageIcon,
 	PlugIcon,
-	RocketIcon,
 	ShieldCheckIcon,
-	ShieldStarIcon,
-	SpeedometerIcon,
-	TrendUpIcon,
-	UserCheckIcon,
-} from "@phosphor-icons/react";
+} from "@databuddy/ui/icons";
+
+type SidebarIcon = React.ComponentType<{
+	className?: string;
+	size?: number | string;
+	weight?: string;
+}>;
 
 export interface SidebarItem {
-	title: string;
-	href?: string;
-	icon?: React.ComponentType<{ className?: string; weight?: IconWeight }>;
-	isNew?: boolean;
-	group?: boolean;
 	children?: SidebarItem[];
+	group?: boolean;
+	href?: string;
+	icon?: SidebarIcon;
+	isNew?: boolean;
+	title: string;
 }
 
 export interface SidebarSection {
-	title: string;
-	Icon: React.ComponentType<{ className?: string; weight?: IconWeight }>;
+	Icon: SidebarIcon;
 	isNew?: boolean;
 	list: SidebarItem[];
+	title: string;
 }
 
 export const contents: SidebarSection[] = [
 	{
-		title: "Introduction",
+		title: "Start",
 		Icon: BookOpenIcon,
 		list: [
 			{
@@ -50,21 +57,128 @@ export const contents: SidebarSection[] = [
 			{
 				title: "Getting Started",
 				href: "/docs/getting-started",
-				icon: RocketIcon,
+				icon: MediaPlayIcon,
 			},
 		],
 	},
 	{
-		title: "Implementation",
+		title: "Install",
+		Icon: DownloadSimpleIcon,
+		list: [
+			{
+				title: "Frameworks",
+				icon: BracketsSquareIcon,
+				children: [
+					{
+						title: "Next.js",
+						href: "/docs/Integrations/nextjs",
+					},
+					{
+						title: "React",
+						href: "/docs/Integrations/react",
+					},
+					{
+						title: "Angular",
+						href: "/docs/Integrations/angular",
+					},
+					{
+						title: "Svelte",
+						href: "/docs/Integrations/svelte",
+					},
+					{
+						title: "SvelteKit",
+						href: "/docs/Integrations/sveltekit",
+					},
+					{
+						title: "Laravel",
+						href: "/docs/Integrations/laravel",
+					},
+				],
+			},
+			{
+				title: "CMS & Builders",
+				icon: PlugIcon,
+				children: [
+					{
+						title: "WordPress",
+						href: "/docs/Integrations/wordpress",
+					},
+					{
+						title: "Webflow",
+						href: "/docs/Integrations/webflow",
+					},
+					{
+						title: "Wix",
+						href: "/docs/Integrations/wix",
+					},
+					{
+						title: "Squarespace",
+						href: "/docs/Integrations/squarespace",
+					},
+					{
+						title: "Framer",
+						href: "/docs/Integrations/framer",
+					},
+					{
+						title: "Bubble.io",
+						href: "/docs/Integrations/bubble",
+					},
+				],
+			},
+			{
+				title: "Stores & Scheduling",
+				icon: CalendarIcon,
+				children: [
+					{
+						title: "Shopify",
+						href: "/docs/Integrations/shopify",
+					},
+					{
+						title: "Cal.com",
+						href: "/docs/Integrations/cal",
+					},
+				],
+			},
+			{
+				title: "Static Sites & Tools",
+				icon: GlobeSimpleIcon,
+				children: [
+					{
+						title: "Hugo",
+						href: "/docs/Integrations/hugo",
+					},
+					{
+						title: "Jekyll",
+						href: "/docs/Integrations/jekyll",
+					},
+					{
+						title: "Google Tag Manager",
+						href: "/docs/Integrations/gtm",
+					},
+				],
+			},
+			{
+				title: "All Integrations",
+				href: "/docs/Integrations",
+				icon: Grid2x2Icon,
+			},
+		],
+	},
+	{
+		title: "SDK & API",
 		Icon: CodeIcon,
 		list: [
 			{
 				title: "SDK Reference",
-				icon: AtomIcon,
+				icon: PackageIcon,
 				children: [
 					{
 						title: "Overview",
 						href: "/docs/sdk",
+					},
+					{
+						title: "Configuration",
+						href: "/docs/sdk/configuration",
 					},
 					{
 						title: "React / Next.js",
@@ -95,31 +209,8 @@ export const contents: SidebarSection[] = [
 						href: "/docs/sdk/server-flags",
 					},
 					{
-						title: "Configuration",
-						href: "/docs/sdk/configuration",
-					},
-				],
-			},
-			{
-				title: "LLM Observability",
-				icon: BrainIcon,
-				isNew: true,
-				children: [
-					{
-						title: "Overview",
-						href: "/docs/ai",
-					},
-					{
-						title: "Vercel AI SDK",
-						href: "/docs/ai/vercel",
-					},
-					{
-						title: "OpenAI SDK",
-						href: "/docs/ai/openai",
-					},
-					{
-						title: "Anthropic SDK",
-						href: "/docs/ai/anthropic",
+						title: "DevTools",
+						href: "/docs/sdk/devtools",
 					},
 				],
 			},
@@ -157,10 +248,6 @@ export const contents: SidebarSection[] = [
 						href: "/docs/api/custom-queries",
 					},
 					{
-						title: "MCP (Model Context Protocol)",
-						href: "/docs/api/mcp",
-					},
-					{
 						title: "Error Handling",
 						href: "/docs/api/errors",
 					},
@@ -178,125 +265,12 @@ export const contents: SidebarSection[] = [
 		],
 	},
 	{
-		title: "Integrations",
-		Icon: PlugIcon,
-		list: [
-			{
-				title: "Angular",
-				href: "/docs/Integrations/angular",
-			},
-			{
-				title: "React",
-				href: "/docs/Integrations/react",
-			},
-			{
-				title: "Next.js",
-				href: "/docs/Integrations/nextjs",
-			},
-			{
-				title: "Svelte",
-				children: [
-					{
-						title: "Svelte",
-						href: "/docs/Integrations/svelte",
-					},
-					{
-						title: "SvelteKit",
-						href: "/docs/Integrations/sveltekit",
-					},
-				],
-			},
-			{
-				title: "WordPress",
-				href: "/docs/Integrations/wordpress",
-			},
-			{
-				title: "Webflow",
-				href: "/docs/Integrations/webflow",
-			},
-			{
-				title: "Wix",
-				href: "/docs/Integrations/wix",
-			},
-			{
-				title: "Shopify",
-				href: "/docs/Integrations/shopify",
-			},
-			{
-				title: "Squarespace",
-				href: "/docs/Integrations/squarespace",
-			},
-			{
-				title: "Framer",
-				href: "/docs/Integrations/framer",
-			},
-			{
-				title: "Bubble.io",
-				href: "/docs/Integrations/bubble",
-			},
-			{
-				title: "Cal.com",
-				href: "/docs/Integrations/cal",
-			},
-			{
-				title: "Google Tag Manager",
-				href: "/docs/Integrations/gtm",
-			},
-			{
-				title: "Hugo",
-				href: "/docs/Integrations/hugo",
-			},
-			{
-				title: "Jekyll",
-				href: "/docs/Integrations/jekyll",
-			},
-			{
-				title: "Laravel",
-				href: "/docs/Integrations/laravel",
-			},
-		],
-	},
-	{
-		title: "Dashboard & Analytics",
-		Icon: ChartBarIcon,
-		list: [
-			{
-				title: "Dashboard",
-				href: "/docs/dashboard",
-				icon: MonitorIcon,
-			},
-			{
-				title: "Revenue Tracking",
-				icon: CurrencyDollarIcon,
-				children: [
-					{
-						title: "Overview",
-						href: "/docs/revenue",
-					},
-					{
-						title: "Stripe",
-						href: "/docs/revenue/stripe",
-					},
-					{
-						title: "Paddle",
-						href: "/docs/revenue/paddle",
-					},
-					{
-						title: "Autumn",
-						href: "/docs/revenue/autumn",
-					},
-				],
-			},
-		],
-	},
-	{
-		title: "Hook Examples",
-		Icon: CodeIcon,
+		title: "Recipes",
+		Icon: LightbulbIcon,
 		list: [
 			{
 				title: "Overview",
 				href: "/docs/hooks",
-				icon: FileTextIcon,
 			},
 			{
 				title: "Toast Tracking",
@@ -321,54 +295,33 @@ export const contents: SidebarSection[] = [
 		],
 	},
 	{
-		title: "Privacy & Compliance",
-		Icon: ShieldCheckIcon,
+		title: "Guides",
+		Icon: CompassIcon,
 		list: [
 			{
-				title: "GDPR Compliance",
-				href: "/docs/compliance/gdpr-compliance-guide",
-				icon: ShieldStarIcon,
+				title: "Dashboard",
+				href: "/docs/dashboard",
+				icon: MonitorIcon,
+			},
+			{
+				title: "Core Web Vitals",
+				href: "/docs/performance/core-web-vitals-guide",
+				icon: GaugeIcon,
 			},
 			{
 				title: "Cookieless Analytics",
 				href: "/docs/privacy/cookieless-analytics-guide",
-				icon: UserCheckIcon,
+				icon: IdBadgeIcon,
 			},
-		],
-	},
-	{
-		title: "Performance",
-		Icon: TrendUpIcon,
-		list: [
 			{
-				title: "Core Web Vitals",
-				href: "/docs/performance/core-web-vitals-guide",
-				icon: SpeedometerIcon,
+				title: "GDPR Compliance",
+				href: "/docs/compliance/gdpr-compliance-guide",
+				icon: ShieldCheckIcon,
 			},
-		],
-	},
-	{
-		title: "Security",
-		Icon: LockIcon,
-		list: [
 			{
 				title: "Security Guide",
 				href: "/docs/security",
-				icon: ShieldCheckIcon,
-			},
-		],
-	},
-];
-
-export const examples: SidebarSection[] = [
-	{
-		title: "Examples",
-		Icon: CodeIcon,
-		list: [
-			{
-				title: "Coming Soon",
-				group: true,
-				icon: FileTextIcon,
+				icon: LockIcon,
 			},
 		],
 	},

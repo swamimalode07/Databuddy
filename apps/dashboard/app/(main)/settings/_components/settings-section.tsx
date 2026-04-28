@@ -1,13 +1,13 @@
-import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CircleNotchIcon } from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 interface SettingsSectionProps {
-	title: string;
-	description?: string;
 	children: React.ReactNode;
 	className?: string;
+	description?: string;
+	title: string;
 }
 
 export function SettingsSection({
@@ -30,10 +30,10 @@ export function SettingsSection({
 }
 
 interface SettingsRowProps {
-	label: React.ReactNode;
-	description?: string;
 	children: React.ReactNode;
 	className?: string;
+	description?: string;
+	label: React.ReactNode;
 }
 
 export function SettingsRow({
@@ -61,9 +61,9 @@ export function SettingsRow({
 }
 
 interface ComingSoonProps {
-	title: string;
 	description: string;
 	icon: React.ReactNode;
+	title: string;
 }
 
 export function ComingSoon({ title, description, icon }: ComingSoonProps) {
@@ -83,10 +83,10 @@ export function ComingSoon({ title, description, icon }: ComingSoonProps) {
 interface UnsavedChangesFooterProps {
 	hasChanges: boolean;
 	isSaving: boolean;
-	onSave: () => void;
-	onDiscard?: () => void;
-	saveLabel?: string;
 	message?: string;
+	onDiscard?: () => void;
+	onSave: () => void;
+	saveLabel?: string;
 }
 
 export function UnsavedChangesFooter({

@@ -1,40 +1,17 @@
 "use client";
 
-import { useOrganizationsContext } from "@/components/providers/organizations-provider";
-import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { HeartbeatIcon, ListIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useOrganizationsContext } from "@/components/providers/organizations-provider";
+import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
+import { HeartbeatIcon, ListIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Button, Field, Input } from "@databuddy/ui";
+import { Dialog, DropdownMenu } from "@databuddy/ui/client";
 
 type Mode = "existing" | "create";
 
@@ -63,11 +40,11 @@ const createSchema = z.object({
 type CreateFormData = z.infer<typeof createSchema>;
 
 interface AddMonitorDialogProps {
-	statusPageId: string;
 	existingMonitorIds: string[];
-	open: boolean;
-	onOpenChangeAction: (open: boolean) => void;
 	onCompleteAction: () => void;
+	onOpenChangeAction: (open: boolean) => void;
+	open: boolean;
+	statusPageId: string;
 }
 
 export function AddMonitorDialog({
@@ -165,55 +142,66 @@ export function AddMonitorDialog({
 
 	return (
 		<Dialog onOpenChange={handleClose} open={open}>
-			<DialogContent className="sm:max-w-lg">
-				<DialogHeader>
-					<DialogTitle>Add Monitor</DialogTitle>
-					<DialogDescription>
+			<Dialog.Content className="sm:max-w-lg">
+				<Dialog.Close />
+				<Dialog.Header>
+					<Dialog.Title>Add Monitor</Dialog.Title>
+					<Dialog.Description>
 						Pick an existing monitor or create a new one.
-					</DialogDescription>
-				</DialogHeader>
+					</Dialog.Description>
+				</Dialog.Header>
 
-				<div className="flex gap-1 rounded border bg-accent/30 p-1">
-					<button
-						className={cn(
-							"flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 font-medium text-sm transition-colors",
-							mode === "existing"
-								? "bg-background text-foreground shadow-sm"
-								: "text-muted-foreground hover:text-foreground"
-						)}
-						onClick={() => setMode("existing")}
-						type="button"
-					>
-						<ListIcon className="size-4" weight="duotone" />
-						Existing
-					</button>
-					<button
-						className={cn(
-							"flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 font-medium text-sm transition-colors",
-							mode === "create"
-								? "bg-background text-foreground shadow-sm"
-								: "text-muted-foreground hover:text-foreground"
-						)}
-						onClick={() => setMode("create")}
-						type="button"
-					>
-						<PlusIcon className="size-4" />
-						Create New
-					</button>
-				</div>
+				<Dialog.Body className="space-y-4">
+					<div className="flex gap-1 rounded border bg-accent/30 p-1">
+						<button
+							className={cn(
+								"flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 font-medium text-sm transition-colors",
+								mode === "existing"
+									? "bg-background text-foreground shadow-sm"
+									: "text-muted-foreground hover:text-foreground"
+							)}
+							onClick={() => setMode("existing")}
+							type="button"
+						>
+							<ListIcon className="size-4" weight="duotone" />
+							Existing
+						</button>
+						<button
+							className={cn(
+								"flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 font-medium text-sm transition-colors",
+								mode === "create"
+									? "bg-background text-foreground shadow-sm"
+									: "text-muted-foreground hover:text-foreground"
+							)}
+							onClick={() => setMode("create")}
+							type="button"
+						>
+							<PlusIcon className="size-4" />
+							Create New
+						</button>
+					</div>
 
-				{mode === "existing" ? (
-					<>
+					{mode === "existing" ? (
 						<div className="space-y-2">
-							<Select
-								disabled={schedulesQuery.isLoading}
-								onValueChange={setSelectedScheduleId}
-								value={selectedScheduleId}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Select a monitor..." />
-								</SelectTrigger>
-								<SelectContent>
+							<DropdownMenu>
+								<DropdownMenu.Trigger
+									className="flex h-9 w-full items-center justify-between rounded-md border bg-background px-3 text-sm disabled:pointer-events-none disabled:opacity-50"
+									disabled={schedulesQuery.isLoading}
+								>
+									{selectedScheduleId
+										? availableSchedules.find(
+												(s) => s.id === selectedScheduleId
+											)?.name ||
+											availableSchedules.find(
+												(s) => s.id === selectedScheduleId
+											)?.url ||
+											"Select a monitor..."
+										: "Select a monitor..."}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content
+									align="start"
+									className="w-[var(--anchor-width)]"
+								>
 									{availableSchedules.length === 0 ? (
 										<div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
 											<HeartbeatIcon
@@ -227,77 +215,68 @@ export function AddMonitorDialog({
 												className="mt-1"
 												onClick={() => setMode("create")}
 												size="sm"
-												variant="outline"
+												variant="secondary"
 											>
 												Create one
 											</Button>
 										</div>
 									) : (
-										availableSchedules.map((schedule) => (
-											<SelectItem key={schedule.id} value={schedule.id}>
-												{schedule.name || schedule.url}
-											</SelectItem>
-										))
+										<DropdownMenu.RadioGroup
+											onValueChange={setSelectedScheduleId}
+											value={selectedScheduleId}
+										>
+											{availableSchedules.map((schedule) => (
+												<DropdownMenu.RadioItem
+													key={schedule.id}
+													value={schedule.id}
+												>
+													{schedule.name || schedule.url}
+												</DropdownMenu.RadioItem>
+											))}
+										</DropdownMenu.RadioGroup>
 									)}
-								</SelectContent>
-							</Select>
+								</DropdownMenu.Content>
+							</DropdownMenu>
 						</div>
-
-						<DialogFooter>
-							<Button onClick={() => handleClose(false)} variant="outline">
-								Cancel
-							</Button>
-							<Button
-								disabled={!selectedScheduleId || isPending}
-								onClick={handleAddExisting}
-							>
-								{addMutation.isPending ? "Adding..." : "Add Monitor"}
-							</Button>
-						</DialogFooter>
-					</>
-				) : (
-					<Form {...form}>
+					) : (
 						<form
 							className="space-y-4"
 							onSubmit={form.handleSubmit(handleCreate)}
 						>
-							<FormField
+							<Controller
 								control={form.control}
 								name="url"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://api.example.com/health"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
+								render={({ field, fieldState }) => (
+									<Field error={!!fieldState.error}>
+										<Field.Label>URL</Field.Label>
+										<Input
+											placeholder="https://api.example.com/health"
+											{...field}
+										/>
+										{fieldState.error && (
+											<Field.Error>{fieldState.error.message}</Field.Error>
+										)}
+									</Field>
 								)}
 							/>
 
-							<FormField
+							<Controller
 								control={form.control}
 								name="name"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Name (optional)</FormLabel>
-										<FormControl>
-											<Input placeholder="e.g. Production API" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
+									<Field>
+										<Field.Label>Name (optional)</Field.Label>
+										<Input placeholder="e.g. Production API" {...field} />
+									</Field>
 								)}
 							/>
 
-							<FormField
+							<Controller
 								control={form.control}
 								name="granularity"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Check Frequency</FormLabel>
+									<Field>
+										<Field.Label>Check Frequency</Field.Label>
 										<div className="flex items-center gap-0 rounded border">
 											{GRANULARITY_OPTIONS.map((opt, i) => {
 												const isActive = field.value === opt.value;
@@ -315,37 +294,53 @@ export function AddMonitorDialog({
 														key={opt.value}
 														onClick={() => field.onChange(opt.value)}
 														type="button"
-														variant={isActive ? "outline" : "ghost"}
+														variant={isActive ? "secondary" : "ghost"}
 													>
 														{opt.label}
 													</Button>
 												);
 											})}
 										</div>
-										<FormMessage />
-									</FormItem>
+									</Field>
 								)}
 							/>
-
-							<DialogFooter>
-								<Button
-									onClick={() => handleClose(false)}
-									type="button"
-									variant="outline"
-								>
-									Cancel
-								</Button>
-								<Button
-									disabled={isPending || !form.formState.isValid}
-									type="submit"
-								>
-									{createMutation.isPending ? "Creating..." : "Create & Add"}
-								</Button>
-							</DialogFooter>
 						</form>
-					</Form>
+					)}
+				</Dialog.Body>
+
+				{mode === "existing" ? (
+					<Dialog.Footer>
+						<Button onClick={() => handleClose(false)} variant="secondary">
+							Cancel
+						</Button>
+						<Button
+							disabled={!selectedScheduleId}
+							loading={isPending}
+							onClick={handleAddExisting}
+						>
+							Add Monitor
+						</Button>
+					</Dialog.Footer>
+				) : (
+					<Dialog.Footer>
+						<Button
+							onClick={() => handleClose(false)}
+							type="button"
+							variant="secondary"
+						>
+							Cancel
+						</Button>
+						<Button
+							disabled={!form.formState.isValid}
+							loading={isPending}
+							onClick={form.handleSubmit(handleCreate)}
+							type="button"
+						>
+							Create & Add
+						</Button>
+					</Dialog.Footer>
 				)}
-			</DialogContent>
+			</Dialog.Content>
 		</Dialog>
 	);
 }

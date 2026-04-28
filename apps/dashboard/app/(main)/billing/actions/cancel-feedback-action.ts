@@ -3,10 +3,14 @@
 import { Databuddy } from "@databuddy/sdk/node";
 import type { CancelFeedback } from "../components/cancel-subscription-dialog";
 
-const client = new Databuddy({
-	clientId: process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID ?? "",
-	debug: process.env.NODE_ENV === "development",
-});
+const databuddyApiKey = process.env.DATABUDDY_API_KEY;
+const client = databuddyApiKey
+	? new Databuddy({
+			apiKey: databuddyApiKey,
+			websiteId: process.env.DATABUDDY_WEBSITE_ID,
+			debug: process.env.NODE_ENV === "development",
+		})
+	: null;
 
 const VALID_REASONS = [
 	"too_expensive",
@@ -19,9 +23,9 @@ const VALID_REASONS = [
 
 interface TrackCancelFeedbackParams {
 	feedback: CancelFeedback;
+	immediate: boolean;
 	planId: string;
 	planName: string;
-	immediate: boolean;
 }
 
 export async function trackCancelFeedbackAction({
@@ -35,7 +39,11 @@ export async function trackCancelFeedbackAction({
 	}
 
 	try {
-		await client.track({
+		if (!client) {
+			return { success: true };
+		}
+
+		const result = await client.track({
 			name: "subscription_cancelled",
 			properties: {
 				reason: feedback.reason,
@@ -45,6 +53,9 @@ export async function trackCancelFeedbackAction({
 				cancelled_immediately: immediate,
 			},
 		});
+		if (!result.success) {
+			return { success: false };
+		}
 
 		await client.flush();
 

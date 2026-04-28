@@ -1,5 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
+import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { type Link, useDeleteLink } from "@/hooks/use-links";
+import { cn } from "@/lib/utils";
+import type { BaseComponentProps } from "../../types";
 import {
 	ClockCountdownIcon,
 	CopyIcon,
@@ -8,49 +16,32 @@ import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
-import { LinkSheet } from "@/app/(main)/links/_components/link-sheet";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { type Link, useDeleteLink } from "@/hooks/use-links";
-import { fromNow, localDayjs } from "@/lib/time";
-import { cn } from "@/lib/utils";
-import type { BaseComponentProps } from "../../types";
+} from "@databuddy/ui/icons";
+import { DeleteDialog, DropdownMenu } from "@databuddy/ui/client";
+import { Badge, Button, Card, fromNow, localDayjs } from "@databuddy/ui";
 
 const BASE_URL = "dby.sh";
 
 interface LinkItem {
-	id: string;
-	name: string;
-	slug: string;
-	targetUrl: string;
-	expiresAt?: string | null;
+	androidUrl?: string | null;
 	createdAt?: string;
-	ogTitle?: string | null;
+	expiredRedirectUrl?: string | null;
+	expiresAt?: string | null;
+	id: string;
+	iosUrl?: string | null;
+	name: string;
 	ogDescription?: string | null;
 	ogImageUrl?: string | null;
-	iosUrl?: string | null;
-	androidUrl?: string | null;
-	expiredRedirectUrl?: string | null;
+	ogTitle?: string | null;
 	ogVideoUrl?: string | null;
 	organizationId?: string;
+	slug: string;
+	targetUrl: string;
 }
 
 export interface LinksListProps extends BaseComponentProps {
-	title?: string;
 	links: LinkItem[];
+	title?: string;
 }
 
 function formatUrl(url: string, maxLen = 40): string {
@@ -77,7 +68,7 @@ function ExpirationBadge({ date }: { date: string | null }) {
 	return (
 		<Badge
 			className="gap-1 text-[10px]"
-			variant={isExpired ? "destructive" : isSoon ? "amber" : "secondary"}
+			variant={isExpired ? "destructive" : isSoon ? "warning" : "muted"}
 		>
 			<ClockCountdownIcon className="size-3" weight="duotone" />
 			{isExpired ? "Expired" : expires.fromNow(true)}
@@ -100,17 +91,16 @@ function LinkRow({
 		link.expiresAt && localDayjs(link.expiresAt).isBefore(localDayjs());
 	const shortUrl = `${BASE_URL}/${link.slug}`;
 
+	const { copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("Link copied"),
+	});
+
 	const handleCopy = useCallback(
-		async (e?: React.MouseEvent) => {
+		(e?: React.MouseEvent) => {
 			e?.stopPropagation();
-			try {
-				await navigator.clipboard.writeText(`https://${shortUrl}`);
-				toast.success("Link copied");
-			} catch {
-				toast.error("Failed to copy");
-			}
+			copyToClipboard(`https://${shortUrl}`);
 		},
-		[shortUrl]
+		[copyToClipboard, shortUrl]
 	);
 
 	return (
@@ -170,36 +160,32 @@ function LinkRow({
 				role="presentation"
 			>
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							aria-label="Actions"
-							className="size-7 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-							size="icon"
-							variant="ghost"
-						>
-							<DotsThreeIcon className="size-4" weight="bold" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-40">
-						<DropdownMenuItem className="gap-2" onClick={handleCopy}>
+					<DropdownMenu.Trigger
+						aria-label="Actions"
+						className="inline-flex size-7 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+					>
+						<DotsThreeIcon className="size-4" weight="bold" />
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end" className="w-40">
+						<DropdownMenu.Item className="gap-2" onClick={handleCopy}>
 							<CopyIcon className="size-4" weight="duotone" />
 							Copy
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem className="gap-2" onClick={onEdit}>
+						</DropdownMenu.Item>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item className="gap-2" onClick={onEdit}>
 							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Edit
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
+						</DropdownMenu.Item>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item
 							className="gap-2"
 							onClick={onDelete}
 							variant="destructive"
 						>
 							<TrashIcon className="size-4" weight="duotone" />
 							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
 				</DropdownMenu>
 			</div>
 		</div>
@@ -259,7 +245,7 @@ export function LinksListRenderer({ title, links, className }: LinksListProps) {
 						className="mt-2"
 						onClick={openCreate}
 						size="sm"
-						variant="outline"
+						variant="secondary"
 					>
 						<PlusIcon className="size-4" />
 						Create Link

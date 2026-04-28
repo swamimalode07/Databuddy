@@ -2,57 +2,49 @@
 
 import {
 	BellIcon,
-	CircleNotchIcon,
 	DotsThreeIcon,
 	PencilIcon,
 	PlusIcon,
 	TestTubeIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
+} from "@databuddy/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/empty-state";
-import { RightSidebar } from "@/components/right-sidebar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { orpc } from "@/lib/orpc";
 import { AlarmSheet } from "./_components/alarm-sheet";
+import { Dialog, DropdownMenu, Switch } from "@databuddy/ui/client";
+import {
+	Badge,
+	Button,
+	Card,
+	EmptyState,
+	Skeleton,
+	StatusDot,
+	Text,
+} from "@databuddy/ui";
 
 interface AlarmDestination {
-	id: string;
-	type: string;
-	identifier: string;
 	config: Record<string, string | boolean | number | null>;
+	id: string;
+	identifier: string;
+	type: string;
 }
 
 interface Alarm {
+	description?: string | null;
+	destinations?: AlarmDestination[];
+	enabled: boolean;
 	id: string;
 	name: string;
-	description?: string | null;
-	enabled: boolean;
 	triggerType: string;
 	websiteId?: string | null;
-	destinations?: AlarmDestination[];
 }
 
 const DEST_LABELS: Record<string, string> = {
 	slack: "Slack",
-	discord: "Discord",
 	email: "Email",
 	webhook: "Webhook",
-	teams: "Teams",
-	telegram: "Telegram",
-	google_chat: "Google Chat",
 };
 
 function parseAlarms(rows: readonly Record<string, unknown>[]): Alarm[] {
@@ -99,6 +91,40 @@ function parseAlarms(rows: readonly Record<string, unknown>[]): Alarm[] {
 		});
 	}
 	return out;
+}
+
+function DeleteAlarmDialog({
+	alarm,
+	isPending,
+	onConfirm,
+	onClose,
+}: {
+	alarm: Alarm | null;
+	isPending: boolean;
+	onConfirm: () => void;
+	onClose: () => void;
+}) {
+	return (
+		<Dialog onOpenChange={(open) => !open && onClose()} open={!!alarm}>
+			<Dialog.Content>
+				<Dialog.Header>
+					<Dialog.Title>Delete alert</Dialog.Title>
+					<Dialog.Description>
+						Are you sure you want to delete <strong>{alarm?.name}</strong>? This
+						action cannot be undone.
+					</Dialog.Description>
+				</Dialog.Header>
+				<Dialog.Footer>
+					<Button onClick={onClose} variant="secondary">
+						Cancel
+					</Button>
+					<Button loading={isPending} onClick={onConfirm} tone="destructive">
+						Delete
+					</Button>
+				</Dialog.Footer>
+			</Dialog.Content>
+		</Dialog>
+	);
 }
 
 export default function NotificationsSettingsPage() {
@@ -174,250 +200,180 @@ export default function NotificationsSettingsPage() {
 
 	const alarmList = parseAlarms(
 		(alarms ?? []) as readonly Record<string, unknown>[]
-	).filter((a) => a.triggerType === "uptime");
-
-	const enabledCount = alarmList.filter((a) => a.enabled).length;
-	const channelSet = new Set(
-		alarmList.flatMap((a) => (a.destinations ?? []).map((d) => d.type))
 	);
 
 	return (
-		<div className="h-full lg:grid lg:grid-cols-[1fr_18rem]">
-			<div className="flex flex-col overflow-y-auto">
-				{/* Header */}
-				<div className="flex shrink-0 flex-col justify-between gap-3 border-b p-4 sm:flex-row sm:items-center sm:p-5">
-					<div className="flex items-center gap-3">
-						<div className="rounded-lg border bg-secondary p-2.5">
-							<BellIcon
-								className="size-5 text-accent-foreground"
-								weight="duotone"
-							/>
+		<div className="flex-1 overflow-y-auto">
+			<div className="mx-auto max-w-2xl space-y-6 p-5">
+				<Card>
+					<Card.Header className="flex-row items-start justify-between gap-4">
+						<div>
+							<Card.Title>Alerts</Card.Title>
+							<Card.Description>
+								{isLoading
+									? "Loading alerts…"
+									: alarmList.length === 0
+										? "Configure where and how you get notified"
+										: `${alarmList.length} alert${alarmList.length === 1 ? "" : "s"}`}
+							</Card.Description>
 						</div>
-						<div className="min-w-0">
-							<div className="flex items-center gap-2">
-								<h1 className="font-medium text-foreground text-xl">
-									Uptime Alerts
-								</h1>
-								{!isLoading && alarmList.length > 0 && (
-									<span className="text-accent-foreground/60 text-sm">
-										{alarmList.length}
-									</span>
-								)}
-							</div>
-							<p className="text-muted-foreground text-xs">
-								Get notified when a monitor goes down or recovers
-							</p>
-						</div>
-					</div>
-					<Button onClick={handleNew}>
-						<PlusIcon className="mr-2 size-4" />
-						Create Alert
-					</Button>
-				</div>
-
-				{/* Loading */}
-				{isLoading && (
-					<div>
-						{Array.from({ length: 3 }).map((_, i) => (
-							<div
-								className="flex animate-pulse items-center border-b px-4 py-3 sm:px-6 sm:py-4"
-								key={`skel-${i + 1}`}
-							>
-								<div className="flex flex-1 items-center gap-4">
-									<Skeleton className="size-10 shrink-0 rounded" />
-									<div className="min-w-0 flex-1 space-y-2">
-										<div className="flex items-center gap-2">
-											<Skeleton className="h-5 w-40" />
-											<Skeleton className="h-5 w-16" />
-										</div>
-										<Skeleton className="h-4 w-56" />
-									</div>
-									<Skeleton className="size-8 shrink-0" />
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-
-				{/* Empty */}
-				{!isLoading && alarmList.length === 0 && (
-					<div className="flex flex-1 items-center justify-center py-16">
-						<EmptyState
-							action={{ label: "Create Your First Alert", onClick: handleNew }}
-							description="Create an uptime alert with Slack, email, or webhook destinations. Attach it to a monitor to start receiving notifications."
-							icon={<BellIcon weight="duotone" />}
-							title="No alerts yet"
-							variant="minimal"
-						/>
-					</div>
-				)}
-
-				{/* List */}
-				{!isLoading && alarmList.length > 0 && (
-					<div>
-						{alarmList.map((alarm) => {
-							const isTesting = testingAlarmId === alarm.id;
-							return (
-								<div className="border-b" key={alarm.id}>
-									<div className="group flex items-center hover:bg-accent/50">
-										<div className="flex flex-1 items-center gap-4 px-4 py-3 sm:px-6 sm:py-4">
-											<div className="flex size-10 shrink-0 items-center justify-center rounded border bg-secondary">
-												<BellIcon
-													className="text-accent-foreground"
-													size={20}
-													weight="duotone"
-												/>
+						<Button onClick={handleNew} size="sm" variant="secondary">
+							<PlusIcon size={14} />
+							New Alert
+						</Button>
+					</Card.Header>
+					<Card.Content className="p-0">
+						{isLoading && (
+							<div className="divide-y">
+								{Array.from({ length: 3 }).map((_, i) => (
+									<div
+										className="flex items-center gap-4 px-5 py-3"
+										key={`skel-${i + 1}`}
+									>
+										<Skeleton className="size-10 shrink-0 rounded-lg" />
+										<div className="min-w-0 flex-1 space-y-2">
+											<div className="flex items-center gap-2">
+												<Skeleton className="h-4 w-40" />
+												<Skeleton className="h-4 w-16 rounded-full" />
 											</div>
-											<div className="min-w-0 flex-1">
-												<div className="flex items-center gap-2">
-													<button
-														className="truncate font-medium text-foreground"
-														onClick={() => handleEdit(alarm)}
-														type="button"
-													>
-														{alarm.name}
-													</button>
-													<Badge
-														className="gap-1.5"
-														variant={alarm.enabled ? "green" : "amber"}
-													>
-														<span
-															className={`size-1.5 rounded-full ${alarm.enabled ? "bg-green-500" : "bg-amber-500"}`}
-														/>
-														{alarm.enabled ? "Active" : "Disabled"}
-													</Badge>
+											<Skeleton className="h-3.5 w-56" />
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+
+						{!isLoading && alarmList.length === 0 && (
+							<div className="px-5 py-12">
+								<EmptyState
+									action={
+										<Button onClick={handleNew} size="sm" variant="secondary">
+											<PlusIcon size={14} />
+											New Alert
+										</Button>
+									}
+									description="Create alerts with Slack, email, or webhook destinations. Attach them to monitors and anomaly rules from their settings."
+									icon={<BellIcon weight="duotone" />}
+									title="No alerts yet"
+								/>
+							</div>
+						)}
+
+						{!isLoading && alarmList.length > 0 && (
+							<div className="divide-y">
+								{alarmList.map((alarm) => {
+									const isTesting = testingAlarmId === alarm.id;
+									const destCount = alarm.destinations?.length ?? 0;
+									return (
+										<div
+											className="group flex items-center hover:bg-interactive-hover"
+											key={alarm.id}
+										>
+											<div className="flex flex-1 items-center gap-4 px-5 py-3">
+												<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-secondary">
+													<BellIcon
+														className="text-muted-foreground"
+														size={20}
+														weight="duotone"
+													/>
 												</div>
-												<div className="mt-0.5 flex flex-wrap items-center gap-2">
-													{alarm.description ? (
-														<>
-															<span className="line-clamp-1 text-muted-foreground text-xs">
-																{alarm.description}
-															</span>
-															<span className="text-muted-foreground text-xs">
-																·
-															</span>
-														</>
-													) : null}
-													<div className="flex items-center gap-1.5">
-														{(alarm.destinations ?? []).map((d) => (
-															<Badge key={d.id} variant="outline">
-																{DEST_LABELS[d.type] ?? d.type}
-															</Badge>
-														))}
+												<div className="min-w-0 flex-1">
+													<div className="flex items-center gap-2">
+														<button
+															className="truncate font-medium text-foreground text-sm"
+															onClick={() => handleEdit(alarm)}
+															type="button"
+														>
+															{alarm.name}
+														</button>
+														<Badge
+															variant={alarm.enabled ? "success" : "warning"}
+														>
+															<StatusDot
+																color={alarm.enabled ? "success" : "warning"}
+																size="sm"
+															/>
+															{alarm.enabled ? "Active" : "Paused"}
+														</Badge>
+													</div>
+													<div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+														{destCount > 0 ? (
+															(alarm.destinations ?? []).map((d) => (
+																<Badge key={d.id} size="sm" variant="muted">
+																	{DEST_LABELS[d.type] ?? d.type}
+																</Badge>
+															))
+														) : (
+															<Text tone="muted" variant="caption">
+																No destinations
+															</Text>
+														)}
+														{alarm.description && (
+															<>
+																<Text tone="muted" variant="caption">
+																	·
+																</Text>
+																<Text
+																	className="line-clamp-1"
+																	tone="muted"
+																	variant="caption"
+																>
+																	{alarm.description}
+																</Text>
+															</>
+														)}
 													</div>
 												</div>
 											</div>
-										</div>
 
-										<div className="flex shrink-0 items-center gap-1 pr-2 sm:pr-4">
-											<Switch
-												checked={alarm.enabled}
-												onCheckedChange={(val) => handleToggle(alarm, val)}
-											/>
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button
+											<div className="flex shrink-0 items-center gap-1 pr-4">
+												<Switch
+													checked={alarm.enabled}
+													onCheckedChange={(val) => handleToggle(alarm, val)}
+												/>
+												<DropdownMenu>
+													<DropdownMenu.Trigger
 														aria-label="Alert actions"
-														className="size-8 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-														size="icon"
-														variant="ghost"
+														className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-interactive-hover hover:text-foreground group-hover:opacity-100"
 													>
-														<DotsThreeIcon className="size-5" weight="bold" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end" className="w-40">
-													<DropdownMenuItem onClick={() => handleEdit(alarm)}>
-														<PencilIcon className="size-4" weight="duotone" />
-														Edit
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														disabled={isTesting}
-														onClick={() => handleTest(alarm)}
-													>
-														{isTesting ? (
-															<CircleNotchIcon className="size-4 animate-spin" />
-														) : (
+														<DotsThreeIcon className="size-4" weight="bold" />
+													</DropdownMenu.Trigger>
+													<DropdownMenu.Content>
+														<DropdownMenu.Item
+															onClick={() => handleEdit(alarm)}
+														>
+															<PencilIcon className="size-4" weight="duotone" />
+															Edit
+														</DropdownMenu.Item>
+														<DropdownMenu.Item
+															disabled={isTesting}
+															onClick={() => handleTest(alarm)}
+														>
 															<TestTubeIcon
 																className="size-4"
 																weight="duotone"
 															/>
-														)}
-														{isTesting ? "Sending…" : "Send test"}
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														className="text-destructive focus:text-destructive"
-														onClick={() => setDeletingAlarm(alarm)}
-													>
-														<TrashIcon className="size-4" weight="duotone" />
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
+															{isTesting ? "Sending…" : "Send test"}
+														</DropdownMenu.Item>
+														<DropdownMenu.Separator />
+														<DropdownMenu.Item
+															onClick={() => setDeletingAlarm(alarm)}
+															variant="destructive"
+														>
+															<TrashIcon className="size-4" weight="duotone" />
+															Delete
+														</DropdownMenu.Item>
+													</DropdownMenu.Content>
+												</DropdownMenu>
+											</div>
 										</div>
-									</div>
-								</div>
-							);
-						})}
-					</div>
-				)}
+									);
+								})}
+							</div>
+						)}
+					</Card.Content>
+				</Card>
 			</div>
-
-			<RightSidebar className="gap-0 p-0">
-				<RightSidebar.Section border title="Overview">
-					{isLoading ? (
-						<div className="space-y-2.5">
-							<Skeleton className="h-5 w-full" />
-							<Skeleton className="h-5 w-full" />
-							<Skeleton className="h-5 w-full" />
-						</div>
-					) : (
-						<div className="space-y-2.5">
-							<div className="flex items-center justify-between">
-								<span className="text-muted-foreground text-sm">Active</span>
-								<span className="font-medium text-sm tabular-nums">
-									{enabledCount}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-muted-foreground text-sm">Total</span>
-								<span className="font-medium text-sm tabular-nums">
-									{alarmList.length}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-muted-foreground text-sm">Channels</span>
-								<span className="font-medium text-sm tabular-nums">
-									{channelSet.size}
-								</span>
-							</div>
-						</div>
-					)}
-				</RightSidebar.Section>
-
-				<RightSidebar.Section border title="Configured Channels">
-					{isLoading ? (
-						<div className="space-y-2">
-							<Skeleton className="h-5 w-full" />
-						</div>
-					) : channelSet.size > 0 ? (
-						<div className="flex flex-wrap gap-1.5">
-							{[...channelSet].map((ch) => (
-								<Badge key={ch} variant="outline">
-									{DEST_LABELS[ch] ?? ch}
-								</Badge>
-							))}
-						</div>
-					) : (
-						<p className="text-muted-foreground text-xs">
-							No channels configured yet
-						</p>
-					)}
-				</RightSidebar.Section>
-
-				<RightSidebar.Section>
-					<RightSidebar.Tip description="Create alerts here, then attach them to monitors from the Monitors page or a site's Pulse tab." />
-				</RightSidebar.Section>
-			</RightSidebar>
 
 			<AlarmSheet
 				alarm={editingAlarm}
@@ -426,13 +382,11 @@ export default function NotificationsSettingsPage() {
 				open={sheetOpen}
 			/>
 
-			<DeleteDialog
-				isDeleting={deleteMutation.isPending}
-				isOpen={!!deletingAlarm}
-				itemName={deletingAlarm?.name}
+			<DeleteAlarmDialog
+				alarm={deletingAlarm}
+				isPending={deleteMutation.isPending}
 				onClose={() => setDeletingAlarm(null)}
 				onConfirm={handleDelete}
-				title="Delete alert"
 			/>
 		</div>
 	);

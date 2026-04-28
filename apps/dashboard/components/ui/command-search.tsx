@@ -1,57 +1,54 @@
 "use client";
 
-import type { Icon } from "@phosphor-icons/react";
 import {
-	ArrowSquareOutIcon,
-	CommandIcon,
-	MagnifyingGlassIcon,
-} from "@phosphor-icons/react";
+	FEATURE_METADATA,
+	type GatedFeatureId,
+} from "@databuddy/shared/types/features";
+import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { Command as CommandPrimitive } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
 import {
 	createContext,
+	type ReactNode,
 	useCallback,
 	useContext,
 	useMemo,
 	useState,
-	type ReactNode,
 } from "react";
-import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
-	billingNavigation,
-	createWebsitesNavigation,
-	organizationNavigation,
-	personalNavigation,
-	resourcesNavigation,
+	mainNavigation,
 	websiteNavigation,
-	websiteSettingsNavigation,
 } from "@/components/layout/navigation/navigation-config";
 import type {
-	NavigationEntry,
+	NavIcon,
+	NavigationGroup,
 	NavigationItem,
-	NavigationSection,
 } from "@/components/layout/navigation/types";
-import { Badge } from "@/components/ui/badge";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+import { useBillingContext } from "@/components/providers/billing-provider";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
+import {
+	ArrowSquareOutIcon,
+	CommandIcon,
+	GlobeIcon,
+	LockSimpleIcon,
+	MagnifyingGlassIcon,
+} from "@databuddy/ui/icons";
+import { Badge } from "@databuddy/ui";
+import { Dialog } from "@databuddy/ui/client";
 
 interface SearchItem {
-	name: string;
-	path: string;
-	icon: Icon;
-	disabled?: boolean;
-	tag?: string;
-	external?: boolean;
 	alpha?: boolean;
 	badge?: { text: string };
+	disabled?: boolean;
+	external?: boolean;
+	gatedFeature?: GatedFeatureId;
+	icon: NavIcon;
+	lockedPlanName?: string | null;
+	name: string;
+	path: string;
+	tag?: string;
 }
 
 interface SearchGroup {
@@ -59,55 +56,54 @@ interface SearchGroup {
 	items: SearchItem[];
 }
 
-const ALL_NAVIGATION: NavigationSection[] = [
-	...organizationNavigation,
-	...billingNavigation,
-	...personalNavigation,
-	...resourcesNavigation,
-];
+function toSearchItem(
+	item: NavigationItem,
+	pathPrefix = "",
+	access?: {
+		isBillingLoading: boolean;
+		isFeatureEnabled: (feature: GatedFeatureId) => boolean;
+	}
+): SearchItem {
+	const path = item.rootLevel ? item.href : `${pathPrefix}${item.href}`;
+	const locked =
+		access != null &&
+		!access.isBillingLoading &&
+		item.gatedFeature != null &&
+		!access.isFeatureEnabled(item.gatedFeature);
 
-function toSearchItem(item: NavigationItem, pathPrefix = ""): SearchItem {
-	const path = item.rootLevel === false ? `${pathPrefix}${item.href}` : item.href;
 	return {
 		name: item.name,
 		path: path || pathPrefix,
 		icon: item.icon,
-		disabled: item.disabled,
+		disabled: item.disabled || locked,
 		tag: item.tag,
 		external: item.external,
 		alpha: item.alpha,
 		badge: item.badge,
+		gatedFeature: item.gatedFeature,
+		lockedPlanName:
+			locked && item.gatedFeature
+				? (FEATURE_METADATA[item.gatedFeature]?.minPlan?.toUpperCase() ?? null)
+				: null,
 	};
 }
 
-const isSection = (entry: NavigationEntry): entry is NavigationSection =>
-	"items" in entry;
-
-function toSearchGroups(entries: NavigationEntry[], pathPrefix = ""): SearchGroup[] {
-	const groups: SearchGroup[] = [];
-	const standaloneItems: SearchItem[] = [];
-
-	for (const entry of entries) {
-		if (isSection(entry)) {
-			groups.push({
-				category: entry.title,
-				items: entry.items
-					.filter((item) => !item.hideFromDemo)
-					.map((item) => toSearchItem(item, pathPrefix)),
-			});
-		} else if (!entry.hideFromDemo) {
-			standaloneItems.push(toSearchItem(entry, pathPrefix));
-		}
+function groupsToSearchGroups(
+	groups: NavigationGroup[],
+	pathPrefix = "",
+	access?: {
+		isBillingLoading: boolean;
+		isFeatureEnabled: (feature: GatedFeatureId) => boolean;
 	}
-
-	if (standaloneItems.length > 0) {
-		groups.unshift({
-			category: "Quick Access",
-			items: standaloneItems,
-		});
-	}
-
-	return groups;
+): SearchGroup[] {
+	return groups
+		.filter((g) => g.items.length > 0)
+		.map((g) => ({
+			category: g.label || "Quick Access",
+			items: g.items
+				.filter((item) => !item.hideFromDemo)
+				.map((item) => toSearchItem(item, pathPrefix, access)),
+		}));
 }
 
 function mergeGroups(groups: SearchGroup[]): SearchGroup[] {
@@ -120,7 +116,10 @@ function mergeGroups(groups: SearchGroup[]): SearchGroup[] {
 		merged.set(group.category, [...existing, ...newItems]);
 	}
 
-	return [...merged.entries()].map(([category, items]) => ({ category, items }));
+	return [...merged.entries()].map(([category, items]) => ({
+		category,
+		items,
+	}));
 }
 
 type CommandSearchContextValue = {
@@ -145,13 +144,19 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const router = useRouter();
 	const pathname = usePathname();
-	const { websites } = useWebsites();
+	const { websites } = useWebsites({ enabled: open });
+	const { isFeatureEnabled, isLoading: isBillingLoading } = useBillingContext();
 
 	const currentWebsiteId = pathname.startsWith("/websites/")
 		? pathname.split("/")[2]
 		: undefined;
 
-	useHotkeys(["mod+k", "/"], () => setOpen((o) => !o), { preventDefault: true }, []);
+	useHotkeys(
+		["mod+k", "/"],
+		() => setOpen((o) => !o),
+		{ preventDefault: true },
+		[]
+	);
 
 	const handleSearchChange = useDebouncedCallback(
 		(value: string) => {
@@ -170,24 +175,39 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 
 	const groups = useMemo(() => {
 		const result: SearchGroup[] = [];
-		const websitePrefix = currentWebsiteId ? `/websites/${currentWebsiteId}` : "";
+		const websitePrefix = currentWebsiteId
+			? `/websites/${currentWebsiteId}`
+			: "";
+
+		result.push(...groupsToSearchGroups(mainNavigation));
 
 		if (websites.length > 0) {
-			const websitesNav = createWebsitesNavigation(
-				websites.map((w) => ({ id: w.id, name: w.name, domain: "" }))
-			);
-			result.push(...toSearchGroups(websitesNav));
+			result.push({
+				category: "Websites",
+				items: websites.map((w) => ({
+					name: w.name || w.domain,
+					path: `/websites/${w.id}`,
+					icon: GlobeIcon,
+				})),
+			});
 		}
 
 		if (currentWebsiteId) {
-			result.push(...toSearchGroups(websiteNavigation, websitePrefix));
-			result.push(...toSearchGroups(websiteSettingsNavigation, websitePrefix));
+			result.push(
+				...groupsToSearchGroups(websiteNavigation, websitePrefix, {
+					isBillingLoading,
+					isFeatureEnabled,
+				})
+			);
 		}
 
-		result.push(...toSearchGroups(ALL_NAVIGATION));
-
 		return mergeGroups(result);
-	}, [websites, pathname, currentWebsiteId]);
+	}, [
+		websites,
+		currentWebsiteId,
+		isBillingLoading,
+		isFeatureEnabled,
+	]);
 
 	const filteredGroups = useMemo(() => {
 		if (!debouncedSearch.trim()) {
@@ -209,7 +229,9 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 
 	const handleSelect = useCallback(
 		(item: SearchItem) => {
-			if (item.disabled) return;
+			if (item.disabled) {
+				return;
+			}
 			setOpen(false);
 			setSearch("");
 			setDebouncedSearch("");
@@ -222,18 +244,18 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 		[router]
 	);
 
-	const totalResults = filteredGroups.reduce((acc, g) => acc + g.items.length, 0);
-
-	const handleOpenChange = useCallback(
-		(isOpen: boolean) => {
-			setOpen(isOpen);
-			if (!isOpen) {
-				setSearch("");
-				setDebouncedSearch("");
-			}
-		},
-		[]
+	const totalResults = filteredGroups.reduce(
+		(acc, g) => acc + g.items.length,
+		0
 	);
+
+	const handleOpenChange = useCallback((isOpen: boolean) => {
+		setOpen(isOpen);
+		if (!isOpen) {
+			setSearch("");
+			setDebouncedSearch("");
+		}
+	}, []);
 
 	const openCommandSearchAction = useCallback(() => {
 		setOpen(true);
@@ -250,98 +272,106 @@ export function CommandSearchProvider({ children }: { children: ReactNode }) {
 		<CommandSearchContext.Provider value={contextValue}>
 			{children}
 			<Dialog onOpenChange={handleOpenChange} open={open}>
-			<DialogHeader className="sr-only">
-				<DialogTitle>Command Search</DialogTitle>
-				<DialogDescription>Search for pages, settings, and websites</DialogDescription>
-			</DialogHeader>
-			<DialogContent
-				className="gap-0 overflow-hidden p-0 sm:max-w-xl"
-				showCloseButton={false}
-			>
-				<CommandPrimitive
-					className="flex h-full w-full flex-col"
-					loop
-					onKeyDown={(e) => {
-						if (e.key === "Escape") {
-							setOpen(false);
-						}
-					}}
+				<Dialog.Content
+					className="gap-0 overflow-hidden p-0 sm:max-w-xl"
 				>
-					{/* Search Header */}
-					<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
-						<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
-							<MagnifyingGlassIcon
-								className="size-4 text-muted-foreground"
-								weight="duotone"
-							/>
-						</div>
-						<CommandPrimitive.Input
-							className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-							onValueChange={handleInputChange}
-							placeholder="Search pages, settings, websites..."
-							value={search}
-						/>
-						<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
-							<CommandIcon className="size-3" weight="bold" />
-							<span>K</span>
-						</kbd>
-					</div>
-
-					{/* Results */}
-					<CommandPrimitive.List className="max-h-80 overflow-y-auto scroll-py-2 p-2">
-						<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-							<MagnifyingGlassIcon
-								className="size-8 text-muted-foreground/50"
-								weight="duotone"
-							/>
-							<div>
-								<p className="font-medium text-muted-foreground text-sm">No results found</p>
-								<p className="text-muted-foreground/70 text-xs">
-									Try searching for something else
-								</p>
-							</div>
-						</CommandPrimitive.Empty>
-
-						{filteredGroups.map((group) => (
-							<CommandPrimitive.Group
-								className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-heading]]:text-xs"
-								heading={group.category}
-								key={group.category}
-							>
-								{group.items.map((item) => (
-									<SearchResultItem
-										item={item}
-										key={`${group.category}-${item.path}`}
-										onSelect={handleSelect}
+					<Dialog.Header className="sr-only">
+						<Dialog.Title>Command Search</Dialog.Title>
+						<Dialog.Description>
+							Search for pages, settings, and websites
+						</Dialog.Description>
+					</Dialog.Header>
+					<Dialog.Body className="p-0">
+						<CommandPrimitive
+							className="flex h-full w-full flex-col"
+							loop
+							onKeyDown={(e) => {
+								if (e.key === "Escape") {
+									setOpen(false);
+								}
+							}}
+						>
+							<div className="dotted-bg flex items-center gap-3 border-b bg-accent px-4 py-3">
+								<div className="flex size-8 shrink-0 items-center justify-center rounded bg-background">
+									<MagnifyingGlassIcon
+										className="size-4 text-muted-foreground"
+										weight="duotone"
 									/>
-								))}
-							</CommandPrimitive.Group>
-						))}
-					</CommandPrimitive.List>
+								</div>
+								<CommandPrimitive.Input
+									className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+									onValueChange={handleInputChange}
+									placeholder="Search pages, settings, websites..."
+									value={search}
+								/>
+								<kbd className="hidden items-center gap-1 rounded border bg-background px-1.5 py-0.5 font-mono text-muted-foreground text-xs sm:flex">
+									<CommandIcon className="size-3" weight="bold" />
+									<span>K</span>
+								</kbd>
+							</div>
 
-					{/* Footer */}
-					<div className="flex items-center justify-between border-t bg-accent/50 px-4 py-2">
-						<div className="flex items-center gap-3">
-							<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-								<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">↑↓</kbd>
-								navigate
-							</span>
-							<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-								<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">↵</kbd>
-								select
-							</span>
-							<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-								<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">esc</kbd>
-								close
-							</span>
-						</div>
-						<span className="font-medium text-muted-foreground text-xs tabular-nums">
-							{totalResults} results
-						</span>
-					</div>
-				</CommandPrimitive>
-			</DialogContent>
-		</Dialog>
+							<CommandPrimitive.List className="max-h-80 scroll-py-2 overflow-y-auto p-2">
+								<CommandPrimitive.Empty className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+									<MagnifyingGlassIcon
+										className="size-8 text-muted-foreground/50"
+										weight="duotone"
+									/>
+									<div>
+										<p className="font-medium text-muted-foreground text-sm">
+											No results found
+										</p>
+										<p className="text-muted-foreground/70 text-xs">
+											Try searching for something else
+										</p>
+									</div>
+								</CommandPrimitive.Empty>
+
+								{filteredGroups.map((group) => (
+									<CommandPrimitive.Group
+										className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-heading]]:text-xs"
+										heading={group.category}
+										key={group.category}
+									>
+										{group.items.map((item) => (
+											<SearchResultItem
+												item={item}
+												key={`${group.category}-${item.path}`}
+												onSelect={handleSelect}
+											/>
+										))}
+									</CommandPrimitive.Group>
+								))}
+							</CommandPrimitive.List>
+
+							<div className="flex items-center justify-between border-t bg-accent/50 px-4 py-2">
+								<div className="flex items-center gap-3">
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											↑↓
+										</kbd>
+										navigate
+									</span>
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											↵
+										</kbd>
+										select
+									</span>
+									<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+										<kbd className="rounded border bg-background px-1 py-0.5 font-mono text-[10px]">
+											esc
+										</kbd>
+										close
+									</span>
+								</div>
+								<span className="font-medium text-muted-foreground text-xs tabular-nums">
+									{totalResults} results
+								</span>
+							</div>
+						</CommandPrimitive>
+					</Dialog.Body>
+				</Dialog.Content>
+			</Dialog>
 		</CommandSearchContext.Provider>
 	);
 }
@@ -358,7 +388,7 @@ function SearchResultItem({
 	return (
 		<CommandPrimitive.Item
 			className={cn(
-				"group relative flex cursor-pointer select-none items-center gap-3 rounded px-2 py-2 outline-none  ",
+				"group relative flex cursor-pointer select-none items-center gap-3 rounded px-2 py-2 outline-none",
 				"data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
 				item.disabled && "pointer-events-none opacity-50"
 			)}
@@ -366,12 +396,14 @@ function SearchResultItem({
 			onSelect={() => onSelect(item)}
 			value={`${item.name} ${item.path}`}
 		>
-			<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent   group-data-[selected=true]:bg-background">
-				<ItemIcon className="size-4 text-muted-foreground" weight="duotone" />
+			<div className="flex size-7 shrink-0 items-center justify-center rounded bg-accent group-data-[selected=true]:bg-background">
+				<ItemIcon className="size-4 text-muted-foreground" />
 			</div>
 
 			<div className="min-w-0 flex-1">
-				<p className="truncate font-medium text-sm leading-tight">{item.name}</p>
+				<p className="truncate font-medium text-sm leading-tight">
+					{item.name}
+				</p>
 				<p className="truncate text-muted-foreground text-xs">
 					{item.path.startsWith("http") ? "External link" : item.path}
 				</p>
@@ -381,22 +413,31 @@ function SearchResultItem({
 				{item.tag && (
 					<Badge
 						className="text-[10px]"
-						variant={item.tag === "soon" ? "secondary" : "outline"}
+						variant={item.tag === "soon" ? "muted" : "default"}
 					>
 						{item.tag}
 					</Badge>
 				)}
 
 				{item.alpha && (
-					<Badge className="text-[10px]" variant="secondary">
+					<Badge className="text-[10px]" variant="muted">
 						alpha
 					</Badge>
 				)}
 
 				{item.badge && (
-					<Badge className="text-[10px]" variant="secondary">
+					<Badge className="text-[10px]" variant="muted">
 						{item.badge.text}
 					</Badge>
+				)}
+
+				{item.lockedPlanName && (
+					<>
+						<LockSimpleIcon className="size-3.5 text-muted-foreground" />
+						<Badge className="text-[10px]" variant="muted">
+							{item.lockedPlanName}
+						</Badge>
+					</>
 				)}
 
 				{item.external && (

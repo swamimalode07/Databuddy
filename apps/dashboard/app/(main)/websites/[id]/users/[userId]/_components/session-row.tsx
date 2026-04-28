@@ -7,11 +7,6 @@ import type {
 	SessionReferrer,
 	SessionRowProps,
 } from "@databuddy/shared/types/sessions";
-import {
-	ArrowSquareOutIcon,
-	CaretDownIcon,
-	CaretRightIcon,
-} from "@phosphor-icons/react";
 import React, { useCallback } from "react";
 import { FaviconImage } from "@/components/analytics/favicon-image";
 import { BrowserIcon, CountryFlag, OSIcon } from "@/components/icon";
@@ -20,10 +15,15 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { fromNow } from "@/lib/time";
-import { getDeviceIcon } from "@/lib/utils";
+import { fromNow } from "@databuddy/ui";
+import { cn, getDeviceIcon } from "@/lib/utils";
 import { generateSessionName } from "./generate-session-name";
 import { SessionEventTimeline } from "./session-event-timeline";
+import {
+	ArrowSquareOutIcon,
+	CaretDownIcon,
+	CaretRightIcon,
+} from "@databuddy/ui/icons";
 
 function getEventSortPriority(eventName: string): number {
 	if (eventName === "page_exit") {
@@ -35,29 +35,43 @@ function getEventSortPriority(eventName: string): number {
 	return 2;
 }
 
-function transformSessionEvents(
-	events: RawSessionEventTuple[]
-): SessionEvent[] {
+function isRawSessionEventTuple(event: unknown): event is RawSessionEventTuple {
+	return Array.isArray(event) && event.length >= 5;
+}
+
+function parseProperties(properties: string | null): Record<string, unknown> {
+	if (!properties) {
+		return {};
+	}
+
+	try {
+		const parsed = JSON.parse(properties);
+		return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+			? parsed
+			: {};
+	} catch {
+		return {};
+	}
+}
+
+function transformSessionEvents(events: Session["events"]): SessionEvent[] {
 	return events
-		.map((tuple) => {
-			if (!Array.isArray(tuple) || tuple.length < 5) {
-				return null;
+		.map((event) => {
+			if (!isRawSessionEventTuple(event)) {
+				return event;
 			}
 
-			const [event_id, time, event_name, path, properties] = tuple;
+			const [event_id, time, event_name, path, properties, source] = event;
 
-			let propertiesObj: Record<string, unknown> = {};
-			if (properties) {
-				try {
-					propertiesObj = JSON.parse(properties);
-				} catch {
-					// Keep empty object if parsing fails
-				}
-			}
-
-			return { event_id, time, event_name, path, properties: propertiesObj };
+			return {
+				event_id,
+				time,
+				event_name,
+				path,
+				properties: parseProperties(properties),
+				source,
+			};
 		})
-		.filter((event): event is SessionEvent => event !== null)
 		.sort((a, b) => {
 			const timeA = new Date(a.time).getTime();
 			const timeB = new Date(b.time).getTime();
@@ -99,12 +113,7 @@ function SessionRowInternal({
 	isExpanded,
 	onToggle,
 }: SessionRowProps) {
-	const events =
-		Array.isArray(session.events) &&
-		session.events.length > 0 &&
-		Array.isArray(session.events[0])
-			? transformSessionEvents(session.events as RawSessionEventTuple[])
-			: (session.events as SessionEvent[]);
+	const events = transformSessionEvents(session.events);
 
 	const referrerInfo = getReferrerInfo(session);
 
@@ -117,12 +126,13 @@ function SessionRowInternal({
 	return (
 		<Collapsible onOpenChange={handleToggle} open={isExpanded}>
 			<CollapsibleTrigger asChild>
-				<div
-					className={`group grid cursor-pointer grid-cols-[24px_1fr_120px_80px_60px_60px_70px_80px] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 lg:grid-cols-[24px_1fr_120px_80px_100px_60px_60px_70px_80px] ${
-						isExpanded ? "bg-accent/30" : ""
-					}`}
+				<button
+					className={cn(
+						"group grid w-full cursor-pointer grid-cols-[24px_1fr_120px_80px_60px_60px_70px_80px] items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent/50 focus-visible:bg-accent/70 focus-visible:outline-none lg:grid-cols-[24px_1fr_120px_80px_100px_60px_60px_70px_80px]",
+						isExpanded && "bg-accent/30"
+					)}
+					type="button"
 				>
-					{/* Expand Icon */}
 					<div className="flex justify-center text-muted-foreground">
 						{isExpanded ? (
 							<CaretDownIcon className="size-3.5" />
@@ -131,10 +141,8 @@ function SessionRowInternal({
 						)}
 					</div>
 
-					{/* Session Name */}
 					<span className="truncate font-medium">{sessionDisplayName}</span>
 
-					{/* Location */}
 					<div className="flex items-center gap-1.5 overflow-hidden">
 						<CountryFlag country={session.country_code || ""} size="sm" />
 						<span className="truncate">
@@ -142,14 +150,12 @@ function SessionRowInternal({
 						</span>
 					</div>
 
-					{/* Device Stack */}
 					<div className="flex items-center gap-1">
 						{getDeviceIcon(session.device_type)}
 						<BrowserIcon name={session.browser_name || "Unknown"} size="sm" />
 						<OSIcon name={session.os_name || "Unknown"} size="sm" />
 					</div>
 
-					{/* Referrer */}
 					<div className="hidden items-center gap-1.5 overflow-hidden lg:flex">
 						{referrerInfo.domain ? (
 							<FaviconImage
@@ -163,21 +169,18 @@ function SessionRowInternal({
 						<span className="truncate">{referrerInfo.name}</span>
 					</div>
 
-					{/* Pages */}
 					<span className="text-right font-medium tabular-nums">
 						{session.page_views ?? 0}
 					</span>
 
-					{/* Events */}
 					<span className="text-right font-medium tabular-nums">
 						{events.length}
 					</span>
 
-					{/* Last seen */}
 					<span className="text-right text-muted-foreground">
 						{session.first_visit ? fromNow(session.first_visit) : "—"}
 					</span>
-				</div>
+				</button>
 			</CollapsibleTrigger>
 
 			<CollapsibleContent>

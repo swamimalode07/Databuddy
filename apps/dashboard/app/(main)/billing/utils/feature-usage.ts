@@ -1,42 +1,43 @@
-import dayjs from "@/lib/dayjs";
+import { dayjs } from "@databuddy/ui";
 import { formatLocaleNumber } from "@/lib/format-locale-number";
 
 export interface PricingTier {
-	to: number | "inf";
 	amount: number;
+	to: number | "inf";
 }
 
 export interface BalanceLike {
-	remaining: number;
-	granted: number;
-	unlimited: boolean;
-	nextResetAt?: number | null;
-	featureId: string;
-	feature?: { name?: string } | null;
 	breakdown?: Array<{
 		reset?: { interval?: string } | null;
 		price?: {
 			tiers?: Array<{ to?: number | "inf" | null; amount?: number }>;
 		} | null;
 	}> | null;
+	feature?: { name?: string } | null;
+	featureId: string;
+	granted: number;
+	nextResetAt?: number | null;
+	remaining: number;
+	unlimited: boolean;
+	usage?: number;
 }
 
 export interface FeatureUsage {
-	id: string;
-	name: string;
 	balance: number;
-	limit: number;
-	includedLimit: number;
-	unlimited: boolean;
 	hasExtraCredits: boolean;
 	hasPricedOverage: boolean;
-	pricingTiers: PricingTier[];
+	id: string;
+	includedLimit: number;
 	interval: string | null;
-	resetAt: number | null;
+	limit: number;
+	name: string;
 	overage: {
 		amount: number;
 		cost: number;
 	} | null;
+	pricingTiers: PricingTier[];
+	resetAt: number | null;
+	unlimited: boolean;
 }
 
 function calculateOverageCost(
@@ -82,7 +83,12 @@ export function calculateFeatureUsage(
 
 	const hasExtraCredits = !unlimited && remaining > limit;
 
-	const overageAmount = remaining < 0 ? Math.abs(remaining) : 0;
+	const overageAmount =
+		bal.usage != null && bal.granted > 0
+			? Math.max(0, bal.usage - bal.granted)
+			: remaining < 0
+				? Math.abs(remaining)
+				: 0;
 	const hasPricedOverage = pricingTiers?.length
 		? pricingTiers.length > 0
 		: (bal.breakdown?.some((b) => b.price?.tiers?.length) ?? false);

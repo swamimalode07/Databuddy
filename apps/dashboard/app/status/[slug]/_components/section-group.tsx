@@ -1,13 +1,13 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { CaretDownIcon } from "@databuddy/ui/icons";
 
 interface SectionGroupProps {
-	name: string;
-	isCollapsed: boolean;
 	children: React.ReactNode;
+	isCollapsed: boolean;
+	name: string;
 }
 
 export function SectionGroup({

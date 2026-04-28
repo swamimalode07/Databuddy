@@ -51,7 +51,7 @@ function normalizeWideEventForAxiom(event: Record<string, unknown>): void {
 		return;
 	}
 
-	const status = (err as { status?: number }).status;
+	const status = (err as Record<string, unknown>).status;
 	if (typeof status === "number" && status >= 400 && status < 500) {
 		event.level = "warn";
 		event.client_http_error = true;
@@ -60,11 +60,11 @@ function normalizeWideEventForAxiom(event: Record<string, unknown>): void {
 
 function parseDurationMs(duration: unknown): number | undefined {
 	if (typeof duration !== "string") {
-		return undefined;
+		return;
 	}
 	const match = duration.match(DURATION_MS_REGEX);
 	if (!match?.[1]) {
-		return undefined;
+		return;
 	}
 	return match[2] === "s"
 		? Math.round(Number.parseFloat(match[1]) * 1000)
@@ -91,10 +91,19 @@ const enrichers = [
 	createTraceContextEnricher(),
 ] as const;
 
+const deploymentMeta: Record<string, string> = {};
+if (process.env.UNKEY_INSTANCE_ID) {
+	deploymentMeta.instance_id = process.env.UNKEY_INSTANCE_ID;
+}
+if (process.env.UNKEY_DEPLOYMENT_ID) {
+	deploymentMeta.deployment_id = process.env.UNKEY_DEPLOYMENT_ID;
+}
+
 export function enrichUptimeWideEvent(ctx: EnrichContext): void {
 	for (const enricher of enrichers) {
 		enricher(ctx);
 	}
+	Object.assign(ctx.event, deploymentMeta);
 }
 
 export async function flushBatchedUptimeDrain(): Promise<void> {

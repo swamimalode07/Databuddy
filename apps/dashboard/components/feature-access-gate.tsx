@@ -1,14 +1,14 @@
 "use client";
 
-import { LockIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import { Badge } from "@/components/ui/badge";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { getFeatureDescription, getFeatureLabel } from "@/lib/feature-gates";
+import { LockIcon } from "@databuddy/ui/icons";
+import { Badge } from "@databuddy/ui";
 
 interface FeatureAccessGateProps {
-	flagKey: string;
 	children: ReactNode;
+	flagKey: string;
 	loadingFallback?: ReactNode;
 }
 
@@ -31,7 +31,7 @@ export function FeatureLockedPanel({ flagKey }: { flagKey: string }) {
 				<div className="space-y-3 text-balance">
 					<h2 className="font-medium text-foreground text-xl">{label}</h2>
 					<p className="text-muted-foreground text-sm">{description}</p>
-					<Badge variant="secondary">Coming soon</Badge>
+					<Badge variant="muted">Coming soon</Badge>
 				</div>
 
 				<p className="text-muted-foreground text-xs">

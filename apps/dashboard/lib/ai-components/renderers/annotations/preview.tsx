@@ -1,44 +1,41 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CalendarIcon,
-	CheckIcon,
-	CircleNotchIcon,
-	NoteIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useChat } from "@/contexts/chat-context";
 import { cn } from "@/lib/utils";
 import type { BaseComponentProps } from "../../types";
+import {
+	CalendarIcon,
+	CheckIcon,
+	NoteIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
 
 interface AnnotationPreviewData {
-	text: string;
 	annotationType: "point" | "line" | "range";
-	xValue: string;
-	xEndValue?: string | null;
 	color?: string | null;
-	tags?: string[];
 	isPublic?: boolean;
+	tags?: string[];
+	text: string;
+	xEndValue?: string | null;
+	xValue: string;
 }
 
 export interface AnnotationPreviewProps extends BaseComponentProps {
-	mode: "create" | "update" | "delete";
 	annotation: AnnotationPreviewData;
+	mode: "create" | "update" | "delete";
 }
 
 interface ModeConfig {
-	title: string;
+	accent: string;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
-	accent: string;
-	variant: "default" | "destructive";
-	ButtonIcon: Icon;
+	title: string;
+	tone?: "destructive";
 }
 
 const MODE_CONFIG: Record<string, ModeConfig> = {
@@ -47,7 +44,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Create",
 		confirmMessage: "Yes, create it",
 		accent: "",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	update: {
@@ -55,7 +51,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Update",
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	delete: {
@@ -63,7 +58,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Delete",
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
-		variant: "destructive",
+		tone: "destructive",
 		ButtonIcon: TrashIcon,
 	},
 };
@@ -75,7 +70,7 @@ function AnnotationTypeLabel({ type }: { type: string }) {
 		range: "Range",
 	};
 	return (
-		<Badge className="text-[10px]" variant="secondary">
+		<Badge className="text-[10px]" variant="muted">
 			{labels[type] ?? type}
 		</Badge>
 	);
@@ -151,7 +146,7 @@ export function AnnotationPreviewRenderer({
 							<p className="mb-1 text-muted-foreground text-xs">Tags</p>
 							<div className="flex flex-wrap gap-1">
 								{annotation.tags.map((tag) => (
-									<Badge className="text-[10px]" key={tag} variant="outline">
+									<Badge className="text-[10px]" key={tag} variant="default">
 										{tag}
 									</Badge>
 								))}
@@ -189,16 +184,13 @@ export function AnnotationPreviewRenderer({
 					Edit
 				</Button>
 				<Button
-					disabled={isLoading || isConfirming}
+					disabled={isLoading}
+					loading={isConfirming}
 					onClick={handleConfirm}
 					size="sm"
-					variant={config.variant}
+					tone={config.tone}
 				>
-					{isConfirming ? (
-						<CircleNotchIcon className="size-3.5 animate-spin" />
-					) : (
-						<config.ButtonIcon className="size-3.5" weight="bold" />
-					)}
+					<config.ButtonIcon className="size-3.5" weight="bold" />
 					{config.confirmLabel}
 				</Button>
 			</div>

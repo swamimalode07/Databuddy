@@ -1,42 +1,41 @@
 "use client";
 
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+import { useAtomValue } from "jotai";
+import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
+import { TopBar } from "@/components/layout/top-bar";
+import { CreateOrganizationDialog } from "@/components/organizations/create-organization-dialog";
+import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
+import {
+	activeOrganizationAtom,
+	isLoadingOrganizationsAtom,
+} from "@/stores/jotai/organizationsAtoms";
 import {
 	BuildingsIcon,
 	EnvelopeIcon,
 	GearIcon,
 	GlobeIcon,
-	KeyIcon,
 	UsersIcon,
-	WarningIcon,
-} from "@phosphor-icons/react";
-import { useAtomValue } from "jotai";
-import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
-import { PageHeader } from "@/app/(main)/websites/_components/page-header";
-import { EmptyState } from "@/components/empty-state";
-import { CreateOrganizationDialog } from "@/components/organizations/create-organization-dialog";
-import { InviteMemberDialog } from "@/components/organizations/invite-member-dialog";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	activeOrganizationAtom,
-	isLoadingOrganizationsAtom,
-} from "@/stores/jotai/organizationsAtoms";
+} from "@databuddy/ui/icons";
+import { Button, EmptyState, Skeleton } from "@databuddy/ui";
+
+type IconComponent = React.ForwardRefExoticComponent<
+	React.SVGProps<SVGSVGElement> & React.RefAttributes<SVGSVGElement>
+>;
 
 interface HeaderActionButton {
-	text: string;
-	icon: PhosphorIcon;
 	action: () => void;
 	disabled?: boolean;
+	icon: IconComponent;
+	text: string;
 }
 
 interface PageInfo {
-	title: string;
-	description: string;
-	icon: PhosphorIcon;
-	requiresOrg?: boolean;
 	actionButton?: HeaderActionButton;
+	description: string;
+	icon: IconComponent;
+	requiresOrg?: boolean;
+	title: string;
 }
 
 const PAGE_INFO_MAP: Record<string, PageInfo> = {
@@ -69,18 +68,6 @@ const PAGE_INFO_MAP: Record<string, PageInfo> = {
 		icon: GlobeIcon,
 		requiresOrg: true,
 	},
-	"/organizations/settings/api-keys": {
-		title: "API Keys",
-		description: "Create and manage API keys for this organization",
-		icon: KeyIcon,
-		requiresOrg: true,
-	},
-	"/organizations/settings/danger": {
-		title: "Danger Zone",
-		description: "Irreversible and destructive actions",
-		icon: WarningIcon,
-		requiresOrg: true,
-	},
 };
 
 const DEFAULT_PAGE_INFO: PageInfo = {
@@ -102,13 +89,10 @@ export function OrganizationProvider({
 	const [showCreateDialog, setShowCreateDialog] = useState(false);
 	const [showInviteMemberDialog, setShowInviteMemberDialog] = useState(false);
 
-	const {
-		title,
-		description,
-		icon: Icon,
-		requiresOrg,
-		actionButton,
-	} = useMemo(() => PAGE_INFO_MAP[pathname] ?? DEFAULT_PAGE_INFO, [pathname]);
+	const { title, requiresOrg, actionButton } = useMemo(
+		() => PAGE_INFO_MAP[pathname] ?? DEFAULT_PAGE_INFO,
+		[pathname]
+	);
 
 	if (isLoading) {
 		return (
@@ -140,23 +124,21 @@ export function OrganizationProvider({
 	if (requiresOrg && !activeOrganization) {
 		return (
 			<div className="flex h-full flex-col">
-				<PageHeader
-					description={description}
-					icon={<Icon />}
-					right={
-						actionButton && (
-							<Button
-								className="w-full sm:w-auto"
-								disabled={actionButton.disabled}
-								onClick={actionButton.action}
-							>
-								<actionButton.icon />
-								{actionButton.text}
-							</Button>
-						)
-					}
-					title={title}
-				/>
+				<TopBar.Title>
+					<h1 className="font-semibold text-sm">{title}</h1>
+				</TopBar.Title>
+				{actionButton && (
+					<TopBar.Actions>
+						<Button
+							disabled={actionButton.disabled}
+							onClick={actionButton.action}
+							size="sm"
+						>
+							<actionButton.icon className="size-4 shrink-0" />
+							{actionButton.text}
+						</Button>
+					</TopBar.Actions>
+				)}
 
 				<CreateOrganizationDialog
 					isOpen={showCreateDialog}
@@ -179,23 +161,21 @@ export function OrganizationProvider({
 
 	return (
 		<div className="flex h-full flex-col">
-			<PageHeader
-				description={description}
-				icon={<Icon />}
-				right={
-					actionButton && (
-						<Button
-							className="w-full sm:w-auto"
-							disabled={actionButton.disabled}
-							onClick={actionButton.action}
-						>
-							<actionButton.icon />
-							{actionButton.text}
-						</Button>
-					)
-				}
-				title={title}
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">{title}</h1>
+			</TopBar.Title>
+			{actionButton && (
+				<TopBar.Actions>
+					<Button
+						disabled={actionButton.disabled}
+						onClick={actionButton.action}
+						size="sm"
+					>
+						<actionButton.icon className="size-4 shrink-0" />
+						{actionButton.text}
+					</Button>
+				</TopBar.Actions>
+			)}
 
 			<main className="flex-1 overflow-y-auto">{children}</main>
 
@@ -206,7 +186,7 @@ export function OrganizationProvider({
 
 			{activeOrganization && (
 				<InviteMemberDialog
-					onOpenChange={setShowInviteMemberDialog}
+					onOpenChangeAction={setShowInviteMemberDialog}
 					open={showInviteMemberDialog}
 					organizationId={activeOrganization.id}
 				/>

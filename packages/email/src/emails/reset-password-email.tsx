@@ -1,4 +1,4 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Section, Text } from "react-email";
 import { emailBrand } from "./email-brand";
 import { EmailButton } from "./email-button";
 import { EmailLayout } from "./email-layout";
@@ -10,7 +10,10 @@ interface ResetPasswordEmailProps {
 }
 
 export const ResetPasswordEmail = ({ url }: ResetPasswordEmailProps) => (
-	<EmailLayout preview="Reset your password" tagline="Password Reset">
+	<EmailLayout
+		preview="Click to choose a new password. Link expires in 1 hour."
+		tagline="Password Reset"
+	>
 		<Section className="text-center">
 			<Heading
 				className="m-0 mb-3 font-semibold text-xl tracking-tight"
@@ -36,5 +39,9 @@ export const ResetPasswordEmail = ({ url }: ResetPasswordEmailProps) => (
 		<EmailLinkFallback href={url} />
 	</EmailLayout>
 );
+
+ResetPasswordEmail.PreviewProps = {
+	url: "https://app.databuddy.cc/reset/abc123",
+} satisfies ResetPasswordEmailProps;
 
 export default ResetPasswordEmail;

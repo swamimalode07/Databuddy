@@ -1,29 +1,27 @@
-import { Receiver } from "@upstash/qstash";
+import { closeUptimeQueue } from "@databuddy/redis";
 import { Elysia } from "elysia";
 import { initLogger, log } from "evlog";
 import { evlog } from "evlog/elysia";
-import { z } from "zod";
-import { type CheckOptions, checkUptime, lookupSchedule } from "./actions";
-import { isHealthExtractionEnabled } from "./json-parser";
+import { UPTIME_ENV } from "./lib/env";
 import {
 	enrichUptimeWideEvent,
 	flushBatchedUptimeDrain,
 	uptimeLoggerDrain,
 } from "./lib/evlog-uptime";
-import { sendUptimeEvent } from "./lib/producer";
-import { captureError, mergeWideEvent } from "./lib/tracing";
-import {
-	getPreviousMonitorStatus,
-	sendUptimeTransitionEmailsIfNeeded,
-} from "./uptime-transition-emails";
+import { disconnectProducer } from "./lib/producer";
+import { captureError } from "./lib/tracing";
+import { syncSchedulers } from "./sync-schedulers";
+import { startUptimeWorker } from "./worker";
 
 initLogger({
-	env: { service: "uptime" },
-	drain: uptimeLoggerDrain,
-	sampling: {
-		// rates: { info: 20, warn: 50, debug: 5 },
-		// keep: [{ status: 400 }, { duration: 1500 }],
+	env: {
+		service: "uptime",
+		environment: UPTIME_ENV.environment,
+		region: process.env.UNKEY_REGION,
+		commitHash: process.env.UNKEY_GIT_COMMIT_SHA,
 	},
+	drain: uptimeLoggerDrain,
+	sampling: {},
 });
 
 process.on("unhandledRejection", (reason, _promise) => {
@@ -44,41 +42,51 @@ process.on("uncaughtException", (error) => {
 	});
 });
 
-process.on("SIGTERM", async () => {
-	log.info("lifecycle", "SIGTERM received, shutting down gracefully");
-	await flushBatchedUptimeDrain().catch((error) =>
+const DRAIN_TIMEOUT_MS = 10_000;
+
+async function shutdown(signal: string) {
+	log.info("lifecycle", `${signal} received, shutting down gracefully`);
+
+	const drainPromise = Promise.allSettled([
+		uptimeWorker?.close(),
+		closeUptimeQueue(),
+		flushBatchedUptimeDrain(),
+		disconnectProducer(),
+	]);
+
+	const timeout = new Promise<"timeout">((resolve) =>
+		setTimeout(() => resolve("timeout"), DRAIN_TIMEOUT_MS)
+	);
+
+	const result = await Promise.race([drainPromise, timeout]);
+
+	if (result === "timeout") {
 		log.error({
-			lifecycle: "drainFlush",
-			error_message: error instanceof Error ? error.message : String(error),
-		})
-	);
+			lifecycle: "shutdown",
+			error_step: "drain_timeout",
+			drain_timeout_ms: DRAIN_TIMEOUT_MS,
+		});
+	}
+
 	process.exit(0);
-});
-
-process.on("SIGINT", async () => {
-	log.info("lifecycle", "SIGINT received, shutting down gracefully");
-	await flushBatchedUptimeDrain().catch((error) =>
-		log.error({
-			lifecycle: "drainFlush",
-			error_message: error instanceof Error ? error.message : String(error),
-		})
-	);
-	process.exit(0);
-});
-
-const CURRENT_SIGNING_KEY = process.env.QSTASH_CURRENT_SIGNING_KEY;
-const NEXT_SIGNING_KEY = process.env.QSTASH_NEXT_SIGNING_KEY;
-
-if (!(CURRENT_SIGNING_KEY && NEXT_SIGNING_KEY)) {
-	throw new Error(
-		"QSTASH_SIGNING_KEY and QSTASH_NEXT_SIGNING_KEY environment variables are required"
-	);
 }
 
-const receiver = new Receiver({
-	currentSigningKey: CURRENT_SIGNING_KEY,
-	nextSigningKey: NEXT_SIGNING_KEY,
-});
+let uptimeWorker: ReturnType<typeof startUptimeWorker> | null = null;
+
+(async () => {
+	if (UPTIME_ENV.isDev) {
+		log.info(
+			"lifecycle",
+			"Development mode — worker and scheduler sync disabled"
+		);
+	} else {
+		await syncSchedulers();
+		uptimeWorker = startUptimeWorker();
+	}
+})();
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 const app = new Elysia()
 	.use(
@@ -94,6 +102,7 @@ const app = new Elysia()
 	})
 	.get("/health/status", async () => {
 		const { db, sql } = await import("@databuddy/db");
+		const { getUptimeQueue } = await import("@databuddy/redis");
 		const { Kafka } = await import("kafkajs");
 
 		async function ping(probe: () => Promise<void>) {
@@ -113,8 +122,12 @@ const app = new Elysia()
 			}
 		}
 
-		const [postgres, redpanda] = await Promise.all([
+		const [postgres, bullmqRedis, redpanda] = await Promise.all([
 			ping(() => db.execute(sql`SELECT 1`).then(() => {})),
+			ping(async () => {
+				const client = await getUptimeQueue().client;
+				await client.ping();
+			}),
 			ping(async () => {
 				const broker = process.env.REDPANDA_BROKER;
 				if (!broker) {
@@ -143,7 +156,7 @@ const app = new Elysia()
 			}),
 		]);
 
-		const services = { postgres, redpanda };
+		const services = { postgres, bullmqRedis, redpanda };
 		const status = Object.values(services).every((s) => s.status === "ok")
 			? "ok"
 			: "degraded";
@@ -152,141 +165,9 @@ const app = new Elysia()
 			{ status: status === "ok" ? 200 : 503 }
 		);
 	})
-	.get("/health", () => ({ status: "ok" }))
-	.post("/", async ({ headers, body }) => {
-		try {
-			const headerSchema = z.object({
-				"upstash-signature": z.string(),
-				"x-schedule-id": z.string(),
-				"upstash-retried": z.string().optional(),
-			});
-
-			const parsed = headerSchema.safeParse(headers);
-			if (!parsed.success) {
-				const errorDetails = parsed.error.format();
-				captureError(new Error("Missing required headers"), {
-					error_step: "validation_headers",
-					schedule_id: String(headers["x-schedule-id"] ?? ""),
-				});
-				return new Response(
-					JSON.stringify({
-						error: "Missing required headers",
-						details: errorDetails,
-					}),
-					{
-						status: 400,
-						headers: { "Content-Type": "application/json" },
-					}
-				);
-			}
-
-			const { "upstash-signature": signature, "x-schedule-id": scheduleId } =
-				parsed.data;
-
-			const isValid = await receiver.verify({
-				// @ts-expect-error, this doesn't require type assertions
-				body,
-				signature,
-				url: process.env.UPTIME_URL,
-			});
-
-			if (!isValid) {
-				captureError(new Error("Invalid QStash signature"), {
-					error_step: "qstash_signature",
-					schedule_id: scheduleId,
-				});
-				return new Response("Invalid signature", { status: 401 });
-			}
-
-			const schedule = await lookupSchedule(scheduleId);
-			if (!schedule.success) {
-				captureError(new Error(schedule.error), {
-					error_step: "schedule_not_found",
-					schedule_id: scheduleId,
-				});
-				return new Response(
-					JSON.stringify({
-						error: "Schedule not found",
-						scheduleId,
-						details: schedule.error,
-					}),
-					{
-						status: 404,
-						headers: { "Content-Type": "application/json" },
-					}
-				);
-			}
-
-			const monitorId = schedule.data.websiteId || scheduleId;
-
-			mergeWideEvent({
-				schedule_id: scheduleId,
-				monitor_id: monitorId,
-				organization_id: schedule.data.organizationId,
-				...(schedule.data.websiteId
-					? { website_id: schedule.data.websiteId }
-					: {}),
-			});
-
-			const maxRetries = parsed.data["upstash-retried"]
-				? Number.parseInt(parsed.data["upstash-retried"], 10) + 3
-				: 3;
-
-			const options: CheckOptions = {
-				timeout: schedule.data.timeout ?? undefined,
-				cacheBust: schedule.data.cacheBust,
-				extractHealth: isHealthExtractionEnabled(
-					schedule.data.jsonParsingConfig
-				),
-			};
-
-			const result = await checkUptime(
-				monitorId,
-				schedule.data.url,
-				1,
-				maxRetries,
-				options
-			);
-
-			if (!result.success) {
-				captureError(new Error(result.error), {
-					error_step: "uptime_check_failed",
-					monitor_id: monitorId,
-					check_url: schedule.data.url,
-				});
-				return new Response("Failed to check uptime", { status: 500 });
-			}
-
-			const previousStatus = await getPreviousMonitorStatus(monitorId);
-
-			mergeWideEvent({
-				previous_uptime_status:
-					previousStatus === undefined ? -1 : previousStatus,
-			});
-
-			try {
-				await sendUptimeEvent(result.data, monitorId);
-				await sendUptimeTransitionEmailsIfNeeded({
-					schedule: schedule.data,
-					data: result.data,
-					previousStatus,
-				});
-			} catch (error) {
-				captureError(error, {
-					error_step: "producer_pipeline",
-					monitor_id: monitorId,
-					http_code: result.data.http_code,
-				});
-			}
-
-			return new Response("Uptime check complete", { status: 200 });
-		} catch (error) {
-			captureError(error, { error_step: "handler" });
-			return new Response("Internal server error", { status: 500 });
-		}
-	});
+	.get("/health", () => ({ status: "ok" }));
 
 export default {
-	port: 4000,
+	port: Number(process.env.PORT ?? 4000),
 	fetch: app.fetch,
 };

@@ -1,8 +1,3 @@
-import {
-	ArrowDownIcon,
-	ArrowUpIcon,
-	DatabaseIcon,
-} from "@phosphor-icons/react";
 import { flexRender, type Table } from "@tanstack/react-table";
 import type React from "react";
 import { Fragment, memo, useCallback, useState } from "react";
@@ -16,6 +11,12 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { TableEmptyState } from "./table-empty-state";
+import {
+	CaretDownIcon,
+	CaretRightIcon,
+	DatabaseIcon,
+} from "@databuddy/ui/icons";
+import { Button } from "@databuddy/ui";
 
 const DEFAULT_SHARE_COLUMN_TITLE =
 	"Share of unique visitors in this breakdown. Row percentages may add up to more than 100% when the same user appears in multiple rows.";
@@ -25,7 +26,7 @@ function resolveShareColumnTitle(
 	shareColumnTooltip: string | undefined
 ): string | undefined {
 	if (columnId !== "percentage") {
-		return undefined;
+		return;
 	}
 	if (shareColumnTooltip !== undefined) {
 		return shareColumnTooltip.length > 0 ? shareColumnTooltip : undefined;
@@ -33,36 +34,84 @@ function resolveShareColumnTitle(
 	return DEFAULT_SHARE_COLUMN_TITLE;
 }
 
-const PERCENTAGE_THRESHOLDS = {
-	HIGH: 50,
-	MEDIUM: 25,
-	LOW: 10,
-} as const;
-
 const DEFAULT_CELL_STYLE = {
-	maxWidth: "300px",
-	minWidth: "80px",
+	minWidth: "180px",
 } as const;
 
-const cellStyleCache = new Map<number, React.CSSProperties>();
+const COMPACT_COLUMN_WIDTHS: Record<string, number> = {
+	clicks: 88,
+	cls: 76,
+	current_time: 108,
+	customers: 100,
+	fcp: 88,
+	fps: 88,
+	inp: 88,
+	lcp: 88,
+	median_time_on_page: 112,
+	pageviews: 96,
+	percentage: 96,
+	revenue: 112,
+	samples: 88,
+	sessions: 96,
+	sessions_with_time: 116,
+	total_clicks: 96,
+	transactions: 116,
+	ttfb: 96,
+	unique_links: 92,
+	unique_users: 96,
+	visitors: 96,
+};
 
-function getCellStyle(size: number): React.CSSProperties {
+const COMPACT_COLUMN_MATCHERS = [
+	/_(clicks|customers|revenue|sessions|users|views)$/,
+	/^(clicks|customers|revenue|sessions|users|views)$/,
+] as const;
+
+const cellStyleCache = new Map<string, React.CSSProperties>();
+
+function getCompactColumnWidth(columnId: string): number | undefined {
+	return (
+		COMPACT_COLUMN_WIDTHS[columnId] ??
+		(COMPACT_COLUMN_MATCHERS.some((matcher) => matcher.test(columnId))
+			? 96
+			: undefined)
+	);
+}
+
+function getColumnStyle(columnId: string, size: number): React.CSSProperties {
+	const compactWidth = getCompactColumnWidth(columnId);
+
+	if (compactWidth !== undefined) {
+		const cacheKey = `compact-${compactWidth}`;
+		const cached = cellStyleCache.get(cacheKey);
+		if (cached) {
+			return cached;
+		}
+		const style = {
+			maxWidth: `${compactWidth}px`,
+			minWidth: `${compactWidth}px`,
+			width: `${compactWidth}px`,
+		} as const;
+		cellStyleCache.set(cacheKey, style);
+		return style;
+	}
+
 	if (size === 150) {
 		return DEFAULT_CELL_STYLE;
 	}
 
-	const cached = cellStyleCache.get(size);
+	const flexibleMinWidth = Math.max(180, Math.min(size, 360));
+	const cacheKey = `flex-${flexibleMinWidth}`;
+	const cached = cellStyleCache.get(cacheKey);
 	if (cached) {
 		return cached;
 	}
 
 	const style = {
-		width: `${Math.min(size, 300)}px`,
-		maxWidth: "300px",
-		minWidth: "80px",
+		minWidth: `${flexibleMinWidth}px`,
 	} as const;
 
-	cellStyleCache.set(size, style);
+	cellStyleCache.set(cacheKey, style);
 	return style;
 }
 
@@ -72,129 +121,44 @@ interface PercentageRow {
 
 function getRowPercentage(row: PercentageRow): number {
 	const value = row.percentage;
-	return value === undefined ? 0 : Number.parseFloat(String(value)) || 0;
+	if (value === undefined) {
+		return 0;
+	}
+	const parsed = Number.parseFloat(String(value)) || 0;
+	return Math.max(0, Math.min(100, parsed));
 }
 
-const GRADIENT_COLORS = {
-	high: {
-		rgb: "34, 197, 94",
-		opacity: {
-			background: 0.08,
-			hover: 0.12,
-			border: 0.3,
-			accent: 0.8,
-			glow: 0.2,
-		},
-	},
-	medium: {
-		rgb: "59, 130, 246",
-		opacity: {
-			background: 0.08,
-			hover: 0.12,
-			border: 0.3,
-			accent: 0.8,
-			glow: 0.2,
-		},
-	},
-	low: {
-		rgb: "245, 158, 11",
-		opacity: {
-			background: 0.08,
-			hover: 0.12,
-			border: 0.3,
-			accent: 0.8,
-			glow: 0.2,
-		},
-	},
-	default: {
-		rgb: "107, 114, 128",
-		opacity: {
-			background: 0.08,
-			hover: 0.12,
-			border: 0.2,
-			accent: 0.7,
-			glow: 0.15,
-		},
-	},
-} as const;
-
-function createGradient(
-	rgb: string,
-	opacity: {
-		background: number;
-		hover: number;
-		border: number;
-		accent: number;
-		glow: number;
-	},
-	percentage: number
-) {
-	const {
-		background: bgOpacity,
-		hover: hoverOpacity,
-		border: borderOpacity,
-		accent: accentOpacity,
-		glow: glowOpacity,
-	} = opacity;
-
+function getShareBarStyle(percentage: number): React.CSSProperties | undefined {
+	if (percentage <= 0) {
+		return;
+	}
+	const solidEnd = Math.max(0, percentage - 6);
+	const softEnd = Math.min(100, percentage + 2);
+	const fadeEnd = Math.min(100, percentage + 8);
 	return {
-		background: `linear-gradient(90deg, rgba(${rgb}, ${bgOpacity}) 0%, rgba(${rgb}, ${bgOpacity + 0.07}) ${percentage * 0.8}%, rgba(${rgb}, ${bgOpacity + 0.04}) ${percentage}%, rgba(${rgb}, ${bgOpacity - 0.06}) ${percentage + 5}%, transparent 100%)`,
-		hoverBackground: `linear-gradient(90deg, rgba(${rgb}, ${hoverOpacity}) 0%, rgba(${rgb}, ${hoverOpacity + 0.1}) ${percentage * 0.8}%, rgba(${rgb}, ${hoverOpacity + 0.06}) ${percentage}%, rgba(${rgb}, ${hoverOpacity - 0.08}) ${percentage + 5}%, transparent 100%)`,
-		borderColor: `rgba(${rgb}, ${borderOpacity})`,
-		accentColor: `rgba(${rgb}, ${accentOpacity})`,
-		glowColor: `rgba(${rgb}, ${glowOpacity})`,
+		backgroundImage: `linear-gradient(to right, color-mix(in oklab, var(--primary) 10%, transparent) 0%, color-mix(in oklab, var(--primary) 10%, transparent) ${solidEnd}%, color-mix(in oklab, var(--primary) 4%, transparent) ${softEnd}%, transparent ${fadeEnd}%)`,
 	};
 }
 
-function getPercentageGradient(percentage: number) {
-	if (percentage >= PERCENTAGE_THRESHOLDS.HIGH) {
-		return createGradient(
-			GRADIENT_COLORS.high.rgb,
-			GRADIENT_COLORS.high.opacity,
-			percentage
-		);
-	}
-	if (percentage >= PERCENTAGE_THRESHOLDS.MEDIUM) {
-		return createGradient(
-			GRADIENT_COLORS.medium.rgb,
-			GRADIENT_COLORS.medium.opacity,
-			percentage
-		);
-	}
-	if (percentage >= PERCENTAGE_THRESHOLDS.LOW) {
-		return createGradient(
-			GRADIENT_COLORS.low.rgb,
-			GRADIENT_COLORS.low.opacity,
-			percentage
-		);
-	}
-	return createGradient(
-		GRADIENT_COLORS.default.rgb,
-		GRADIENT_COLORS.default.opacity,
-		percentage
-	);
-}
-
 interface TableContentProps<TData extends { name: string | number }> {
-	table: Table<TData>;
-	title?: string;
-	minHeight?: string | number;
+	activeTab?: string;
+	className?: string;
+	emptyMessage?: string;
 	expandable?: boolean;
 	getSubRows?: (row: TData) => TData[] | undefined;
+	minHeight?: string | number;
+	onAddFilter?: (field: string, value: string, tableTitle?: string) => void;
+	onRowAction?: (row: TData) => void;
+	onRowClick?: (field: string, value: string | number) => void;
 	renderSubRow?: (
 		subRow: TData,
 		parentRow: TData,
 		index: number
 	) => React.ReactNode;
-	onAddFilter?: (field: string, value: string, tableTitle?: string) => void;
-	onRowAction?: (row: TData) => void;
-	onRowClick?: (field: string, value: string | number) => void;
-	tabs?: any[];
-	activeTab?: string;
-	emptyMessage?: string;
-	className?: string;
-	/** Native tooltip on Share (column id "percentage"). Omit for default visitor-share copy; pass "" to disable. */
 	shareColumnTooltip?: string;
+	table: Table<TData>;
+	tabs?: any[];
+	title?: string;
 }
 
 function TableContentInner<TData extends { name: string | number }>({
@@ -245,10 +209,13 @@ function TableContentInner<TData extends { name: string | number }>({
 
 	if (!displayData.length) {
 		return (
-			<div style={{ height: minHeight }}>
+			<div
+				className="flex items-center justify-center"
+				style={{ height: minHeight }}
+			>
 				<TableEmptyState
 					description="Data will appear here when available and ready to display."
-					icon={<DatabaseIcon className="size-6 text-accent" />}
+					icon={<DatabaseIcon />}
 					title={emptyMessage}
 				/>
 			</div>
@@ -258,10 +225,7 @@ function TableContentInner<TData extends { name: string | number }>({
 	return (
 		<div
 			aria-labelledby={`tab-${activeTab}`}
-			className={cn(
-				"table-scrollbar relative overflow-auto bg-accent",
-				className
-			)}
+			className={cn("table-scrollbar relative overflow-auto", className)}
 			id={`tabpanel-${activeTab}`}
 			role="tabpanel"
 			style={{ height: minHeight }}
@@ -270,60 +234,67 @@ function TableContentInner<TData extends { name: string | number }>({
 				<TableHeader>
 					{headerGroups.map((headerGroup) => (
 						<TableRow
-							className="sticky top-0 z-10 bg-accent shadow-[0_0_0_0.5px_var(--border)]"
+							className="sticky top-0 z-10 border-b bg-card hover:bg-card"
 							key={headerGroup.id}
 						>
-							{headerGroup.headers.map((header) => (
-								<TableHead
-									className={cn(
-										"h-10 bg-card px-2 font-semibold text-sidebar-foreground/70 text-xs uppercase",
-										(header.column.columnDef.meta as any)?.className
-									)}
-									key={header.id}
-									style={{
-										width:
-											header.getSize() === 150
-												? undefined
-												: `${Math.min(header.getSize(), 300)}px`,
-										maxWidth: "300px",
-										minWidth: "80px",
-									}}
-									title={resolveShareColumnTitle(
-										header.column.id,
-										shareColumnTooltip
-									)}
-								>
-									<span className="truncate">
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-												)}
-									</span>
-								</TableHead>
-							))}
+							{headerGroup.headers.map((header) => {
+								const isCompactColumn =
+									getCompactColumnWidth(header.column.id) !== undefined;
+
+								return (
+									<TableHead
+										className={cn(
+											"h-10 px-5 font-medium text-muted-foreground text-xs",
+											isCompactColumn && "px-3 text-right",
+											(header.column.columnDef.meta as any)?.className
+										)}
+										key={header.id}
+										style={getColumnStyle(header.column.id, header.getSize())}
+										title={resolveShareColumnTitle(
+											header.column.id,
+											shareColumnTooltip
+										)}
+									>
+										<span
+											className={cn(
+												"block truncate",
+												isCompactColumn && "text-right"
+											)}
+										>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext()
+													)}
+										</span>
+									</TableHead>
+								);
+							})}
 						</TableRow>
 					))}
 				</TableHeader>
-				<TableBody className="overflow-hidden">
-					{displayData.map((row, rowIndex) => {
+				<TableBody>
+					{displayData.map((row) => {
 						const subRows =
 							expandable && getSubRows ? getSubRows(row.original) : undefined;
 						const hasSubRows = !!subRows?.length;
 						const percentage = getRowPercentage(row.original as PercentageRow);
-						const gradient =
-							percentage > 0 ? getPercentageGradient(percentage) : null;
+						const isExpanded = expandedRow === row.id;
+						const canActivate = isInteractive || hasSubRows;
+						const shareBarStyle = getShareBarStyle(percentage);
 
 						return (
 							<Fragment key={row.id}>
 								<TableRow
 									className={cn(
-										"relative h-11 border border-border border-r-0 bg-accent-brighter/30! pl-3 transition-all duration-300 ease-in-out",
-										(isInteractive || hasSubRows) && "cursor-pointer",
-										!gradient &&
-											(rowIndex % 2 === 0 ? "bg-accent/50" : "bg-accent/10")
+										"group border-border/60 border-b bg-card transition-[background-color,box-shadow] duration-150 last:border-b-0 hover:bg-accent-brighter/70 hover:shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)]",
+										isExpanded &&
+											"bg-accent-brighter shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)] hover:bg-accent-brighter",
+										canActivate &&
+											"cursor-pointer focus-visible:bg-interactive-hover/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
 									)}
+									data-state={isExpanded ? "expanded" : undefined}
 									onClick={() =>
 										handleRowClick(row.original, hasSubRows, row.id)
 									}
@@ -331,61 +302,91 @@ function TableContentInner<TData extends { name: string | number }>({
 										if (e.key === "Enter" || e.key === " ") {
 											e.preventDefault();
 											e.currentTarget.click();
+											return;
+										}
+										if (e.key === "ArrowDown" || e.key === "j") {
+											e.preventDefault();
+											const next = e.currentTarget
+												.nextElementSibling as HTMLElement | null;
+											next?.focus();
+											return;
+										}
+										if (e.key === "ArrowUp" || e.key === "k") {
+											e.preventDefault();
+											const prev = e.currentTarget
+												.previousElementSibling as HTMLElement | null;
+											prev?.focus();
+											return;
+										}
+										if (e.key === "Escape") {
+											e.preventDefault();
+											(e.currentTarget as HTMLElement).blur();
 										}
 									}}
-									role={isInteractive || hasSubRows ? "button" : undefined}
-									style={{
-										background: gradient?.background,
-										boxShadow: gradient
-											? `inset 3px 0 0 0 ${gradient.accentColor}`
-											: undefined,
-									}}
-									tabIndex={isInteractive || hasSubRows ? 0 : -1}
+									role={canActivate ? "button" : undefined}
+									style={shareBarStyle}
+									tabIndex={canActivate ? 0 : -1}
 								>
 									{row.getVisibleCells().map((cell, cellIndex) => {
 										const cellSize = cell.column.getSize();
-										const cellStyle = getCellStyle(cellSize);
+										const isCompactColumn =
+											getCompactColumnWidth(cell.column.id) !== undefined;
+										const cellStyle = getColumnStyle(cell.column.id, cellSize);
 
 										return (
 											<TableCell
 												className={cn(
-													"px-2 py-2 font-medium text-accent-foreground/80 text-sm",
-													cellIndex === 0 &&
-														"font-semibold text-sidebar-foreground",
+													"h-14 px-5 py-2.5 text-[15px] text-foreground leading-5 transition-colors first:pl-4 last:pr-5",
+													cellIndex === 0 && "font-medium",
+													isCompactColumn && "px-3 text-right tabular-nums",
 													(cell.column.columnDef.meta as any)?.className
 												)}
 												key={cell.id}
 												style={cellStyle}
 											>
-												<div className="flex items-center gap-2">
+												<div
+													className={cn(
+														"flex min-h-10 items-center gap-2.5",
+														isCompactColumn && "justify-end",
+														cellIndex === 0 &&
+															"min-w-0 [&_img]:size-[18px] [&_svg]:size-[18px]"
+													)}
+												>
 													{cellIndex === 0 && hasSubRows && (
-														<button
+														<Button
 															aria-label={
-																expandedRow === row.id
-																	? "Collapse row"
-																	: "Expand row"
+																isExpanded ? "Collapse row" : "Expand row"
 															}
-															className="shrink-0 rounded p-0.5 hover:bg-sidebar-accent/60"
+															className={cn(
+																"size-7 shrink-0 rounded-md text-muted-foreground",
+																isExpanded && "bg-primary/10 text-primary"
+															)}
 															onClick={(e) => {
 																e.stopPropagation();
 																toggleRowExpansion(row.id);
 															}}
+															size="icon-sm"
 															type="button"
+															variant="ghost"
 														>
-															{expandedRow === row.id ? (
-																<ArrowDownIcon className="h-3.5 w-3.5 text-sidebar-foreground/70" />
+															{isExpanded ? (
+																<CaretDownIcon
+																	className="size-3.5"
+																	weight="bold"
+																/>
 															) : (
-																<ArrowUpIcon className="h-3.5 w-3.5 text-sidebar-foreground/70" />
+																<CaretRightIcon
+																	className="size-3.5"
+																	weight="bold"
+																/>
 															)}
-														</button>
+														</Button>
 													)}
-													<div className="flex-1 overflow-hidden truncate">
-														<div className="truncate">
-															{flexRender(
-																cell.column.columnDef.cell,
-																cell.getContext()
-															)}
-														</div>
+													<div className="min-w-0 flex-1 truncate">
+														{flexRender(
+															cell.column.columnDef.cell,
+															cell.getContext()
+														)}
 													</div>
 												</div>
 											</TableCell>
@@ -394,10 +395,10 @@ function TableContentInner<TData extends { name: string | number }>({
 								</TableRow>
 
 								{hasSubRows &&
-									expandedRow === row.id &&
+									isExpanded &&
 									subRows.map((subRow, subIndex) => (
 										<TableRow
-											className="border-border/50 bg-accent hover:bg-accent/10"
+											className="border-border/70 border-b bg-muted/30 last:border-b-0 hover:bg-muted/40"
 											key={`${row.id}-sub-${subIndex}`}
 										>
 											{renderSubRow ? (
@@ -410,21 +411,25 @@ function TableContentInner<TData extends { name: string | number }>({
 											) : (
 												row.getVisibleCells().map((cell, cellIndex) => {
 													const subCellSize = cell.column.getSize();
-													const subCellStyle = getCellStyle(subCellSize);
+													const isCompactColumn =
+														getCompactColumnWidth(cell.column.id) !== undefined;
+													const subCellStyle = getColumnStyle(
+														cell.column.id,
+														subCellSize
+													);
 
 													return (
 														<TableCell
 															className={cn(
-																"py-2 text-sidebar-foreground/70 text-sm",
-																cellIndex === 0 ? "pl-8" : "px-2"
+																"py-2.5 text-muted-foreground text-sm",
+																cellIndex === 0 ? "pl-12" : "px-5",
+																isCompactColumn &&
+																	"px-3 text-right tabular-nums"
 															)}
 															key={`sub-${cell.id}`}
 															style={subCellStyle}
 														>
 															<div className="truncate">
-																{cellIndex === 0 && (
-																	<span className="text-xs">↳ </span>
-																)}
 																{(subRow as any)[cell.column.id] || ""}
 															</div>
 														</TableCell>

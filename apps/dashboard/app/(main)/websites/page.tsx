@@ -1,20 +1,18 @@
 "use client";
 
-import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr/Globe";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { TrendUpIcon } from "@phosphor-icons/react/dist/ssr/TrendUp";
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { WebsiteDialog } from "@/components/website-dialog";
+import { TopBar } from "@/components/layout/top-bar";
 import { useWebsites } from "@/hooks/use-websites";
-
 import { cn } from "@/lib/utils";
-import { PageHeader } from "./_components/page-header";
 import { WebsiteCard } from "./_components/website-card";
+import { ArrowClockwiseIcon, GlobeIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Button, Card, EmptyState, Skeleton } from "@databuddy/ui";
+
+const WebsiteDialog = dynamic(
+	() => import("@/components/website-dialog").then((mod) => mod.WebsiteDialog),
+	{ ssr: false }
+);
 
 function LoadingSkeleton() {
 	return (
@@ -24,10 +22,10 @@ function LoadingSkeleton() {
 					className="animate-pulse overflow-hidden pt-0"
 					key={`website-skeleton-${num}`}
 				>
-					<CardHeader className="dotted-bg gap-0! border-b bg-accent px-3 pt-4 pb-0!">
+					<Card.Header className="dotted-bg gap-0! border-b bg-accent px-3 pt-4 pb-0!">
 						<Skeleton className="mx-auto h-24 w-full rounded sm:h-28" />
-					</CardHeader>
-					<CardContent className="px-4 py-3">
+					</Card.Header>
+					<Card.Content className="px-4 py-3">
 						<div className="flex items-center gap-3">
 							<Skeleton className="size-7 shrink-0 rounded" />
 							<div className="flex min-w-0 flex-1 items-center justify-between gap-2">
@@ -41,7 +39,7 @@ function LoadingSkeleton() {
 								</div>
 							</div>
 						</div>
-					</CardContent>
+					</Card.Content>
 				</Card>
 			))}
 		</div>
@@ -63,49 +61,32 @@ export default function WebsitesPage() {
 
 	return (
 		<div className="flex h-full flex-col">
-			{/* Enhanced header */}
-			<PageHeader
-				description="Track analytics for all your websites"
-				icon={<TrendUpIcon />}
-				right={
-					<>
-						<Button
-							aria-label="Refresh websites"
-							disabled={isLoading || isFetching}
-							onClick={() => refetch()}
-							size="icon"
-							variant="outline"
-						>
-							<ArrowClockwiseIcon
-								aria-hidden
-								className={cn(
-									"size-4",
-									isLoading || isFetching ? "animate-spin" : ""
-								)}
-							/>
-						</Button>
-						<Button
-							className={cn(
-								"gap-2 px-3 py-2 font-medium sm:px-4 sm:py-2",
-								"bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary",
-								"group relative overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl"
-							)}
-							data-button-type="primary"
-							data-section="header"
-							data-track="websites-new-website-header"
-							onClick={() => setDialogOpen(true)}
-							size="default"
-						>
-							<div className="absolute inset-0 -translate-x-full bg-linear-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-700 group-hover:translate-x-full" />
-							<PlusIcon className="relative z-10 size-4 transition-transform duration-300 group-hover:rotate-90" />
-							<span className="relative z-10 truncate">New Website</span>
-						</Button>
-					</>
-				}
-				title="Websites"
-			/>
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Websites</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<Button
+					aria-label="Refresh websites"
+					disabled={isLoading || isFetching}
+					onClick={() => refetch()}
+					size="sm"
+					variant="secondary"
+				>
+					<ArrowClockwiseIcon
+						aria-hidden
+						className={cn("size-4 shrink-0", isFetching ? "animate-spin" : "")}
+					/>
+				</Button>
+				<Button
+					data-track="websites-new-website-header"
+					onClick={() => setDialogOpen(true)}
+					size="sm"
+				>
+					<PlusIcon className="size-4" />
+					New Website
+				</Button>
+			</TopBar.Actions>
 
-			{/* Content area */}
 			<div
 				aria-busy={isFetching}
 				className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6"
@@ -126,7 +107,6 @@ export default function WebsitesPage() {
 					/>
 				)}
 
-				{/* Show empty state */}
 				{!(isLoading || isError) && websites && websites.length === 0 && (
 					<EmptyState
 						action={{
@@ -141,7 +121,6 @@ export default function WebsitesPage() {
 					/>
 				)}
 
-				{/* Show website grid */}
 				{!(isLoading || isError) && websites && websites.length > 0 && (
 					<div
 						aria-live="polite"
@@ -160,7 +139,6 @@ export default function WebsitesPage() {
 				)}
 			</div>
 
-			{/* Website Dialog */}
 			<WebsiteDialog onOpenChange={setDialogOpen} open={dialogOpen} />
 		</div>
 	);

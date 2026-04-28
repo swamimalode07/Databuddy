@@ -1,20 +1,20 @@
 "use client";
 
 import { GATED_FEATURES } from "@databuddy/shared/types/features";
-import { FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { FeatureGate } from "@/components/feature-gate";
-import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { orpc } from "@/lib/orpc";
 import { isFlagSheetOpenAtom } from "@/stores/jotai/flagsAtoms";
 import { FlagSheet } from "./_components/flag-sheet";
 import { FlagsList, FlagsListSkeleton } from "./_components/flags-list";
 import type { Flag, TargetGroup } from "./_components/types";
+import { FlagIcon } from "@databuddy/ui/icons";
+import { EmptyState } from "@databuddy/ui";
+import { DeleteDialog } from "@databuddy/ui/client";
 
 export default function FlagsPage() {
 	const { id } = useParams();
@@ -41,9 +41,12 @@ export default function FlagsPage() {
 				flag.targetGroups.length > 0 &&
 				typeof flag.targetGroups[0] === "object"
 			) {
-				map.set(flag.id, flag.targetGroups as TargetGroup[]);
+				map.set(
+					flag.id as string,
+					flag.targetGroups as unknown as TargetGroup[]
+				);
 			} else {
-				map.set(flag.id, []);
+				map.set(flag.id as string, []);
 			}
 		}
 		return map;
@@ -71,7 +74,7 @@ export default function FlagsPage() {
 	const handleDeleteFlagRequest = (flagId: string) => {
 		const flag = flags?.find((f) => f.id === flagId);
 		if (flag) {
-			setFlagToDelete(flag as Flag);
+			setFlagToDelete(flag as unknown as Flag);
 		}
 	};
 
@@ -90,7 +93,7 @@ export default function FlagsPage() {
 	return (
 		<FeatureGate feature={GATED_FEATURES.FEATURE_FLAGS}>
 			<ErrorBoundary>
-				<div className="h-full overflow-y-auto">
+				<div className="flex h-full flex-col overflow-y-auto">
 					<Suspense fallback={<FlagsListSkeleton />}>
 						{flagsLoading ? (
 							<FlagsListSkeleton />
@@ -98,10 +101,10 @@ export default function FlagsPage() {
 							<div className="flex flex-1 items-center justify-center py-16">
 								<EmptyState
 									action={{
-										label: "Create Your First Flag",
+										label: "Create a flag",
 										onClick: handleCreateFlag,
 									}}
-									description="Create your first feature flag to start controlling feature rollouts and A/B testing across your application."
+									description="Flags let you roll out features gradually or run A/B tests."
 									icon={<FlagIcon weight="duotone" />}
 									title="No feature flags yet"
 									variant="minimal"
@@ -109,7 +112,7 @@ export default function FlagsPage() {
 							</div>
 						) : (
 							<FlagsList
-								flags={activeFlags as Flag[]}
+								flags={activeFlags as unknown as Flag[]}
 								groups={groupsMap}
 								onDelete={handleDeleteFlagRequest}
 								onEdit={handleEditFlag}

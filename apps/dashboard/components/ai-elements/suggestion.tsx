@@ -1,9 +1,9 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { Button } from "@databuddy/ui";
 
 export type SuggestionsProps = ComponentProps<typeof ScrollArea>;
 
@@ -29,7 +29,7 @@ export const Suggestion = ({
 	suggestion,
 	onClick,
 	className,
-	variant = "outline",
+	variant = "secondary",
 	size = "sm",
 	children,
 	...props

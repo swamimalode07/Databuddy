@@ -1,6 +1,5 @@
 "use client";
 
-import { ChartLineIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import {
 	Chart,
@@ -12,20 +11,21 @@ import {
 import { chartSeriesColorAtIndex } from "@/lib/chart-presentation";
 import type { ChartQueryOutcome } from "@/lib/chart-query-outcome";
 import { cn } from "@/lib/utils";
+import { ChartLineIcon } from "@databuddy/ui/icons";
 
 interface SimpleMetricsChartProps {
+	chartStepType?: ChartCurveType;
+	className?: string;
 	data: ChartMultiSeriesDataPoint[];
-	metrics: MetricConfig[];
-	title?: string;
 	description?: string;
 	height?: number;
 	isLoading?: boolean;
-	className?: string;
+	metrics: MetricConfig[];
 	/** When true, the last segment (incomplete period) uses a dashed stroke, matching the overview traffic trends chart. Applies to area and line, not bar. */
 	partialLastSegment?: boolean;
-	chartStepType?: ChartCurveType;
 	/** Area (default), line, or grouped bar. */
 	seriesKind?: ChartSeriesKind;
+	title?: string;
 }
 
 interface SimpleChartReadyPayload {

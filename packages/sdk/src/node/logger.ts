@@ -1,12 +1,23 @@
 export interface Logger {
-	info(msg: string, data?: Record<string, unknown>): void;
-	error(msg: string, data?: Record<string, unknown>): void;
-	warn(msg: string, data?: Record<string, unknown>): void;
 	debug(msg: string, data?: Record<string, unknown>): void;
+	error(msg: string, data?: Record<string, unknown>): void;
+	info(msg: string, data?: Record<string, unknown>): void;
+	warn(msg: string, data?: Record<string, unknown>): void;
 }
 
 export function createLogger(debug = false): Logger {
 	return createConsoleLogger(debug);
+}
+
+function formatData(data?: Record<string, unknown>): string {
+	if (!data) {
+		return "";
+	}
+	try {
+		return JSON.stringify(data);
+	} catch {
+		return "[unserializable]";
+	}
 }
 
 function createConsoleLogger(debug: boolean): Logger {
@@ -15,22 +26,22 @@ function createConsoleLogger(debug: boolean): Logger {
 	return {
 		info(msg: string, data?: Record<string, unknown>) {
 			if (debug) {
-				console.info(`[Databuddy] ${msg}`, data ? JSON.stringify(data) : "");
+				console.info(`[Databuddy] ${msg}`, formatData(data));
 			}
 		},
 		error(msg: string, data?: Record<string, unknown>) {
 			if (debug) {
-				console.error(`[Databuddy] ${msg}`, data ? JSON.stringify(data) : "");
+				console.error(`[Databuddy] ${msg}`, formatData(data));
 			}
 		},
 		warn(msg: string, data?: Record<string, unknown>) {
 			if (debug) {
-				console.warn(`[Databuddy] ${msg}`, data ? JSON.stringify(data) : "");
+				console.warn(`[Databuddy] ${msg}`, formatData(data));
 			}
 		},
 		debug: debug
 			? (msg: string, data?: Record<string, unknown>) => {
-					console.debug(`[Databuddy] ${msg}`, data ? JSON.stringify(data) : "");
+					console.debug(`[Databuddy] ${msg}`, formatData(data));
 				}
 			: noop,
 	};

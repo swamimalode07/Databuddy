@@ -1,4 +1,6 @@
-import { chQuery, db } from "@databuddy/db";
+import { db } from "@databuddy/db";
+import { chQuery } from "@databuddy/db/clickhouse";
+import { cacheable } from "@databuddy/redis";
 import {
 	DuplicateDomainError,
 	ValidationError,
@@ -17,7 +19,7 @@ import {
 } from "@databuddy/validation";
 import { z } from "zod";
 import { rpcError } from "../errors";
-import { logger } from "../lib/logger";
+import { logger, record } from "../lib/logger";
 import { protectedProcedure, publicProcedure } from "../orpc";
 import { withWorkspace } from "../procedures/with-workspace";
 import {
@@ -38,14 +40,12 @@ function handleServiceError(error: unknown): never {
 	if (error instanceof WebsiteNotFoundError) {
 		throw rpcError.notFound("website");
 	}
-	throw rpcError.internal(
-		error instanceof Error ? error.message : String(error)
-	);
+	throw rpcError.internal("Website operation failed");
 }
 
 interface EventsCheckResult {
-	hasEvents: boolean;
 	error: string | null;
+	hasEvents: boolean;
 }
 
 async function getTrackingEventsStatus(
@@ -86,11 +86,11 @@ const buildStatusMessage = (hasEvents: boolean, eventsError: string | null) => {
 	return "Tracking not set up. Please install the script tag.";
 };
 
-interface ChartDataPoint {
-	websiteId: string;
+interface ChartDataRow {
 	date: string;
-	value: number;
 	hasAnyData: number;
+	value: number;
+	websiteId: string;
 }
 
 const calculateAverage = (values: { value: number }[]) =>
@@ -106,6 +106,13 @@ const websiteStatusOutputSchema = z.enum([
 	"PENDING",
 ]);
 
+const websiteSettingsSchema = z
+	.object({
+		allowedOrigins: z.array(z.string()).optional(),
+		allowedIps: z.array(z.string()).optional(),
+	})
+	.nullable();
+
 const websiteOutputSchema = z.object({
 	id: z.string(),
 	domain: z.string(),
@@ -114,10 +121,10 @@ const websiteOutputSchema = z.object({
 	isPublic: z.boolean(),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-	organizationId: z.string().optional(),
+	organizationId: z.string(),
 	deletedAt: z.coerce.date().nullable(),
-	integrations: z.unknown().nullable().optional(),
-	settings: z.unknown().nullable().optional(),
+	integrations: z.record(z.string(), z.unknown()).nullable(),
+	settings: websiteSettingsSchema,
 });
 
 const processedMiniChartDataSchema = z.object({
@@ -178,31 +185,30 @@ const calculateTrend = (dataPoints: { date: string; value: number }[]) => {
 };
 
 interface ActiveUsersRow {
-	websiteId: string;
 	activeUsers: number;
+	websiteId: string;
 }
 
-const fetchActiveUsers = async (
+const _fetchActiveUsers = async (
 	websiteIds: string[]
 ): Promise<Record<string, number>> => {
 	if (!websiteIds.length) {
 		return {};
 	}
 
-	const query = `
-    SELECT
-      client_id AS websiteId,
-      uniq(anonymous_id) AS activeUsers
-    FROM analytics.events
-    WHERE
-      client_id IN {websiteIds:Array(String)}
-      AND event_name = 'screen_view'
-      AND session_id != ''
-      AND time >= now() - INTERVAL 5 MINUTE
-    GROUP BY client_id
-  `;
-
-	const results = await chQuery<ActiveUsersRow>(query, { websiteIds });
+	const results = await chQuery<ActiveUsersRow>(
+		`SELECT
+			client_id AS websiteId,
+			uniq(anonymous_id) AS activeUsers
+		FROM analytics.events
+		PREWHERE time >= now() - INTERVAL 5 MINUTE
+		WHERE
+			client_id IN {websiteIds:Array(String)}
+			AND event_name = 'screen_view'
+			AND session_id != ''
+		GROUP BY client_id`,
+		{ websiteIds }
+	);
 
 	const activeUsersMap: Record<string, number> = {};
 	for (const id of websiteIds) {
@@ -215,58 +221,49 @@ const fetchActiveUsers = async (
 	return activeUsersMap;
 };
 
-const fetchChartData = async (
+const fetchActiveUsers = cacheable(_fetchActiveUsers, {
+	expireInSec: 60,
+	prefix: "ch:active_users",
+});
+
+const _fetchChartData = async (
 	websiteIds: string[]
 ): Promise<Record<string, ProcessedMiniChartData>> => {
 	if (!websiteIds.length) {
 		return {};
 	}
 
-	const chartQuery = `
-    WITH
-      date_range AS (
-        SELECT arrayJoin(arrayMap(d -> toDate(today()) - d, range(7))) AS date
-      ),
-      aggregated_pageviews AS (
-        SELECT
-          client_id,
-          date,
-          sum(pageviews) AS pageviews
-        FROM analytics.daily_pageviews
-        WHERE client_id IN {websiteIds:Array(String)}
-          AND date >= (today() - 6)
-        GROUP BY client_id, date
-      ),
-      has_any_data AS (
-        SELECT client_id, 1 AS hasData
-        FROM analytics.daily_pageviews
-        WHERE client_id IN {websiteIds:Array(String)}
-          AND pageviews > 0
-        GROUP BY client_id
-      )
-    SELECT
-      all_websites.website_id AS websiteId,
-      toString(date_range.date) AS date,
-      COALESCE(aggregated_pageviews.pageviews, 0) AS value,
-      COALESCE(has_any_data.hasData, 0) AS hasAnyData
-    FROM
-      (SELECT arrayJoin({websiteIds:Array(String)}) AS website_id) AS all_websites
-    CROSS JOIN
-      date_range
-    LEFT JOIN
-      aggregated_pageviews ON all_websites.website_id = aggregated_pageviews.client_id AND date_range.date = aggregated_pageviews.date
-    LEFT JOIN
-      has_any_data ON all_websites.website_id = has_any_data.client_id
-    WHERE
-      date_range.date >= (today() - 6)
-    ORDER BY
-      websiteId,
-      date ASC
-  `;
-
-	const queryResults = await chQuery<ChartDataPoint>(chartQuery, {
-		websiteIds,
-	});
+	const queryResults = await chQuery<ChartDataRow>(
+		`WITH
+			date_range AS (
+				SELECT arrayJoin(arrayMap(d -> toDate(today()) - d, range(7))) AS date
+			),
+			aggregated AS (
+				SELECT
+					client_id,
+					date,
+					sum(pageviews) AS pageviews,
+					1 AS hasData
+				FROM analytics.daily_pageviews
+				WHERE client_id IN {websiteIds:Array(String)}
+					AND date >= (today() - 6)
+				GROUP BY client_id, date
+			)
+		SELECT
+			all_websites.website_id AS websiteId,
+			toString(date_range.date) AS date,
+			COALESCE(aggregated.pageviews, 0) AS value,
+			COALESCE(aggregated.hasData, 0) AS hasAnyData
+		FROM
+			(SELECT arrayJoin({websiteIds:Array(String)}) AS website_id) AS all_websites
+		CROSS JOIN date_range
+		LEFT JOIN aggregated
+			ON all_websites.website_id = aggregated.client_id
+			AND date_range.date = aggregated.date
+		WHERE date_range.date >= (today() - 6)
+		ORDER BY websiteId, date ASC`,
+		{ websiteIds }
+	);
 
 	const groupedData = websiteIds.reduce(
 		(acc, id) => {
@@ -296,18 +293,24 @@ const fetchChartData = async (
 	for (const websiteId of websiteIds) {
 		const { points, hasAnyData } = groupedData[websiteId];
 		const totalViews = points.reduce((sum, point) => sum + point.value, 0);
-		const trend = calculateTrend(points);
 
 		processedData[websiteId] = {
 			data: points,
 			totalViews,
 			hasAnyData,
-			trend,
+			trend: calculateTrend(points),
 		};
 	}
 
 	return processedData;
 };
+
+const fetchChartData = cacheable(_fetchChartData, {
+	expireInSec: 300,
+	prefix: "ch:chart_data",
+	staleWhileRevalidate: true,
+	staleTime: 60,
+});
 
 export const websitesRouter = {
 	list: protectedProcedure
@@ -345,23 +348,31 @@ export const websitesRouter = {
 		.input(z.object({ organizationId: z.string().optional() }).default({}))
 		.output(listWithChartsOutputSchema)
 		.handler(async ({ context, input }) => {
-			const workspace = await withWorkspace(context, {
-				organizationId: input.organizationId,
-				resource: "website",
-				permissions: ["read"],
-			});
+			const workspace = await record("withWorkspace", () =>
+				withWorkspace(context, {
+					organizationId: input.organizationId,
+					resource: "website",
+					permissions: ["read"],
+				})
+			);
 
 			if (!workspace.organizationId) {
 				throw rpcError.badRequest("Organization ID is required");
 			}
 
-			const websitesList = await websiteService.list(workspace.organizationId);
+			const websitesList = await record("websiteService.list", () =>
+				websiteService.list(workspace.organizationId)
+			);
 
 			const websiteIds = websitesList.map((site) => site.id);
-			const [chartData, activeUsers] = await Promise.all([
-				fetchChartData(websiteIds),
-				fetchActiveUsers(websiteIds),
-			]);
+			const [chartData, activeUsers] = await record(
+				"fetchChartsAndActiveUsers",
+				() =>
+					Promise.all([
+						fetchChartData(websiteIds),
+						fetchActiveUsers(websiteIds),
+					])
+			);
 
 			return { websites: websitesList, chartData, activeUsers };
 		}),

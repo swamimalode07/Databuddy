@@ -1,52 +1,41 @@
 "use client";
 
-import { CheckIcon, CopyIcon, HeartbeatIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import {
 	Drawer,
 	DrawerContent,
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getFeatureLabel } from "@/lib/feature-gates";
 import { orpc } from "@/lib/orpc";
+import { CheckIcon, CopyIcon, HeartbeatIcon } from "@databuddy/ui/icons";
+import { Dialog } from "@databuddy/ui/client";
+import { Badge, Skeleton } from "@databuddy/ui";
 
 interface FeatureInviteDialogProps {
-	open: boolean;
-	onOpenChangeAction: (open: boolean) => void;
 	flagKey: string;
+	onOpenChangeAction: (open: boolean) => void;
+	open: boolean;
 }
 
 interface InviteLink {
-	id: string;
-	token: string;
-	status: string;
-	redeemedById: string | null;
 	createdAt: string | Date;
+	id: string;
+	redeemedById: string | null;
+	status: string;
+	token: string;
 }
 
 function InviteLinkRow({ link }: { link: InviteLink }) {
-	const [copied, setCopied] = useState(false);
 	const url = `${globalThis.location?.origin ?? ""}/invite/${link.token}`;
 	const isRedeemed = link.status === "redeemed";
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(url);
-		setCopied(true);
-		toast.success("Invite link copied to clipboard");
-		setTimeout(() => setCopied(false), 2000);
-	};
+	const { isCopied, copyToClipboard } = useCopyToClipboard({
+		onCopy: () => toast.success("Invite link copied to clipboard"),
+	});
 
 	return (
 		<div className="group flex items-center gap-3 rounded border bg-card px-3 py-2.5">
@@ -55,15 +44,15 @@ function InviteLinkRow({ link }: { link: InviteLink }) {
 			</code>
 
 			{isRedeemed ? (
-				<Badge variant="green">Claimed</Badge>
+				<Badge variant="success">Claimed</Badge>
 			) : (
 				<button
 					aria-label="Copy invite link"
 					className="flex size-7 shrink-0 items-center justify-center rounded border bg-secondary text-foreground transition-colors hover:bg-accent"
-					onClick={handleCopy}
+					onClick={() => copyToClipboard(url)}
 					type="button"
 				>
-					{copied ? (
+					{isCopied ? (
 						<CheckIcon className="size-3.5 text-green-600" weight="bold" />
 					) : (
 						<CopyIcon className="size-3.5" weight="duotone" />
@@ -150,12 +139,13 @@ export function FeatureInviteDialog({
 
 	return (
 		<Dialog onOpenChange={onOpenChangeAction} open={open}>
-			<DialogContent className="w-[95vw] max-w-sm sm:w-full">
-				<DialogHeader>
-					<DialogTitle>Your Invites</DialogTitle>
-				</DialogHeader>
-				{content}
-			</DialogContent>
+			<Dialog.Content className="w-[95vw] max-w-sm sm:w-full">
+				<Dialog.Close />
+				<Dialog.Header>
+					<Dialog.Title>Your Invites</Dialog.Title>
+				</Dialog.Header>
+				<Dialog.Body>{content}</Dialog.Body>
+			</Dialog.Content>
 		</Dialog>
 	);
 }

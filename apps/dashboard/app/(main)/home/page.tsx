@@ -1,21 +1,11 @@
 "use client";
 
-import {
-	ArrowClockwiseIcon,
-	GlobeIcon,
-	HouseIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TopBar } from "@/components/layout/top-bar";
 import { WebsiteDialog } from "@/components/website-dialog";
 import { useWebsites } from "@/hooks/use-websites";
 import { cn } from "@/lib/utils";
-import { PageHeader } from "../websites/_components/page-header";
 import { WebsiteCard } from "../websites/_components/website-card";
 import { MonitorsSection } from "./_components/monitors-section";
 import { SmartInsightsSection } from "./_components/smart-insights-section";
@@ -23,14 +13,16 @@ import { SummaryStats } from "./_components/summary-stats";
 import { useGlobalAnalytics } from "./hooks/use-global-analytics";
 import { usePulseStatus } from "./hooks/use-pulse-status";
 import { useSmartInsights } from "./hooks/use-smart-insights";
+import { ArrowClockwiseIcon, GlobeIcon, PlusIcon } from "@databuddy/ui/icons";
+import { Button, Card, EmptyState, Skeleton } from "@databuddy/ui";
 
 function WebsiteCardSkeleton() {
 	return (
 		<Card className="animate-pulse overflow-hidden pt-0">
-			<CardHeader className="dotted-bg gap-0! border-b bg-accent px-3 pt-4 pb-0!">
+			<Card.Header className="dotted-bg gap-0! border-b bg-accent px-3 pt-4 pb-0!">
 				<Skeleton className="mx-auto h-24 w-full rounded sm:h-28" />
-			</CardHeader>
-			<CardContent className="px-4 py-3">
+			</Card.Header>
+			<Card.Content className="px-4 py-3">
 				<div className="flex items-center gap-3">
 					<Skeleton className="size-7 shrink-0 rounded" />
 					<div className="flex min-w-0 flex-1 items-center justify-between gap-2">
@@ -44,7 +36,7 @@ function WebsiteCardSkeleton() {
 						</div>
 					</div>
 				</div>
-			</CardContent>
+			</Card.Content>
 		</Card>
 	);
 }
@@ -101,54 +93,40 @@ export default function HomePage() {
 
 	return (
 		<div className="flex h-full flex-col">
-			<PageHeader
-				description="Overview of your analytics across all websites"
-				icon={<HouseIcon />}
-				right={
-					<>
-						<Button
-							aria-label="Refresh data"
-							disabled={
-								isLoading ||
+			<TopBar.Title>
+				<h1 className="font-semibold text-sm">Overview</h1>
+			</TopBar.Title>
+			<TopBar.Actions>
+				<Button
+					aria-label="Refresh data"
+					disabled={
+						isLoading ||
+						isFetching ||
+						isPulseLoading ||
+						isPulseFetching ||
+						isInsightsLoading
+					}
+					onClick={handleRefetch}
+					size="sm"
+					variant="secondary"
+				>
+					<ArrowClockwiseIcon
+						aria-hidden
+						className={cn(
+							"size-4 shrink-0",
+							(isLoading ||
 								isFetching ||
-								isPulseLoading ||
 								isPulseFetching ||
-								isInsightsLoading
-							}
-							onClick={handleRefetch}
-							size="icon"
-							variant="outline"
-						>
-							<ArrowClockwiseIcon
-								aria-hidden
-								className={cn(
-									"size-4",
-									isLoading ||
-										isFetching ||
-										isPulseFetching ||
-										isInsightsRefreshing
-										? "animate-spin"
-										: ""
-								)}
-							/>
-						</Button>
-						<Button
-							className={cn(
-								"gap-2 px-3 py-2 font-medium sm:px-4 sm:py-2",
-								"bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary",
-								"group relative overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl"
-							)}
-							onClick={() => setDialogOpen(true)}
-							size="default"
-						>
-							<div className="absolute inset-0 -translate-x-full bg-linear-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-700 group-hover:translate-x-full" />
-							<PlusIcon className="relative z-10 size-4 transition-transform duration-300 group-hover:rotate-90" />
-							<span className="relative z-10 truncate">New Website</span>
-						</Button>
-					</>
-				}
-				title="Overview"
-			/>
+								isInsightsRefreshing) &&
+								"animate-spin"
+						)}
+					/>
+				</Button>
+				<Button onClick={() => setDialogOpen(true)} size="sm">
+					<PlusIcon className="size-4 shrink-0" />
+					New Website
+				</Button>
+			</TopBar.Actions>
 
 			<div
 				aria-busy={
@@ -157,9 +135,8 @@ export default function HomePage() {
 					isInsightsLoading ||
 					isInsightsRefreshing
 				}
-				className="flex-1 space-y-6 overflow-y-auto p-3 sm:p-4 lg:p-6"
+				className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-5"
 			>
-				{/* Summary Stats */}
 				<SummaryStats
 					activeMonitors={activeMonitors}
 					averageTrend={averageTrend}
@@ -173,7 +150,7 @@ export default function HomePage() {
 					websiteCount={websiteCount}
 				/>
 
-				<div className="grid gap-6 lg:grid-cols-2">
+				<div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
 					<SmartInsightsSection
 						insights={insights}
 						isError={isInsightsError}
@@ -191,13 +168,14 @@ export default function HomePage() {
 					/>
 				</div>
 
-				{/* Websites Section */}
 				<div className="space-y-4">
 					<div className="flex items-center justify-between">
-						<h2 className="font-semibold text-foreground">Your Websites</h2>
+						<h2 className="font-semibold text-foreground text-sm">
+							Your Websites
+						</h2>
 						{websites.length > 0 && (
 							<Link
-								className="text-muted-foreground text-sm hover:text-foreground"
+								className="text-muted-foreground text-xs hover:text-foreground"
 								href="/websites"
 							>
 								View all
@@ -206,7 +184,7 @@ export default function HomePage() {
 					</div>
 
 					{isLoading && (
-						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						<div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
 							{[1, 2, 3].map((num) => (
 								<WebsiteCardSkeleton key={`skeleton-${num}`} />
 							))}
@@ -242,7 +220,7 @@ export default function HomePage() {
 					{!(isLoading || isError) && websites.length > 0 && (
 						<div
 							aria-live="polite"
-							className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+							className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
 						>
 							{websites.slice(0, 6).map((website) => (
 								<WebsiteCard

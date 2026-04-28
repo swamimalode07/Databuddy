@@ -1,45 +1,42 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import {
-	CheckIcon,
-	CircleNotchIcon,
-	FunnelIcon,
-	PencilSimpleIcon,
-	TrashIcon,
-} from "@phosphor-icons/react";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { EditFunnelDialog } from "@/app/(main)/websites/[id]/funnels/_components/edit-funnel-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useChat } from "@/contexts/chat-context";
 import { useFunnels } from "@/hooks/use-funnels";
 import { cn } from "@/lib/utils";
 import type { CreateFunnelData, Funnel } from "@/types/funnels";
 import type { BaseComponentProps, FunnelStepInput } from "../../types";
+import {
+	CheckIcon,
+	FunnelIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+} from "@databuddy/ui/icons";
+import { Badge, Button, Card } from "@databuddy/ui";
 
 interface FunnelPreviewData {
-	name: string;
 	description?: string | null;
-	steps: FunnelStepInput[];
 	ignoreHistoricData?: boolean;
+	name: string;
+	steps: FunnelStepInput[];
 }
 
 export interface FunnelPreviewProps extends BaseComponentProps {
-	mode: "create" | "update" | "delete";
 	funnel: FunnelPreviewData;
+	mode: "create" | "update" | "delete";
 }
 
 interface ModeConfig {
-	title: string;
+	accent: string;
+	ButtonIcon: Icon;
 	confirmLabel: string;
 	confirmMessage: string;
-	accent: string;
-	variant: "default" | "destructive";
-	ButtonIcon: Icon;
+	title: string;
+	tone?: "destructive";
 }
 
 const MODE_CONFIG: Record<string, ModeConfig> = {
@@ -48,7 +45,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Create",
 		confirmMessage: "Yes, create it",
 		accent: "",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	update: {
@@ -56,7 +52,6 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Update",
 		confirmMessage: "Yes, update it",
 		accent: "border-amber-500/30",
-		variant: "default",
 		ButtonIcon: CheckIcon,
 	},
 	delete: {
@@ -64,7 +59,7 @@ const MODE_CONFIG: Record<string, ModeConfig> = {
 		confirmLabel: "Delete",
 		confirmMessage: "Yes, delete it",
 		accent: "border-destructive/30",
-		variant: "destructive",
+		tone: "destructive",
 		ButtonIcon: TrashIcon,
 	},
 };
@@ -117,9 +112,13 @@ export function FunnelPreviewRenderer({
 		[createAction]
 	);
 
-	const handleUpdateFromDialog = useCallback((_funnel: Funnel) => {
-		setIsDialogOpen(false);
-	}, []);
+	const handleUpdateFromDialog = useCallback(
+		(_funnel: Funnel): Promise<void> => {
+			setIsDialogOpen(false);
+			return Promise.resolve();
+		},
+		[]
+	);
 
 	return (
 		<>
@@ -138,7 +137,7 @@ export function FunnelPreviewRenderer({
 						/>
 					</div>
 					<p className="font-medium text-sm">{config.title}</p>
-					<Badge className="ml-auto text-[10px]" variant="secondary">
+					<Badge className="ml-auto text-[10px]" variant="muted">
 						{funnel.steps.length} steps
 					</Badge>
 				</div>
@@ -169,7 +168,7 @@ export function FunnelPreviewRenderer({
 										<span className="min-w-0 flex-1 truncate text-xs">
 											{step.name}
 										</span>
-										<Badge className="shrink-0 text-[10px]" variant="outline">
+										<Badge className="shrink-0 text-[10px]" variant="default">
 											{step.type === "PAGE_VIEW" ? "Page" : "Event"}
 										</Badge>
 									</div>
@@ -195,16 +194,13 @@ export function FunnelPreviewRenderer({
 						Edit
 					</Button>
 					<Button
-						disabled={isLoading || isConfirming}
+						disabled={isLoading}
+						loading={isConfirming}
 						onClick={handleConfirm}
 						size="sm"
-						variant={config.variant}
+						tone={config.tone}
 					>
-						{isConfirming ? (
-							<CircleNotchIcon className="size-3.5 animate-spin" />
-						) : (
-							<config.ButtonIcon className="size-3.5" weight="bold" />
-						)}
+						<config.ButtonIcon className="size-3.5" weight="bold" />
 						{config.confirmLabel}
 					</Button>
 				</div>

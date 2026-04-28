@@ -1,12 +1,12 @@
 "use client";
 
 import type { LocationData } from "@databuddy/shared/types/website";
-import { GlobeIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { CountryFlag } from "@/components/icon";
-import { Card } from "@/components/ui/card";
 import type { BaseComponentProps } from "../types";
+import { GlobeIcon } from "@databuddy/ui/icons";
+import { Card } from "@databuddy/ui";
 
 const MapComponent = dynamic(
 	() =>
@@ -27,16 +27,16 @@ const MapComponent = dynamic(
 );
 
 export interface CountryItem {
-	name: string;
 	country_code?: string;
-	visitors: number;
+	name: string;
 	pageviews?: number;
 	percentage?: number;
+	visitors: number;
 }
 
 export interface MiniMapProps extends BaseComponentProps {
-	title?: string;
 	countries: CountryItem[];
+	title?: string;
 }
 
 function formatNumber(value: number): string {

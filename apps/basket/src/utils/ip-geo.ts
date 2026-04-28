@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cacheable } from "@databuddy/redis";
+import { cacheable } from "@databuddy/redis/cacheable";
 import { captureError, record } from "@lib/tracing";
 import type { City } from "@maxmind/geoip2-node";
 import {
@@ -120,7 +120,7 @@ function getCloudflareCountry(headers: Headers): string | undefined {
 	if (cfCountry && cfCountry.length === 2) {
 		return cfCountry;
 	}
-	return undefined;
+	return;
 }
 
 function lookupGeoLocation(ip: string): Promise<{

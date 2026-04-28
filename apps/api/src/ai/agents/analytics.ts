@@ -1,40 +1,62 @@
-import { type LanguageModel, stepCountIs } from "ai";
+import { stepCountIs } from "ai";
 import type { AppContext } from "../config/context";
-import { models } from "../config/models";
-import { cachedSystemPrompt } from "../config/prompt-cache";
-import { buildAnalyticsInstructions } from "../prompts/analytics";
+import {
+	type AgentModelKey,
+	ANTHROPIC_CACHE_1H,
+	models,
+} from "../config/models";
+import {
+	buildAnalyticsInstructions,
+	buildFastInstructions,
+} from "../prompts/analytics";
 import { createAnnotationTools } from "../tools/annotations";
-import { executeQueryBuilderTool } from "../tools/execute-query-builder";
 import { executeSqlQueryTool } from "../tools/execute-sql-query";
 import { createFunnelTools } from "../tools/funnels";
 import { getDataTool } from "../tools/get-data";
-import { getTopPagesTool } from "../tools/get-top-pages";
 import { createGoalTools } from "../tools/goals";
 import { createLinksTools } from "../tools/links";
 import { createMemoryTools } from "../tools/memory";
 import { createProfileTools } from "../tools/profiles";
 import { webSearchTool } from "../tools/web-search";
-import type { AgentConfig, AgentContext } from "./types";
+import type { AgentConfig, AgentContext, AgentThinking } from "./types";
 
-function createTools() {
-	return {
-		get_top_pages: getTopPagesTool,
-		get_data: getDataTool,
-		execute_query_builder: executeQueryBuilderTool,
-		execute_sql_query: executeSqlQueryTool,
-		web_search: webSearchTool,
-		...createMemoryTools(),
-		...createProfileTools(),
-		...createFunnelTools(),
-		...createGoalTools(),
-		...createAnnotationTools(),
-		...createLinksTools(),
-	};
-}
+const analyticsTools = {
+	get_data: getDataTool,
+	execute_sql_query: executeSqlQueryTool,
+	web_search: webSearchTool,
+	...createMemoryTools(),
+	...createProfileTools(),
+	...createFunnelTools(),
+	...createGoalTools(),
+	...createAnnotationTools(),
+	...createLinksTools(),
+};
 
 export const maxSteps = 20;
 
-export function createConfig(context: AgentContext): AgentConfig {
+const THINKING_BUDGET: Record<Exclude<AgentThinking, "off">, number> = {
+	low: 2048,
+	medium: 8192,
+	high: 16_384,
+};
+
+function thinkingProviderOptions(
+	thinking: AgentThinking | undefined
+): AgentConfig["providerOptions"] {
+	if (!thinking || thinking === "off") {
+		return;
+	}
+	return {
+		anthropic: {
+			thinking: { type: "enabled", budgetTokens: THINKING_BUDGET[thinking] },
+		},
+	};
+}
+
+export function createConfig(
+	context: AgentContext,
+	modelKey: AgentModelKey = "analytics"
+): AgentConfig {
 	const appContext: AppContext = {
 		userId: context.userId,
 		websiteId: context.websiteId,
@@ -43,14 +65,26 @@ export function createConfig(context: AgentContext): AgentConfig {
 		currentDateTime: new Date().toISOString(),
 		chatId: context.chatId,
 		requestHeaders: context.requestHeaders,
+		billingCustomerId: context.billingCustomerId,
 	};
 
+	const isFast = modelKey === "fast";
+
 	return {
-		model: models.analytics as LanguageModel,
-		system: cachedSystemPrompt(buildAnalyticsInstructions(appContext)),
-		tools: createTools(),
-		stopWhen: stepCountIs(20),
-		temperature: 0.1,
+		model: models[modelKey],
+		system: {
+			role: "system",
+			content: isFast
+				? buildFastInstructions(appContext)
+				: buildAnalyticsInstructions(appContext),
+			providerOptions: ANTHROPIC_CACHE_1H,
+		},
+		tools: isFast ? {} : analyticsTools,
+		stopWhen: stepCountIs(isFast ? 1 : maxSteps),
+		temperature: isFast ? 0.3 : 0.1,
+		providerOptions: isFast
+			? undefined
+			: thinkingProviderOptions(context.thinking),
 		experimental_context: appContext,
 	};
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import type { IconWeight } from "@phosphor-icons/react";
-import { HeartIcon, SparkleIcon } from "@phosphor-icons/react";
+import { HeartIcon, StarIcon } from "@phosphor-icons/react";
 import { SciFiCard } from "@/components/scifi-card";
 
 interface SponsorsHeroProps {
-	totalSponsors: number;
 	featuredSponsors: number;
+	totalSponsors: number;
 }
 
 function formatNumber(num: number): string {
@@ -80,7 +80,7 @@ export default function SponsorsHero({
 					/>
 					<StatCard
 						description="Featured partners"
-						icon={SparkleIcon}
+						icon={StarIcon}
 						label="Featured Sponsors"
 						value={featuredSponsors}
 					/>

@@ -6,6 +6,7 @@ const withMDX = createMDX();
 
 const config: NextConfig = {
 	reactStrictMode: true,
+	transpilePackages: ["@databuddy/ui"],
 	async headers() {
 		return await [
 			{
@@ -102,7 +103,7 @@ const config: NextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https" as const,
-				hostname: "icons.duckduckgo.com",
+				hostname: "www.google.com",
 			},
 			{
 				protocol: "https" as const,
@@ -134,6 +135,7 @@ const config: NextConfig = {
 
 	experimental: {
 		optimizePackageImports: [
+			"@databuddy/ui/icons",
 			"fumadocs-ui",
 			"lucide-react",
 			"@phosphor-icons/react",

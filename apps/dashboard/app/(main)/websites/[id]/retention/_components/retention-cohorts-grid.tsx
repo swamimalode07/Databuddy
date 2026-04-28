@@ -1,10 +1,8 @@
 "use client";
 
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { TableIcon } from "@phosphor-icons/react/dist/ssr/Table";
 import { useMemo } from "react";
-import { EmptyState } from "@/components/empty-state";
-import dayjs from "@/lib/dayjs";
+import { SpinnerIcon, TableIcon } from "@databuddy/ui/icons";
+import { EmptyState, dayjs } from "@databuddy/ui";
 
 interface RetentionCohort {
 	cohort: string;
@@ -99,9 +97,9 @@ export function RetentionCohortsGrid({
 	if (cohorts.length === 0) {
 		return (
 			<EmptyState
-				description="No retention data available for the selected time period"
+				description="No retention data for this time range"
 				icon={<TableIcon className="text-muted-foreground" weight="duotone" />}
-				title="No cohort data"
+				title="No cohorts yet"
 				variant="minimal"
 			/>
 		);

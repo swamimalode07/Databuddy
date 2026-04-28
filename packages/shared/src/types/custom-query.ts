@@ -1,11 +1,3 @@
-/**
- * Custom Query Types
- * Defines the structure for user-built queries against ClickHouse tables
- */
-
-/**
- * Aggregate functions supported in custom queries
- */
 export type AggregateFunction =
 	| "count"
 	| "sum"
@@ -14,22 +6,14 @@ export type AggregateFunction =
 	| "min"
 	| "uniq";
 
-/**
- * Aggregate function metadata for UI
- */
 export interface AggregateFunctionInfo {
-	value: AggregateFunction;
-	label: string;
-	description: string;
-	/** Whether this aggregate requires a specific column (false for count(*)) */
-	requiresColumn: boolean;
-	/** Column types this aggregate can be applied to */
 	applicableTypes: ("string" | "number" | "datetime" | "boolean" | "array")[];
+	description: string;
+	label: string;
+	requiresColumn: boolean;
+	value: AggregateFunction;
 }
 
-/**
- * All available aggregate functions with metadata
- */
 export const AGGREGATE_FUNCTIONS: AggregateFunctionInfo[] = [
 	{
 		value: "count",
@@ -75,9 +59,6 @@ export const AGGREGATE_FUNCTIONS: AggregateFunctionInfo[] = [
 	},
 ];
 
-/**
- * Filter operators for WHERE conditions
- */
 export type CustomQueryOperator =
 	| "eq"
 	| "ne"
@@ -91,21 +72,13 @@ export type CustomQueryOperator =
 	| "in"
 	| "not_in";
 
-/**
- * Operator metadata for UI
- */
 export interface OperatorInfo {
-	value: CustomQueryOperator;
-	label: string;
-	/** Column types this operator can be applied to */
 	applicableTypes: ("string" | "number" | "datetime" | "boolean")[];
-	/** Whether this operator accepts multiple values (for IN) */
+	label: string;
 	multiValue: boolean;
+	value: CustomQueryOperator;
 }
 
-/**
- * All available filter operators with metadata
- */
 export const CUSTOM_QUERY_OPERATORS: OperatorInfo[] = [
 	{
 		value: "eq",
@@ -175,81 +148,47 @@ export const CUSTOM_QUERY_OPERATORS: OperatorInfo[] = [
 	},
 ];
 
-/**
- * A single SELECT expression in the query
- */
 export interface CustomQuerySelect {
-	/** Field name to aggregate (use "*" for count(*)) */
-	field: string;
-	/** Aggregate function to apply */
 	aggregate: AggregateFunction;
-	/** Display alias for the result */
 	alias?: string;
+	field: string;
 }
 
-/**
- * A single WHERE condition in the query
- */
 export interface CustomQueryFilter {
-	/** Field name to filter on */
 	field: string;
-	/** Comparison operator */
 	operator: CustomQueryOperator;
-	/** Value(s) to compare against */
 	value: string | number | (string | number)[];
 }
 
-/**
- * Complete custom query configuration
- */
 export interface CustomQueryConfig {
-	/** Table to query */
-	table: string;
-	/** SELECT expressions with aggregates */
-	selects: CustomQuerySelect[];
-	/** WHERE conditions (AND'd together) */
 	filters?: CustomQueryFilter[];
-	/** GROUP BY fields for breakdown queries */
 	groupBy?: string[];
+	selects: CustomQuerySelect[];
+	table: string;
 }
 
-/**
- * Request payload for custom query API
- */
 export interface CustomQueryRequest {
-	/** The query configuration */
-	query: CustomQueryConfig;
-	/** Start date for time range */
-	startDate: string;
-	/** End date for time range */
 	endDate: string;
-	/** Timezone for date interpretation */
-	timezone?: string;
-	/** Granularity for time-based grouping */
 	granularity?: "hourly" | "daily";
-	/** Maximum rows to return */
 	limit?: number;
+	query: CustomQueryConfig;
+	startDate: string;
+	timezone?: string;
 }
 
-/**
- * Response from custom query API
- */
 export interface CustomQueryResponse {
-	success: boolean;
 	data?: Record<string, unknown>[];
 	error?: string;
 	meta?: {
 		rowCount: number;
 		executionTime: number;
 	};
+	success: boolean;
 }
 
-/**
- * Get operators applicable to a column type
- */
-export function getOperatorsForType(
-	columnType: "string" | "number" | "datetime" | "boolean" | "array"
-): OperatorInfo[] {
+type ColumnType = "string" | "number" | "datetime" | "boolean" | "array";
+
+export function getOperatorsForType(columnType: ColumnType): OperatorInfo[] {
 	return CUSTOM_QUERY_OPERATORS.filter((op) =>
 		op.applicableTypes.includes(
 			columnType as "string" | "number" | "datetime" | "boolean"
@@ -257,11 +196,8 @@ export function getOperatorsForType(
 	);
 }
 
-/**
- * Get aggregate functions applicable to a column type
- */
 export function getAggregatesForType(
-	columnType: "string" | "number" | "datetime" | "boolean" | "array"
+	columnType: ColumnType
 ): AggregateFunctionInfo[] {
 	return AGGREGATE_FUNCTIONS.filter((agg) =>
 		agg.applicableTypes.includes(columnType)

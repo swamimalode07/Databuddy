@@ -1,14 +1,14 @@
 import type React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@databuddy/ui";
 import { BORDER_RADIUS } from "./ui-components";
 
 interface TabLayoutProps {
-	title?: string;
-	description?: string;
-	isLoading?: boolean;
+	actions?: React.ReactNode;
 	children: React.ReactNode;
 	className?: string;
-	actions?: React.ReactNode;
+	description?: string;
+	isLoading?: boolean;
+	title?: string;
 }
 
 export function TabLayout({

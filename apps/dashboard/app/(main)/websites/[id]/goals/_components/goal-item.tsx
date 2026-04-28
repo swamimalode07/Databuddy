@@ -1,45 +1,29 @@
 "use client";
 
+import { List } from "@/components/ui/composables/list";
+import { Skeleton } from "@databuddy/ui";
+import type { Goal } from "@/hooks/use-goals";
+import { formatNumber } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import {
 	DotsThreeIcon,
 	EyeIcon,
 	MouseMiddleClickIcon,
 	PencilSimpleIcon,
 	TrashIcon,
-} from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import { List } from "@/components/ui/composables/list";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { Goal } from "@/hooks/use-goals";
-import { cn } from "@/lib/utils";
+} from "@databuddy/ui/icons";
+import { DropdownMenu } from "@databuddy/ui/client";
 
 interface GoalItemProps {
-	goal: Goal;
 	analytics?: {
 		total_users_entered: number;
 		total_users_completed: number;
 		overall_conversion_rate: number;
 	} | null;
+	goal: Goal;
 	isLoadingAnalytics?: boolean;
-	onEdit: (goal: Goal) => void;
 	onDelete: (goalId: string) => void;
-}
-
-function formatNumber(num: number): string {
-	if (num >= 1_000_000) {
-		return `${(num / 1_000_000).toFixed(1)}M`;
-	}
-	if (num >= 1000) {
-		return `${(num / 1000).toFixed(1)}K`;
-	}
-	return num.toLocaleString();
+	onEdit: (goal: Goal) => void;
 }
 
 const GOAL_TYPE_CONFIG = {
@@ -155,32 +139,28 @@ export function GoalItem({
 
 			<List.Cell action className="pt-0.5">
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							aria-label="Goal actions"
-							className="size-8 opacity-50 hover:opacity-100 data-[state=open]:opacity-100"
-							data-dropdown-trigger
-							size="icon"
-							variant="ghost"
-						>
-							<DotsThreeIcon className="size-5" weight="bold" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-40">
-						<DropdownMenuItem className="gap-2" onClick={() => onEdit(goal)}>
+					<DropdownMenu.Trigger
+						aria-label="Goal actions"
+						className="inline-flex size-8 items-center justify-center gap-1.5 rounded-md bg-transparent p-0 font-medium text-muted-foreground opacity-50 transition-all duration-(--duration-quick) ease-(--ease-smooth) hover:bg-interactive-hover hover:text-foreground hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:opacity-100"
+						data-dropdown-trigger
+					>
+						<DotsThreeIcon className="size-5" weight="bold" />
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end" className="w-40">
+						<DropdownMenu.Item className="gap-2" onClick={() => onEdit(goal)}>
 							<PencilSimpleIcon className="size-4" weight="duotone" />
 							Edit
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
+						</DropdownMenu.Item>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item
 							className="gap-2 text-destructive focus:text-destructive"
 							onClick={() => onDelete(goal.id)}
 							variant="destructive"
 						>
 							<TrashIcon className="size-4 fill-destructive" weight="duotone" />
 							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
 				</DropdownMenu>
 			</List.Cell>
 		</List.Row>
