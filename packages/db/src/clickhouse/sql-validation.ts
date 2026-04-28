@@ -75,7 +75,7 @@ function extractCteNames(sql: string): Set<string> {
 	let match = CTE_PATTERN.exec(sql);
 
 	while (match) {
-		ctes.add((match.at(1) as string).toLowerCase());
+		ctes.add((match[1] as string).toLowerCase());
 		match = CTE_PATTERN.exec(sql);
 	}
 
@@ -91,10 +91,10 @@ function extractRelationReferences(sql: string): {
 	let match = RELATION_PATTERN.exec(sql);
 
 	while (match) {
-		const raw = match.at(1) as string;
+		const raw = match[1] as string;
 		refs.push({
 			name: normalizeRelationName(raw),
-			isFunction: Boolean(match.at(2)),
+			isFunction: Boolean(match[2]),
 			raw,
 		});
 		match = RELATION_PATTERN.exec(sql);

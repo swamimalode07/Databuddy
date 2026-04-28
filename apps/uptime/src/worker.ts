@@ -40,6 +40,7 @@ export interface UptimeWorkerDeps {
 	sendUptimeTransitionEmailsIfNeeded: (options: {
 		schedule: ScheduleData;
 		data: UptimeData;
+		previousStatus?: number;
 	}) => Promise<void>;
 }
 
@@ -134,6 +135,7 @@ export async function processUptimeCheck(
 		await deps.sendUptimeTransitionEmailsIfNeeded({
 			schedule: schedule.data,
 			data: result.data,
+			previousStatus,
 		});
 	} catch (error) {
 		deps.captureError(error, {

@@ -131,6 +131,7 @@ export async function getPreviousMonitorStatus(
 export async function sendUptimeTransitionEmailsIfNeeded(options: {
 	schedule: ScheduleData;
 	data: UptimeData;
+	previousStatus?: number;
 }): Promise<void> {
 	if (!UPTIME_ENV.isProduction) {
 		return;
@@ -138,6 +139,13 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 
 	const apiKey = process.env.RESEND_API_KEY;
 	if (!apiKey) {
+		return;
+	}
+
+	if (
+		options.previousStatus !== undefined &&
+		resolveTransitionKind(options.previousStatus, options.data.status) === null
+	) {
 		return;
 	}
 
