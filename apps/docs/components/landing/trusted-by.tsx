@@ -58,6 +58,7 @@ const companies = [
 	},
 	{
 		name: "Orchid",
+		badge: "YC W23",
 		url: "https://orchid.ai",
 		logo: "/social/orchid.png",
 	},
