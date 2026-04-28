@@ -2,10 +2,12 @@
 
 import { CheckIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { useFfDemoReveal } from "@/components/landing/ff-demo-reveal";
+import {
+	BottomFade,
+	EASE,
+	useRevealOnScroll,
+} from "@/components/landing/demo-primitives";
 import { cn } from "@/lib/utils";
-
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 const ROW_STAGGER_MS = 80;
 
 const FLAGS = [
@@ -16,7 +18,7 @@ const FLAGS = [
 ] as const;
 
 export function FFInstantRolloutsDemo() {
-	const { ref, visible } = useFfDemoReveal();
+	const { ref, visible } = useRevealOnScroll();
 	const [toggled, setToggled] = useState(false);
 	const [toast, setToast] = useState(false);
 
@@ -111,8 +113,7 @@ export function FFInstantRolloutsDemo() {
 				</span>
 			</div>
 
-			{/* Bottom fade gradient */}
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background/100 via-background/50 to-transparent sm:h-20" />
+			<BottomFade />
 		</div>
 	);
 }

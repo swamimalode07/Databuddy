@@ -1,3 +1,4 @@
+import { BottomFade } from "@/components/landing/demo-primitives";
 import { FlagIcon } from "@phosphor-icons/react/ssr";
 
 const VARIANT_SEGMENTS = [
@@ -115,7 +116,7 @@ export function FFCompactFlagsDashboardDemo() {
 					</div>
 				</div>
 			</div>
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background/100 via-background/50 to-transparent sm:h-20" />
+			<BottomFade />
 		</div>
 	);
 }

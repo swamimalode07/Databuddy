@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useFfDemoReveal } from "@/components/landing/ff-demo-reveal";
-
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+import { EASE, useRevealOnScroll } from "@/components/landing/demo-primitives";
 const SPLIT_TRANSITION = "120ms cubic-bezier(0.16, 1, 0.3, 1)";
 
 const BAR_H = 52;
@@ -11,7 +9,7 @@ const ACTIVE_H = 36;
 const INACTIVE_H = 16;
 
 export function FFPercentageRolloutsDemo() {
-	const { ref, visible } = useFfDemoReveal();
+	const { ref, visible } = useRevealOnScroll();
 	const trackRef = useRef<HTMLDivElement>(null);
 	const [percent, setPercent] = useState(30);
 	const draggingRef = useRef(false);

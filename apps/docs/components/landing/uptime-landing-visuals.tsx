@@ -1,5 +1,6 @@
 "use client";
 
+import { EASE } from "@/components/landing/demo-primitives";
 import { type GeoPermissibleObjects, geoNaturalEarth1, geoPath } from "d3-geo";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as topojson from "topojson-client";
@@ -234,7 +235,6 @@ const GAP = 8;
 const STRIDE = ROW_H + GAP;
 const CYCLE_MS = 3200;
 const DUR_MS = 700;
-const ANIM_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 const ALERT_ITEMS = [
 	{
@@ -397,7 +397,7 @@ export function UptimeAlertsStackVisual() {
 					transform: `translateY(${translateY}px)`,
 					transition: noTransition
 						? "none"
-						: `transform ${DUR_MS}ms ${ANIM_EASE}`,
+						: `transform ${DUR_MS}ms ${EASE}`,
 				}}
 			>
 				{ALERT_ITEMS.map((row, i) => {

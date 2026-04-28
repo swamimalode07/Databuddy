@@ -1,3 +1,4 @@
+import { BottomFade, RightFade } from "@/components/landing/demo-primitives";
 import {
 	LightningSlashIcon,
 	RocketLaunchIcon,
@@ -71,8 +72,8 @@ export function FFTemplatesMiniGridDemo() {
 					</div>
 				))}
 			</div>
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background/100 via-background/50 to-transparent sm:h-20" />
-			<div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-background/100 via-background/50 to-transparent sm:w-20" />
+			<BottomFade />
+			<RightFade />
 		</div>
 	);
 }

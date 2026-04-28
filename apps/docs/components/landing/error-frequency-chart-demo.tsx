@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+import { useId } from "react";
+import { EASE, useRevealOnScroll } from "@/components/landing/demo-primitives";
 const DEPLOY_X = 390;
 
 // Orange line — total occurrences. Peaks early, stays elevated, drops sharply after deploy.
@@ -39,28 +38,7 @@ const RED_AREA = `${RED_LINE} L 600 145 L 0 145 Z`;
 export function ErrorFrequencyChartDemo() {
 	const rawId = useId();
 	const id = rawId.replace(/:/g, "");
-	const ref = useRef<HTMLDivElement>(null);
-	const [visible, setVisible] = useState(false);
-
-	useEffect(() => {
-		const el = ref.current;
-		if (!el) {
-			return;
-		}
-		const observer = new IntersectionObserver(
-			(entries) => {
-				const entry = entries[0];
-				if (!entry?.isIntersecting || el.dataset.animated === "true") {
-					return;
-				}
-				el.dataset.animated = "true";
-				setVisible(true);
-			},
-			{ threshold: 0.2, rootMargin: "0px 0px -60px 0px" }
-		);
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, []);
+	const { ref, visible } = useRevealOnScroll();
 
 	return (
 		<div aria-hidden className="w-full" ref={ref}>

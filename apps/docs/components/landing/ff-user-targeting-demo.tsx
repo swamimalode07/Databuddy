@@ -1,8 +1,6 @@
 "use client";
 
-import { useFfDemoReveal } from "@/components/landing/ff-demo-reveal";
-
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+import { EASE, useRevealOnScroll } from "@/components/landing/demo-primitives";
 
 const RULES = [
 	{ property: "plan", operator: "is", value: "pro" },
@@ -11,7 +9,7 @@ const RULES = [
 ] as const;
 
 export function FFUserTargetingDemo() {
-	const { ref, visible } = useFfDemoReveal();
+	const { ref, visible } = useRevealOnScroll();
 
 	return (
 		<div className="relative mt-2" ref={ref}>

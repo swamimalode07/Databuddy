@@ -1,9 +1,7 @@
 "use client";
 
-import { useFfDemoReveal } from "@/components/landing/ff-demo-reveal";
+import { EASE, useRevealOnScroll } from "@/components/landing/demo-primitives";
 import { cn } from "@/lib/utils";
-
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 const BAR_MS = 800;
 
 const VARIANTS = [
@@ -28,7 +26,7 @@ const VARIANTS = [
 ] as const;
 
 export function FFAbTestingDemo() {
-	const { ref, visible } = useFfDemoReveal();
+	const { ref, visible } = useRevealOnScroll();
 
 	return (
 		<div className="relative mt-2" ref={ref}>

@@ -11,8 +11,6 @@ import { cn } from "@/lib/utils";
 export {
 	CELL_TITLE_CLASS,
 	EASE,
-	TABLE_BODY,
-	TABLE_HEADER_ROW,
 	TH,
 	TH_RIGHT,
 } from "@/components/landing/demo-constants";
@@ -44,15 +42,6 @@ export function useRevealOnScroll() {
 	}, []);
 
 	return { ref, visible };
-}
-
-export function revealStyle(visible: boolean, index: number, staggerMs = 100) {
-	return {
-		opacity: visible ? 1 : 0,
-		transform: visible ? "translateY(0)" : "translateY(8px)",
-		transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-		transitionDelay: visible ? `${String(index * staggerMs)}ms` : "0ms",
-	} as const;
 }
 
 export function CardChrome({
@@ -95,37 +84,6 @@ export function RightFade({ className }: { className?: string }) {
 				className
 			)}
 		/>
-	);
-}
-
-export function MaskedTableShell({
-	maskStop = 40,
-	fadeHeight = "h-36",
-	children,
-}: {
-	maskStop?: number;
-	fadeHeight?: string;
-	children: ReactNode;
-}) {
-	return (
-		<section className="relative overflow-hidden rounded backdrop-blur-sm">
-			<div
-				className="pointer-events-none absolute inset-0 z-0 rounded border border-border/50"
-				style={{
-					WebkitMaskImage: `linear-gradient(to bottom, black 0%, black ${String(maskStop)}%, transparent 100%)`,
-					maskImage: `linear-gradient(to bottom, black 0%, black ${String(maskStop)}%, transparent 100%)`,
-				}}
-			/>
-			<div className="relative">
-				{children}
-				<div
-					className={cn(
-						"pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-background/100 via-background/80 to-transparent",
-						fadeHeight
-					)}
-				/>
-			</div>
-		</section>
 	);
 }
 

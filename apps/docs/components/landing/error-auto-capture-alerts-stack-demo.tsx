@@ -1,3 +1,8 @@
+import {
+	BottomFade,
+	CardChrome,
+	RightFade,
+} from "@/components/landing/demo-primitives";
 import { cn } from "@/lib/utils";
 
 type Tone = "danger" | "warning" | "success";
@@ -37,25 +42,6 @@ const COMPACT_ROWS: AlertCardRow[] = [
 		tone: "success",
 	},
 ] as const;
-
-function CardChrome({
-	children,
-	className,
-}: {
-	children: React.ReactNode;
-	className?: string;
-}) {
-	return (
-		<div
-			className={cn(
-				"rounded border border-white/[0.06] bg-white/[0.02]",
-				className
-			)}
-		>
-			{children}
-		</div>
-	);
-}
 
 export function ErrorAutoCaptureAlertsStackDemo() {
 	return (
@@ -121,16 +107,8 @@ export function ErrorAutoCaptureAlertsStackDemo() {
 				))}
 			</div>
 
-			{/* Bottom fade */}
-			<div
-				aria-hidden
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background/100 via-background/50 to-transparent sm:h-20"
-			/>
-			{/* Right fade */}
-			<div
-				aria-hidden
-				className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-linear-to-l from-background/100 via-background/50 to-transparent sm:w-16"
-			/>
+			<BottomFade />
+			<RightFade />
 		</div>
 	);
 }

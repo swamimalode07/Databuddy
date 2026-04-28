@@ -1,3 +1,4 @@
+import { TH, TH_RIGHT } from "@/components/landing/demo-primitives";
 import { cn } from "@/lib/utils";
 
 type StatusTone = "critical" | "warning" | "good";
@@ -66,11 +67,6 @@ const ROWS: {
 		tone: "good",
 	},
 ] as const;
-
-const TH =
-	"px-2 py-2 text-left font-medium font-mono text-xs text-muted-foreground capitalize";
-const TH_RIGHT =
-	"px-2 py-2 text-right font-medium font-mono text-xs text-muted-foreground capitalize";
 
 export function ErrorPerPageBreakdownDemo() {
 	return (

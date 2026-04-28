@@ -1,32 +1,10 @@
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import {
+	BottomFade,
+	CardChrome,
+	RightFade,
+} from "@/components/landing/demo-primitives";
 
 const TAGS = ["/checkout", "Mobile Chrome", "EU"] as const;
-
-const alertBottomFadeClass =
-	"pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background/100 via-background/50 to-transparent sm:h-20";
-
-const alertRightFadeClass =
-	"pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-linear-to-l from-background/100 via-background/50 to-transparent sm:w-16";
-
-function CardChrome({
-	children,
-	className,
-}: {
-	children: ReactNode;
-	className?: string;
-}) {
-	return (
-		<div
-			className={cn(
-				"rounded border border-white/[0.06] bg-white/[0.02]",
-				className
-			)}
-		>
-			{children}
-		</div>
-	);
-}
 
 export function WebVitalsAlertCycleDemo() {
 	return (
@@ -99,8 +77,8 @@ export function WebVitalsAlertCycleDemo() {
 				</CardChrome>
 			</div>
 
-			<div aria-hidden className={alertBottomFadeClass} />
-			<div aria-hidden className={alertRightFadeClass} />
+			<BottomFade />
+			<RightFade />
 		</div>
 	);
 }
