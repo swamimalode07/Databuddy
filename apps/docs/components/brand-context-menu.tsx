@@ -124,7 +124,7 @@ interface BrandContextMenuProps {
 
 export function BrandContextMenu({ children }: BrandContextMenuProps) {
 	return (
-		<ContextMenu>
+		<ContextMenu modal={false}>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
 			<ContextMenuContent className="w-48">
 				<CopyMenuItem
