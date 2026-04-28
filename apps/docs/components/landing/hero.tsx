@@ -88,12 +88,13 @@ export default function Hero({
 			<div className="mx-auto w-full max-w-400 px-4 pt-26 pb-8 sm:px-14 sm:pt-20 lg:px-20 lg:pt-38">
 				<div className="mx-auto flex max-w-360 flex-col items-start space-y-2 text-left">
 					<h1 className="z-10 text-balance font-semibold text-3xl sm:text-5xl md:text-6xl">
-						Privacy-first analytics. One script, no cookies, no consent banners.
+						Stop reading dashboards. Start asking questions.
 					</h1>
 
 					<p className="z-10 max-w-2xl text-muted-foreground text-sm sm:text-base lg:text-lg">
-						Web analytics, error tracking, and feature flags in a single script
-						under 30 KB. GDPR compliant out of the box.
+						Ask questions in plain English. Get charts, reports, and actionable
+						insights - not more tabs to stare at. Privacy-first, under 30 KB, no
+						cookies.
 					</p>
 
 					<div className="flex items-center gap-3 pt-2">
