@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@databuddy/ui";
 import Image from "next/image";
 import Link from "next/link";
 import { FaDiscord, FaXTwitter } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { CCPAIcon } from "./icons/ccpa";
 import { GDPRIcon } from "./icons/gdpr";
-import { SciFiButton } from "./landing/scifi-btn";
 import { Wordmark } from "./landing/wordmark";
 import { LogoContent } from "./logo";
 import { NewsletterForm } from "./newsletter-form";
@@ -14,14 +14,15 @@ import { NewsletterForm } from "./newsletter-form";
 export function Footer() {
 	return (
 		<footer className="border-border border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-			<div className="mx-auto flex max-w-360 flex-col gap-8 px-4 pt-10 sm:px-6 lg:px-8">
+			<div className="mx-auto flex w-full max-w-400 flex-col gap-8 px-4 pt-10 sm:px-14 lg:px-20">
 				{/* CTA Section */}
 				<div
-					className="relative flex h-70 w-full items-start rounded-lg bg-center bg-cover md:h-80"
+					className="relative flex h-70 w-full items-start overflow-hidden rounded-lg bg-center bg-cover md:h-80"
 					style={{
 						backgroundImage: "url('/brand/gradients/cta-bg.png')",
 					}}
 				>
+					<div className="absolute inset-0 bg-black/40" />
 					<Image
 						alt="logo"
 						className="pointer-events-none absolute top-1/2 right-16 hidden -translate-y-1/2 opacity-80 lg:block"
@@ -29,23 +30,31 @@ export function Footer() {
 						src="/brand/logomark/white.svg"
 						width={180}
 					/>
-					<div className="max-w-5xl px-8 pt-8 sm:px-16 md:pt-16">
-						<h2 className="mb-2 text-left font-medium text-2xl leading-tight sm:text-4xl">
+					<div className="relative max-w-5xl px-8 pt-8 sm:px-16 md:pt-16">
+						<h2 className="mb-2 text-left font-medium text-2xl text-white leading-tight sm:text-4xl">
 							All the analytics you need. One click away
 						</h2>
 
-						<p className="mb-6 text-lg text-muted-foreground">
+						<p className="mb-6 text-lg text-white/70">
 							Events, errors, and feature flags in a single privacy-first
 							script.
 						</p>
-						<div className="flex gap-4">
-							<SciFiButton asChild>
-								<a href="https://app.databuddy.cc/login">START FREE</a>
-							</SciFiButton>
-
-							<SciFiButton asChild>
-								<Link href="/contact">CONTACT US</Link>
-							</SciFiButton>
+						<div className="flex gap-3">
+							<Button
+								asChild
+								className="bg-white text-black hover:bg-white/90"
+								size="sm"
+							>
+								<a href="https://app.databuddy.cc/login">Start free</a>
+							</Button>
+							<Button
+								asChild
+								className="border-white/20 bg-white/10 text-white hover:bg-white/20"
+								size="sm"
+								variant="secondary"
+							>
+								<Link href="/contact">Contact us</Link>
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -55,8 +64,8 @@ export function Footer() {
 						<p className="text-muted-foreground text-sm sm:text-base">
 							Privacy-first web analytics without compromising user data.
 						</p>
-						<div className="pt-2 space-y-2">
-							<p className="font-medium text-sm text-foreground">
+						<div className="space-y-2 pt-2">
+							<p className="font-medium text-foreground text-sm">
 								Get product updates
 							</p>
 							<NewsletterForm />
