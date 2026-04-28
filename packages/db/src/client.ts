@@ -85,6 +85,7 @@ function getDb(): DB {
 				max: Number.parseInt(process.env.DB_POOL_MAX ?? "20", 10) || 20,
 				idleTimeoutMillis: 30_000,
 				connectionTimeoutMillis: 5000,
+				application_name: process.env.SERVICE_NAME || "databuddy",
 			})
 		);
 
