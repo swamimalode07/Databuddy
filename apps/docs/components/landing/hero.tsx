@@ -146,10 +146,13 @@ export default function Hero({
 					</div>
 
 					<div className="relative">
-						<div className="group/bunny absolute right-0 bottom-full z-30 mb-0 hidden w-40 max-w-[min(100%,10rem)] cursor-pointer md:right-0 lg:right-20 lg:block">
+						<a
+							className="group/bunny absolute right-0 bottom-full z-30 mb-0 hidden w-40 max-w-[min(100%,10rem)] md:right-0 lg:right-20 lg:block"
+							href="https://app.databuddy.cc/login"
+						>
 							<Image
 								alt="Databunny"
-								className="transition-transform duration-300 group-hover/bunny:scale-110 group-hover/bunny:-rotate-6"
+								className="transition-transform duration-300 group-hover/bunny:scale-110"
 								height={160}
 								src="/brand/bunny/off-black.svg"
 								width={160}
@@ -157,7 +160,7 @@ export default function Hero({
 							<span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 scale-0 whitespace-nowrap rounded-lg border border-border bg-card px-3 py-1.5 font-mono text-xs text-foreground shadow-lg transition-all duration-200 group-hover/bunny:scale-100">
 								hey, ask me anything :)
 							</span>
-						</div>
+						</a>
 						<div className="group relative rounded-sm border border-border/50 bg-card p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
 							<div className="relative min-h-[400px] overflow-hidden rounded bg-muted sm:min-h-[500px] lg:min-h-[600px]">
 								{tabs.map((tab, i) => {
