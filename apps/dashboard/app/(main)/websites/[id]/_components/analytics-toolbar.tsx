@@ -6,7 +6,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { useDateFilters } from "@/hooks/use-date-filters";
 import { cn } from "@/lib/utils";
-import { FiltersSection } from "./filters/filters-section";
 import { Button, SegmentedControl, dayjs } from "@databuddy/ui";
 
 const MAX_HOURLY_DAYS = 7;
@@ -106,56 +105,52 @@ export function AnalyticsToolbar({
 	);
 
 	return (
-		<div className="flex shrink-0 flex-col border-b">
-			<div className="flex items-center gap-2 p-2">
-				<SegmentedControl
-					disabled={isDisabled || isHourlyDisabled}
-					onChange={(v) => setCurrentGranularityAtomState(v)}
-					options={GRANULARITY_OPTIONS}
-					size="sm"
-					value={currentGranularity}
-				/>
+		<div className="flex shrink-0 items-center gap-2 border-b p-2">
+			<SegmentedControl
+				disabled={isDisabled || isHourlyDisabled}
+				onChange={(v) => setCurrentGranularityAtomState(v)}
+				options={GRANULARITY_OPTIONS}
+				size="sm"
+				value={currentGranularity}
+			/>
 
-				<div className="flex h-8 items-center gap-0.5 rounded-md bg-secondary p-0.5">
-					{QUICK_RANGES.map((range) => {
-						const isActive = isQuickRangeActive(range);
-						return (
-							<Button
-								className={cn(
-									"h-6 px-2 text-[11px]",
-									isActive && "bg-background text-foreground shadow-xs hover:bg-background"
-								)}
-								disabled={isDisabled}
-								key={range.label}
-								onClick={() => handleQuickRangeSelect(range)}
-								size="sm"
-								title={range.fullLabel}
-								variant={isActive ? "secondary" : "ghost"}
-							>
-								{range.label}
-							</Button>
-						);
-					})}
-				</div>
-
-				<DateRangePicker
-					className="w-auto"
-					disabled={isDisabled}
-					maxDate={new Date()}
-					minDate={new Date(2020, 0, 1)}
-					onChange={(range) => {
-						if (range?.from && range?.to) {
-							setDateRangeAction({
-								startDate: range.from,
-								endDate: range.to,
-							});
-						}
-					}}
-					value={selectedRange}
-				/>
+			<div className="flex h-8 items-center gap-0.5 rounded-md bg-secondary p-0.5">
+				{QUICK_RANGES.map((range) => {
+					const isActive = isQuickRangeActive(range);
+					return (
+						<Button
+							className={cn(
+								"h-6 px-2 text-[11px]",
+								isActive && "bg-background text-foreground shadow-xs hover:bg-background"
+							)}
+							disabled={isDisabled}
+							key={range.label}
+							onClick={() => handleQuickRangeSelect(range)}
+							size="sm"
+							title={range.fullLabel}
+							variant={isActive ? "secondary" : "ghost"}
+						>
+							{range.label}
+						</Button>
+					);
+				})}
 			</div>
 
-			{!isDisabled && <FiltersSection />}
+			<DateRangePicker
+				className="w-auto"
+				disabled={isDisabled}
+				maxDate={new Date()}
+				minDate={new Date(2020, 0, 1)}
+				onChange={(range) => {
+					if (range?.from && range?.to) {
+						setDateRangeAction({
+							startDate: range.from,
+							endDate: range.to,
+						});
+					}
+				}}
+				value={selectedRange}
+			/>
 		</div>
 	);
 }
