@@ -1,12 +1,14 @@
 "use client";
 
-import { filterOptions } from "@databuddy/shared/lists/filters";
-import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { useAtom } from "jotai";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { getOperatorLabel } from "@/hooks/use-filters";
+import {
+	formatFilterValue,
+	getFieldLabel,
+	getOperatorLabel,
+} from "@/hooks/use-filters";
 import { useSavedFilters } from "@/hooks/use-saved-filters";
 import {
 	dynamicQueryFiltersAtom,
@@ -17,14 +19,6 @@ import { SaveFilterDialog } from "./save-filter-dialog";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
 import { FloppyDiskIcon, PencilIcon } from "@databuddy/ui/icons";
 import { Button } from "@databuddy/ui";
-
-function getFieldLabel(field: string): string {
-	return filterOptions.find((o) => o.value === field)?.label ?? field;
-}
-
-function formatValue(value: DynamicQueryFilter["value"]): string {
-	return Array.isArray(value) ? value.join(", ") : String(value);
-}
 
 export function FiltersSection() {
 	const [filters, setFilters] = useAtom(dynamicQueryFiltersAtom);
@@ -142,14 +136,14 @@ export function FiltersSection() {
 					{filters.map((filter, index) => (
 						<div
 							className="group flex items-center gap-1.5 rounded-md bg-background py-1 pr-1 pl-2.5 text-xs shadow-xs"
-							key={`${filter.field}-${filter.operator}-${formatValue(filter.value)}-${index.toString()}`}
+							key={`${filter.field}-${filter.operator}-${formatFilterValue(filter.value)}-${index.toString()}`}
 						>
 							<span className="font-medium">{getFieldLabel(filter.field)}</span>
 							<span className="text-muted-foreground">
 								{getOperatorLabel(filter.operator)}
 							</span>
 							<span className="max-w-32 truncate font-mono">
-								{formatValue(filter.value)}
+								{formatFilterValue(filter.value)}
 							</span>
 							<button
 								aria-label={`Remove ${getFieldLabel(filter.field)} filter`}

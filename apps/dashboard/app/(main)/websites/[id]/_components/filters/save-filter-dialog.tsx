@@ -1,12 +1,11 @@
 "use client";
 
-import { filterOptions } from "@databuddy/shared/lists/filters";
 import type { DynamicQueryFilter } from "@databuddy/shared/types/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { getOperatorLabel } from "@/hooks/use-filters";
+import { getFieldLabel, getOperatorLabel } from "@/hooks/use-filters";
 import { FloppyDiskIcon } from "@databuddy/ui/icons";
 import { Button, Field, Input } from "@databuddy/ui";
 import { Dialog } from "@databuddy/ui/client";
@@ -19,10 +18,6 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
-
-function getFieldLabel(field: string): string {
-	return filterOptions.find((o) => o.value === field)?.label ?? field;
-}
 
 type EditingFilter = {
 	id: string;

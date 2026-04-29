@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import type { DateRange as DayPickerRange } from "react-day-picker";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -55,21 +55,16 @@ export function AnalyticsToolbar({
 		setDateRangeAction,
 	} = useDateFilters();
 
-	const dateRangeDays = useMemo(
-		() =>
-			dayjs(currentDateRange.endDate).diff(currentDateRange.startDate, "day"),
-		[currentDateRange]
+	const dateRangeDays = dayjs(currentDateRange.endDate).diff(
+		currentDateRange.startDate,
+		"day"
 	);
-
 	const isHourlyDisabled = dateRangeDays > MAX_HOURLY_DAYS;
 
-	const selectedRange: DayPickerRange | undefined = useMemo(
-		() => ({
-			from: currentDateRange.startDate,
-			to: currentDateRange.endDate,
-		}),
-		[currentDateRange]
-	);
+	const selectedRange: DayPickerRange = {
+		from: currentDateRange.startDate,
+		to: currentDateRange.endDate,
+	};
 
 	const handleQuickRangeSelect = useCallback(
 		(range: QuickRange) => {
