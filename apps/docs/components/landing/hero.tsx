@@ -115,14 +115,14 @@ export default function Hero({
 				</div>
 
 				<div className="z-10 mt-5 space-y-0">
-					<div className="flex justify-center">
+					<div className="flex justify-center overflow-x-auto">
 						<div className="relative flex items-center gap-0 rounded-t-lg border-border border-b bg-background">
 							{tabs.map((tab) => {
 								const isActive = activeTab === tab.id;
 								return (
 									<button
 										className={cn(
-											"relative cursor-pointer px-4 py-3 font-medium text-sm transition-colors duration-200 sm:px-6 sm:py-3.5 sm:text-base",
+											"relative cursor-pointer whitespace-nowrap px-2.5 py-2.5 font-medium text-xs transition-colors duration-200 sm:px-6 sm:py-3.5 sm:text-base",
 											isActive
 												? "text-foreground"
 												: "text-muted-foreground hover:text-foreground"
