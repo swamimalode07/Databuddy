@@ -175,8 +175,8 @@ async function pingWebsite(
 
 			const contentType = res.headers.get("content-type");
 			const isJson = contentType?.includes("application/json");
-			const [content, parsedJson] = isJson
-				? await res.json().then((j: unknown) => [JSON.stringify(j), j])
+			const [content, parsedJson]: [string, unknown] = isJson
+				? await res.json().then((j: unknown) => [JSON.stringify(j), j] as [string, unknown])
 				: [await res.text(), undefined];
 
 			const total = performance.now() - start;
@@ -317,16 +317,15 @@ export async function checkUptime(
 		const normalizedUrl = normalizeUrl(url);
 		const timestamp = Date.now();
 
-		const [pingResult, probe] = await Promise.all([
+		const [pingResult, probe, cert] = await Promise.all([
 			pingWebsite(
 				normalizedUrl,
 				options.timeout ?? DEFAULT_TIMEOUT,
 				options.cacheBust ?? false
 			),
 			getProbeMetadata(),
+			checkCertificate(normalizedUrl),
 		]);
-
-		const cert = await checkCertificate(normalizedUrl);
 		const health =
 			pingResult.ok && options.extractHealth
 				? extractHealth(pingResult.parsedJson ?? pingResult.content)
