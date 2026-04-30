@@ -31,7 +31,8 @@ import { randomUUIDv7 } from "bun";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import type { Context } from "../orpc";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import { protectedProcedure, publicProcedure, trackedProcedure } from "../orpc";
+import { setTrackProperties } from "../middleware/track-mutation";
 import {
 	isFullyAuthorized,
 	type Workspace,
@@ -506,7 +507,7 @@ export const flagsRouter = {
 			});
 		}),
 
-	create: protectedProcedure
+	create: trackedProcedure
 		.route({
 			description:
 				"Creates a new feature flag. Requires feature flags plan and scope update permission.",
@@ -518,6 +519,7 @@ export const flagsRouter = {
 		.input(createFlagSchema)
 		.output(flagOutputSchema)
 		.handler(async ({ context, input }) => {
+			setTrackProperties({ type: input.type });
 			const wsId = input.websiteId;
 			const orgId = input.organizationId;
 
@@ -738,7 +740,7 @@ export const flagsRouter = {
 			return newFlag;
 		}),
 
-	update: protectedProcedure
+	update: trackedProcedure
 		.route({
 			description:
 				"Updates an existing flag. Requires scope update permission.",
@@ -750,6 +752,10 @@ export const flagsRouter = {
 		.input(updateFlagSchema)
 		.output(flagOutputSchema)
 		.handler(async ({ context, input }) => {
+			const props: Record<string, unknown> = {};
+			if (input.type) props.type = input.type;
+			if (input.status) props.status = input.status;
+			if (Object.keys(props).length > 0) setTrackProperties(props);
 			const existingFlag = await context.db
 				.select()
 				.from(flags)
@@ -918,7 +924,7 @@ export const flagsRouter = {
 			return updatedFlag;
 		}),
 
-	delete: protectedProcedure
+	delete: trackedProcedure
 		.route({
 			description:
 				"Soft-deletes a flag (archives it). Requires scope delete permission.",
