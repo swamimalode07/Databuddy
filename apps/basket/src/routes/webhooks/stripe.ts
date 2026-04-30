@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { clickHouse } from "@databuddy/db/clickhouse";
 import { Elysia } from "elysia";
 import { useLogger } from "evlog/elysia";
+import { getDailySalt, saltAnonymousId } from "@lib/security";
 import { formatDate, getWebhookConfig, resolveWebsiteId } from "./shared";
 
 const SIGNATURE_TOLERANCE_SECONDS = 300;
@@ -154,14 +155,22 @@ interface AnalyticsMetadata {
 	session_id?: string;
 }
 
-function extractAnalyticsMetadata(
+async function extractAnalyticsMetadata(
 	metadata: Record<string, string> | undefined
-): AnalyticsMetadata {
+): Promise<AnalyticsMetadata> {
 	if (!metadata) {
 		return {};
 	}
+
+	const rawAnonId = metadata.databuddy_anonymous_id;
+	let anonymousId: string | undefined;
+	if (rawAnonId) {
+		const salt = await getDailySalt();
+		anonymousId = saltAnonymousId(rawAnonId, salt);
+	}
+
 	return {
-		anonymous_id: metadata.databuddy_anonymous_id,
+		anonymous_id: anonymousId,
 		session_id: metadata.databuddy_session_id,
 		client_id: metadata.databuddy_client_id,
 	};
@@ -187,7 +196,7 @@ async function handlePaymentIntent(
 	config: WebhookConfig
 ): Promise<void> {
 	const log = useLogger();
-	const metadata = extractAnalyticsMetadata(pi.metadata);
+	const metadata = await extractAnalyticsMetadata(pi.metadata);
 	const customerId = extractCustomerId(pi.customer);
 	const type: "sale" | "subscription" = pi.invoice ? "subscription" : "sale";
 	const amount = (pi.amount_received ?? pi.amount) / 100;
@@ -306,7 +315,7 @@ async function handleInvoicePaid(
 		return;
 	}
 
-	const metadata = extractAnalyticsMetadata(invoice.metadata);
+	const metadata = await extractAnalyticsMetadata(invoice.metadata);
 	const customerId = extractCustomerId(invoice.customer);
 	const amount = invoice.amount_paid / 100;
 	const currency = invoice.currency.toUpperCase();
@@ -359,7 +368,7 @@ async function handleInvoiceFailed(
 	config: WebhookConfig
 ): Promise<void> {
 	const log = useLogger();
-	const metadata = extractAnalyticsMetadata(invoice.metadata);
+	const metadata = await extractAnalyticsMetadata(invoice.metadata);
 	const customerId = extractCustomerId(invoice.customer);
 	const amount = invoice.amount_paid / 100;
 	const currency = invoice.currency.toUpperCase();
@@ -414,7 +423,7 @@ async function handleSubscriptionEvent(
 	eventType: string
 ): Promise<void> {
 	const log = useLogger();
-	const metadata = extractAnalyticsMetadata(sub.metadata);
+	const metadata = await extractAnalyticsMetadata(sub.metadata);
 	const customerId = extractCustomerId(sub.customer);
 	const firstItem = sub.items?.data?.[0];
 	const amount = (firstItem?.price?.unit_amount ?? 0) / 100;
@@ -486,7 +495,7 @@ async function handleRefund(
 	config: WebhookConfig
 ): Promise<void> {
 	const log = useLogger();
-	const metadata = extractAnalyticsMetadata(charge.metadata);
+	const metadata = await extractAnalyticsMetadata(charge.metadata);
 	const customerId = extractCustomerId(charge.customer);
 	const currency = charge.currency.toUpperCase();
 	const refunds = charge.refunds?.data || [];

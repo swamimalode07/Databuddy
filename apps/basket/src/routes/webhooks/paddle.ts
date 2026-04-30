@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { clickHouse } from "@databuddy/db/clickhouse";
 import { Elysia } from "elysia";
 import { useLogger } from "evlog/elysia";
+import { getDailySalt, saltAnonymousId } from "@lib/security";
 import { formatDate, getWebhookConfig, resolveWebsiteId } from "./shared";
 
 interface PaddleTransaction {
@@ -19,15 +20,16 @@ interface PaddleTransaction {
 	id: string;
 }
 
-function extractAnalyticsMetadata(
+async function extractAnalyticsMetadata(
 	data: Record<string, string> | undefined
-): Record<string, string> {
+): Promise<Record<string, string>> {
 	if (!data) {
 		return {};
 	}
 	const result: Record<string, string> = {};
 	if (data.anonymous_id) {
-		result.anonymous_id = data.anonymous_id;
+		const salt = await getDailySalt();
+		result.anonymous_id = saltAnonymousId(data.anonymous_id, salt);
 	}
 	if (data.session_id) {
 		result.session_id = data.session_id;
@@ -88,7 +90,7 @@ async function handleTransaction(
 	config: { ownerId: string; websiteId: string | null }
 ): Promise<void> {
 	const log = useLogger();
-	const metadata = extractAnalyticsMetadata(tx.custom_data);
+	const metadata = await extractAnalyticsMetadata(tx.custom_data);
 	const lineItems = tx.details.line_items || [];
 	const isSubscription = lineItems.some((i) => i?.price?.billing_cycle != null);
 	const type = isSubscription ? "subscription" : "sale";
