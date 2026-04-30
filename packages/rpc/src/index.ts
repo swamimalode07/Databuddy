@@ -9,7 +9,14 @@ export {
 	recordORPCError,
 	setRpcProcedureType,
 } from "./lib/rpc-log-context";
-export { type Context, createRPCContext, sessionProcedure } from "./orpc";
+export { setTrackProperties, setTrackingFn } from "./middleware/track-mutation";
+export {
+	type Context,
+	createRPCContext,
+	sessionProcedure,
+	trackedProcedure,
+	trackedSessionProcedure,
+} from "./orpc";
 export {
 	isFullyAuthorized,
 	type PermissionFor,

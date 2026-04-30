@@ -10,6 +10,7 @@ import {
 	getBillingCustomerId,
 	recordORPCError,
 	setRpcRecordFn,
+	setTrackingFn,
 } from "@databuddy/rpc";
 import cors from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -22,6 +23,7 @@ import { Elysia } from "elysia";
 import { initLogger, log, parseError } from "evlog";
 import { evlog, useLogger } from "evlog/elysia";
 import { applyAuthWideEvent, getResolvedAuth } from "@/lib/auth-wide-event";
+import { trackMutationEvent } from "@/lib/databuddy";
 import { AUTUMN_API_PREFIX, withAutumnApiPath } from "@/lib/autumn-mount";
 import {
 	apiLoggerDrain,
@@ -49,6 +51,7 @@ initLogger({
 
 setChRecordFn(record);
 setRpcRecordFn(record);
+setTrackingFn(trackMutationEvent);
 const pgAcc = new WeakMap<
 	object,
 	[count: number, totalMs: number, maxMs: number]

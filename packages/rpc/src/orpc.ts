@@ -12,6 +12,7 @@ import {
 	setRpcProcedurePath,
 	setRpcProcedureType,
 } from "./lib/rpc-log-context";
+import { fireTrackingEvent } from "./middleware/track-mutation";
 import {
 	type BillingOwner,
 	getBillingOwner,
@@ -119,6 +120,22 @@ export const sessionProcedure = protectedProcedure.use(
 				session: context.session,
 			},
 		});
+	}
+);
+
+export const trackedProcedure = protectedProcedure.use(
+	async ({ context, next, path }) => {
+		const result = await next();
+		fireTrackingEvent(path.join("."), context);
+		return result;
+	}
+);
+
+export const trackedSessionProcedure = sessionProcedure.use(
+	async ({ context, next, path }) => {
+		const result = await next();
+		fireTrackingEvent(path.join("."), context);
+		return result;
 	}
 );
 
