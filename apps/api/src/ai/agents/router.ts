@@ -25,12 +25,12 @@ export async function classifyMessage(
 		return "balanced";
 	}
 
-	if (trimmed.length <= 40 && EXPLICIT_SIMPLE.test(trimmed)) {
-		return "greeter";
-	}
-
 	if (hasToolHistory) {
 		return "balanced";
+	}
+
+	if (trimmed.length <= 40 && EXPLICIT_SIMPLE.test(trimmed)) {
+		return "greeter";
 	}
 
 	try {
