@@ -339,7 +339,9 @@ function TrafficTrendsRechartsPlot({
 		setRefAreaRight(null);
 	};
 
-	const handleInternalCreateAnnotation = async (annotation: CreateAnnotationInput) => {
+	const handleInternalCreateAnnotation = async (
+		annotation: CreateAnnotationInput
+	) => {
 		await onCreateAnnotation(annotation);
 		setShowAnnotationModal(false);
 	};
@@ -498,9 +500,7 @@ function TrafficTrendsRechartsPlot({
 										? dayjs(annotation.xValue).toDate()
 										: dayjs(annotation.xValue).startOf("day").toDate();
 									const rangeEnd = isHourlyBucket
-										? dayjs(
-												annotation.xEndValue || annotation.xValue
-											).toDate()
+										? dayjs(annotation.xEndValue || annotation.xValue).toDate()
 										: dayjs(annotation.xEndValue || annotation.xValue)
 												.endOf("day")
 												.toDate();
@@ -531,8 +531,8 @@ function TrafficTrendsRechartsPlot({
 									let clampedStart = chartFirst.xKey;
 									for (const point of chartData) {
 										const pointDate = dayjs(
-											(point as ChartDataRow & { rawDate?: string })
-												.rawDate || point.date
+											(point as ChartDataRow & { rawDate?: string }).rawDate ||
+												point.date
 										).toDate();
 										const pointCompare = isHourlyBucket
 											? pointDate
@@ -553,8 +553,8 @@ function TrafficTrendsRechartsPlot({
 											continue;
 										}
 										const pointDate = dayjs(
-											(point as ChartDataRow & { rawDate?: string })
-												.rawDate || point.date
+											(point as ChartDataRow & { rawDate?: string }).rawDate ||
+												point.date
 										).toDate();
 										const pointCompare = isHourlyBucket
 											? pointDate
@@ -580,8 +580,7 @@ function TrafficTrendsRechartsPlot({
 													key={annotation.id}
 													label={{
 														value: annotation.text,
-														position:
-															index % 2 === 0 ? "top" : "insideTopLeft",
+														position: index % 2 === 0 ? "top" : "insideTopLeft",
 														fill: annotation.color,
 														fontSize: CHART_ANNOTATION_STYLES.fontSize,
 														fontWeight: CHART_ANNOTATION_STYLES.fontWeight,
@@ -632,9 +631,7 @@ function TrafficTrendsRechartsPlot({
 												offset: CHART_ANNOTATION_STYLES.offset,
 											}}
 											stroke={annotation.color}
-											strokeDasharray={
-												CHART_ANNOTATION_STYLES.strokeDasharray
-											}
+											strokeDasharray={CHART_ANNOTATION_STYLES.strokeDasharray}
 											strokeWidth={CHART_ANNOTATION_STYLES.strokeWidth}
 											x={clampedStart}
 										/>
@@ -645,9 +642,7 @@ function TrafficTrendsRechartsPlot({
 								align="center"
 								formatter={(label) => {
 									const metric = metrics.find((m) => m.label === label);
-									const isHidden = metric
-										? hiddenMetrics[metric.key]
-										: false;
+									const isHidden = metric ? hiddenMetrics[metric.key] : false;
 									return (
 										<span
 											className={chartRechartsInteractiveLegendLabelClassName(
@@ -661,9 +656,7 @@ function TrafficTrendsRechartsPlot({
 								iconSize={chartRechartsLegendIconSize}
 								iconType="circle"
 								onClick={(payload: { value?: string | number }) => {
-									const metric = metrics.find(
-										(m) => m.label === payload.value
-									);
+									const metric = metrics.find((m) => m.label === payload.value);
 									if (metric) {
 										toggleMetric(metric.key as keyof typeof visibleMetrics);
 									}
@@ -912,8 +905,7 @@ export function TrafficTrendsChart({
 					description={
 						<>
 							<p className="text-xs sm:text-sm">
-								{granularity === "hourly" ? "Hourly" : "Daily"} traffic
-								data
+								{granularity === "hourly" ? "Hourly" : "Daily"} traffic data
 							</p>
 							{dateRange.granularity === "hourly" && dateDiff > 7 ? (
 								<div className="mt-1 flex items-start gap-1 text-amber-600 text-xs">
@@ -970,9 +962,7 @@ export function TrafficTrendsChart({
 					errorProps={{
 						description:
 							"We couldn't load traffic data. Try again in a moment.",
-						icon: (
-							<WarningCircleIcon className="size-12" weight="duotone" />
-						),
+						icon: <WarningCircleIcon className="size-12" weight="duotone" />,
 						title: "Something went wrong",
 						variant: "error",
 					}}

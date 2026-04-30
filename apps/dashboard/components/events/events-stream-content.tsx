@@ -753,7 +753,9 @@ export function EventsStreamContent({
 								weight="duotone"
 							/>
 							<Select
-								onValueChange={(v) => setHasProperties(v as HasPropertiesFilter)}
+								onValueChange={(v) =>
+									setHasProperties(v as HasPropertiesFilter)
+								}
 								value={hasProperties}
 							>
 								<SelectTrigger

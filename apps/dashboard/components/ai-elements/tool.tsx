@@ -7,7 +7,11 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
-import { CheckCircleIcon, CircleNotchIcon, XCircleIcon } from "@databuddy/ui/icons";
+import {
+	CheckCircleIcon,
+	CircleNotchIcon,
+	XCircleIcon,
+} from "@databuddy/ui/icons";
 
 export type ToolStatus = "running" | "complete" | "error";
 

@@ -121,7 +121,8 @@ export function AnalyticsToolbar({
 						<Button
 							className={cn(
 								"h-6 px-2 text-[11px]",
-								isActive && "bg-background text-foreground shadow-xs hover:bg-background"
+								isActive &&
+									"bg-background text-foreground shadow-xs hover:bg-background"
 							)}
 							disabled={isDisabled}
 							key={range.label}

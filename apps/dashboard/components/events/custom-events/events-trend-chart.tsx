@@ -396,10 +396,10 @@ export function EventsTrendChart({
 				<Chart className="overflow-hidden rounded-lg">
 					<Chart.Header
 						className="border-sidebar-border/60 bg-sidebar"
-						descriptionClassName="text-sidebar-foreground/70"
-						titleClassName="font-semibold text-base text-sidebar-foreground"
 						description="Loading event trends"
+						descriptionClassName="text-sidebar-foreground/70"
 						title="Events Trend"
+						titleClassName="font-semibold text-base text-sidebar-foreground"
 					/>
 					<Chart.Plot className="p-3 sm:p-4">
 						<div className="h-[260px] w-full animate-pulse rounded bg-muted" />
@@ -415,10 +415,10 @@ export function EventsTrendChart({
 				<Chart className="overflow-hidden rounded-lg">
 					<Chart.Header
 						className="border-sidebar-border/60 bg-sidebar"
-						descriptionClassName="text-sidebar-foreground/70"
-						titleClassName="font-semibold text-base text-sidebar-foreground"
 						description="No data available"
+						descriptionClassName="text-sidebar-foreground/70"
 						title="Events Trend"
+						titleClassName="font-semibold text-base text-sidebar-foreground"
 					/>
 					<Chart.Plot className="p-4">
 						<TableEmptyState
@@ -436,240 +436,244 @@ export function EventsTrendChart({
 
 	return (
 		<div className="rounded-xl bg-secondary p-1.5">
-		<Chart className="overflow-hidden rounded-lg border-sidebar-border">
-			<Chart.Header
-				className="border-sidebar-border/60 bg-sidebar"
-				descriptionClassName="text-sidebar-foreground/70"
-				titleClassName="font-semibold text-base text-sidebar-foreground"
-				description={
-					isByEvent
-						? "Events broken down by type"
-						: "Event occurrences over time"
-				}
-				title="Events Trend"
-			>
-				<div className="flex flex-wrap items-center justify-end gap-1.5">
-					{isFetching && !isLoading && (
-						<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-							<ArrowCounterClockwiseIcon className="size-3 animate-spin" />
-							<span>Updating...</span>
-						</div>
-					)}
-					{isZoomed && (
-						<Button
-							className="h-7 gap-1 px-2 text-xs"
-							onClick={resetZoom}
-							size="sm"
-							variant="secondary"
-						>
-							<ArrowCounterClockwiseIcon className="size-3" weight="bold" />
-							Reset
-						</Button>
-					)}
-					{hasPerEventData ? (
-						<>
-							<SegmentedControl
-								onChange={setChartMode}
-								options={MODE_OPTIONS}
-								size="sm"
-								value={chartMode}
-							/>
-							<SegmentedControl
-								disabled={!isByEvent}
-								onChange={setChartType}
-								options={CHART_TYPE_OPTIONS}
-								size="sm"
-								value={chartType}
-							/>
-						</>
-					) : (
-						<Badge size="sm" variant="muted">
-							Drag to zoom
-						</Badge>
-					)}
-				</div>
-			</Chart.Header>
-
-			{!isByEvent && (
-				<div className="grid grid-cols-2 gap-3 border-b bg-muted/40 px-4 py-3">
-					<div className="space-y-0.5">
-						<p className="font-mono text-[10px] text-muted-foreground uppercase">
-							Total Events
-						</p>
-						<p className="font-semibold text-foreground text-lg tabular-nums">
-							{totalEvents.toLocaleString()}
-						</p>
-					</div>
-					<div className="space-y-0.5">
-						<p className="font-mono text-[10px] text-muted-foreground uppercase">
-							Unique Users
-						</p>
-						<p className="font-semibold text-foreground text-lg tabular-nums">
-							{totalUsers.toLocaleString()}
-						</p>
-					</div>
-				</div>
-			)}
-
-			<Chart.Plot className="relative flex-1 overflow-hidden p-2">
-				<div
-					className="relative select-none"
-					style={{ height: CHART_HEIGHT, minWidth: 300, width: "100%" }}
+			<Chart className="overflow-hidden rounded-lg border-sidebar-border">
+				<Chart.Header
+					className="border-sidebar-border/60 bg-sidebar"
+					description={
+						isByEvent
+							? "Events broken down by type"
+							: "Event occurrences over time"
+					}
+					descriptionClassName="text-sidebar-foreground/70"
+					title="Events Trend"
+					titleClassName="font-semibold text-base text-sidebar-foreground"
 				>
-					<ResponsiveContainer height="100%" width="100%">
-						<ComposedChart
-							className={useBar ? "events-bar-chart" : undefined}
-							data={activeData}
-							margin={{ bottom: 8, left: 0, right: 10, top: 10 }}
-							onMouseDown={handleMouseDown}
-							onMouseMove={handleMouseMove}
-							onMouseUp={handleMouseUp}
-						>
-							<defs>
-								<linearGradient id="colorEvents" x1="0" x2="0" y1="0" y2="1">
-									<stop
-										offset="5%"
-										stopColor={EVENTS_COLOR}
-										stopOpacity={0.3}
-									/>
-									<stop
-										offset="95%"
-										stopColor={EVENTS_COLOR}
-										stopOpacity={0.05}
-									/>
-								</linearGradient>
-								<linearGradient id="colorUsers" x1="0" x2="0" y1="0" y2="1">
-									<stop offset="5%" stopColor={USERS_COLOR} stopOpacity={0.3} />
-									<stop
-										offset="95%"
-										stopColor={USERS_COLOR}
-										stopOpacity={0.05}
-									/>
-								</linearGradient>
-							</defs>
-							<CartesianGrid {...chartCartesianGridDefault} />
-							<XAxis
-								axisLine={false}
-								dataKey="date"
-								dy={5}
-								tick={chartAxisTickDefault}
-								tickLine={false}
-							/>
-							<YAxis
-								allowDecimals={false}
-								axisLine={false}
-								tick={chartAxisTickDefault}
-								tickFormatter={formatYTick}
-								tickLine={false}
-								width={chartAxisYWidthCompact}
-							/>
-							<Tooltip
-								content={
-									<ChartTooltip
-										resolveColor={
-											isByEvent ? resolveEventColor : aggregateColorResolver
-										}
-									/>
-								}
-								cursor={
-									useBar ? { fill: "var(--accent)", opacity: 0.3 } : undefined
-								}
-								wrapperStyle={TOOLTIP_WRAPPER}
-							/>
-							{refAreaLeft && refAreaRight && (
-								<ReferenceArea
-									fill="var(--chart-1)"
-									fillOpacity={0.1}
-									stroke="var(--chart-1)"
-									strokeOpacity={0.3}
-									x1={refAreaLeft}
-									x2={refAreaRight}
+					<div className="flex flex-wrap items-center justify-end gap-1.5">
+						{isFetching && !isLoading && (
+							<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+								<ArrowCounterClockwiseIcon className="size-3 animate-spin" />
+								<span>Updating...</span>
+							</div>
+						)}
+						{isZoomed && (
+							<Button
+								className="h-7 gap-1 px-2 text-xs"
+								onClick={resetZoom}
+								size="sm"
+								variant="secondary"
+							>
+								<ArrowCounterClockwiseIcon className="size-3" weight="bold" />
+								Reset
+							</Button>
+						)}
+						{hasPerEventData ? (
+							<>
+								<SegmentedControl
+									onChange={setChartMode}
+									options={MODE_OPTIONS}
+									size="sm"
+									value={chartMode}
 								/>
-							)}
-							{isByEvent &&
-								eventNames.map((name, index) => {
-									const color = chartSeriesColorAtIndex(index);
-									const hidden = hiddenEvents.has(name);
+								<SegmentedControl
+									disabled={!isByEvent}
+									onChange={setChartType}
+									options={CHART_TYPE_OPTIONS}
+									size="sm"
+									value={chartType}
+								/>
+							</>
+						) : (
+							<Badge size="sm" variant="muted">
+								Drag to zoom
+							</Badge>
+						)}
+					</div>
+				</Chart.Header>
 
-									if (useBar) {
+				{!isByEvent && (
+					<div className="grid grid-cols-2 gap-3 border-b bg-muted/40 px-4 py-3">
+						<div className="space-y-0.5">
+							<p className="font-mono text-[10px] text-muted-foreground uppercase">
+								Total Events
+							</p>
+							<p className="font-semibold text-foreground text-lg tabular-nums">
+								{totalEvents.toLocaleString()}
+							</p>
+						</div>
+						<div className="space-y-0.5">
+							<p className="font-mono text-[10px] text-muted-foreground uppercase">
+								Unique Users
+							</p>
+							<p className="font-semibold text-foreground text-lg tabular-nums">
+								{totalUsers.toLocaleString()}
+							</p>
+						</div>
+					</div>
+				)}
+
+				<Chart.Plot className="relative flex-1 overflow-hidden p-2">
+					<div
+						className="relative select-none"
+						style={{ height: CHART_HEIGHT, minWidth: 300, width: "100%" }}
+					>
+						<ResponsiveContainer height="100%" width="100%">
+							<ComposedChart
+								className={useBar ? "events-bar-chart" : undefined}
+								data={activeData}
+								margin={{ bottom: 8, left: 0, right: 10, top: 10 }}
+								onMouseDown={handleMouseDown}
+								onMouseMove={handleMouseMove}
+								onMouseUp={handleMouseUp}
+							>
+								<defs>
+									<linearGradient id="colorEvents" x1="0" x2="0" y1="0" y2="1">
+										<stop
+											offset="5%"
+											stopColor={EVENTS_COLOR}
+											stopOpacity={0.3}
+										/>
+										<stop
+											offset="95%"
+											stopColor={EVENTS_COLOR}
+											stopOpacity={0.05}
+										/>
+									</linearGradient>
+									<linearGradient id="colorUsers" x1="0" x2="0" y1="0" y2="1">
+										<stop
+											offset="5%"
+											stopColor={USERS_COLOR}
+											stopOpacity={0.3}
+										/>
+										<stop
+											offset="95%"
+											stopColor={USERS_COLOR}
+											stopOpacity={0.05}
+										/>
+									</linearGradient>
+								</defs>
+								<CartesianGrid {...chartCartesianGridDefault} />
+								<XAxis
+									axisLine={false}
+									dataKey="date"
+									dy={5}
+									tick={chartAxisTickDefault}
+									tickLine={false}
+								/>
+								<YAxis
+									allowDecimals={false}
+									axisLine={false}
+									tick={chartAxisTickDefault}
+									tickFormatter={formatYTick}
+									tickLine={false}
+									width={chartAxisYWidthCompact}
+								/>
+								<Tooltip
+									content={
+										<ChartTooltip
+											resolveColor={
+												isByEvent ? resolveEventColor : aggregateColorResolver
+											}
+										/>
+									}
+									cursor={
+										useBar ? { fill: "var(--accent)", opacity: 0.3 } : undefined
+									}
+									wrapperStyle={TOOLTIP_WRAPPER}
+								/>
+								{refAreaLeft && refAreaRight && (
+									<ReferenceArea
+										fill="var(--chart-1)"
+										fillOpacity={0.1}
+										stroke="var(--chart-1)"
+										strokeOpacity={0.3}
+										x1={refAreaLeft}
+										x2={refAreaRight}
+									/>
+								)}
+								{isByEvent &&
+									eventNames.map((name, index) => {
+										const color = chartSeriesColorAtIndex(index);
+										const hidden = hiddenEvents.has(name);
+
+										if (useBar) {
+											return (
+												<Bar
+													dataKey={name}
+													fill={color}
+													hide={hidden}
+													key={name}
+													name={name}
+													stackId="events"
+												/>
+											);
+										}
+
 										return (
-											<Bar
+											<Area
 												dataKey={name}
 												fill={color}
+												fillOpacity={0.1}
 												hide={hidden}
 												key={name}
 												name={name}
-												stackId="events"
+												stroke={color}
+												strokeDasharray={
+													lineDasharrays.find((line) => line.name === name)
+														?.strokeDasharray || "0 0"
+												}
+												strokeWidth={1.5}
+												type="monotone"
 											/>
 										);
-									}
+									})}
+								{!isByEvent && (
+									<Area
+										dataKey="events"
+										fill="url(#colorEvents)"
+										fillOpacity={1}
+										name="Events"
+										stroke={EVENTS_COLOR}
+										strokeDasharray={
+											lineDasharrays.find((line) => line.name === "events")
+												?.strokeDasharray || "0 0"
+										}
+										strokeWidth={2}
+										type="monotone"
+									/>
+								)}
+								{!isByEvent && (
+									<Area
+										dataKey="users"
+										fill="url(#colorUsers)"
+										fillOpacity={1}
+										name="Users"
+										stroke={USERS_COLOR}
+										strokeDasharray={
+											lineDasharrays.find((line) => line.name === "users")
+												?.strokeDasharray || "0 0"
+										}
+										strokeWidth={2}
+										type="monotone"
+									/>
+								)}
+								<Customized component={DasharrayCalculator} />
+							</ComposedChart>
+						</ResponsiveContainer>
+					</div>
+				</Chart.Plot>
 
-									return (
-										<Area
-											dataKey={name}
-											fill={color}
-											fillOpacity={0.1}
-											hide={hidden}
-											key={name}
-											name={name}
-											stroke={color}
-											strokeDasharray={
-												lineDasharrays.find((line) => line.name === name)
-													?.strokeDasharray || "0 0"
-											}
-											strokeWidth={1.5}
-											type="monotone"
-										/>
-									);
-								})}
-							{!isByEvent && (
-								<Area
-									dataKey="events"
-									fill="url(#colorEvents)"
-									fillOpacity={1}
-									name="Events"
-									stroke={EVENTS_COLOR}
-									strokeDasharray={
-										lineDasharrays.find((line) => line.name === "events")
-											?.strokeDasharray || "0 0"
-									}
-									strokeWidth={2}
-									type="monotone"
-								/>
-							)}
-							{!isByEvent && (
-								<Area
-									dataKey="users"
-									fill="url(#colorUsers)"
-									fillOpacity={1}
-									name="Users"
-									stroke={USERS_COLOR}
-									strokeDasharray={
-										lineDasharrays.find((line) => line.name === "users")
-											?.strokeDasharray || "0 0"
-									}
-									strokeWidth={2}
-									type="monotone"
-								/>
-							)}
-							<Customized component={DasharrayCalculator} />
-						</ComposedChart>
-					</ResponsiveContainer>
-				</div>
-			</Chart.Plot>
+				{isByEvent ? (
+					<EventSeriesLegend
+						eventNames={eventNames}
+						hiddenEvents={hiddenEvents}
+						onReset={showAllEvents}
+						onToggle={toggleEvent}
+					/>
+				) : (
+					<AggregateLegend />
+				)}
 
-			{isByEvent ? (
-				<EventSeriesLegend
-					eventNames={eventNames}
-					hiddenEvents={hiddenEvents}
-					onReset={showAllEvents}
-					onToggle={toggleEvent}
-				/>
-			) : (
-				<AggregateLegend />
-			)}
-
-			<style>{`
+				<style>{`
 				.events-bar-chart .recharts-bar {
 					cursor: pointer;
 					transition: opacity 150ms ease-out;
@@ -678,7 +682,7 @@ export function EventsTrendChart({
 					opacity: 0.15;
 				}
 			`}</style>
-		</Chart>
+			</Chart>
 		</div>
 	);
 }

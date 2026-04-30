@@ -100,9 +100,7 @@ function SupportMenu({ collapsed }: { collapsed: boolean }) {
 				</DropdownMenu.Item>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item
-					onClick={() =>
-						window.open("https://cal.com/izadoesdev", "_blank")
-					}
+					onClick={() => window.open("https://cal.com/izadoesdev", "_blank")}
 				>
 					<CalendarIcon className="size-4 shrink-0" />
 					Book a meeting

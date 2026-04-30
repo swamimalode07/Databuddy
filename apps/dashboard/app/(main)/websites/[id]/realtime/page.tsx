@@ -19,7 +19,7 @@ const RealtimeMap = dynamic(
 			</div>
 		),
 		ssr: false,
-	},
+	}
 );
 
 export default function RealtimePage() {
@@ -42,7 +42,7 @@ export default function RealtimePage() {
 			id: "realtime-all",
 			parameters: ["realtime_countries", "active_stats", "realtime_velocity"],
 		},
-		{ refetchInterval: 5000, staleTime: 0, gcTime: 10_000 },
+		{ refetchInterval: 5000, staleTime: 0, gcTime: 10_000 }
 	);
 
 	const countries = ((data as any)?.realtime_countries || []) as Array<{
@@ -73,7 +73,7 @@ export default function RealtimePage() {
 						<span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--chart-4)]/60" />
 						<span className="relative inline-flex size-2.5 rounded-full bg-[var(--chart-4)]" />
 					</span>
-					<span className="text-xs uppercase tracking-widest text-foreground">
+					<span className="text-foreground text-xs uppercase tracking-widest">
 						Realtime
 					</span>
 				</div>
@@ -83,15 +83,13 @@ export default function RealtimePage() {
 						<span className="font-bold text-4xl text-foreground tabular-nums">
 							{activeUsers}
 						</span>
-						<span className="ml-1.5 text-xs text-muted-foreground">
-							users
-						</span>
+						<span className="ml-1.5 text-muted-foreground text-xs">users</span>
 					</div>
 					<div className="rounded-lg bg-background/80 px-3 py-2.5 text-right backdrop-blur-sm">
 						<span className="font-bold text-2xl text-foreground tabular-nums">
 							{viewsPerMin}
 						</span>
-						<span className="ml-1.5 text-xs text-muted-foreground">
+						<span className="ml-1.5 text-muted-foreground text-xs">
 							views/m
 						</span>
 					</div>
@@ -99,7 +97,7 @@ export default function RealtimePage() {
 						<span className="font-bold text-2xl text-foreground tabular-nums">
 							{eventsPerMin}
 						</span>
-						<span className="ml-1.5 text-xs text-muted-foreground">
+						<span className="ml-1.5 text-muted-foreground text-xs">
 							events/m
 						</span>
 					</div>
