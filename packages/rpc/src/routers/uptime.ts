@@ -4,7 +4,8 @@ import { randomUUIDv7 } from "bun";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import { logger } from "../lib/logger";
-import { protectedProcedure } from "../orpc";
+import { protectedProcedure, trackedProcedure } from "../orpc";
+import { setTrackProperties } from "../middleware/track-mutation";
 import { withFeatureAccess } from "../procedures/with-feature-access";
 import { withWorkspace } from "../procedures/with-workspace";
 import {
@@ -22,6 +23,7 @@ import {
 } from "../services/uptime-scheduler";
 
 const monitorsProcedure = protectedProcedure.use(withFeatureAccess("monitors"));
+const trackedMonitorsProcedure = trackedProcedure.use(withFeatureAccess("monitors"));
 
 const granularityEnum = z.enum([
 	"minute",
@@ -200,7 +202,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	createSchedule: monitorsProcedure
+	createSchedule: trackedMonitorsProcedure
 		.route({
 			description:
 				"Creates an uptime monitor. Requires workspace update permission.",
@@ -227,6 +229,7 @@ export const uptimeRouter = {
 		)
 		.output(scheduleOutputSchema)
 		.handler(async ({ context, input }) => {
+			setTrackProperties({ granularity: input.granularity });
 			const organizationId =
 				input.organizationId?.trim() || context.organizationId || null;
 			if (!organizationId) {
@@ -284,7 +287,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	updateSchedule: monitorsProcedure
+	updateSchedule: trackedMonitorsProcedure
 		.route({
 			description: "Updates an uptime schedule. Requires update permission.",
 			method: "POST",
@@ -360,7 +363,7 @@ export const uptimeRouter = {
 			};
 		}),
 
-	deleteSchedule: monitorsProcedure
+	deleteSchedule: trackedMonitorsProcedure
 		.route({
 			description: "Deletes an uptime schedule. Requires update permission.",
 			method: "POST",
@@ -379,7 +382,7 @@ export const uptimeRouter = {
 			return { success: true };
 		}),
 
-	togglePause: monitorsProcedure
+	togglePause: trackedMonitorsProcedure
 		.route({
 			description: "Pauses or resumes an uptime schedule.",
 			method: "POST",
@@ -390,6 +393,7 @@ export const uptimeRouter = {
 		.input(z.object({ scheduleId: z.string(), pause: z.boolean() }))
 		.output(z.object({ success: z.literal(true), isPaused: z.boolean() }))
 		.handler(async ({ context, input }) => {
+			setTrackProperties({ paused: input.pause });
 			const schedule = await getScheduleAndAuthorize(input.scheduleId, context);
 
 			if (schedule.isPaused === input.pause) {
@@ -423,7 +427,7 @@ export const uptimeRouter = {
 			return { success: true, isPaused: input.pause };
 		}),
 
-	pauseSchedule: monitorsProcedure
+	pauseSchedule: trackedMonitorsProcedure
 		.route({
 			description: "Pauses an uptime schedule. Legacy compatibility.",
 			method: "POST",
@@ -454,7 +458,7 @@ export const uptimeRouter = {
 			return { success: true, isPaused: true };
 		}),
 
-	transfer: monitorsProcedure
+	transfer: trackedMonitorsProcedure
 		.route({
 			description:
 				"Transfers an uptime monitor to another organization. Requires update permission on source and create on target.",
@@ -505,7 +509,7 @@ export const uptimeRouter = {
 			return { success: true };
 		}),
 
-	manualCheck: monitorsProcedure
+	manualCheck: trackedMonitorsProcedure
 		.route({
 			description:
 				"Triggers an immediate uptime check for a monitor. Monitor must not be paused.",
@@ -525,7 +529,7 @@ export const uptimeRouter = {
 			return { success: true };
 		}),
 
-	resumeSchedule: monitorsProcedure
+	resumeSchedule: trackedMonitorsProcedure
 		.route({
 			description: "Resumes an uptime schedule. Legacy compatibility.",
 			method: "POST",
