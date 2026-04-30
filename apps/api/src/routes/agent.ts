@@ -67,7 +67,6 @@ import {
 	isMemoryEnabled,
 	storeConversation,
 } from "../lib/supermemory";
-import { getRateLimitHeaders, ratelimit } from "@databuddy/redis/rate-limit";
 import { captureError, mergeWideEvent } from "../lib/tracing";
 import { validateWebsite } from "../lib/website-utils";
 
@@ -302,26 +301,9 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					if (!(user || apiKey)) {
 						return jsonError(401, "AUTH_REQUIRED", "Authentication required");
 					}
-					const rateLimitKey = user
-						? `agent-chat:user:${user.id}`
-						: `agent-chat:apikey:${apiKey?.id}`;
 					const userId = user?.id ?? `apikey:${apiKey?.id}`;
 
-					const skipRateLimit =
-						process.env.NODE_ENV === "development" &&
-						process.env.DISABLE_RATE_LIMIT === "1";
-
-					const [websiteValidation, rl] = await Promise.all([
-						validateWebsite(body.websiteId),
-						skipRateLimit
-							? Promise.resolve({
-									success: true,
-									limit: 999,
-									remaining: 999,
-									reset: 0,
-								} as const)
-							: ratelimit(rateLimitKey, 40, 600),
-					]);
+					const websiteValidation = await validateWebsite(body.websiteId);
 
 					if (!(websiteValidation.success && websiteValidation.website)) {
 						return jsonError(
@@ -334,26 +316,7 @@ export const agent = new Elysia({ prefix: "/v1/agent" })
 					const { website } = websiteValidation;
 					organizationId = website.organizationId ?? null;
 
-					if (!rl.success) {
-						mergeWideEvent({ agent_rejected: "rate_limit" });
-						return new Response(
-							JSON.stringify({
-								success: false,
-								error:
-									"Rate limit exceeded. Please wait a moment before sending more messages.",
-								code: "RATE_LIMITED",
-							}),
-							{
-								status: 429,
-								headers: {
-									"Content-Type": "application/json",
-									...getRateLimitHeaders(rl),
-								},
-							}
-						);
-					}
-
-					const resolvePermission = (): Promise<boolean> => {
+const resolvePermission = (): Promise<boolean> => {
 						if (apiKey) {
 							if (hasGlobalAccess(apiKey)) {
 								return Promise.resolve(
