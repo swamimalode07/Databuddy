@@ -13,11 +13,7 @@ import { Elysia, redirect, t } from "elysia";
 import { LRUCache } from "lru-cache";
 import { createHash } from "node:crypto";
 import { UAParser } from "ua-parser-js";
-import {
-	captureError,
-	mergeWideEvent,
-	record,
-} from "../lib/logging";
+import { captureError, mergeWideEvent, record } from "../lib/logging";
 import { sendLinkVisit } from "../lib/producer";
 import { extractIp, getGeo } from "../utils/geo";
 
