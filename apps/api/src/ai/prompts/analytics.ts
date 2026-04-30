@@ -43,7 +43,7 @@ Geo: {"type":"mini-map","title":"…","countries":[{"name":"USA","country_code":
 Links: {"type":"links-list","title":"…","links":[{"id":"1","name":"…","slug":"…","targetUrl":"…","createdAt":"…","expiresAt":null}]}
 Link preview: {"type":"link-preview","mode":"create","link":{"name":"…","targetUrl":"…","slug":"…","expiresAt":"Never"}}
 
-Rules: series lists metric names, rows are [xLabel, v1, v2, …] in series order. For distribution, rows are [label, value]. Pick JSON component OR markdown table for the same data, never both.
+Rules: series lists metric names, rows are [xLabel, v1, v2, …] in series order. For distribution, rows are [label, value]. Pick JSON component OR markdown table for the same data, never both. NEVER wrap JSON components in code fences (no \`\`\`json blocks). Output the raw JSON directly on its own line with no surrounding markup.
 </agent-specific-rules>
 
 <glossary>
