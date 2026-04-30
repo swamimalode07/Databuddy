@@ -176,7 +176,9 @@ async function pingWebsite(
 			const contentType = res.headers.get("content-type");
 			const isJson = contentType?.includes("application/json");
 			const [content, parsedJson]: [string, unknown] = isJson
-				? await res.json().then((j: unknown) => [JSON.stringify(j), j] as [string, unknown])
+				? await res
+						.json()
+						.then((j: unknown) => [JSON.stringify(j), j] as [string, unknown])
 				: [await res.text(), undefined];
 
 			const total = performance.now() - start;
@@ -344,7 +346,9 @@ export async function checkUptime(
 			failure_streak: 0,
 			response_bytes: pingResult.ok ? pingResult.bytes : 0,
 			content_hash: pingResult.ok
-				? new Bun.CryptoHasher("sha256").update(pingResult.content).digest("hex")
+				? new Bun.CryptoHasher("sha256")
+						.update(pingResult.content)
+						.digest("hex")
 				: "",
 			redirect_count: pingResult.ok ? pingResult.redirects : 0,
 			probe_region: probe.region,

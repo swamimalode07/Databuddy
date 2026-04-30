@@ -74,14 +74,14 @@ async function shutdown(signal: string) {
 let uptimeWorker: ReturnType<typeof startUptimeWorker> | null = null;
 
 (async () => {
-	if (!UPTIME_ENV.isProduction) {
+	if (UPTIME_ENV.isProduction) {
+		await syncSchedulers();
+		uptimeWorker = startUptimeWorker();
+	} else {
 		log.info(
 			"lifecycle",
 			`${UPTIME_ENV.environment} mode — worker and scheduler sync disabled`
 		);
-	} else {
-		await syncSchedulers();
-		uptimeWorker = startUptimeWorker();
 	}
 })();
 

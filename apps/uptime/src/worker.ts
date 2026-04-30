@@ -45,7 +45,10 @@ export interface UptimeWorkerDeps {
 		schedule: ScheduleData;
 		data: UptimeData;
 		previousStatus?: number;
-	}) => Promise<{ transition_kind: "down" | "recovered" | null; emails_sent: number }>;
+	}) => Promise<{
+		transition_kind: "down" | "recovered" | null;
+		emails_sent: number;
+	}>;
 }
 
 const uptimeWorkerDeps: UptimeWorkerDeps = {

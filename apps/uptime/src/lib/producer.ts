@@ -7,10 +7,14 @@ let producer: Producer | null = null;
 let connected = false;
 
 async function ensureProducer(): Promise<Producer | null> {
-	if (connected && producer) return producer;
+	if (connected && producer) {
+		return producer;
+	}
 
 	const broker = process.env.REDPANDA_BROKER;
-	if (!broker) return null;
+	if (!broker) {
+		return null;
+	}
 
 	try {
 		const username = process.env.REDPANDA_USER;
@@ -46,16 +50,16 @@ export async function sendUptimeEvent(
 	key?: string
 ): Promise<void> {
 	const p = await ensureProducer();
-	if (!p) return;
+	if (!p) {
+		return;
+	}
 
 	try {
 		await p.send({
 			topic: TOPIC,
 			messages: [
 				{
-					value: JSON.stringify(event, (_k, v) =>
-						v === undefined ? null : v
-					),
+					value: JSON.stringify(event, (_k, v) => (v === undefined ? null : v)),
 					key,
 				},
 			],
@@ -67,7 +71,9 @@ export async function sendUptimeEvent(
 }
 
 export async function disconnectProducer(): Promise<void> {
-	if (!producer) return;
+	if (!producer) {
+		return;
+	}
 	try {
 		await producer.disconnect();
 	} catch (error) {

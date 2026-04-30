@@ -140,10 +140,14 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 }): Promise<TransitionResult> {
 	const none: TransitionResult = { emails_sent: 0, transition_kind: null };
 
-	if (!UPTIME_ENV.isProduction) return none;
+	if (!UPTIME_ENV.isProduction) {
+		return none;
+	}
 
 	const apiKey = process.env.RESEND_API_KEY;
-	if (!apiKey) return none;
+	if (!apiKey) {
+		return none;
+	}
 
 	if (
 		options.previousStatus !== undefined &&
@@ -153,10 +157,14 @@ export async function sendUptimeTransitionEmailsIfNeeded(options: {
 	}
 
 	const kind = await claimTransition(options.schedule.id, options.data.status);
-	if (kind === null) return none;
+	if (kind === null) {
+		return none;
+	}
 
 	const emails = await getOrgOwnerEmails(options.schedule.organizationId);
-	if (emails.length === 0) return { emails_sent: 0, transition_kind: kind };
+	if (emails.length === 0) {
+		return { emails_sent: 0, transition_kind: kind };
+	}
 
 	const siteLabel = buildSiteLabel(options.schedule);
 	const baseUrl = process.env.DASHBOARD_APP_URL ?? "https://app.databuddy.cc";
