@@ -126,10 +126,7 @@ export const RealtimeBuilders: Record<string, SimpleQueryConfig> = {
 			version: "1.0",
 		},
 		table: Analytics.events,
-		fields: [
-			"country as name",
-			"uniq(anonymous_id) as visitors",
-		],
+		fields: ["country as name", "uniq(anonymous_id) as visitors"],
 		where: [
 			"event_name = 'screen_view'",
 			"time >= now() - INTERVAL 5 MINUTE",
@@ -176,11 +173,7 @@ export const RealtimeBuilders: Record<string, SimpleQueryConfig> = {
 			version: "1.0",
 		},
 		table: Analytics.events,
-		fields: [
-			"city",
-			"country",
-			"uniq(anonymous_id) as visitors",
-		],
+		fields: ["city", "country", "uniq(anonymous_id) as visitors"],
 		where: [
 			"event_name = 'screen_view'",
 			"time >= now() - INTERVAL 5 MINUTE",
@@ -261,12 +254,42 @@ export const RealtimeBuilders: Record<string, SimpleQueryConfig> = {
 			category: "Realtime",
 			tags: ["realtime", "sessions", "live", "active"],
 			output_fields: [
-				{ name: "session_id", type: "string", label: "Session", description: "Session identifier" },
-				{ name: "current_page", type: "string", label: "Page", description: "Last visited page" },
-				{ name: "country", type: "string", label: "Country", description: "Visitor country" },
-				{ name: "device_type", type: "string", label: "Device", description: "Device type" },
-				{ name: "pages_viewed", type: "number", label: "Pages", description: "Pages viewed in session" },
-				{ name: "last_seen", type: "datetime", label: "Last Seen", description: "Last activity timestamp" },
+				{
+					name: "session_id",
+					type: "string",
+					label: "Session",
+					description: "Session identifier",
+				},
+				{
+					name: "current_page",
+					type: "string",
+					label: "Page",
+					description: "Last visited page",
+				},
+				{
+					name: "country",
+					type: "string",
+					label: "Country",
+					description: "Visitor country",
+				},
+				{
+					name: "device_type",
+					type: "string",
+					label: "Device",
+					description: "Device type",
+				},
+				{
+					name: "pages_viewed",
+					type: "number",
+					label: "Pages",
+					description: "Pages viewed in session",
+				},
+				{
+					name: "last_seen",
+					type: "datetime",
+					label: "Last Seen",
+					description: "Last activity timestamp",
+				},
 			],
 			default_visualization: "table",
 			supports_granularity: [],
@@ -277,7 +300,7 @@ export const RealtimeBuilders: Record<string, SimpleQueryConfig> = {
 			_startDate: string,
 			_endDate: string,
 			_filters?: Filter[],
-			_granularity?: TimeUnit,
+			_granularity?: TimeUnit
 		) => ({
 			sql: `
 				SELECT

@@ -18,6 +18,7 @@ export interface BaseSessionData {
 export interface ProfileData {
 	browser_name: string;
 	country: string;
+	custom_event_count: number;
 	device_type: string;
 	first_visit: string;
 	last_visit: string;
@@ -26,6 +27,7 @@ export interface ProfileData {
 	region: string;
 	session_count: number;
 	total_events: number;
+	unique_event_names: number;
 	visitor_id: string;
 }
 

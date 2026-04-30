@@ -75,6 +75,8 @@ export const DynamicQueryRequestSchema = t.Object({
 	endDate: t.Optional(t.String()),
 	preset: t.Optional(DatePresetSchema),
 	timeZone: t.Optional(t.String()),
+	sortBy: t.Optional(t.String()),
+	sortOrder: t.Optional(t.Union([t.Literal("asc"), t.Literal("desc")])),
 });
 
 export const CompileRequestSchema = t.Object({
@@ -129,6 +131,8 @@ export interface DynamicQueryRequestType {
 	page?: number;
 	parameters: (string | ParameterWithDatesType)[];
 	preset?: DatePreset;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
 	startDate?: string;
 	timeZone?: string;
 }

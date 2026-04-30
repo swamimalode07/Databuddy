@@ -126,7 +126,8 @@ export type CustomSqlFn = (
 	timezone?: string,
 	filterConditions?: string[],
 	filterParams?: Record<string, Filter["value"]>,
-	helpers?: QueryHelpers
+	helpers?: QueryHelpers,
+	orderBy?: string
 ) => string | { sql: string; params: Record<string, unknown> };
 
 export interface SimpleQueryConfig {

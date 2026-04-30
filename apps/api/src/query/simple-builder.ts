@@ -447,7 +447,8 @@ export class SimpleQueryBuilder {
 				this.request.timezone,
 				whereClause,
 				whereClauseParams,
-				helpers
+				helpers,
+				this.request.orderBy
 			);
 
 			if (typeof result === "string") {

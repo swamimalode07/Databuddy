@@ -813,6 +813,11 @@ async function executeDynamicQuery(
 			};
 		}
 
+		const orderBy =
+			request.sortBy && request.sortOrder
+				? `${request.sortBy} ${request.sortOrder.toUpperCase()}`
+				: undefined;
+
 		return {
 			id,
 			request: {
@@ -831,6 +836,7 @@ async function executeDynamicQuery(
 				timezone,
 				organizationWebsiteIds:
 					isCustomEventsQuery && isOrgCustomEvents ? [] : undefined,
+				orderBy,
 			},
 		};
 	});

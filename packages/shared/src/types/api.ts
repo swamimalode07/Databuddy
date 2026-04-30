@@ -14,6 +14,8 @@ export interface DynamicQueryRequest {
 	limit?: number;
 	page?: number;
 	parameters: (string | ParameterWithDates)[];
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
 }
 
 export interface DynamicQueryFilter {
