@@ -75,6 +75,8 @@ export const createRPCContext = async (
 		apiKey: apiKey ?? undefined,
 		getBilling,
 		organizationId,
+		anonymousId: opts.headers.get("x-databuddy-anonymous-id"),
+		sessionId: opts.headers.get("x-databuddy-session-id"),
 		...opts,
 	};
 };
