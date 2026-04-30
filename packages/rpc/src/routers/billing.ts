@@ -12,7 +12,7 @@ import { rpcError } from "../errors";
 import { getAutumn } from "../lib/autumn-client";
 import { logger } from "../lib/logger";
 import { setTrackProperties } from "../middleware/track-mutation";
-import { protectedProcedure, sessionProcedure, trackedSessionProcedure } from "../orpc";
+import { protectedProcedure, trackedSessionProcedure } from "../orpc";
 import { withWorkspace } from "../procedures/with-workspace";
 import { getBillingOwner } from "../utils/billing";
 
