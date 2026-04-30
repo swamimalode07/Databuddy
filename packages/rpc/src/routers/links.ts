@@ -10,7 +10,8 @@ import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { rpcError } from "../errors";
 import { logger } from "../lib/logger";
-import { type Context, protectedProcedure } from "../orpc";
+import { setTrackProperties } from "../middleware/track-mutation";
+import { type Context, protectedProcedure, trackedProcedure } from "../orpc";
 import { withLinksAccess } from "../procedures/with-workspace";
 
 const generateSlug = customAlphabet(
@@ -304,7 +305,7 @@ export const linksRouter = {
 			return linkRow;
 		}),
 
-	create: protectedProcedure
+	create: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/links/create",
@@ -316,6 +317,7 @@ export const linksRouter = {
 		.input(createLinkSchema)
 		.output(linkOutputSchema)
 		.handler(async ({ context, input }) => {
+			setTrackProperties({ has_expiry: !!input.expiresAt, has_og: !!(input.ogTitle || input.ogImageUrl) });
 			const organizationId =
 				input.organizationId?.trim() || context.organizationId || null;
 			if (!organizationId) {
@@ -392,7 +394,7 @@ export const linksRouter = {
 			throw rpcError.internal("Failed to generate unique slug");
 		}),
 
-	update: protectedProcedure
+	update: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/links/update",
@@ -506,7 +508,7 @@ export const linksRouter = {
 			}
 		}),
 
-	delete: protectedProcedure
+	delete: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/links/delete",

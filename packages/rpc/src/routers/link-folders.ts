@@ -4,7 +4,7 @@ import { randomUUIDv7 } from "bun";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { rpcError } from "../errors";
-import { type Context, protectedProcedure } from "../orpc";
+import { type Context, protectedProcedure, trackedProcedure } from "../orpc";
 import { withLinksAccess } from "../procedures/with-workspace";
 
 const generateFolderSuffix = customAlphabet(
@@ -117,7 +117,7 @@ export const linkFoldersRouter = {
 				.orderBy(asc(linkFolders.name));
 		}),
 
-	create: protectedProcedure
+	create: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/link-folders/create",
@@ -182,7 +182,7 @@ export const linkFoldersRouter = {
 			throw rpcError.internal("Failed to generate unique folder slug");
 		}),
 
-	update: protectedProcedure
+	update: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/link-folders/update",
@@ -220,7 +220,7 @@ export const linkFoldersRouter = {
 			}
 		}),
 
-	delete: protectedProcedure
+	delete: trackedProcedure
 		.route({
 			method: "POST",
 			path: "/link-folders/delete",
