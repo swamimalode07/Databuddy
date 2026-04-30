@@ -43,9 +43,7 @@ export default function ComparePage() {
 					<div className="text-center">
 						<h1 className="mb-4 text-balance font-semibold text-3xl leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
 							Compare{" "}
-							<span className="text-muted-foreground">
-								analytics platforms
-							</span>
+							<span className="text-muted-foreground">analytics platforms</span>
 						</h1>
 						<p className="mx-auto max-w-2xl text-balance text-muted-foreground text-sm leading-relaxed sm:text-base">
 							See how Databuddy stacks up against other analytics platforms.

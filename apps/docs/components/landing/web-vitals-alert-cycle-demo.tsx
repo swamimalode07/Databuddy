@@ -11,7 +11,8 @@ export function WebVitalsAlertCycleDemo() {
 		<div
 			aria-label="Web vitals alert feed preview"
 			className="relative mt-3 w-full overflow-hidden"
-			role="region" tabIndex={-1}
+			role="region"
+			tabIndex={-1}
 		>
 			<div className="space-y-2 sm:space-y-2.5">
 				<CardChrome className="p-3 sm:p-3.5">

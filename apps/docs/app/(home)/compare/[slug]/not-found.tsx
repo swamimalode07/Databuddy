@@ -9,7 +9,6 @@ export default function NotFound() {
 
 	return (
 		<div className="overflow-hidden">
-
 			<Section className="overflow-hidden" customPaddings id="not-found-hero">
 				<section className="relative w-full pt-24 pb-24 sm:pt-32 sm:pb-32">
 					<div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8">

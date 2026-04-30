@@ -1,6 +1,5 @@
 "use client";
 
-
 import { XLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -160,7 +159,6 @@ function TestimonialCardContent({
 					</>
 				) : null}
 			</div>
-
 		</div>
 	);
 }
@@ -225,7 +223,7 @@ export default function Testimonials(): ReactElement {
 					<h2 className="mb-2 font-semibold text-2xl leading-tight tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
 						Why developers are switching
 					</h2>
-					<p className="max-w-2xl text-sm text-muted-foreground sm:text-base lg:text-xl">
+					<p className="max-w-2xl text-muted-foreground text-sm sm:text-base lg:text-xl">
 						2,000+ developers and 500+ websites already made the move from GA4,
 						PostHog, and Plausible.
 					</p>

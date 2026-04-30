@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Section from "@/components/landing/section";
 import { Button } from "@databuddy/ui";
-import { EASE } from "@/components/landing/demo-constants";
 import { cn } from "@/lib/utils";
 
 export {

@@ -1,8 +1,7 @@
 import { SITE_URL } from "@/app/util/constants";
 
 export const homePageSeo = {
-	title:
-		"AI-Native Analytics - Ask Questions, Get Answers, Not Dashboards",
+	title: "AI-Native Analytics - Ask Questions, Get Answers, Not Dashboards",
 	description:
 		"Ask your data anything in plain English. AI agent, error tracking, web vitals, and feature flags in one script under 30 KB. No cookies, GDPR compliant. Open-source Google Analytics alternative.",
 	url: SITE_URL,

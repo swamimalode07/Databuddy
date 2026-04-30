@@ -89,8 +89,7 @@ export function ComparisonPageView({
 				<div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
 					<div className="mb-8 text-center">
 						<h2 className="mb-2 font-semibold text-2xl sm:text-3xl">
-							Feature{" "}
-							<span className="text-muted-foreground">comparison</span>
+							Feature <span className="text-muted-foreground">comparison</span>
 						</h2>
 						<p className="text-muted-foreground text-sm sm:text-base">
 							{featureSectionSubtitle ?? defaultSubtitle}
@@ -129,10 +128,7 @@ export function ComparisonPageView({
 			) : null}
 
 			{faqs.length > 0 ? (
-				<Section
-					className="border-border border-t bg-background/50"
-					id="faq"
-				>
+				<Section className="border-border border-t bg-background/50" id="faq">
 					<div className="mx-auto w-full max-w-400 px-4 sm:px-14 lg:px-20">
 						<SharedFaqSection
 							items={faqs.map((f) => ({

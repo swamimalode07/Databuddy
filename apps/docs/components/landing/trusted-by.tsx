@@ -134,7 +134,9 @@ function useRotatingGrid() {
 	const [nextCompanyIdx, setNextCompanyIdx] = useState(VISIBLE);
 
 	useEffect(() => {
-		if (companies.length <= VISIBLE) return;
+		if (companies.length <= VISIBLE) {
+			return;
+		}
 
 		const id = setInterval(() => {
 			const slotToSwap = Math.floor(Math.random() * VISIBLE);

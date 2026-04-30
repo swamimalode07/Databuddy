@@ -1,10 +1,7 @@
 "use client";
 
 import { Button, Input } from "@databuddy/ui";
-import {
-	CheckIcon,
-	EnvelopeSimpleIcon,
-} from "@databuddy/ui/icons";
+import { CheckIcon, EnvelopeSimpleIcon } from "@databuddy/ui/icons";
 import { useRef, useState } from "react";
 
 type FormStatus = "idle" | "loading" | "success" | "error";

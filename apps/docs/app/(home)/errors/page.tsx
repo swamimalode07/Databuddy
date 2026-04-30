@@ -107,8 +107,8 @@ export default function ErrorsPage() {
 						<TwoColumnGrid>
 							<GridCell>
 								<h3 className={CELL_TITLE_CLASS}>
-									An error hitting 500 users matters more than one hitting 1 user
-									500 times.
+									An error hitting 500 users matters more than one hitting 1
+									user 500 times.
 								</h3>
 								<ErrorImpactTableArtifact />
 							</GridCell>

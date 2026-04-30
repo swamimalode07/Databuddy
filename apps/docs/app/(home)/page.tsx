@@ -77,10 +77,7 @@ export default async function HomePage() {
 					</div>
 				</Section>
 
-				<Section
-					className="border-border border-b"
-					id="mid-cta"
-				>
+				<Section className="border-border border-b" id="mid-cta">
 					<div className={container}>
 						<MidPageCta />
 					</div>

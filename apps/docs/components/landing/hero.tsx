@@ -140,7 +140,11 @@ export default function Hero({
 											<motion.div
 												className="absolute right-0 bottom-0 left-0 h-0.5 bg-foreground"
 												layoutId="hero-tab-indicator"
-												transition={{ type: "spring", stiffness: 500, damping: 35 }}
+												transition={{
+													type: "spring",
+													stiffness: 500,
+													damping: 35,
+												}}
 											/>
 										) : null}
 									</button>
@@ -161,7 +165,7 @@ export default function Hero({
 								src="/brand/bunny/off-black.svg"
 								width={160}
 							/>
-							<span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 scale-0 whitespace-nowrap rounded-lg border border-border bg-card px-3 py-1.5 font-mono text-xs text-foreground shadow-lg transition-all duration-200 group-hover/bunny:scale-100">
+							<span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 scale-0 whitespace-nowrap rounded-lg border border-border bg-card px-3 py-1.5 font-mono text-foreground text-xs shadow-lg transition-all duration-200 group-hover/bunny:scale-100">
 								hey, ask me anything :)
 							</span>
 						</a>

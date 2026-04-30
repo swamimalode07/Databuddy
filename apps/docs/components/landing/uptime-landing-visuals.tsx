@@ -395,9 +395,7 @@ export function UptimeAlertsStackVisual() {
 				style={{
 					gap: GAP,
 					transform: `translateY(${translateY}px)`,
-					transition: noTransition
-						? "none"
-						: `transform ${DUR_MS}ms ${EASE}`,
+					transition: noTransition ? "none" : `transform ${DUR_MS}ms ${EASE}`,
 				}}
 			>
 				{ALERT_ITEMS.map((row, i) => {

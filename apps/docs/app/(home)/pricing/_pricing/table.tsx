@@ -272,9 +272,9 @@ export function PlansComparisonTable({ plans }: Props) {
 			</div>
 			<div className="mt-3 space-y-1 text-muted-foreground text-xs">
 				<p>
-					<span className="text-foreground">What counts as an event?</span>{" "}
-					A pageview, custom event, error, or Web Vital measurement. Feature
-					flag evaluations are free and don't count toward your quota.
+					<span className="text-foreground">What counts as an event?</span> A
+					pageview, custom event, error, or Web Vital measurement. Feature flag
+					evaluations are free and don't count toward your quota.
 				</p>
 				<p>
 					<span className="text-foreground">Agent credits</span> power

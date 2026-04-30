@@ -4,9 +4,7 @@ import {
 	ArrowRightIcon,
 	ArrowUpIcon,
 	ArrowDownIcon,
-	BellIcon,
 	BugIcon,
-	ChatTextIcon,
 	ChartLineUpIcon,
 	EyeIcon,
 	LightbulbIcon,
@@ -19,7 +17,6 @@ import {
 import {
 	BottomFade,
 	CardChrome,
-	RightFade,
 	useRevealOnScroll,
 } from "@/components/landing/demo-primitives";
 import { cn } from "@/lib/utils";
@@ -48,15 +45,13 @@ export function AgentChatDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<div className="space-y-3">
 				<div className="flex items-center gap-2.5 pb-1">
 					<div className="flex size-7 items-center justify-center rounded bg-violet-500/15">
 						<RobotIcon className="size-3.5 text-violet-400" />
 					</div>
-					<span className="font-medium text-foreground text-sm">
-						Databunny
-					</span>
+					<span className="font-medium text-foreground text-sm">Databunny</span>
 					<span className="rounded-full bg-emerald-500/15 px-2 py-0.5 font-mono text-[10px] text-emerald-400">
 						online
 					</span>
@@ -64,13 +59,11 @@ export function AgentChatDemo() {
 
 				{CHAT_MESSAGES.map((msg, i) => (
 					<div
-						key={i}
 						className={cn(
 							"transition-all duration-500",
-							visible
-								? "translate-y-0 opacity-100"
-								: "translate-y-3 opacity-0"
+							visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
 						)}
+						key={i}
 						style={{
 							transitionDelay: visible ? `${i * 120}ms` : "0ms",
 							transitionTimingFunction: EASE,
@@ -131,17 +124,15 @@ export function SuggestedPromptsDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<div className="grid gap-2 sm:grid-cols-2">
 				{SUGGESTED_PROMPTS.map((item, i) => (
 					<CardChrome
-						key={item.label}
 						className={cn(
 							"group flex cursor-default items-start gap-3 p-3 transition-all duration-500",
-							visible
-								? "translate-y-0 opacity-100"
-								: "translate-y-3 opacity-0"
+							visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
 						)}
+						key={item.label}
 					>
 						<span
 							className={cn(
@@ -174,16 +165,19 @@ export function SuggestedPromptsDemo() {
 type InsightTone = "positive" | "negative" | "warning";
 
 interface InsightItem {
-	icon: typeof TrendUpIcon;
-	title: string;
-	description: string;
 	change: string;
-	tone: InsightTone;
+	description: string;
+	icon: typeof TrendUpIcon;
 	metric: string;
 	metricValue: string;
+	title: string;
+	tone: InsightTone;
 }
 
-const TONE_STYLES: Record<InsightTone, { dot: string; text: string; bg: string }> = {
+const TONE_STYLES: Record<
+	InsightTone,
+	{ dot: string; text: string; bg: string }
+> = {
 	positive: {
 		dot: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
 		text: "text-emerald-400",
@@ -215,8 +209,7 @@ const INSIGHT_ITEMS: InsightItem[] = [
 	{
 		icon: BugIcon,
 		title: "Error rate climbing on /checkout",
-		description:
-			"Unhandled exceptions increased 2.8x since yesterday's deploy",
+		description: "Unhandled exceptions increased 2.8x since yesterday's deploy",
 		change: "+180%",
 		tone: "negative",
 		metric: "Errors",
@@ -238,19 +231,19 @@ export function InsightCardsDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<div className="space-y-2 sm:space-y-2.5">
 				{INSIGHT_ITEMS.map((item, i) => {
 					const tone = TONE_STYLES[item.tone];
 					return (
 						<CardChrome
-							key={item.title}
 							className={cn(
 								"p-3 transition-all duration-500 sm:p-3.5",
 								visible
 									? "translate-y-0 opacity-100"
 									: "translate-y-3 opacity-0"
 							)}
+							key={item.title}
 						>
 							<div
 								style={{
@@ -269,7 +262,7 @@ export function InsightCardsDemo() {
 									</span>
 									<div className="min-w-0 flex-1 space-y-1">
 										<div className="flex items-start justify-between gap-2">
-											<span className="font-medium font-medium text-foreground text-xs sm:text-sm">
+											<span className="font-medium text-foreground text-xs sm:text-sm">
 												{item.title}
 											</span>
 											<span
@@ -317,8 +310,7 @@ const PROACTIVE_ALERTS = [
 	{
 		icon: LightbulbIcon,
 		title: "Weekly insight: your best performing page",
-		description:
-			"/blog/launch-post drove 42% of new signups this week",
+		description: "/blog/launch-post drove 42% of new signups this week",
 		time: "6h ago",
 		tone: "info" as const,
 		channel: "Email digest",
@@ -326,8 +318,7 @@ const PROACTIVE_ALERTS = [
 	{
 		icon: TrendUpIcon,
 		title: "Goal reached: 1,000 daily active users",
-		description:
-			"You hit your DAU target for the first time today",
+		description: "You hit your DAU target for the first time today",
 		time: "1d ago",
 		tone: "success" as const,
 		channel: "Slack #growth",
@@ -356,19 +347,19 @@ export function ProactiveAlertsDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<div className="space-y-2 sm:space-y-2.5">
 				{PROACTIVE_ALERTS.map((alert, i) => {
 					const tone = ALERT_TONE[alert.tone];
 					return (
 						<CardChrome
-							key={alert.title}
 							className={cn(
 								"p-3 transition-all duration-500 sm:p-3.5",
 								visible
 									? "translate-y-0 opacity-100"
 									: "translate-y-3 opacity-0"
 							)}
+							key={alert.title}
 						>
 							<div
 								style={{
@@ -387,10 +378,10 @@ export function ProactiveAlertsDemo() {
 									/>
 									<div className="min-w-0 flex-1 space-y-1">
 										<div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
-											<span className="font-medium font-medium text-foreground text-xs sm:text-sm">
+											<span className="font-medium text-foreground text-xs sm:text-sm">
 												{alert.title}
 											</span>
-											<span className="shrink-0 font-medium text-muted-foreground text-[11px] tabular-nums sm:text-xs">
+											<span className="shrink-0 font-medium text-[11px] text-muted-foreground tabular-nums sm:text-xs">
 												{alert.time}
 											</span>
 										</div>
@@ -422,15 +413,15 @@ type AnomalySeverity = "critical" | "warning";
 type AnomalyDirection = "spike" | "drop";
 
 interface AnomalyItem {
-	metric: string;
-	metricIcon: typeof EyeIcon;
-	metricColor: string;
-	severity: AnomalySeverity;
-	direction: AnomalyDirection;
-	current: string;
 	baseline: string;
 	change: string;
+	current: string;
+	direction: AnomalyDirection;
+	metric: string;
+	metricColor: string;
+	metricIcon: typeof EyeIcon;
 	period: string;
+	severity: AnomalySeverity;
 }
 
 const SEVERITY_STYLES: Record<AnomalySeverity, string> = {
@@ -478,17 +469,15 @@ export function AnomalyDetectionDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<div className="space-y-2 sm:space-y-2.5">
 				{ANOMALY_ITEMS.map((item, i) => (
 					<CardChrome
-						key={item.metric}
 						className={cn(
 							"p-3 transition-all duration-500 sm:p-3.5",
-							visible
-								? "translate-y-0 opacity-100"
-								: "translate-y-3 opacity-0"
+							visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
 						)}
+						key={item.metric}
 					>
 						<div
 							style={{
@@ -507,7 +496,7 @@ export function AnomalyDetectionDemo() {
 								</span>
 								<div className="min-w-0 flex-1">
 									<div className="flex flex-wrap items-center gap-2">
-										<span className="font-medium font-medium text-foreground text-xs sm:text-sm">
+										<span className="font-medium text-foreground text-xs sm:text-sm">
 											{item.metric}
 										</span>
 										<span
@@ -574,7 +563,7 @@ export function NarrativeSummaryDemo() {
 	const { ref, visible } = useRevealOnScroll();
 
 	return (
-		<div ref={ref} aria-hidden className="relative mt-3 w-full overflow-hidden">
+		<div aria-hidden className="relative mt-3 w-full overflow-hidden" ref={ref}>
 			<CardChrome
 				className={cn(
 					"p-4 transition-all duration-600 sm:p-5",
@@ -587,7 +576,7 @@ export function NarrativeSummaryDemo() {
 					</span>
 					<div className="min-w-0 flex-1 space-y-2">
 						<div className="flex items-center justify-between">
-							<span className="font-medium font-medium text-foreground text-xs sm:text-sm">
+							<span className="font-medium text-foreground text-xs sm:text-sm">
 								This week across your sites
 							</span>
 							<span className="font-mono text-[10px] text-muted-foreground">
@@ -595,11 +584,11 @@ export function NarrativeSummaryDemo() {
 							</span>
 						</div>
 						<p className="font-mono text-[11px] text-muted-foreground leading-relaxed sm:text-xs">
-							Traffic is up 23% week-over-week, led by organic search.
-							Your /pricing page is converting 2.4x better than last month
-							after the copy change. Error rates are stable except for a
-							brief spike on /checkout Tuesday afternoon (resolved).
-							Mobile bounce rate is trending down for the third week.
+							Traffic is up 23% week-over-week, led by organic search. Your
+							/pricing page is converting 2.4x better than last month after the
+							copy change. Error rates are stable except for a brief spike on
+							/checkout Tuesday afternoon (resolved). Mobile bounce rate is
+							trending down for the third week.
 						</p>
 					</div>
 				</div>

@@ -21,10 +21,12 @@ export function LinksTableDemo() {
 	const [offset, setOffset] = useState(0);
 
 	useEffect(() => {
-		if (LINKS_DATA.length <= VISIBLE_LINKS) return;
+		if (LINKS_DATA.length <= VISIBLE_LINKS) {
+			return;
+		}
 		const id = setInterval(
 			() => setOffset((o) => (o + 1) % LINKS_DATA.length),
-			3000,
+			3000
 		);
 		return () => clearInterval(id);
 	}, []);
@@ -65,7 +67,7 @@ export function LinksTableDemo() {
 								dby.sh{link.slug}
 							</span>
 						</div>
-						<span className="font-mono text-muted-foreground text-[10px] uppercase">
+						<span className="font-mono text-[10px] text-muted-foreground uppercase">
 							{link.ref}
 						</span>
 						<span className="w-12 text-right font-mono text-foreground text-xs tabular-nums">
@@ -107,7 +109,10 @@ export function ReferrerBreakdownDemo() {
 			<div className="mb-4 flex h-2 w-full overflow-hidden rounded-full">
 				{REFERRERS.map((ref) => (
 					<div
-						className={cn("h-full transition-all duration-700 ease-out", ref.color)}
+						className={cn(
+							"h-full transition-all duration-700 ease-out",
+							ref.color
+						)}
 						key={ref.source}
 						style={{ width: animated ? `${String(ref.pct)}%` : "0%" }}
 					/>
@@ -124,7 +129,7 @@ export function ReferrerBreakdownDemo() {
 						<span className="font-mono text-muted-foreground text-xs tabular-nums">
 							{ref.clicks.toLocaleString()}
 						</span>
-						<span className="w-8 text-right font-mono text-muted-foreground text-[10px] tabular-nums">
+						<span className="w-8 text-right font-mono text-[10px] text-muted-foreground tabular-nums">
 							{ref.pct}%
 						</span>
 					</div>
@@ -171,7 +176,7 @@ export function LinkFunnelDemo() {
 							<span className="font-mono text-foreground text-xs">
 								{step.label}
 							</span>
-							<span className="font-mono text-muted-foreground text-[10px] tabular-nums">
+							<span className="font-mono text-[10px] text-muted-foreground tabular-nums">
 								{step.count.toLocaleString()} ({step.pct}%)
 							</span>
 						</div>
@@ -195,7 +200,11 @@ export function LinkFunnelDemo() {
 const UTM_TAGS = [
 	{ key: "source", value: "twitter", color: "bg-blue-500/20 text-blue-400" },
 	{ key: "medium", value: "social", color: "bg-purple-500/20 text-purple-400" },
-	{ key: "campaign", value: "launch-2026", color: "bg-amber-500/20 text-amber-400" },
+	{
+		key: "campaign",
+		value: "launch-2026",
+		color: "bg-amber-500/20 text-amber-400",
+	},
 ];
 
 export function UtmBuilderDemo() {
@@ -204,7 +213,7 @@ export function UtmBuilderDemo() {
 	useEffect(() => {
 		const id = setInterval(
 			() => setActiveIdx((i) => (i + 1) % UTM_TAGS.length),
-			2000,
+			2000
 		);
 		return () => clearInterval(id);
 	}, []);
@@ -223,10 +232,12 @@ export function UtmBuilderDemo() {
 						key={tag.key}
 						transition={{ duration: 0.3 }}
 					>
-						<span className="w-16 font-mono text-muted-foreground text-[10px] uppercase tracking-widest">
+						<span className="w-16 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 							{tag.key}
 						</span>
-						<span className={cn("rounded px-2 py-0.5 font-mono text-xs", tag.color)}>
+						<span
+							className={cn("rounded px-2 py-0.5 font-mono text-xs", tag.color)}
+						>
 							{tag.value}
 						</span>
 					</motion.div>
@@ -281,7 +292,7 @@ export function DeepLinkDemo() {
 	useEffect(() => {
 		const id = setInterval(
 			() => setActiveIdx((i) => (i + 1) % DEEP_LINKS.length),
-			2500,
+			2500
 		);
 		return () => clearInterval(id);
 	}, []);
@@ -297,17 +308,13 @@ export function DeepLinkDemo() {
 							"flex size-8 items-center justify-center rounded-lg border transition-all duration-300",
 							i === activeIdx
 								? "border-border bg-card"
-								: "border-transparent opacity-40",
+								: "border-transparent opacity-40"
 						)}
 						key={dl.app}
 						onClick={() => setActiveIdx(i)}
 						type="button"
 					>
-						<img
-							alt={dl.app}
-							className="size-4 invert"
-							src={dl.icon}
-						/>
+						<img alt={dl.app} className="size-4 invert" src={dl.icon} />
 					</button>
 				))}
 			</div>
@@ -326,9 +333,7 @@ export function DeepLinkDemo() {
 					<div className="font-medium font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 						Input
 					</div>
-					<div className="font-mono text-foreground text-xs">
-						{active.url}
-					</div>
+					<div className="font-mono text-foreground text-xs">{active.url}</div>
 				</div>
 				<div className="border-border/30 border-t pt-2">
 					<div className="font-medium font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
