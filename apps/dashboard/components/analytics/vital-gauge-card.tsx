@@ -257,9 +257,9 @@ export function VitalGaugeCard({
 	return (
 		<Card
 			className={cn(
-				"gap-0 overflow-hidden border bg-card py-0 transition-all",
-				isClickable && "cursor-pointer hover:border-primary",
-				isActive && isClickable && "ring-2 ring-primary/20",
+				"gap-0 bg-card p-1 transition-[opacity,box-shadow,border-color,background-color] duration-150",
+				isClickable && "cursor-pointer",
+				isActive && isClickable && "border-primary/60 shadow-sm shadow-primary/10 bg-primary/[0.02]",
 				!isActive && "opacity-50 grayscale",
 				className
 			)}
@@ -277,7 +277,7 @@ export function VitalGaugeCard({
 			role={isClickable ? "button" : undefined}
 			tabIndex={isClickable ? 0 : undefined}
 		>
-			<div className="dotted-bg relative flex items-center justify-center bg-accent py-3">
+			<div className="dotted-bg relative flex items-center justify-center bg-accent py-3 border rounded-t-lg">
 				{hasValue && rating ? (
 					<GaugeChart
 						formatValue={formatValue}
@@ -293,7 +293,7 @@ export function VitalGaugeCard({
 					</div>
 				)}
 
-				<div className="absolute top-2 right-2">
+				<div className="absolute top-1 right-1">
 					<Tooltip
 						content={
 							<div className="max-w-xs p-0">
@@ -319,7 +319,7 @@ export function VitalGaugeCard({
 										</ul>
 									</div>
 								)}
-								<div className="flex justify-between bg-accent px-3 py-1.5">
+								<div className="flex justify-between bg-card px-3 py-1.5">
 									<span className="text-muted-foreground text-xs">
 										Good: {config.lowerIsBetter === false ? "≥" : "≤"}{" "}
 										{config.name === "CLS"
@@ -369,7 +369,7 @@ export function VitalGaugeCard({
 				)}
 			</div>
 
-			<div className="flex items-center gap-2 border-t px-2.5 py-2">
+			<div className="flex items-center gap-2 px-2.5 py-2">
 				<div className="min-w-0 flex-1">
 					<p className="truncate font-semibold text-sm leading-tight">
 						{config.name}
