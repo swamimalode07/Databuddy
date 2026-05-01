@@ -34,7 +34,7 @@ export function TableTabs<TData>({
 						aria-controls={`tabpanel-${tab.id}`}
 						aria-selected={isActive}
 						className={cn(
-							"-mb-px cursor-pointer border-b-2 px-3 py-2 font-medium text-sm transition-colors hover:text-foreground",
+							"-mb-px cursor-pointer border-b-2 px-3 py-2 font-medium text-sm hover:text-foreground",
 							isActive
 								? "border-foreground text-foreground"
 								: "border-transparent text-muted-foreground"

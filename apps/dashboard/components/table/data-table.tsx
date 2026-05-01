@@ -181,7 +181,7 @@ export function DataTable<TData extends { name: string | number }, TValue>({
 						ref={modalRef}
 						tabIndex={-1}
 					>
-						<div className="absolute inset-0 animate-fadein bg-black/70 backdrop-blur-[3px] transition-opacity" />
+						<div className="absolute inset-0 animate-fadein bg-black/70 backdrop-blur-[3px]" />
 						<div
 							className={cn(
 								"relative flex scale-100 animate-scalein flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-2xl",

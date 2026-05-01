@@ -288,7 +288,7 @@ function TableContentInner<TData extends { name: string | number }>({
 							<Fragment key={row.id}>
 								<TableRow
 									className={cn(
-										"group border-border/60 border-b bg-card transition-[background-color,box-shadow] duration-150 last:border-b-0 hover:bg-accent-brighter/70 hover:shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)]",
+										"group border-border/60 border-b bg-card last:border-b-0 hover:bg-accent-brighter/70 hover:shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)]",
 										isExpanded &&
 											"bg-accent-brighter shadow-[inset_0_1px_0_var(--border),inset_0_-1px_0_var(--border)] hover:bg-accent-brighter",
 										canActivate &&
@@ -336,7 +336,7 @@ function TableContentInner<TData extends { name: string | number }>({
 										return (
 											<TableCell
 												className={cn(
-													"h-9 px-3 py-1.5 text-foreground text-sm leading-5 transition-colors first:pl-3 last:pr-3",
+													"h-9 px-3 py-1.5 text-foreground text-sm leading-5 first:pl-3 last:pr-3",
 													cellIndex === 0 && "font-medium",
 													isCompactColumn && "px-3 text-right tabular-nums",
 													(cell.column.columnDef.meta as any)?.className
